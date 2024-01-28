@@ -1,15 +1,28 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MasterPageComponent } from './pages/master-page/master-page.component';
-
-
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AppRoutingModule } from '../app-routing.module';
+import { IconsProviderModule } from '../shared/providers/icons-provider.module';
+import { NgZorroAntdProviderModule } from '../shared/providers/ng-zorro-antd-provider.module';
 
 @NgModule({
-  declarations: [
-    MasterPageComponent
-  ],
+  declarations: [MasterPageComponent],
   imports: [
-    CommonModule
-  ]
+    CommonModule,
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule,
+    BrowserAnimationsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    IconsProviderModule,
+    NgZorroAntdProviderModule,
+  ],
+  providers: [],
 })
-export class LayoutModule { }
+export class LayoutModule {}
