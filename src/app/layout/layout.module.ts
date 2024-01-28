@@ -8,6 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '../app-routing.module';
 import { IconsProviderModule } from '../shared/providers/icons-provider.module';
 import { NgZorroAntdProviderModule } from '../shared/providers/ng-zorro-antd-provider.module';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [MasterPageComponent],
@@ -22,6 +23,7 @@ import { NgZorroAntdProviderModule } from '../shared/providers/ng-zorro-antd-pro
     HttpClientModule,
     IconsProviderModule,
     NgZorroAntdProviderModule,
+    SharedModule,
   ],
   providers: [],
 })

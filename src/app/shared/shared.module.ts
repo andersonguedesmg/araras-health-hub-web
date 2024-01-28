@@ -10,12 +10,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '../app-routing.module';
 import { IconsProviderModule } from './providers/icons-provider.module';
 import { NgZorroAntdProviderModule } from './providers/ng-zorro-antd-provider.module';
+import { NavbarComponent } from './components/navbar/navbar.component';
 
 @NgModule({
   declarations: [
     SidebarComponent,
     NotFoundComponent,
-    AboutComponent
+    AboutComponent,
+    NavbarComponent,
   ],
   imports: [
     CommonModule,
@@ -28,6 +30,7 @@ import { NgZorroAntdProviderModule } from './providers/ng-zorro-antd-provider.mo
     HttpClientModule,
     IconsProviderModule,
     NgZorroAntdProviderModule,
-  ]
+  ],
+  exports: [SidebarComponent, NavbarComponent],
 })
-export class SharedModule { }
+export class SharedModule {}
