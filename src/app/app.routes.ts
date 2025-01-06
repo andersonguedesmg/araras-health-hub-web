@@ -5,6 +5,7 @@ import { HomeComponent } from './shared/pages/home/home.component';
 import { DestinationListComponent } from './features/destination/components/destination-list/destination-list.component';
 import { UserListComponent } from './features/user/components/user-list/user-list.component';
 import { SupplierListComponent } from './features/supplier/components/supplier-list/supplier-list.component';
+import { ProductListComponent } from './features/product/components/product-list/product-list.component';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,10 @@ export const routes: Routes = [
   {
     path: 'fornecedores',
     component: SupplierListComponent,
+  },
+  {
+    path: 'produtos',
+    component: ProductListComponent,
   },
   {
     path: 'sobre',
