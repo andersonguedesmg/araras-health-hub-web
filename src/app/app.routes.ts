@@ -6,6 +6,7 @@ import { DestinationListComponent } from './features/destination/components/dest
 import { UserListComponent } from './features/user/components/user-list/user-list.component';
 import { SupplierListComponent } from './features/supplier/components/supplier-list/supplier-list.component';
 import { ProductListComponent } from './features/product/components/product-list/product-list.component';
+import { StockListComponent } from './features/stock/components/stock-list/stock-list.component';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,10 @@ export const routes: Routes = [
   {
     path: 'destinos',
     component: DestinationListComponent,
+  },
+  {
+    path: 'estoque',
+    component: StockListComponent,
   },
   {
     path: 'fornecedores',
