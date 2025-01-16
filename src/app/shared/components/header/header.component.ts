@@ -30,6 +30,11 @@ export class HeaderComponent implements OnInit {
         routerLink: '/destinos',
       },
       {
+        label: 'Clientes',
+        icon: PrimeIcons.RECEIPT,
+        routerLink: '/clientes',
+      },
+      {
         label: 'Fornecedores',
         icon: PrimeIcons.SHOP,
         routerLink: '/fornecedores',

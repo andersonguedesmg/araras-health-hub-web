@@ -8,11 +8,16 @@ import { SupplierListComponent } from './features/supplier/components/supplier-l
 import { ProductListComponent } from './features/product/components/product-list/product-list.component';
 import { StockListComponent } from './features/stock/components/stock-list/stock-list.component';
 import { OrderListComponent } from './features/order/components/order-list/order-list.component';
+import { DestinationUserListComponent } from './features/destination/components/destination-user-list/destination-user-list.component';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+  },
+  {
+    path: 'clientes',
+    component: DestinationUserListComponent,
   },
   {
     path: 'destinos',
