@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuItem, PrimeIcons } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';
+import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-header',
-  imports: [Menubar],
+  imports: [Menubar, AvatarModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
