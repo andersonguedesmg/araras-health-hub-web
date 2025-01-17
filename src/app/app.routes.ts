@@ -9,6 +9,7 @@ import { ProductListComponent } from './features/product/components/product-list
 import { StockListComponent } from './features/stock/components/stock-list/stock-list.component';
 import { OrderListComponent } from './features/order/components/order-list/order-list.component';
 import { DestinationUserListComponent } from './features/destination/components/destination-user-list/destination-user-list.component';
+import { UserFormComponent } from './features/user/components/user-form/user-form.component';
 
 export const routes: Routes = [
   {
@@ -46,6 +47,10 @@ export const routes: Routes = [
   {
     path: 'usuarios',
     component: UserListComponent,
+  },
+  {
+    path: 'usuarios/form',
+    component: UserFormComponent,
   },
   {
     path: '**',

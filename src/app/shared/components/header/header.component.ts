@@ -25,6 +25,11 @@ export class HeaderComponent implements OnInit {
         routerLink: '/usuarios',
       },
       {
+        label: 'Usuários F',
+        icon: PrimeIcons.USER,
+        routerLink: '/usuarios/form',
+      },
+      {
         label: 'Destinos',
         icon: PrimeIcons.ADDRESS_BOOK,
         routerLink: '/destinos',
