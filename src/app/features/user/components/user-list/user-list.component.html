@@ -24,7 +24,6 @@
         'password',
         'function',
         'phone',
-        'email',
         'accessLevel',
         'isActive'
       ]"
@@ -65,7 +64,6 @@
           <th style="min-width: 15rem" pSortableColumn="password">SENHA</th>
           <th style="min-width: 20rem" pSortableColumn="function">FUNÇÃO</th>
           <th style="min-width: 12rem" pSortableColumn="phone">TELEFONE</th>
-          <th style="min-width: 12rem" pSortableColumn="email">E-MAIL</th>
           <th style="min-width: 12rem" pSortableColumn="accessLevel">
             NÍVEL DE ACESSO
           </th>
@@ -81,7 +79,6 @@
           <td>{{ user.password }}</td>
           <td>{{ user.function }}</td>
           <td>{{ user.phone }}</td>
-          <td>{{ user.email }}</td>
           <td>
             <p-tag
               [value]="user.accessLevel"
