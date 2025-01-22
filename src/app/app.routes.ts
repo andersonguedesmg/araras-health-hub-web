@@ -10,6 +10,7 @@ import { StockListComponent } from './features/stock/components/stock-list/stock
 import { OrderListComponent } from './features/order/components/order-list/order-list.component';
 import { DestinationUserListComponent } from './features/destination/components/destination-user-list/destination-user-list.component';
 import { UserFormComponent } from './features/user/components/user-form/user-form.component';
+import { DestinationUserFormComponent } from './features/destination/components/destination-user-form/destination-user-form.component';
 
 export const routes: Routes = [
   {
@@ -19,6 +20,10 @@ export const routes: Routes = [
   {
     path: 'clientes',
     component: DestinationUserListComponent,
+  },
+  {
+    path: 'clientes/form',
+    component: DestinationUserFormComponent,
   },
   {
     path: 'destinos',
