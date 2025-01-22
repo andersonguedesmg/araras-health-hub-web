@@ -7,12 +7,16 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMask } from 'primeng/inputmask';
 import { PasswordModule } from 'primeng/password';
-import { SelectButton } from 'primeng/selectbutton';
 import { Select } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 
-interface City {
-  name: string;
+interface AccessLevel {
+  description: string;
+  code: string;
+}
+
+interface IsActive {
+  description: string;
   code: string;
 }
 
@@ -24,9 +28,9 @@ interface City {
     ButtonModule,
     ReactiveFormsModule,
     InputTextModule,
-
+    InputMask,
     PasswordModule,
-
+    Select,
     ToolbarModule,
   ],
   templateUrl: './user-form.component.html',
@@ -35,24 +39,20 @@ interface City {
 export class UserFormComponent implements OnInit {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Usuários' }, { label: 'Cadastro' },];
 
-  cities: City[] | undefined;
-
-
   formGroup!: FormGroup;
-
-
-
-  stateOptions: any[] = [{ label: 'One-Way', value: 'one-way' }, { label: 'Return', value: 'return' }];
-
-  value: string = 'off';
+  accessLevel: AccessLevel[] | undefined;
+  isActive: IsActive[] | undefined;
 
   ngOnInit() {
-    this.cities = [
-      { name: 'New York', code: 'NY' },
-      { name: 'Rome', code: 'RM' },
-      { name: 'London', code: 'LDN' },
-      { name: 'Istanbul', code: 'IST' },
-      { name: 'Paris', code: 'PRS' }
+    this.accessLevel = [
+      { description: 'Administrador', code: 'ADMIN' },
+      // { description: 'Convidado', code: 'GUEST' },
+      { description: 'Usuário', code: 'USER' },
+    ];
+
+    this.isActive = [
+      { description: 'Ativo', code: 'ACTIVE' },
+      { description: 'Inativo', code: 'INACTIVE' },
     ];
 
     this.formGroup = new FormGroup({
@@ -63,8 +63,6 @@ export class UserFormComponent implements OnInit {
       phone: new FormControl<string | null>(null),
       accessLevel: new FormControl<number | null>(null),
       isActive: new FormControl<number | null>(null),
-
-      selectedCity: new FormControl<City | null>(null)
     });
   }
 }
