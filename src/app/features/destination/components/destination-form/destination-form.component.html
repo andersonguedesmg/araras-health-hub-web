@@ -26,53 +26,99 @@
         </div>
 
         <div class="flex-auto">
-          <label for="name" class="font-bold block mb-2">Nome:</label>
+          <label for="description" class="font-bold block mb-2">Nome:</label>
           <input
             type="text"
-            id="name"
+            id="description"
             pInputText
             class="w-full"
-            formControlName="name"
+            formControlName="description"
           />
         </div>
 
         <div class="flex-auto">
-          <label for="password" class="font-bold block mb-2">Senha:</label>
+          <label for="cep" class="font-bold block mb-2">CEP:</label>
           <input
             type="text"
-            id="password"
+            id="cep"
             pInputText
             class="w-full"
-            formControlName="password"
+            formControlName="cep"
           />
         </div>
       </div>
 
       <div class="grid grid-cols-3 gap-8 mt-6">
         <div class="flex-auto">
-          <label for="destination" class="font-bold block mb-2">Destino:</label>
-          <p-select
-            id="destination"
-            [options]="destination"
-            optionLabel="description"
-            placeholder="Selecione"
+          <label for="address" class="font-bold block mb-2">Endereço:</label>
+          <input
+            type="text"
+            id="address"
+            pInputText
             class="w-full"
-            formControlName="destination"
+            formControlName="address"
           />
         </div>
 
         <div class="flex-auto">
-          <label for="accessLevel" class="font-bold block mb-2">Tipo:</label>
-          <p-select
-            id="accessLevel"
-            [options]="accessLevel"
-            optionLabel="description"
-            placeholder="Selecione"
+          <label for="number" class="font-bold block mb-2">Número:</label>
+          <input
+            type="text"
+            id="number"
+            pInputText
             class="w-full"
-            formControlName="accessLevel"
+            formControlName="number"
           />
         </div>
 
+        <div class="flex-auto">
+          <label for="neighborhood" class="font-bold block mb-2">Bairro:</label>
+          <input
+            type="text"
+            id="neighborhood"
+            pInputText
+            class="w-full"
+            formControlName="neighborhood"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-8 mt-6">
+        <div class="flex-auto">
+          <label for="city" class="font-bold block mb-2">Cidade:</label>
+          <input
+            type="text"
+            id="city"
+            pInputText
+            class="w-full"
+            formControlName="city"
+          />
+        </div>
+
+        <div class="flex-auto">
+          <label for="email" class="font-bold block mb-2">E-mail:</label>
+          <input
+            type="text"
+            id="email"
+            pInputText
+            class="w-full"
+            formControlName="email"
+          />
+        </div>
+
+        <div class="flex-auto">
+          <label for="phone" class="font-bold block mb-2">Telefone:</label>
+          <input
+            type="text"
+            id="phone"
+            pInputText
+            class="w-full"
+            formControlName="phone"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-8 mt-6">
         <div class="flex-auto">
           <label for="isActive" class="font-bold block mb-2">Status:</label>
           <p-select

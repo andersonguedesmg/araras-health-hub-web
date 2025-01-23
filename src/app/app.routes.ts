@@ -11,6 +11,7 @@ import { OrderListComponent } from './features/order/components/order-list/order
 import { DestinationUserListComponent } from './features/destination/components/destination-user-list/destination-user-list.component';
 import { UserFormComponent } from './features/user/components/user-form/user-form.component';
 import { DestinationUserFormComponent } from './features/destination/components/destination-user-form/destination-user-form.component';
+import { DestinationFormComponent } from './features/destination/components/destination-form/destination-form.component';
 
 export const routes: Routes = [
   {
@@ -28,6 +29,10 @@ export const routes: Routes = [
   {
     path: 'destinos',
     component: DestinationListComponent,
+  },
+  {
+    path: 'destinos/form',
+    component: DestinationFormComponent,
   },
   {
     path: 'estoque',
