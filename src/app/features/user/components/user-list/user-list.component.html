@@ -64,10 +64,8 @@
           <th style="min-width: 15rem" pSortableColumn="password">SENHA</th>
           <th style="min-width: 20rem" pSortableColumn="function">FUNÇÃO</th>
           <th style="min-width: 12rem" pSortableColumn="phone">TELEFONE</th>
-          <th style="min-width: 12rem" pSortableColumn="accessLevel">
-            NÍVEL DE ACESSO
-          </th>
-          <th pSortableColumn="isActive">ATIVO</th>
+          <th style="min-width: 12rem" pSortableColumn="accessLevel">TIPO</th>
+          <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 10rem">AÇÕES</th>
         </tr>
       </ng-template>
@@ -87,8 +85,8 @@
           </td>
           <td>
             <p-tag
-              [value]="user.isActive"
-              [severity]="getStatus(user.isActive)"
+              [value]="getStatus(user.isActive)"
+              [severity]="getSeverity(user.isActive)"
             />
           </td>
           <td>

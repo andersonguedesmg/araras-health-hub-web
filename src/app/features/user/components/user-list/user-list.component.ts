@@ -208,13 +208,13 @@ export class UserListComponent implements OnInit {
     this.cd.markForCheck();
 
     this.cols = [
-      { field: 'id', header: 'Id', customExportHeader: 'Código do Usuário' },
-      { field: 'name', header: 'Nome' },
-      { field: 'password', header: 'Senha' },
-      { field: 'function', header: 'Função' },
-      { field: 'phone', header: 'Telefone' },
-      { field: 'accessLevel', header: 'Nível de Acesso' },
-      { field: 'isActive', header: 'Ativo' },
+      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO USUÁRIO' },
+      { field: 'name', header: 'NOME' },
+      { field: 'password', header: 'SENHA' },
+      { field: 'function', header: 'FUNÇÃO' },
+      { field: 'phone', header: 'TELEFONE' },
+      { field: 'accessLevel', header: 'TIPO' },
+      { field: 'isActive', header: 'STATUS' },
     ];
 
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
@@ -222,12 +222,21 @@ export class UserListComponent implements OnInit {
     this.selectedColumns = this.cols;
   }
 
-  getStatus(status: boolean): any {
+  getSeverity(status: boolean): any {
     switch (status) {
       case true:
         return 'success';
       case false:
         return 'danger';
+    }
+  }
+
+  getStatus(status: boolean): any {
+    switch (status) {
+      case true:
+        return 'Ativo';
+      case false:
+        return 'Inativo';
     }
   }
 
