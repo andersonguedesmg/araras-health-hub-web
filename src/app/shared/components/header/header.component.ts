@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuItem, PrimeIcons } from 'primeng/api';
-import { Menubar } from 'primeng/menubar';
+import { MegaMenuItem, PrimeIcons } from 'primeng/api';
+import { MegaMenu } from 'primeng/megamenu';
 import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-header',
-  imports: [Menubar, AvatarModule],
+  imports: [MegaMenu, AvatarModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
-  items: MenuItem[] | undefined;
+  items: MegaMenuItem[] | undefined;
 
   ngOnInit() {
     this.items = [
@@ -20,106 +20,79 @@ export class HeaderComponent implements OnInit {
         routerLink: '/',
       },
       {
-        label: 'Usuários',
-        icon: PrimeIcons.USER,
-        routerLink: '/usuarios',
-      },
-      {
-        label: 'Usuários F',
-        icon: PrimeIcons.USER,
-        routerLink: '/usuarios/form',
-      },
-      {
-        label: 'Destinos',
-        icon: PrimeIcons.ADDRESS_BOOK,
-        routerLink: '/destinos',
-      },
-      {
-        label: 'Destinos F',
-        icon: PrimeIcons.ADDRESS_BOOK,
-        routerLink: '/destinos/form',
-      },
-      {
-        label: 'Clientes',
-        icon: PrimeIcons.RECEIPT,
-        routerLink: '/clientes',
-      },
-      {
-        label: 'Clientes F',
-        icon: PrimeIcons.RECEIPT,
-        routerLink: '/clientes/form',
-      },
-      {
-        label: 'Fornecedores',
-        icon: PrimeIcons.SHOP,
-        routerLink: '/fornecedores',
-      },
-      {
-        label: 'Produtos',
-        icon: PrimeIcons.SHOPPING_BAG,
-        routerLink: '/produtos',
-      },
-      {
-        label: 'Estoque',
-        icon: PrimeIcons.WAREHOUSE,
-        routerLink: '/estoque',
-      },
-      {
-        label: 'Pedidos',
-        icon: PrimeIcons.SHOPPING_CART,
+        label: 'Administração',
+        icon: PrimeIcons.BRIEFCASE,
         items: [
-          {
-            label: 'Criado',
-            icon: PrimeIcons.PAPERCLIP,
-            routerLink: '/pedidos',
-          },
-          {
-            label: 'Aguardando Aprovação',
-            icon: PrimeIcons.CLOCK,
-            routerLink: '/pedidos',
-          },
-          {
-            label: 'Aprovado',
-            icon: PrimeIcons.LIST_CHECK,
-            routerLink: '/pedidos',
-          },
-          {
-            label: 'Em Processamento',
-            icon: PrimeIcons.CART_ARROW_DOWN,
-            routerLink: '/pedidos',
-          },
-          {
-            label: 'Separado',
-            icon: PrimeIcons.HOURGLASS,
-            routerLink: '/pedidos',
-          },
-          {
-            label: 'Em Transito',
-            icon: PrimeIcons.TRUCK,
-            routerLink: '/pedidos',
-          },
-          {
-            label: 'Finalizados',
-            icon: PrimeIcons.TROPHY,
-            items: [
-              {
-                label: 'Entregue',
-                icon: PrimeIcons.CHECK_CIRCLE,
-                routerLink: '/pedidos',
-              },
-              {
-                label: 'Cancelado',
-                icon: PrimeIcons.TIMES_CIRCLE,
-                routerLink: '/pedidos',
-              },
-              {
-                label: 'Devolvido',
-                icon: PrimeIcons.UNDO,
-                routerLink: '/pedidos',
-              }
-            ]
-          }
-        ]
+          [
+            {
+              label: 'Destinos',
+              items: [
+                { label: 'Listagem', routerLink: '/destinos', },
+                { label: 'Cadastro', routerLink: '/destinos/form', },
+              ],
+            },
+          ],
+          [
+            {
+              label: 'Clientes',
+              items: [
+                { label: 'Listagem', routerLink: '/clientes', },
+                { label: 'Cadastro', routerLink: '/clientes/form', },
+              ],
+            },
+          ],
+          [
+            {
+              label: 'Fornecedores',
+              items: [
+                { label: 'Listagem', routerLink: '/fornecedores', },
+                { label: 'Cadastro', routerLink: '/fornecedores/form', },
+              ],
+            },
+          ],
+          [
+            {
+              label: 'Usuários',
+              items: [
+                { label: 'Listagem', routerLink: '/usuarios', },
+                { label: 'Cadastro', routerLink: '/usuarios/form', },
+              ],
+            },
+          ],
+        ],
+      },
+      {
+        label: 'Depósito',
+        icon: PrimeIcons.BUILDING_COLUMNS,
+        items: [
+          [
+            {
+              label: 'Estoque',
+              items: [
+                { label: 'Listagem', routerLink: '/estoque', },
+                { label: 'Cadastro', routerLink: '/estoque/form', },
+              ],
+            },
+          ],
+          [
+            {
+              label: 'Pedidos',
+              items: [
+                { label: 'Listagem', routerLink: '/pedidos', },
+                { label: 'Cadastro', routerLink: '/pedidos/form', },
+              ],
+            },
+          ],
+          [
+            {
+              label: 'Produtos',
+              items: [
+                { label: 'Listagem', routerLink: '/produtos', },
+                { label: 'Cadastro', routerLink: '/produtos/form', },
+              ],
+            },
+          ],
+        ],
       },
       {
         label: 'Sobre',
