@@ -75,7 +75,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 1,
         name: 'admin_enio',
         password: 'A2H@Mudar',
-        idDestination: 'UBS Ênio Vitalli',
+        destination: 'UBS Ênio Vitalli',
         accessLevel: 'Administrador',
         isActive: true,
       },
@@ -83,7 +83,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 2,
         name: 'user_enio',
         password: 'A2H@Mudar',
-        idDestination: 'UBS Ênio Vitalli',
+        destination: 'UBS Ênio Vitalli',
         accessLevel: 'Usuário',
         isActive: true,
       },
@@ -91,7 +91,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 3,
         name: 'user_enio2',
         password: 'A2H@Mudar',
-        idDestination: 'UBS Ênio Vitalli',
+        destination: 'UBS Ênio Vitalli',
         accessLevel: 'Usuário',
         isActive: false,
       },
@@ -99,7 +99,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 4,
         name: 'admin_elisa',
         password: 'A2H@Mudar',
-        idDestination: 'UPA Elisa Sbrissa Franchozza',
+        destination: 'UPA Elisa Sbrissa Franchozza',
         accessLevel: 'Administrador',
         isActive: true,
       },
@@ -107,7 +107,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 5,
         name: 'user_elisa',
         password: 'A2H@Mudar',
-        idDestination: 'UPA Elisa Sbrissa Franchozza',
+        destination: 'UPA Elisa Sbrissa Franchozza',
         accessLevel: 'Usuário',
         isActive: true,
       },
@@ -115,7 +115,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 6,
         name: 'user_elisa2',
         password: 'A2H@Mudar',
-        idDestination: 'UPA Elisa Sbrissa Franchozza',
+        destination: 'UPA Elisa Sbrissa Franchozza',
         accessLevel: 'Usuário',
         isActive: true,
       },
@@ -123,7 +123,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 7,
         name: 'admin_altoc',
         password: 'A2H@Mudar',
-        idDestination: 'Farmácia de Alto Custo',
+        destination: 'Farmácia de Alto Custo',
         accessLevel: 'Administrador',
         isActive: true,
       },
@@ -131,7 +131,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 8,
         name: 'user_altoc',
         password: 'A2H@Mudar',
-        idDestination: 'Farmácia de Alto Custo',
+        destination: 'Farmácia de Alto Custo',
         accessLevel: 'Usuário',
         isActive: true,
       },
@@ -139,7 +139,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 9,
         name: 'user_samu',
         password: 'A2H@Mudar',
-        idDestination: 'SAMU',
+        destination: 'SAMU',
         accessLevel: 'Usuário',
         isActive: true,
       },
@@ -147,7 +147,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 10,
         name: 'admin_samu',
         password: 'A2H@Mudar',
-        idDestination: 'SAMU',
+        destination: 'SAMU',
         accessLevel: 'Administrador',
         isActive: true,
       },
@@ -155,7 +155,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 11,
         name: 'user_samu2',
         password: 'A2H@Mudar',
-        idDestination: 'SAMU',
+        destination: 'SAMU',
         accessLevel: 'Usuário',
         isActive: false,
       },
@@ -163,7 +163,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 12,
         name: 'admin_edmundo',
         password: 'A2H@Mudar',
-        idDestination: 'PSF Edmundo Ulson',
+        destination: 'PSF Edmundo Ulson',
         accessLevel: 'Administrador',
         isActive: true,
       },
@@ -171,7 +171,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 13,
         name: 'user_edmundo',
         password: 'A2H@Mudar',
-        idDestination: 'PSF Edmundo Ulson',
+        destination: 'PSF Edmundo Ulson',
         accessLevel: 'Usuário',
         isActive: false,
       },
@@ -179,7 +179,7 @@ export class DestinationUserListComponent implements OnInit {
         id: 14,
         name: 'user_edmundo2',
         password: 'A2H@Mudar',
-        idDestination: 'PSF Edmundo Ulson',
+        destination: 'PSF Edmundo Ulson',
         accessLevel: 'Usuário',
         isActive: true,
       },
@@ -194,12 +194,12 @@ export class DestinationUserListComponent implements OnInit {
     this.cd.markForCheck();
 
     this.cols = [
-      { field: 'id', header: 'Id', customExportHeader: 'Código do Usuário' },
-      { field: 'name', header: 'Nome' },
-      { field: 'password', header: 'Senha' },
-      { field: 'idDestination', header: 'Função' },
-      { field: 'accessLevel', header: 'Nível de Acesso' },
-      { field: 'isActive', header: 'Ativo' },
+      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO CLIENTE' },
+      { field: 'name', header: 'NOME' },
+      { field: 'password', header: 'SENHA' },
+      { field: 'destination', header: 'DESTINO' },
+      { field: 'accessLevel', header: 'TIPO' },
+      { field: 'isActive', header: 'STATUS' },
     ];
 
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
@@ -207,12 +207,21 @@ export class DestinationUserListComponent implements OnInit {
     this.selectedColumns = this.cols;
   }
 
-  getStatus(status: boolean): any {
+  getSeverity(status: boolean): any {
     switch (status) {
       case true:
         return 'success';
       case false:
         return 'danger';
+    }
+  }
+
+  getStatus(status: boolean): any {
+    switch (status) {
+      case true:
+        return 'Ativo';
+      case false:
+        return 'Inativo';
     }
   }
 

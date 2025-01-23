@@ -22,7 +22,7 @@
         'id',
         'name',
         'password',
-        'idDestination',
+        'destination',
         'accessLevel',
         'isActive'
       ]"
@@ -61,13 +61,11 @@
           <th style="min-width: 5rem" pSortableColumn="id">ID</th>
           <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
           <th style="min-width: 15rem" pSortableColumn="password">SENHA</th>
-          <th style="min-width: 20rem" pSortableColumn="idDestination">
+          <th style="min-width: 20rem" pSortableColumn="destination">
             DESTINO
           </th>
-          <th style="min-width: 12rem" pSortableColumn="accessLevel">
-            NÍVEL DE ACESSO
-          </th>
-          <th pSortableColumn="isActive">ATIVO</th>
+          <th style="min-width: 12rem" pSortableColumn="accessLevel">TIPO</th>
+          <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 10rem">AÇÕES</th>
         </tr>
       </ng-template>
@@ -77,7 +75,7 @@
           <td>{{ customer.id }}</td>
           <td>{{ customer.name }}</td>
           <td>{{ customer.password }}</td>
-          <td>{{ customer.idDestination }}</td>
+          <td>{{ customer.destination }}</td>
           <td>
             <p-tag
               [value]="customer.accessLevel"
@@ -86,8 +84,8 @@
           </td>
           <td>
             <p-tag
-              [value]="customer.isActive"
-              [severity]="getStatus(customer.isActive)"
+              [value]="getStatus(customer.isActive)"
+              [severity]="getSeverity(customer.isActive)"
             />
           </td>
           <td>
