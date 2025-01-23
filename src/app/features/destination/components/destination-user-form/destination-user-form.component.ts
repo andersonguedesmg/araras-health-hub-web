@@ -40,7 +40,7 @@ interface Destination {
   styleUrl: './destination-user-form.component.scss'
 })
 export class DestinationUserFormComponent implements OnInit {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Clientes' }, { label: 'Cadastro' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Clientes' }, { label: 'Cadastro' },];
 
   formGroup!: FormGroup;
   accessLevel: AccessLevel[] | undefined;

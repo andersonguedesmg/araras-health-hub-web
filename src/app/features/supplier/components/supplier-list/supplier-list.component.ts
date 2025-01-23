@@ -9,7 +9,7 @@ import { MenuItem } from 'primeng/api';
   styleUrl: './supplier-list.component.scss'
 })
 export class SupplierListComponent implements OnInit {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Fornecedores' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Fornecedores' },];
 
   constructor() { }
 

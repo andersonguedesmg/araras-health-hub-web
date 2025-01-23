@@ -49,7 +49,7 @@ interface ExportColumn {
 export class DestinationListComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Destinos' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }, { label: 'Listagem' },];
 
   destinations!: any[];
 

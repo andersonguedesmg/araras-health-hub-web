@@ -37,7 +37,7 @@ interface IsActive {
   styleUrl: './user-form.component.scss'
 })
 export class UserFormComponent implements OnInit {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Usuários' }, { label: 'Cadastro' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Usuários' }, { label: 'Cadastro' },];
 
   formGroup!: FormGroup;
   accessLevel: AccessLevel[] | undefined;

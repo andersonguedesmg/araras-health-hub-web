@@ -28,7 +28,7 @@ interface IsActive {
   styleUrl: './destination-form.component.scss'
 })
 export class DestinationFormComponent implements OnInit {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Destinos' }, { label: 'Cadastro' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }, { label: 'Cadastro' },];
 
   formGroup!: FormGroup;
   isActive: IsActive[] | undefined;
