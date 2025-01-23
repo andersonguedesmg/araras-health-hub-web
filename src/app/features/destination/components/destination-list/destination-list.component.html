@@ -20,11 +20,12 @@
       [paginator]="true"
       [globalFilterFields]="[
         'id',
-        'description',
+        'name',
         'address',
         'number',
         'neighborhood',
         'city',
+        'state',
         'cep',
         'email',
         'phone',
@@ -67,19 +68,18 @@
       <ng-template #header>
         <tr>
           <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-          <th style="min-width: 20rem" pSortableColumn="description">
-            DESCRIÇÃO
-          </th>
+          <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
           <th style="min-width: 20rem" pSortableColumn="address">ENDEREÇO</th>
           <th style="min-width: 10rem" pSortableColumn="number">NÚMERO</th>
           <th style="min-width: 20rem" pSortableColumn="neighborhood">
             BAIRRO
           </th>
           <th style="min-width: 10rem" pSortableColumn="city">CIDADE</th>
+          <th style="min-width: 10rem" pSortableColumn="state">ESTADO</th>
           <th style="min-width: 12rem" pSortableColumn="cep">CEP</th>
           <th style="min-width: 12rem" pSortableColumn="email">E-MAIL</th>
           <th style="min-width: 12rem" pSortableColumn="phone">TELEFONE</th>
-          <th pSortableColumn="isActive">ATIVO</th>
+          <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 10rem">AÇÕES</th>
         </tr>
       </ng-template>
@@ -87,18 +87,19 @@
       <ng-template #body let-destination>
         <tr>
           <td>{{ destination.id }}</td>
-          <td>{{ destination.description }}</td>
+          <td>{{ destination.name }}</td>
           <td>{{ destination.address }}</td>
           <td>{{ destination.number }}</td>
           <td>{{ destination.neighborhood }}</td>
           <td>{{ destination.city }}</td>
+          <td>{{ destination.state }}</td>
           <td>{{ destination.cep }}</td>
           <td>{{ destination.email }}</td>
           <td>{{ destination.phone }}</td>
           <td>
             <p-tag
-              [value]="destination.isActive"
-              [severity]="getStatus(destination.isActive)"
+              [value]="getStatus(destination.isActive)"
+              [severity]="getSeverity(destination.isActive)"
             />
           </td>
           <td>
