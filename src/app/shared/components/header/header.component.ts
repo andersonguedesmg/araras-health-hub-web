@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { MegaMenuItem, PrimeIcons } from 'primeng/api';
 import { MegaMenu } from 'primeng/megamenu';
 import { AvatarModule } from 'primeng/avatar';
+import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -11,6 +13,8 @@ import { AvatarModule } from 'primeng/avatar';
 })
 export class HeaderComponent implements OnInit {
   items: MegaMenuItem[] | undefined;
+
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
     this.items = [
@@ -100,5 +104,11 @@ export class HeaderComponent implements OnInit {
         routerLink: '/sobre',
       }
     ];
+  }
+
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

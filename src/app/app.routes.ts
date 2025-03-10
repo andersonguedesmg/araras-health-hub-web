@@ -12,55 +12,73 @@ import { DestinationUserListComponent } from './features/destination/components/
 import { UserFormComponent } from './features/user/components/user-form/user-form.component';
 import { DestinationUserFormComponent } from './features/destination/components/destination-user-form/destination-user-form.component';
 import { DestinationFormComponent } from './features/destination/components/destination-form/destination-form.component';
+import { LoginComponent } from './core/components/login/login.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'clientes',
     component: DestinationUserListComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'clientes/form',
     component: DestinationUserFormComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'destinos',
     component: DestinationListComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'destinos/form',
     component: DestinationFormComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'estoque',
     component: StockListComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'fornecedores',
     component: SupplierListComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'login',
+    component: LoginComponent
   },
   {
     path: 'pedidos',
     component: OrderListComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'produtos',
     component: ProductListComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'sobre',
     component: AboutComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'usuarios',
     component: UserListComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'usuarios/form',
     component: UserFormComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: '**',

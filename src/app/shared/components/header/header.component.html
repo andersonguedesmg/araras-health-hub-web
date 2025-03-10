@@ -1,5 +1,5 @@
 <p-megamenu [model]="items">
   <ng-template #end>
-    <p-avatar icon="pi pi-user" shape="circle" />
+    <p-avatar icon="pi pi-user" shape="circle" styleClass="cursor: pointer" (click)="logout()" />
   </ng-template>
 </p-megamenu>
