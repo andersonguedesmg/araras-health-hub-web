@@ -1,18 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MegaMenuItem, PrimeIcons } from 'primeng/api';
 import { MegaMenu } from 'primeng/megamenu';
 import { AvatarModule } from 'primeng/avatar';
+import { Menu, MenuModule } from 'primeng/menu';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
-  imports: [MegaMenu, AvatarModule],
+  imports: [MegaMenu, AvatarModule, MenuModule, CommonModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
+  @ViewChild('menu') menu!: Menu;
+
   items: MegaMenuItem[] | undefined;
+  avatarItems: MegaMenuItem[] | undefined;
+
+  isAvatarClickable = true;
 
   constructor(private authService: AuthService, private router: Router) { }
 
@@ -98,14 +105,25 @@ export class HeaderComponent implements OnInit {
           ],
         ],
       },
+    ];
+
+    this.avatarItems = [
       {
         label: 'Sobre',
-        icon: PrimeIcons.COMPASS,
+        icon: PrimeIcons.INFO_CIRCLE,
         routerLink: '/sobre',
-      }
+      },
+      {
+        label: 'Logout',
+        icon: PrimeIcons.SIGN_OUT,
+        command: () => this.logout(),
+      },
     ];
   }
 
+  toggleMenu(event: MouseEvent) {
+    this.menu.toggle(event);
+  }
 
   logout(): void {
     this.authService.logout();

@@ -1,5 +1,17 @@
 <p-megamenu [model]="items">
-  <ng-template #end>
-    <p-avatar icon="pi pi-user" shape="circle" styleClass="cursor: pointer" (click)="logout()" />
+  <ng-template pTemplate="end">
+    <p-avatar
+      icon="pi pi-user"
+      shape="circle"
+      (click)="toggleMenu($event)"
+      [ngClass]="{ 'cursor-pointer': isAvatarClickable }"
+    ></p-avatar>
+    <p-menu
+      #menu
+      [model]="avatarItems"
+      [popup]="true"
+      [style]="{ width: '200px' }"
+      appendTo="body"
+    ></p-menu>
   </ng-template>
 </p-megamenu>
