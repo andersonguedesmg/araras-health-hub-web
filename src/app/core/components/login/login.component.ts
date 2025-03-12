@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginRequest } from '../../interfaces/LoginRequest';
+import { LoginRequest } from '../../interfaces/loginRequest';
 import { LoginResponse } from '../../interfaces/loginResponse';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
