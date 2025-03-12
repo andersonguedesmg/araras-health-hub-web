@@ -5,10 +5,11 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { RouteStateService } from './core/services/route-state.service';
 import { CommonModule } from '@angular/common';
+import { SpinnerComponent } from './shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, ToastComponent, CommonModule],
+  imports: [RouterOutlet, HeaderComponent, ToastComponent, SpinnerComponent, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
