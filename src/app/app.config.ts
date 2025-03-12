@@ -6,6 +6,7 @@ import { MyPreset } from '../assets/mypreset';
 import { routes } from './app.routes';
 import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
 import { JwtInterceptor } from './core/interceptors/auth.interceptor';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,6 +18,7 @@ export const appConfig: ApplicationConfig = {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor, multi: true
     },
+    MessageService,
     providePrimeNG({
       theme: {
         preset: MyPreset,

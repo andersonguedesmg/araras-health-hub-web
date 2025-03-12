@@ -1,18 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginRequest } from '../../interfaces/LoginRequest';
 import { LoginResponse } from '../../interfaces/loginResponse';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { ToastComponent } from '../../../shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, FormsModule, ButtonModule,],
+  imports: [ReactiveFormsModule, FormsModule, ButtonModule, ToastComponent,],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   credentials: LoginRequest = { userName: '', password: '' };
   errorMessage: string = '';
 
@@ -22,13 +24,13 @@ export class LoginComponent {
     this.authService.login(this.credentials).subscribe({
       next: (response: LoginResponse) => {
         if (response.statusCode === 200) {
+          this.toastComponent.showMessage('success', 'Sucesso', 'Login realizado com sucesso!');
           this.router.navigate(['/']);
         } else {
-          this.errorMessage = response.message;
+          this.toastComponent.showMessage('error', 'Erro', response.message);
         }
       }, error: (error) => {
-        this.errorMessage = 'Erro ao realizar login.';
-        console.error('Erro no login:', error);
+        this.toastComponent.showMessage('error', 'Erro', 'Erro ao realizar login.');
       },
     });
   }
