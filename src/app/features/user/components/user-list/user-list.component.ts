@@ -14,6 +14,12 @@ import { Tag } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { Table } from 'primeng/table';
+import { User } from '../../interfaces/user';
+import { ToastComponent } from '../../../../shared/components/toast/toast.component';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { UserService } from '../../services/user.service';
+import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+
 
 interface Column {
   field: string;
@@ -41,6 +47,8 @@ interface ExportColumn {
     InputIconModule,
     IconFieldModule,
     Tag,
+    ToastComponent,
+    SpinnerComponent,
   ],
   providers: [MessageService],
   templateUrl: './user-list.component.html',
@@ -48,14 +56,16 @@ interface ExportColumn {
 })
 export class UserListComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
+  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
+  @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Usuários' }, { label: 'Listagem' },];
 
-  users!: any[];
+  users: User[] = [];
 
-  user!: any;
+  user!: User;
 
-  selectedUser!: any | null;
+  selectedUser!: User | null;
 
   cols!: Column[];
 
@@ -63,141 +73,14 @@ export class UserListComponent implements OnInit {
 
   exportColumns!: ExportColumn[];
 
-  constructor(
-    private cd: ChangeDetectorRef,
-  ) { }
+  constructor(private cd: ChangeDetectorRef, private userService: UserService) { }
 
   ngOnInit() {
     this.loadDemoData();
+  }
 
-    this.users = [
-      {
-        id: 1,
-        name: 'Josiah Bartlet',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Administrador',
-        isActive: true,
-      },
-      {
-        id: 2,
-        name: 'Josh Lyman',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: true,
-      },
-      {
-        id: 3,
-        name: 'Leo McGarry',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Convidado',
-        isActive: false,
-      },
-      {
-        id: 4,
-        name: 'Toby Ziegler',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: true,
-      },
-      {
-        id: 5,
-        name: 'Sam Seaborn',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: true,
-      },
-      {
-        id: 6,
-        name: 'C. J. Cregg',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: true,
-      },
-      {
-        id: 7,
-        name: 'Donna Moss',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Convidado',
-        isActive: true,
-      },
-      {
-        id: 8,
-        name: 'Matt Santos',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: true,
-      },
-      {
-        id: 9,
-        name: 'Kate Harper',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: true,
-      },
-      {
-        id: 10,
-        name: 'Aaron Sorkin',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: false,
-      },
-      {
-        id: 11,
-        name: 'Thomas Schlamme',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Convidado',
-        isActive: true,
-      },
-      {
-        id: 12,
-        name: 'John Wells',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: true,
-      },
-      {
-        id: 13,
-        name: 'Abbey Bartlet',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: false,
-      },
-      {
-        id: 14,
-        name: 'Will Bailey',
-        password: 'A2H@Mudar',
-        function: 'Auxiliar Administrativo',
-        phone: '(19) 3544-4280',
-        accessLevel: 'Usuário',
-        isActive: true,
-      },
-    ];
+  ngAfterViewInit(): void {
+    this.loadUsers();
   }
 
   exportCSV() {
@@ -210,10 +93,8 @@ export class UserListComponent implements OnInit {
     this.cols = [
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO USUÁRIO' },
       { field: 'name', header: 'NOME' },
-      { field: 'password', header: 'SENHA' },
       { field: 'function', header: 'FUNÇÃO' },
       { field: 'phone', header: 'TELEFONE' },
-      { field: 'accessLevel', header: 'TIPO' },
       { field: 'isActive', header: 'STATUS' },
     ];
 
@@ -240,14 +121,21 @@ export class UserListComponent implements OnInit {
     }
   }
 
-  getAccessLevel(status: string): any {
-    switch (status) {
-      case 'Administrador':
-        return 'success';
-      case 'Usuário':
-        return 'info';
-      case 'Convidado':
-        return 'warn';
-    }
+  loadUsers(): void {
+    this.spinnerComponent.loading = true;
+    this.userService.getUsers().subscribe({
+      next: (response: ApiResponse<User[]>) => {
+        this.spinnerComponent.loading = false;
+        if (response.statusCode === 200) {
+          this.users = response.data;
+          this.toastComponent.showMessage('success', 'Sucesso', response.message);
+        } else {
+          this.toastComponent.showMessage('error', 'Erro', response.message);
+        }
+      }, error: (error) => {
+        this.spinnerComponent.loading = false;
+        this.toastComponent.showMessage('error', 'Erro', error);
+      },
+    });
   }
 }

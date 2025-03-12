@@ -1,5 +1,6 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
-
+<app-toast></app-toast>
+<app-spinner></app-spinner>
 <div class="container mx-auto">
   <div class="card mt-10">
     <p-toast />
@@ -18,15 +19,7 @@
       [rowsPerPageOptions]="[5, 10, 25]"
       [columns]="cols"
       [paginator]="true"
-      [globalFilterFields]="[
-        'id',
-        'name',
-        'password',
-        'function',
-        'phone',
-        'accessLevel',
-        'isActive'
-      ]"
+      [globalFilterFields]="['id', 'name', 'function', 'phone', 'isActive']"
       [tableStyle]="{ 'min-width': '75rem' }"
       [(selection)]="selectedUser"
       [rowHover]="true"
@@ -61,10 +54,8 @@
         <tr>
           <th style="min-width: 5rem" pSortableColumn="id">ID</th>
           <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
-          <th style="min-width: 15rem" pSortableColumn="password">SENHA</th>
           <th style="min-width: 20rem" pSortableColumn="function">FUNÇÃO</th>
           <th style="min-width: 12rem" pSortableColumn="phone">TELEFONE</th>
-          <th style="min-width: 12rem" pSortableColumn="accessLevel">TIPO</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 10rem">AÇÕES</th>
         </tr>
@@ -74,15 +65,8 @@
         <tr>
           <td>{{ user.id }}</td>
           <td>{{ user.name }}</td>
-          <td>{{ user.password }}</td>
           <td>{{ user.function }}</td>
           <td>{{ user.phone }}</td>
-          <td>
-            <p-tag
-              [value]="user.accessLevel"
-              [severity]="getAccessLevel(user.accessLevel)"
-            />
-          </td>
           <td>
             <p-tag
               [value]="getStatus(user.isActive)"
