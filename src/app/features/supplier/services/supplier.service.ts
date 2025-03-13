@@ -12,7 +12,7 @@ export class SupplierService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   getAllSuppliers(): Observable<ApiResponse<Supplier[]>> {
-    const url = this.apiConfig.getUSupplierUrl('getAll');
+    const url = this.apiConfig.getSupplierUrl('getAll');
     return this.http.get<ApiResponse<Supplier[]>>(url);
   }
 }

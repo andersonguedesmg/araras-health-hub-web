@@ -79,7 +79,7 @@ export class AccountListComponent {
   }
 
   ngAfterViewInit(): void {
-    this.loadAccounts();
+    this.getAllAccounts();
   }
 
   exportCSV() {
@@ -130,9 +130,9 @@ export class AccountListComponent {
     }
   }
 
-  loadAccounts(): void {
+  getAllAccounts(): void {
     this.spinnerComponent.loading = true;
-    this.accountService.getAccounts().subscribe({
+    this.accountService.getAllAccounts().subscribe({
       next: (response: ApiResponse<Account[]>) => {
         this.spinnerComponent.loading = false;
         if (response.statusCode === 200) {

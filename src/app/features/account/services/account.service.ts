@@ -1,19 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environment/environment';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { Account } from '../interfaces/account';
+import { ApiConfigService } from '../../../shared/services/api-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
-  private apiUrl = environment.apiUrl + 'account/getAll';
+  constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  constructor(private http: HttpClient) { }
-
-  getAccounts(): Observable<ApiResponse<Account[]>> {
-    return this.http.get<ApiResponse<Account[]>>(this.apiUrl);
+  getAllAccounts(): Observable<ApiResponse<Account[]>> {
+    const url = this.apiConfig.getAccountUrl('getAll');
+    return this.http.get<ApiResponse<Account[]>>(url);
   }
 }

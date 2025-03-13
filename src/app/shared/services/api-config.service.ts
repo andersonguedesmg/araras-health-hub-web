@@ -26,7 +26,11 @@ export class ApiConfigService {
     return this.apiUrl + 'user/' + endpoint;
   }
 
-  getUSupplierUrl(endpoint: string): string {
+  getSupplierUrl(endpoint: string): string {
     return this.apiUrl + 'supplier/' + endpoint;
+  }
+
+  getAccountUrl(endpoint: string): string {
+    return this.apiUrl + 'account/' + endpoint;
   }
 }
