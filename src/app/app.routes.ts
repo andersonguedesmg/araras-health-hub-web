@@ -8,9 +8,9 @@ import { SupplierListComponent } from './features/supplier/components/supplier-l
 import { ProductListComponent } from './features/product/components/product-list/product-list.component';
 import { StockListComponent } from './features/stock/components/stock-list/stock-list.component';
 import { OrderListComponent } from './features/order/components/order-list/order-list.component';
-import { DestinationUserListComponent } from './features/destination/components/destination-user-list/destination-user-list.component';
+import { AccountListComponent } from './features/account/components/account-list/account-list.component';
 import { UserFormComponent } from './features/user/components/user-form/user-form.component';
-import { DestinationUserFormComponent } from './features/destination/components/destination-user-form/destination-user-form.component';
+import { AccountFormComponent } from './features/account/components/account-form/account-form.component';
 import { DestinationFormComponent } from './features/destination/components/destination-form/destination-form.component';
 import { LoginComponent } from './core/components/login/login.component';
 import { AuthGuard } from './core/guards/auth.guard';
@@ -23,12 +23,12 @@ export const routes: Routes = [
   },
   {
     path: 'clientes',
-    component: DestinationUserListComponent,
+    component: AccountListComponent,
     canActivate: [AuthGuard]
   },
   {
     path: 'clientes/form',
-    component: DestinationUserFormComponent,
+    component: AccountFormComponent,
     canActivate: [AuthGuard]
   },
   {
