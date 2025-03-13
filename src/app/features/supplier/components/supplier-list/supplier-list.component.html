@@ -14,7 +14,7 @@
 
     <p-table
       #dt
-      [value]="users"
+      [value]="suppliers"
       [rows]="5"
       [rowsPerPageOptions]="[5, 10, 25]"
       [columns]="cols"
@@ -33,7 +33,7 @@
         'isActive'
       ]"
       [tableStyle]="{ 'min-width': '75rem' }"
-      [(selection)]="selectedUser"
+      [(selection)]="selectedSupplier"
       [rowHover]="true"
       dataKey="id"
       currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"

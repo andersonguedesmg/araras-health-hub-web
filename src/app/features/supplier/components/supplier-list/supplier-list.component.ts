@@ -60,11 +60,11 @@ export class SupplierListComponent implements OnInit {
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Fornecedores' },];
 
-  users: Supplier[] = [];
+  suppliers: Supplier[] = [];
 
-  user!: Supplier;
+  supplier!: Supplier;
 
-  selectedUser!: Supplier | null;
+  selectedSupplier!: Supplier | null;
 
   cols!: Column[];
 
@@ -132,7 +132,7 @@ export class SupplierListComponent implements OnInit {
       next: (response: ApiResponse<Supplier[]>) => {
         this.spinnerComponent.loading = false;
         if (response.statusCode === 200) {
-          this.users = response.data;
+          this.suppliers = response.data;
           this.toastComponent.showMessage('success', 'Sucesso', response.message);
         } else {
           this.toastComponent.showMessage('error', 'Erro', response.message);
