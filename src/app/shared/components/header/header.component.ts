@@ -109,6 +109,11 @@ export class HeaderComponent implements OnInit {
 
     this.avatarItems = [
       {
+        label: 'Perfil',
+        icon: PrimeIcons.USER,
+        routerLink: '/perfil',
+      },
+      {
         label: 'Sobre',
         icon: PrimeIcons.INFO_CIRCLE,
         routerLink: '/sobre',

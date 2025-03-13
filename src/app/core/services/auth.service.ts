@@ -18,6 +18,7 @@ export class AuthService {
       tap((response) => {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
+          localStorage.setItem('destinationId', response.data.destinationId.toString());
         }
       })
     );
@@ -25,10 +26,15 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('destinationId');
   }
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  getDestinationId(): string | null {
+    return localStorage.getItem('destinationId');
   }
 
   isLoggedIn(): boolean {

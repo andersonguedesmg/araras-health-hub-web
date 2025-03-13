@@ -12,4 +12,5 @@ export interface Destination {
   createdOn: string;
   updatedOn: string;
   isActive: boolean;
+  accountUsers: any[];
 }

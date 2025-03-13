@@ -14,6 +14,7 @@ import { AccountFormComponent } from './features/account/components/account-form
 import { DestinationFormComponent } from './features/destination/components/destination-form/destination-form.component';
 import { LoginComponent } from './core/components/login/login.component';
 import { AuthGuard } from './core/guards/auth.guard';
+import { DestinationProfileComponent } from './features/destination/components/destination-profile/destination-profile.component';
 
 export const routes: Routes = [
   {
@@ -34,6 +35,11 @@ export const routes: Routes = [
   {
     path: 'destinos',
     component: DestinationListComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'perfil',
+    component: DestinationProfileComponent,
     canActivate: [AuthGuard]
   },
   {

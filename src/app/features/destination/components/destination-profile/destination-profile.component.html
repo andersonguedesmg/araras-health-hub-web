@@ -1,0 +1,84 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+<app-toast></app-toast>
+<app-spinner></app-spinner>
+
+<div class="container mx-auto">
+  <div class="card mt-10 p-6 rounded-lg shadow-md">
+    <p-toolbar>
+      <ng-template #start>
+        <span class="text-2xl font-semibold">Perfil</span>
+      </ng-template>
+      <ng-template #end></ng-template>
+    </p-toolbar>
+
+    <div
+      *ngIf="destination"
+      class="bg-zinc-900 border border-zinc-600 rounded-md p-4"
+    >
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500">Nome:</label>
+            <p class="mt-1">{{ destination.name }}</p>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Endereço:</label
+            >
+            <p class="mt-1">
+              {{ destination.address }}, {{ destination.number }}
+            </p>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Bairro:</label
+            >
+            <p class="mt-1">{{ destination.neighborhood }}</p>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Cidade:</label
+            >
+            <p class="mt-1">{{ destination.city }}, {{ destination.state }}</p>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500">CEP:</label>
+            <p class="mt-1">{{ destination.cep }}</p>
+          </div>
+        </div>
+        <div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Email:</label
+            >
+            <p class="mt-1">{{ destination.email }}</p>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Telefone:</label
+            >
+            <p class="mt-1">{{ destination.phone }}</p>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Criado em:</label
+            >
+            <p class="mt-1">{{ destination.createdOn | date }}</p>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Atualizado em:</label
+            >
+            <p class="mt-1">{{ destination.updatedOn | date }}</p>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Ativo:</label
+            >
+            <p class="mt-1">{{ destination.isActive ? "Sim" : "Não" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
