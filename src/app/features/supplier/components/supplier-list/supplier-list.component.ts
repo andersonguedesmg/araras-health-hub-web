@@ -79,7 +79,7 @@ export class SupplierListComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.loadSuppliers();
+    this.getAllSuppliers();
   }
 
   exportCSV() {
@@ -126,9 +126,9 @@ export class SupplierListComponent implements OnInit {
     }
   }
 
-  loadSuppliers(): void {
+  getAllSuppliers(): void {
     this.spinnerComponent.loading = true;
-    this.supplierService.getSuppliers().subscribe({
+    this.supplierService.getAllSuppliers().subscribe({
       next: (response: ApiResponse<Supplier[]>) => {
         this.spinnerComponent.loading = false;
         if (response.statusCode === 200) {

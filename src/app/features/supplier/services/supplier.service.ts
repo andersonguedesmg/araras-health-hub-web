@@ -1,19 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environment/environment';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { Supplier } from '../interfaces/supplier';
+import { ApiConfigService } from '../../../shared/services/api-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SupplierService {
-  private apiUrl = environment.apiUrl + 'supplier/getAll';
+  constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  constructor(private http: HttpClient) { }
-
-  getSuppliers(): Observable<ApiResponse<Supplier[]>> {
-    return this.http.get<ApiResponse<Supplier[]>>(this.apiUrl);
+  getAllSuppliers(): Observable<ApiResponse<Supplier[]>> {
+    const url = this.apiConfig.getUSupplierUrl('getAll');
+    return this.http.get<ApiResponse<Supplier[]>>(url);
   }
 }
