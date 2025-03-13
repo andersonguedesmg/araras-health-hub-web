@@ -14,6 +14,11 @@ import { Tag } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { Table } from 'primeng/table';
+import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { Destination } from '../../interfaces/destination';
+import { DestinationService } from '../../services/destination.service';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 
 interface Column {
   field: string;
@@ -41,6 +46,8 @@ interface ExportColumn {
     InputIconModule,
     IconFieldModule,
     Tag,
+    ToastComponent,
+    SpinnerComponent,
   ],
   providers: [MessageService],
   templateUrl: './destination-list.component.html',
@@ -48,14 +55,16 @@ interface ExportColumn {
 })
 export class DestinationListComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
+  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
+  @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }, { label: 'Listagem' },];
 
-  destinations!: any[];
+  destinations!: Destination[];
 
-  destination!: any;
+  destination!: Destination;
 
-  selectedDestinations!: any | null;
+  selectedDestinations!: Destination | null;
 
   cols!: Column[];
 
@@ -63,249 +72,14 @@ export class DestinationListComponent implements OnInit {
 
   exportColumns!: ExportColumn[];
 
-  constructor(
-    private cd: ChangeDetectorRef,
-  ) { }
+  constructor(private cd: ChangeDetectorRef, private destinationService: DestinationService) { }
 
   ngOnInit() {
     this.loadDemoData();
+  }
 
-    this.destinations = [
-      {
-        id: 1,
-        name: 'UBS Ênio Vitalli',
-        cep: '13604-066',
-        address: 'Rua Franca',
-        number: '99',
-        neighborhood: 'Jd. Piratininga',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-4280',
-        isActive: true,
-      },
-      {
-        id: 2,
-        name: 'UPA Elisa Sbrissa Franchozza',
-        cep: '13606-414',
-        address: 'Av. Irineu Carrocci',
-        number: '400',
-        neighborhood: 'José Ometto II',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3543-5100',
-        isActive: true,
-      },
-      {
-        id: 3,
-        name: 'Farmácia de Alto Custo',
-        cep: '13600-710',
-        address: 'Rua Brasília',
-        number: '295',
-        neighborhood: 'Centro',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3551-1096',
-        isActive: false,
-      },
-      {
-        id: 4,
-        name: 'SAMU',
-        cep: '13600-001',
-        address: 'Avenida Dona Renata',
-        number: '4585',
-        neighborhood: 'Centro',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3541-6819',
-        isActive: true,
-      },
-      {
-        id: 5,
-        name: 'PSF Edmundo Ulson',
-        cep: '13606-652',
-        address: 'Rua Ângelo Francato',
-        number: '393',
-        neighborhood: 'Parque Tiradentes',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-5232',
-        isActive: true,
-      },
-      {
-        id: 6,
-        name: 'PSF Nilton De Lollo',
-        cep: '13604-044',
-        address: 'Rua Catanduva',
-        number: '253',
-        neighborhood: 'Jd. São João',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-7302',
-        isActive: true,
-      },
-      {
-        id: 7,
-        name: 'UBS Ênio Vitalli',
-        cep: '13604-066',
-        address: 'Rua Franca',
-        number: '99',
-        neighborhood: 'Jd. Piratininga',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-4280',
-        isActive: true,
-      },
-      {
-        id: 8,
-        name: 'UPA Elisa Sbrissa Franchozza',
-        cep: '13606-414',
-        address: 'Av. Irineu Carrocci',
-        number: '400',
-        neighborhood: 'José Ometto II',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3543-5100',
-        isActive: true,
-      },
-      {
-        id: 9,
-        name: 'Farmácia de Alto Custo',
-        cep: '13600-710',
-        address: 'Rua Brasília',
-        number: '295',
-        neighborhood: 'Centro',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3551-1096',
-        isActive: true,
-      },
-      {
-        id: 10,
-        name: 'SAMU',
-        cep: '13600-001',
-        address: 'Avenida Dona Renata',
-        number: '4585',
-        neighborhood: 'Centro',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3541-6819',
-        isActive: false,
-      },
-      {
-        id: 11,
-        name: 'PSF Edmundo Ulson',
-        cep: '13606-652',
-        address: 'Rua Ângelo Francato',
-        number: '393',
-        neighborhood: 'Parque Tiradentes',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-5232',
-        isActive: true,
-      },
-      {
-        id: 12,
-        name: 'PSF Nilton De Lollo',
-        cep: '13604-044',
-        address: 'Rua Catanduva',
-        number: '253',
-        neighborhood: 'Jd. São João',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-7302',
-        isActive: true,
-      },
-      {
-        id: 13,
-        name: 'UBS Ênio Vitalli',
-        cep: '13604-066',
-        address: 'Rua Franca',
-        number: '99',
-        neighborhood: 'Jd. Piratininga',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-4280',
-        isActive: true,
-      },
-      {
-        id: 14,
-        name: 'UPA Elisa Sbrissa Franchozza',
-        cep: '13606-414',
-        address: 'Av. Irineu Carrocci',
-        number: '400',
-        neighborhood: 'José Ometto II',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3543-5100',
-        isActive: true,
-      },
-      {
-        id: 15,
-        name: 'Farmácia de Alto Custo',
-        cep: '13600-710',
-        address: 'Rua Brasília',
-        number: '295',
-        neighborhood: 'Centro',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3551-1096',
-        isActive: false,
-      },
-      {
-        id: 16,
-        name: 'SAMU',
-        cep: '13600-001',
-        address: 'Avenida Dona Renata',
-        number: '4585',
-        neighborhood: 'Centro',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3541-6819',
-        isActive: true,
-      },
-      {
-        id: 17,
-        name: 'PSF Edmundo Ulson',
-        cep: '13606-652',
-        address: 'Rua Ângelo Francato',
-        number: '393',
-        neighborhood: 'Parque Tiradentes',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-5232',
-        isActive: true,
-      },
-      {
-        id: 18,
-        name: 'PSF Nilton De Lollo',
-        cep: '13604-044',
-        address: 'Rua Catanduva',
-        number: '253',
-        neighborhood: 'Jd. São João',
-        city: 'Araras',
-        state: 'SP',
-        email: 'email@email.com',
-        phone: '(19) 3544-7302',
-        isActive: true,
-      },
-    ];
+  ngAfterViewInit(): void {
+    this.loadDestinations();
   }
 
   exportCSV() {
@@ -350,5 +124,23 @@ export class DestinationListComponent implements OnInit {
       case false:
         return 'Inativo';
     }
+  }
+
+  loadDestinations(): void {
+    this.spinnerComponent.loading = true;
+    this.destinationService.getDestinations().subscribe({
+      next: (response: ApiResponse<Destination[]>) => {
+        this.spinnerComponent.loading = false;
+        if (response.statusCode === 200) {
+          this.destinations = response.data;
+          this.toastComponent.showMessage('success', 'Sucesso', response.message);
+        } else {
+          this.toastComponent.showMessage('error', 'Erro', response.message);
+        }
+      }, error: (error) => {
+        this.spinnerComponent.loading = false;
+        this.toastComponent.showMessage('error', 'Erro', error);
+      },
+    });
   }
 }
