@@ -10,12 +10,11 @@ import { ApiConfigService } from '../../../shared/services/api-config.service';
   providedIn: 'root'
 })
 export class DestinationService {
-  private apiUrl = environment.apiUrl + 'destination/getAll';
-
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  getDestinations(): Observable<ApiResponse<Destination[]>> {
-    return this.http.get<ApiResponse<Destination[]>>(this.apiUrl);
+  getAllDestinations(): Observable<ApiResponse<Destination[]>> {
+    const url = this.apiConfig.getDestinationUrl('getAll');
+    return this.http.get<ApiResponse<Destination[]>>(url);
   }
 
   getDestinationById(id: number): Observable<ApiResponse<Destination>> {

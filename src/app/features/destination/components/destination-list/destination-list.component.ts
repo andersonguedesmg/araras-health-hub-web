@@ -79,7 +79,7 @@ export class DestinationListComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.loadDestinations();
+    this.getAllDestinations();
   }
 
   exportCSV() {
@@ -126,9 +126,9 @@ export class DestinationListComponent implements OnInit {
     }
   }
 
-  loadDestinations(): void {
+  getAllDestinations(): void {
     this.spinnerComponent.loading = true;
-    this.destinationService.getDestinations().subscribe({
+    this.destinationService.getAllDestinations().subscribe({
       next: (response: ApiResponse<Destination[]>) => {
         this.spinnerComponent.loading = false;
         if (response.statusCode === 200) {
