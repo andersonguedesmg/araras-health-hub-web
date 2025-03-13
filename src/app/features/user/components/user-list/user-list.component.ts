@@ -80,7 +80,7 @@ export class UserListComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.loadUsers();
+    this.getAllUsers();
   }
 
   exportCSV() {
@@ -121,9 +121,9 @@ export class UserListComponent implements OnInit {
     }
   }
 
-  loadUsers(): void {
+  getAllUsers(): void {
     this.spinnerComponent.loading = true;
-    this.userService.getUsers().subscribe({
+    this.userService.getAllUsers().subscribe({
       next: (response: ApiResponse<User[]>) => {
         this.spinnerComponent.loading = false;
         if (response.statusCode === 200) {
