@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
@@ -13,13 +13,16 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Tag } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { DialogModule } from 'primeng/dialog';
+import { InputMask } from 'primeng/inputmask';
+import { DropdownModule } from 'primeng/dropdown';
+import { TooltipModule } from 'primeng/tooltip';
 import { Table } from 'primeng/table';
 import { User } from '../../interfaces/user';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { UserService } from '../../services/user.service';
 import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
-
 
 interface Column {
   field: string;
@@ -38,6 +41,7 @@ interface ExportColumn {
     BreadcrumbComponent,
     CommonModule,
     RouterModule,
+    ReactiveFormsModule,
     TableModule,
     ToastModule,
     ToolbarModule,
@@ -46,7 +50,11 @@ interface ExportColumn {
     InputTextModule,
     InputIconModule,
     IconFieldModule,
+    TooltipModule,
+    InputMask,
     Tag,
+    DialogModule,
+    DropdownModule,
     ToastComponent,
     SpinnerComponent,
   ],
@@ -62,18 +70,30 @@ export class UserListComponent implements OnInit {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Usuários' }, { label: 'Listagem' },];
 
   users: User[] = [];
+  selectedUser?: User;
+  userForm: FormGroup;
+  formMode: 'create' | 'update' | 'detail' = 'create';
+  displayDialog = false;
+  formSubmitted = false;
 
-  user!: User;
-
-  selectedUser!: User | null;
+  statusOptions: any[] = [
+    { label: 'Ativo', value: true },
+    { label: 'Inativo', value: false },
+  ];
 
   cols!: Column[];
-
   selectedColumns!: Column[];
-
   exportColumns!: ExportColumn[];
 
-  constructor(private cd: ChangeDetectorRef, private userService: UserService) { }
+  constructor(private cd: ChangeDetectorRef, private userService: UserService, private fb: FormBuilder) {
+    this.userForm = this.fb.group({
+      id: [{ value: null, disabled: true }],
+      name: ['', Validators.required],
+      function: ['', Validators.required],
+      phone: ['', Validators.required],
+      isActive: [{ value: false, disabled: true }],
+    });
+  }
 
   ngOnInit() {
     this.loadDemoData();
@@ -128,7 +148,6 @@ export class UserListComponent implements OnInit {
         this.spinnerComponent.loading = false;
         if (response.statusCode === 200) {
           this.users = response.data;
-          this.toastComponent.showMessage('success', 'Sucesso', response.message);
         } else {
           this.toastComponent.showMessage('error', 'Erro', response.message);
         }
@@ -137,5 +156,128 @@ export class UserListComponent implements OnInit {
         this.toastComponent.showMessage('error', 'Erro', error);
       },
     });
+  }
+
+  openForm(mode: 'create' | 'update' | 'detail', user?: User): void {
+    this.formMode = mode;
+    this.selectedUser = user;
+    this.displayDialog = true;
+    this.initializeForm();
+  }
+
+  initializeForm(): void {
+    this.userForm.reset();
+    if (this.selectedUser) {
+      this.userForm.patchValue(this.selectedUser);
+    }
+    this.updateFormState();
+  }
+
+  updateFormState(): void {
+    const isDetail = this.formMode === 'detail';
+    const isUpdate = this.formMode === 'update';
+
+    this.userForm.get('name')?.disable();
+    this.userForm.get('function')?.disable();
+    this.userForm.get('phone')?.disable();
+    this.userForm.get('isActive')?.disable();
+
+    if (this.formMode === 'create') {
+      this.userForm.get('isActive')?.setValue(true);
+      this.userForm.get('isActive')?.disable();
+      this.userForm.get('name')?.enable();
+      this.userForm.get('function')?.enable();
+      this.userForm.get('phone')?.enable();
+    } else if (isUpdate) {
+      this.userForm.get('name')?.enable();
+      this.userForm.get('function')?.enable();
+      this.userForm.get('phone')?.enable();
+    }
+
+    if (!isDetail && !isUpdate) {
+      this.userForm.get('isActive')?.disable();
+    }
+    if (isDetail) {
+      this.userForm.get('isActive')?.disable();
+    }
+  }
+
+  hideDialog(): void {
+    this.displayDialog = false;
+    this.selectedUser = undefined;
+  }
+
+  saveUser(): void {
+    this.formSubmitted = true;
+    if (this.userForm.valid) {
+      this.spinnerComponent.loading = true;
+      const user: User = this.userForm.getRawValue();
+      if (this.formMode === 'create') {
+        this.userService.createUser(user).subscribe(this.handleResponse());
+      } else if (this.formMode === 'update') {
+        this.userService.updateUser(user, user.id).subscribe(this.handleResponse());
+      }
+    } else {
+      this.toastComponent.showMessage('error', 'Erro', 'Preencha todos os campos obrigatórios.');
+    }
+  }
+
+  changeStatusUser(userId: number, user: User): void {
+    this.spinnerComponent.loading = true;
+    let changeUserIsActive = this.changeIsActive(user);
+    this.userService.changeStatusUser(userId, changeUserIsActive).subscribe({
+      next: (response: ApiResponse<User[]>) => {
+        this.spinnerComponent.loading = false;
+        if (response.statusCode === 200) {
+          this.toastComponent.showMessage('success', 'Sucesso', response.message);
+          this.getAllUsers();
+        } else {
+          this.toastComponent.showMessage('error', 'Erro', response.message);
+        }
+      }, error: (error) => {
+        this.spinnerComponent.loading = false;
+        this.toastComponent.showMessage('error', 'Erro', error);
+      },
+    });
+  }
+
+  changeIsActive(objeto: any) {
+    if (objeto && typeof objeto === 'object' && 'isActive' in objeto) {
+      objeto.isActive = !objeto.isActive;
+    }
+    return objeto;
+  }
+
+  deleteUser(userId: number): void {
+    this.spinnerComponent.loading = true;
+    this.userService.deleteUser(userId).subscribe({
+      next: (response: ApiResponse<User[]>) => {
+        this.spinnerComponent.loading = false;
+        if (response.statusCode === 200) {
+          this.toastComponent.showMessage('success', 'Sucesso', response.message);
+          this.getAllUsers();
+        } else {
+          this.toastComponent.showMessage('error', 'Erro', response.message);
+        }
+      }, error: (error) => {
+        this.toastComponent.showMessage('error', 'Erro', error);
+        this.spinnerComponent.loading = false;
+      },
+    });
+  }
+
+  handleResponse(): any {
+    return {
+      next: () => {
+        this.spinnerComponent.loading = false;
+        this.toastComponent.showMessage('success', 'Sucesso', `Usuário ${this.formMode === 'create' ? 'cadastrado' : 'atualizado'} com sucesso.`);
+        this.getAllUsers();
+        this.hideDialog();
+      }, error: (error: any) => {
+        this.spinnerComponent.loading = false;
+        this.toastComponent.showMessage('error', 'Erro', `Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} usuário.`);
+        console.error(`Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} usuário:`, error);
+      },
+    };
   }
 }

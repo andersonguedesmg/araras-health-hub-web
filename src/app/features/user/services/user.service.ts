@@ -15,4 +15,24 @@ export class UserService {
     const url = this.apiConfig.getUserUrl('getAll');
     return this.http.get<ApiResponse<User[]>>(url);
   }
+
+  createUser(user: User): Observable<ApiResponse<User>> {
+    const url = this.apiConfig.getUserUrl('create');
+    return this.http.post<ApiResponse<User>>(url, user);
+  }
+
+  updateUser(user: User, userId: number): Observable<ApiResponse<User>> {
+    const url = this.apiConfig.getUserUrl(`update/${userId}`);
+    return this.http.put<ApiResponse<User>>(url, user);
+  }
+
+  deleteUser(userId: number): Observable<ApiResponse<any>> {
+    const url = this.apiConfig.getUserUrl(`delete/${userId}`);
+    return this.http.delete<ApiResponse<any>>(url);
+  }
+
+  changeStatusUser(userId: number, user: User): Observable<ApiResponse<any>> {
+    const url = this.apiConfig.getUserUrl(`changeStatus/${userId}`);
+    return this.http.patch<ApiResponse<any>>(url, user);
+  }
 }
