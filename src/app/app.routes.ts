@@ -9,7 +9,6 @@ import { ProductListComponent } from './features/product/components/product-list
 import { StockListComponent } from './features/stock/components/stock-list/stock-list.component';
 import { OrderListComponent } from './features/order/components/order-list/order-list.component';
 import { AccountListComponent } from './features/account/components/account-list/account-list.component';
-import { UserFormComponent } from './features/user/components/user-form/user-form.component';
 import { AccountFormComponent } from './features/account/components/account-form/account-form.component';
 import { DestinationFormComponent } from './features/destination/components/destination-form/destination-form.component';
 import { LoginComponent } from './core/components/login/login.component';
@@ -79,11 +78,6 @@ export const routes: Routes = [
   {
     path: 'usuarios',
     component: UserListComponent,
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'usuarios/form',
-    component: UserFormComponent,
     canActivate: [AuthGuard]
   },
   {
