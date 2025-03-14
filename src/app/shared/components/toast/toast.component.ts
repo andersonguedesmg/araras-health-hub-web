@@ -11,7 +11,7 @@ import { ToastModule } from 'primeng/toast';
 export class ToastComponent {
   constructor(public messageService: MessageService) { }
 
-  showMessage(severity: 'success' | 'error', summary: string, detail: string): void {
+  showMessage(severity: 'success' | 'info' | 'warn' | 'error' | 'secondary' | 'contrast', summary: string, detail: string): void {
     this.messageService.add({
       severity: severity,
       summary: summary,
