@@ -23,6 +23,7 @@ import { ToastComponent } from '../../../../shared/components/toast/toast.compon
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { UserService } from '../../services/user.service';
 import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 interface Column {
   field: string;
@@ -57,6 +58,7 @@ interface ExportColumn {
     DropdownModule,
     ToastComponent,
     SpinnerComponent,
+    ConfirmDialogComponent,
   ],
   providers: [MessageService],
   templateUrl: './user-list.component.html',
@@ -66,6 +68,7 @@ export class UserListComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
+  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent; // Adicione
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Usuários' }, { label: 'Listagem' },];
 
@@ -75,6 +78,9 @@ export class UserListComponent implements OnInit {
   formMode: 'create' | 'update' | 'detail' = 'create';
   displayDialog = false;
   formSubmitted = false;
+
+  confirmMode: 'create' | 'update' | null = null;
+  confirmMessage = '';
 
   statusOptions: any[] = [
     { label: 'Ativo', value: true },
@@ -210,35 +216,56 @@ export class UserListComponent implements OnInit {
   saveUser(): void {
     this.formSubmitted = true;
     if (this.userForm.valid) {
-      this.spinnerComponent.loading = true;
-      const user: User = this.userForm.getRawValue();
       if (this.formMode === 'create') {
-        this.userService.createUser(user).subscribe(this.handleResponse());
+        this.confirmMessage = 'Tem certeza que deseja cadastrar este usuário?';
+        this.confirmMode = 'create';
       } else if (this.formMode === 'update') {
-        this.userService.updateUser(user, user.id).subscribe(this.handleResponse());
+        this.confirmMessage = 'Tem certeza que deseja atualizar este usuário?';
+        this.confirmMode = 'update';
       }
+      this.confirmDialog.message = this.confirmMessage;
+      this.confirmDialog.confirmed.subscribe(() => {
+        this.spinnerComponent.loading = true;
+        const user: User = this.userForm.getRawValue();
+        if (this.confirmMode === 'create') {
+          this.userService.createUser(user).subscribe(this.handleResponse());
+        } else if (this.confirmMode === 'update') {
+          this.userService.updateUser(user, user.id).subscribe(this.handleResponse());
+        }
+      });
+      this.confirmDialog.rejected.subscribe(() => {
+        this.confirmMode = null;
+      });
+      this.confirmDialog.show();
     } else {
       this.toastComponent.showMessage('error', 'Erro', 'Preencha todos os campos obrigatórios.');
     }
   }
 
   changeStatusUser(userId: number, user: User): void {
-    this.spinnerComponent.loading = true;
-    let changeUserIsActive = this.changeIsActive(user);
-    this.userService.changeStatusUser(userId, changeUserIsActive).subscribe({
-      next: (response: ApiResponse<User[]>) => {
-        this.spinnerComponent.loading = false;
-        if (response.statusCode === 200) {
-          this.toastComponent.showMessage('success', 'Sucesso', response.message);
-          this.getAllUsers();
-        } else {
-          this.toastComponent.showMessage('error', 'Erro', response.message);
-        }
-      }, error: (error) => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', error);
-      },
+    this.confirmDialog.message = 'Tem certeza que deseja excluir este usuário?';
+    this.confirmDialog.confirmed.subscribe(() => {
+      this.spinnerComponent.loading = true;
+      let changeUserIsActive = this.changeIsActive(user);
+      this.userService.changeStatusUser(userId, changeUserIsActive).subscribe({
+        next: (response: ApiResponse<User[]>) => {
+          this.spinnerComponent.loading = false;
+          if (response.statusCode === 200) {
+            this.toastComponent.showMessage('success', 'Sucesso', response.message);
+            this.getAllUsers();
+          } else {
+            this.toastComponent.showMessage('error', 'Erro', response.message);
+          }
+        }, error: (error) => {
+          this.spinnerComponent.loading = false;
+          this.toastComponent.showMessage('error', 'Erro', error);
+        },
+      });
     });
+    this.confirmDialog.rejected.subscribe(() => {
+      this.toastComponent.showMessage('info', 'Cancelado', 'Exclusão cancelada.');
+    });
+    this.confirmDialog.show();
   }
 
   changeIsActive(objeto: any) {
@@ -249,21 +276,24 @@ export class UserListComponent implements OnInit {
   }
 
   deleteUser(userId: number): void {
-    this.spinnerComponent.loading = true;
-    this.userService.deleteUser(userId).subscribe({
-      next: (response: ApiResponse<User[]>) => {
-        this.spinnerComponent.loading = false;
-        if (response.statusCode === 200) {
-          this.toastComponent.showMessage('success', 'Sucesso', response.message);
+    this.confirmDialog.message = 'Tem certeza que deseja excluir este usuário?';
+    this.confirmDialog.confirmed.subscribe(() => {
+      this.spinnerComponent.loading = true;
+      this.userService.deleteUser(userId).subscribe({
+        next: () => {
+          this.toastComponent.showMessage('success', 'Sucesso', 'Usuário excluído com sucesso.');
           this.getAllUsers();
-        } else {
-          this.toastComponent.showMessage('error', 'Erro', response.message);
-        }
-      }, error: (error) => {
-        this.toastComponent.showMessage('error', 'Erro', error);
-        this.spinnerComponent.loading = false;
-      },
+        },
+        error: (error) => {
+          this.toastComponent.showMessage('error', 'Erro', 'Erro ao excluir usuário.');
+          this.spinnerComponent.loading = false;
+        },
+      });
     });
+    this.confirmDialog.rejected.subscribe(() => {
+      this.toastComponent.showMessage('info', 'Cancelado', 'Exclusão cancelada.');
+    });
+    this.confirmDialog.show();
   }
 
   handleResponse(): any {
