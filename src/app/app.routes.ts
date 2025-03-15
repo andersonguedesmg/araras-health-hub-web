@@ -10,7 +10,6 @@ import { StockListComponent } from './features/stock/components/stock-list/stock
 import { OrderListComponent } from './features/order/components/order-list/order-list.component';
 import { AccountListComponent } from './features/account/components/account-list/account-list.component';
 import { AccountFormComponent } from './features/account/components/account-form/account-form.component';
-import { DestinationFormComponent } from './features/destination/components/destination-form/destination-form.component';
 import { LoginComponent } from './core/components/login/login.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { DestinationProfileComponent } from './features/destination/components/destination-profile/destination-profile.component';
@@ -39,11 +38,6 @@ export const routes: Routes = [
   {
     path: 'perfil',
     component: DestinationProfileComponent,
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'destinos/form',
-    component: DestinationFormComponent,
     canActivate: [AuthGuard]
   },
   {
