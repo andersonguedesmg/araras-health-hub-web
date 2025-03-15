@@ -68,9 +68,9 @@ export class UserListComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent; // Adicione
+  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Usuários' }, { label: 'Listagem' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Usuários' }];
 
   users: User[] = [];
   selectedUser?: User;
