@@ -1,6 +1,9 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
 <app-toast></app-toast>
 <app-spinner></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
 <div class="container mx-auto">
   <div class="card mt-10">
     <p-toast />
@@ -51,7 +54,12 @@
             />
           </p-iconfield>
           <div>
-            <p-button label="Novo" icon="pi pi-plus" class="mr-2" />
+            <p-button
+              label="Novo"
+              icon="pi pi-plus"
+              class="mr-2"
+              (click)="openForm('create')"
+            />
             <p-button
               label="Exportar"
               icon="pi pi-upload"
@@ -66,18 +74,12 @@
         <tr>
           <th style="min-width: 5rem" pSortableColumn="id">ID</th>
           <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
-          <th style="min-width: 20rem" pSortableColumn="address">ENDEREÇO</th>
-          <th style="min-width: 10rem" pSortableColumn="number">NÚMERO</th>
-          <th style="min-width: 20rem" pSortableColumn="neighborhood">
-            BAIRRO
-          </th>
           <th style="min-width: 10rem" pSortableColumn="city">CIDADE</th>
           <th style="min-width: 10rem" pSortableColumn="state">ESTADO</th>
-          <th style="min-width: 12rem" pSortableColumn="cep">CEP</th>
           <th style="min-width: 12rem" pSortableColumn="email">E-MAIL</th>
           <th style="min-width: 12rem" pSortableColumn="phone">TELEFONE</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
-          <th style="min-width: 10rem">AÇÕES</th>
+          <th style="min-width: 15rem">AÇÕES</th>
         </tr>
       </ng-template>
 
@@ -85,12 +87,8 @@
         <tr>
           <td>{{ supplier.id }}</td>
           <td>{{ supplier.name }}</td>
-          <td>{{ supplier.address }}</td>
-          <td>{{ supplier.number }}</td>
-          <td>{{ supplier.neighborhood }}</td>
           <td>{{ supplier.city }}</td>
           <td>{{ supplier.state }}</td>
-          <td>{{ supplier.cep }}</td>
           <td>{{ supplier.email }}</td>
           <td>{{ supplier.phone }}</td>
           <td>
@@ -103,18 +101,278 @@
             <p-button
               icon="pi pi-pencil"
               class="mr-2"
+              pTooltip="Editar"
+              tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
+              (click)="openForm('update', supplier)"
+            />
+            <p-button
+              icon="pi pi-info-circle"
+              class="mr-2"
+              pTooltip="Detalhar"
+              tooltipPosition="bottom"
+              severity="info"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="openForm('detail', supplier)"
             />
             <p-button
               icon="pi pi-trash"
               severity="danger"
+              pTooltip="Excluir"
+              tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
+              (click)="changeStatusSupplier(supplier.id, supplier)"
             />
           </td>
         </tr>
       </ng-template>
     </p-table>
+
+    <p-dialog
+      [(visible)]="displayDialog"
+      [modal]="true"
+      [style]="{ width: '50vw' }"
+      [header]="
+        formMode === 'create'
+          ? 'Novo Fornecedor'
+          : formMode === 'update'
+          ? 'Editar Fornecedor'
+          : 'Detalhes do Fornecedor'
+      "
+      (onHide)="hideDialog()"
+    >
+      <form [formGroup]="supplierForm" class="mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4" *ngIf="formMode !== 'create'">
+            <label for="id" class="block text-sm font-medium text-gray-500"
+              >ID:</label
+            >
+            <input
+              id="id"
+              pInputText
+              type="text"
+              formControlName="id"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="name" class="block text-sm font-medium text-gray-500"
+              >Nome:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="name"
+              pInputText
+              type="text"
+              formControlName="name"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500': supplierForm.get('name')?.invalid
+              }"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('name')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="address" class="block text-sm font-medium text-gray-500"
+              >Endereço:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="address"
+              pInputText
+              type="text"
+              formControlName="address"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('address')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="number" class="block text-sm font-medium text-gray-500"
+              >Número:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="number"
+              pInputText
+              type="text"
+              formControlName="number"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('number')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="neighborhood"
+              class="block text-sm font-medium text-gray-500"
+              >Bairro:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="neighborhood"
+              pInputText
+              type="text"
+              formControlName="neighborhood"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('neighborhood')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="city" class="block text-sm font-medium text-gray-500"
+              >Cidade:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="city"
+              pInputText
+              type="text"
+              formControlName="city"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('city')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="state" class="block text-sm font-medium text-gray-500"
+              >Estado:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="state"
+              pInputText
+              type="text"
+              formControlName="state"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('state')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="cep" class="block text-sm font-medium text-gray-500"
+              >CEP:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="cep"
+              pInputText
+              type="text"
+              formControlName="cep"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('cep')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="email" class="block text-sm font-medium text-gray-500"
+              >E-mail:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="email"
+              pInputText
+              type="text"
+              formControlName="email"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('email')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="phone" class="block text-sm font-medium text-gray-500"
+              >Telefone:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <p-inputmask
+              id="phone"
+              mask="(99) 99999-9999"
+              styleClass="w-full"
+              formControlName="phone"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('phone')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Status:</label
+            >
+            <p-dropdown
+              [options]="statusOptions"
+              formControlName="isActive"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              placeholder="Selecione"
+            ></p-dropdown>
+          </div>
+        </div>
+      </form>
+      <ng-template pTemplate="footer">
+        <p-button
+          *ngIf="formMode !== 'detail'"
+          label="Salvar"
+          icon="pi pi-check"
+          (click)="saveSupplier()"
+        ></p-button>
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="info"
+          [outlined]="true"
+          (click)="hideDialog()"
+        ></p-button>
+      </ng-template>
+    </p-dialog>
   </div>
 </div>
