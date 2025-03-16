@@ -17,6 +17,8 @@ import { Destination } from '../../interfaces/destination';
 import { DestinationService } from '../../services/destination.service';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
+import { Account } from '../../../account/interfaces/account';
+import { Tag } from 'primeng/tag';
 
 interface Column {
   field: string;
@@ -43,6 +45,7 @@ interface ExportColumn {
     InputTextModule,
     InputIconModule,
     IconFieldModule,
+    Tag,
     ToastComponent,
     SpinnerComponent,
   ],
@@ -60,6 +63,8 @@ export class DestinationProfileComponent implements OnInit {
   destinations!: Destination[];
 
   destination!: Destination;
+
+  accountUsers: Account[] = [];
 
   selectedDestinations!: Destination | null;
 
@@ -83,12 +88,11 @@ export class DestinationProfileComponent implements OnInit {
       this.toastComponent.showMessage('error', 'Erro', 'ID de destino não encontrado.');
       return;
     }
-    console.log('destinationId', destinationId);
     this.spinnerComponent.loading = true;
     this.destinationService.getDestinationById(parseInt(destinationId)).subscribe({
       next: (response) => {
-        console.log('loadDestinationProfile', response);
         this.destination = response.data;
+        this.accountUsers = response.data.accountUsers;
         this.spinnerComponent.loading = false;
       },
       error: (error) => {
@@ -99,5 +103,21 @@ export class DestinationProfileComponent implements OnInit {
     });
   }
 
+  getSeverity(status: boolean): any {
+    switch (status) {
+      case true:
+        return 'success';
+      case false:
+        return 'danger';
+    }
+  }
 
+  getStatus(status: boolean): any {
+    switch (status) {
+      case true:
+        return 'Ativo';
+      case false:
+        return 'Inativo';
+    }
+  }
 }

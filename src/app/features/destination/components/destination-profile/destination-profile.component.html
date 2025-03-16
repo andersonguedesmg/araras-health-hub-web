@@ -79,6 +79,36 @@
           </div>
         </div>
       </div>
+
+      <div
+        *ngIf="accountUsers.length > 0"
+        class="bg-zinc-900 border border-zinc-600 rounded-md p-8 mt-4"
+      >
+        <span class="text-xl font-bold mt-2 mb-2">Usuários</span>
+        <p-table [value]="accountUsers">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Criado em</th>
+              <th>Status</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-accountUser>
+            <tr>
+              <td>{{ accountUser.id }}</td>
+              <td>{{ accountUser.userName }}</td>
+              <td>{{ accountUser.createdOn }}</td>
+              <td>
+                <p-tag
+                  [value]="getStatus(destination.isActive)"
+                  [severity]="getSeverity(destination.isActive)"
+                />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
     </div>
   </div>
 </div>

@@ -1,3 +1,5 @@
+import { Account } from "../../account/interfaces/account";
+
 export interface Destination {
   id: number;
   name: string;
@@ -12,5 +14,5 @@ export interface Destination {
   createdOn: string;
   updatedOn: string;
   isActive: boolean;
-  accountUsers: any[];
+  accountUsers: Account[];
 }
