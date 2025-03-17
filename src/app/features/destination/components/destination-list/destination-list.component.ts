@@ -100,7 +100,7 @@ export class DestinationListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadDemoData();
+    this.loadTableData();
   }
 
   ngAfterViewInit(): void {
@@ -111,7 +111,7 @@ export class DestinationListComponent implements OnInit {
     this.dt.exportCSV();
   }
 
-  loadDemoData() {
+  loadTableData() {
     this.cd.markForCheck();
 
     this.cols = [

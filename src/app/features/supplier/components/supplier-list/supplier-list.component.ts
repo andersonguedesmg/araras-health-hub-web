@@ -101,7 +101,7 @@ export class SupplierListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadDemoData();
+    this.loadTableData();
   }
 
   ngAfterViewInit(): void {
@@ -112,7 +112,7 @@ export class SupplierListComponent implements OnInit {
     this.dt.exportCSV();
   }
 
-  loadDemoData() {
+  loadTableData() {
     this.cd.markForCheck();
 
     this.cols = [

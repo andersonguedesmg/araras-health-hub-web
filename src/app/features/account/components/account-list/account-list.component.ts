@@ -93,7 +93,7 @@ export class AccountListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadDemoData();
+    this.loadTableData();
   }
 
   ngAfterViewInit(): void {
@@ -104,7 +104,7 @@ export class AccountListComponent implements OnInit {
     this.dt.exportCSV();
   }
 
-  loadDemoData() {
+  loadTableData() {
     this.cd.markForCheck();
 
     this.cols = [
