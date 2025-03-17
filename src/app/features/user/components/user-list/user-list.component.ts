@@ -25,17 +25,7 @@ import { UserService } from '../../services/user.service';
 import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-
-interface Column {
-  field: string;
-  header: string;
-  customExportHeader?: string;
-}
-
-interface ExportColumn {
-  title: string;
-  dataKey: string;
-}
+import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
 
 @Component({
   selector: 'app-user-list',

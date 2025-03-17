@@ -24,17 +24,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
 import { InputMask } from 'primeng/inputmask';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-
-interface Column {
-  field: string;
-  header: string;
-  customExportHeader?: string;
-}
-
-interface ExportColumn {
-  title: string;
-  dataKey: string;
-}
+import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
 
 @Component({
   selector: 'app-supplier-list',
