@@ -7,6 +7,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { ToastComponent } from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { ToastSeverities, ToastSummaries } from '../../../shared/constants/toast.constants';
+import { HttpStatus } from '../../../shared/enums/http-status.enum';
 
 @Component({
   selector: 'app-login',
@@ -27,15 +29,15 @@ export class LoginComponent {
     this.authService.login(this.credentials).subscribe({
       next: (response: LoginResponse) => {
         this.spinnerComponent.loading = false;
-        if (response.statusCode === 200) {
-          this.toastComponent.showMessage('success', 'Sucesso', 'Login realizado com sucesso!');
+        if (response.statusCode === HttpStatus.Ok) {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
           this.router.navigate(['/']);
         } else {
-          this.toastComponent.showMessage('error', 'Erro', response.message);
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
         }
       }, error: (error) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', 'Erro ao realizar login.');
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
       },
     });
   }

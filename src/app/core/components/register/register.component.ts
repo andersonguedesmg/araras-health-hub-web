@@ -7,6 +7,8 @@ import { ToastComponent } from '../../../shared/components/toast/toast.component
 import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../services/auth.service';
+import { ToastSeverities, ToastSummaries } from '../../../shared/constants/toast.constants';
+import { ToastMessages } from '../../../shared/constants/messages.constants';
 
 @Component({
   selector: 'app-register',
@@ -45,16 +47,15 @@ export class RegisterComponent {
     if (this.registerForm.valid) {
       const user = this.registerForm.value;
       this.authService.register(user).subscribe({
-        next: () => {
-          this.toastComponent.showMessage('success', 'Sucesso', 'Cadastro realizado com sucesso.');
+        next: (response) => {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
         },
         error: (error) => {
-          this.toastComponent.showMessage('error', 'Erro', 'Erro ao realizar cadastro.');
-          console.error('Erro ao realizar cadastro:', error);
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
         },
       });
     } else {
-      this.toastComponent.showMessage('error', 'Erro', 'Preencha todos os campos obrigatórios.');
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 }
