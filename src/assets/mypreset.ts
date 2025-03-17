@@ -17,7 +17,8 @@ export const MyPreset = definePreset(Aura, {
         }
       }
     },
-    megamenu: {
+
+    menubar: {
       colorScheme: {
         light: {
           root: {
