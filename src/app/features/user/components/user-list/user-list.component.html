@@ -21,7 +21,14 @@
       [rowsPerPageOptions]="[5, 10, 25]"
       [columns]="cols"
       [paginator]="true"
-      [globalFilterFields]="['id', 'name', 'function', 'phone', 'isActive']"
+      [globalFilterFields]="[
+        'id',
+        'name',
+        'cpf',
+        'function',
+        'phone',
+        'isActive'
+      ]"
       [tableStyle]="{ 'min-width': '75rem' }"
       [(selection)]="selectedUser"
       [rowHover]="true"
@@ -61,6 +68,7 @@
         <tr>
           <th style="min-width: 5rem" pSortableColumn="id">ID</th>
           <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
+          <th style="min-width: 12rem" pSortableColumn="cpf">CPF</th>
           <th style="min-width: 20rem" pSortableColumn="function">FUNÇÃO</th>
           <th style="min-width: 12rem" pSortableColumn="phone">TELEFONE</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
@@ -72,6 +80,7 @@
         <tr>
           <td>{{ user.id }}</td>
           <td>{{ user.name }}</td>
+          <td>{{ user.cpf }}</td>
           <td>{{ user.function }}</td>
           <td>{{ user.phone }}</td>
           <td>
@@ -158,6 +167,24 @@
               [ngClass]="{ 'border-red-500': userForm.get('name')?.invalid }"
               [ngClass]="{
                 'border-red-500': formSubmitted && userForm.get('name')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="cpf" class="block text-sm font-medium text-gray-500"
+              >CPF:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <p-inputmask
+              id="cpf"
+              mask="999.999.999-99"
+              styleClass="w-full"
+              formControlName="cpf"
+              [ngClass]="{
+                'border-red-500': formSubmitted && userForm.get('cpf')?.invalid
               }"
             />
           </div>

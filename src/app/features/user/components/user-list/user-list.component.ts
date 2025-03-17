@@ -95,6 +95,7 @@ export class UserListComponent implements OnInit {
     this.userForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
+      cpf: ['', Validators.required],
       function: ['', Validators.required],
       phone: ['', Validators.required],
       isActive: [{ value: false, disabled: true }],
@@ -119,6 +120,7 @@ export class UserListComponent implements OnInit {
     this.cols = [
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO USUÁRIO' },
       { field: 'name', header: 'NOME' },
+      { field: 'cpf', header: 'CPF' },
       { field: 'function', header: 'FUNÇÃO' },
       { field: 'phone', header: 'TELEFONE' },
       { field: 'isActive', header: 'STATUS' },
@@ -184,6 +186,7 @@ export class UserListComponent implements OnInit {
     const isUpdate = this.formMode === 'update';
 
     this.userForm.get('name')?.disable();
+    this.userForm.get('cpf')?.disable();
     this.userForm.get('function')?.disable();
     this.userForm.get('phone')?.disable();
     this.userForm.get('isActive')?.disable();
@@ -192,10 +195,12 @@ export class UserListComponent implements OnInit {
       this.userForm.get('isActive')?.setValue(true);
       this.userForm.get('isActive')?.disable();
       this.userForm.get('name')?.enable();
+      this.userForm.get('cpf')?.enable();
       this.userForm.get('function')?.enable();
       this.userForm.get('phone')?.enable();
     } else if (isUpdate) {
       this.userForm.get('name')?.enable();
+      this.userForm.get('cpf')?.enable();
       this.userForm.get('function')?.enable();
       this.userForm.get('phone')?.enable();
     }
