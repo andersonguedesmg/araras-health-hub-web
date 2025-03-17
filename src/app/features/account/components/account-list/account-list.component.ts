@@ -218,7 +218,11 @@ export class AccountListComponent implements OnInit {
   }
 
   changeStatusAccount(accountId: string, account: Account): void {
-    this.confirmDialog.message = ConfirmMessages.UPDATE_ACCOUNT;
+    if (account.isActive) {
+      this.confirmDialog.message = ConfirmMessages.DISABLE_ACCOUNT;
+    } else {
+      this.confirmDialog.message = ConfirmMessages.ACTIVATE_ACCOUNT;
+    }
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       let changeAccountIsActive = this.changeIsActive(account);

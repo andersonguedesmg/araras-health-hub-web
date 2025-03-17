@@ -255,7 +255,11 @@ export class DestinationListComponent implements OnInit {
   }
 
   changeStatusDestination(destinationId: number, destination: Destination): void {
-    this.confirmDialog.message = ConfirmMessages.UPDATE_DESTINATION;
+    if (destination.isActive) {
+      this.confirmDialog.message = ConfirmMessages.DISABLE_DESTINATION;
+    } else {
+      this.confirmDialog.message = ConfirmMessages.ACTIVATE_DESTINATION;
+    }
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       let changeDestinationIsActive = this.changeIsActive(destination);

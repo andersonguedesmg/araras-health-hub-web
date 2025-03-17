@@ -233,7 +233,11 @@ export class UserListComponent implements OnInit {
   }
 
   changeStatusUser(userId: number, user: User): void {
-    this.confirmDialog.message = ConfirmMessages.DELETE_USER;
+    if (user.isActive) {
+      this.confirmDialog.message = ConfirmMessages.DISABLE_USER;
+    } else {
+      this.confirmDialog.message = ConfirmMessages.ACTIVATE_USER;
+    }
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       let changeUserIsActive = this.changeIsActive(user);

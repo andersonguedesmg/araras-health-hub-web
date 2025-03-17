@@ -260,7 +260,11 @@ export class SupplierListComponent implements OnInit {
   }
 
   changeStatusSupplier(supplierId: number, supplier: Supplier): void {
-    this.confirmDialog.message = ConfirmMessages.UPDATE_SUPPLIER;
+    if (supplier.isActive) {
+      this.confirmDialog.message = ConfirmMessages.DISABLE_SUPPLIER;
+    } else {
+      this.confirmDialog.message = ConfirmMessages.ACTIVATE_SUPPLIER;
+    }
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       let changeSupplierIsActive = this.changeIsActive(supplier);
