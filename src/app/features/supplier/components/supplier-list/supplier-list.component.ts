@@ -93,6 +93,7 @@ export class SupplierListComponent implements OnInit {
     this.supplierForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
+      cnpj: ['', Validators.required],
       address: ['', Validators.required],
       number: ['', Validators.required],
       neighborhood: ['', Validators.required],
@@ -123,6 +124,7 @@ export class SupplierListComponent implements OnInit {
     this.cols = [
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO FORNECEDOR' },
       { field: 'name', header: 'NOME' },
+      { field: 'cnpj', header: 'CNPJ' },
       { field: 'address', header: 'ENDEREÇO' },
       { field: 'number', header: 'NÚMERO' },
       { field: 'neighborhood', header: 'BAIRRO' },
@@ -194,6 +196,7 @@ export class SupplierListComponent implements OnInit {
     const isUpdate = this.formMode === 'update';
 
     this.supplierForm.get('name')?.disable();
+    this.supplierForm.get('cnpj')?.disable();
     this.supplierForm.get('address')?.disable();
     this.supplierForm.get('number')?.disable();
     this.supplierForm.get('neighborhood')?.disable();
@@ -208,6 +211,7 @@ export class SupplierListComponent implements OnInit {
       this.supplierForm.get('isActive')?.setValue(true);
       this.supplierForm.get('isActive')?.disable();
       this.supplierForm.get('name')?.enable();
+      this.supplierForm.get('cnpj')?.enable();
       this.supplierForm.get('address')?.enable();
       this.supplierForm.get('number')?.enable();
       this.supplierForm.get('neighborhood')?.enable();
@@ -218,6 +222,7 @@ export class SupplierListComponent implements OnInit {
       this.supplierForm.get('phone')?.enable();
     } else if (isUpdate) {
       this.supplierForm.get('name')?.enable();
+      this.supplierForm.get('cnpj')?.enable();
       this.supplierForm.get('address')?.enable();
       this.supplierForm.get('number')?.enable();
       this.supplierForm.get('neighborhood')?.enable();

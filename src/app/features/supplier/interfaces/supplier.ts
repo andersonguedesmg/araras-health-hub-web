@@ -1,5 +1,6 @@
 export interface Supplier {
   id: number;
+  cnpj: string;
   name: string;
   cep: string;
   address: string;

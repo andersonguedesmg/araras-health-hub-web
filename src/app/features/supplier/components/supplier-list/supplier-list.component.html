@@ -25,6 +25,7 @@
       [globalFilterFields]="[
         'id',
         'name',
+        'cnpj',
         'address',
         'number',
         'neighborhood',
@@ -183,6 +184,25 @@
           </div>
 
           <div class="mb-4">
+            <label for="cnpj" class="block text-sm font-medium text-gray-500"
+              >CNPJ:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <p-inputmask
+              id="cnpj"
+              mask="99.999.999/9999-99"
+              styleClass="w-full"
+              formControlName="cnpj"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && supplierForm.get('cnpj')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
             <label for="address" class="block text-sm font-medium text-gray-500"
               >Endereço:
               <span class="text-red-500" *ngIf="formMode !== 'detail'"
@@ -333,7 +353,7 @@
             >
             <p-inputmask
               id="phone"
-              mask="(99) 99999-9999"
+              mask="(99) 9999-9999"
               styleClass="w-full"
               formControlName="phone"
               [ngClass]="{
