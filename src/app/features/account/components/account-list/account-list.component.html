@@ -1,6 +1,9 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
 <app-toast></app-toast>
 <app-spinner></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
 <div class="container mx-auto">
   <div class="card mt-10">
     <p-toast />
@@ -39,7 +42,12 @@
             />
           </p-iconfield>
           <div>
-            <p-button label="Novo" icon="pi pi-plus" class="mr-2" />
+            <p-button
+              label="Novo"
+              icon="pi pi-plus"
+              class="mr-2"
+              (click)="openForm('create')"
+            />
             <p-button
               label="Exportar"
               icon="pi pi-upload"
@@ -77,18 +85,144 @@
             <p-button
               icon="pi pi-pencil"
               class="mr-2"
+              pTooltip="Editar"
+              tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
+              (click)="openForm('update', account)"
+            />
+            <p-button
+              icon="pi pi-info-circle"
+              class="mr-2"
+              pTooltip="Detalhar"
+              tooltipPosition="bottom"
+              severity="info"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="openForm('detail', account)"
             />
             <p-button
               icon="pi pi-trash"
               severity="danger"
+              pTooltip="Excluir"
+              tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
+              (click)="changeStatusAccount(account.id, account)"
             />
           </td>
         </tr>
       </ng-template>
     </p-table>
+
+    <p-dialog
+      [(visible)]="displayDialog"
+      [modal]="true"
+      [style]="{ width: '50vw' }"
+      [header]="
+        formMode === 'create'
+          ? 'Novo Usuário'
+          : formMode === 'update'
+          ? 'Editar Usuário'
+          : 'Detalhes do Usuário'
+      "
+      (onHide)="hideDialog()"
+    >
+      <form [formGroup]="accountForm" class="mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4" *ngIf="formMode !== 'create'">
+            <label for="id" class="block text-sm font-medium text-gray-500"
+              >ID:</label
+            >
+            <input
+              id="id"
+              pInputText
+              type="text"
+              formControlName="id"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="userName"
+              class="block text-sm font-medium text-gray-500"
+              >Nome:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="userName"
+              pInputText
+              type="text"
+              formControlName="userName"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500': accountForm.get('userName')?.invalid
+              }"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && accountForm.get('userName')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="destinationId"
+              class="block text-sm font-medium text-gray-500"
+              >Destino:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="destinationId"
+              pInputText
+              type="text"
+              formControlName="destinationId"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500': accountForm.get('destinationId')?.invalid
+              }"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && accountForm.get('destinationId')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Status:</label
+            >
+            <p-dropdown
+              [options]="statusOptions"
+              formControlName="isActive"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              placeholder="Selecione"
+            ></p-dropdown>
+          </div>
+        </div>
+      </form>
+      <ng-template pTemplate="footer">
+        <p-button
+          *ngIf="formMode !== 'detail'"
+          label="Salvar"
+          icon="pi pi-check"
+          (click)="saveAccount()"
+        ></p-button>
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="info"
+          [outlined]="true"
+          (click)="hideDialog()"
+        ></p-button>
+      </ng-template>
+    </p-dialog>
   </div>
 </div>

@@ -15,4 +15,24 @@ export class AccountService {
     const url = this.apiConfig.getAccountUrl('getAll');
     return this.http.get<ApiResponse<Account[]>>(url);
   }
+
+  createAccount(account: Account): Observable<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl('create');
+    return this.http.post<ApiResponse<Account>>(url, account);
+  }
+
+  updateAccount(account: Account, accountId: string): Observable<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl(`update/${accountId}`);
+    return this.http.put<ApiResponse<Account>>(url, account);
+  }
+
+  deleteAccount(userId: string): Observable<ApiResponse<any>> {
+    const url = this.apiConfig.getAccountUrl(`delete/${userId}`);
+    return this.http.delete<ApiResponse<any>>(url);
+  }
+
+  changeStatusAccount(userId: string, account: Account): Observable<ApiResponse<any>> {
+    const url = this.apiConfig.getAccountUrl(`changeStatus/${userId}`);
+    return this.http.patch<ApiResponse<any>>(url, account);
+  }
 }
