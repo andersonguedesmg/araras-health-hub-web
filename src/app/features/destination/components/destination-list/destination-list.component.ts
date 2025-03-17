@@ -22,7 +22,7 @@ import { ToastComponent } from '../../../../shared/components/toast/toast.compon
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { InputMask } from 'primeng/inputmask';
 import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
@@ -49,7 +49,7 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
     InputMask,
     Tag,
     DialogModule,
-    DropdownModule,
+    SelectModule,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,

@@ -21,7 +21,7 @@ import { ToastComponent } from '../../../../shared/components/toast/toast.compon
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
@@ -49,7 +49,7 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
     TooltipModule,
     Tag,
     DialogModule,
-    DropdownModule,
+    SelectModule,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,

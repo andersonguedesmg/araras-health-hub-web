@@ -20,7 +20,7 @@ import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { Supplier } from '../../interfaces/supplier';
 import { SupplierService } from '../../services/supplier.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { DialogModule } from 'primeng/dialog';
 import { InputMask } from 'primeng/inputmask';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
@@ -49,7 +49,7 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
     InputMask,
     Tag,
     DialogModule,
-    DropdownModule,
+    SelectModule,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,

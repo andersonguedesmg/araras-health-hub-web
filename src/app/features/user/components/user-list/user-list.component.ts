@@ -15,7 +15,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { DialogModule } from 'primeng/dialog';
 import { InputMask } from 'primeng/inputmask';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { Table } from 'primeng/table';
 import { User } from '../../interfaces/user';
@@ -51,7 +51,7 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
     InputMask,
     Tag,
     DialogModule,
-    DropdownModule,
+    SelectModule,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
