@@ -24,6 +24,7 @@ import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.
 import { UserService } from '../../services/user.service';
 import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 
 interface Column {
   field: string;
@@ -91,6 +92,9 @@ export class UserListComponent implements OnInit {
   selectedColumns!: Column[];
   exportColumns!: ExportColumn[];
 
+  getSeverity = getSeverity;
+  getStatus = getStatus;
+
   constructor(private cd: ChangeDetectorRef, private userService: UserService, private fb: FormBuilder) {
     this.userForm = this.fb.group({
       id: [{ value: null, disabled: true }],
@@ -129,24 +133,6 @@ export class UserListComponent implements OnInit {
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
 
     this.selectedColumns = this.cols;
-  }
-
-  getSeverity(status: boolean): any {
-    switch (status) {
-      case true:
-        return 'success';
-      case false:
-        return 'danger';
-    }
-  }
-
-  getStatus(status: boolean): any {
-    switch (status) {
-      case true:
-        return 'Ativo';
-      case false:
-        return 'Inativo';
-    }
   }
 
   getAllUsers(): void {

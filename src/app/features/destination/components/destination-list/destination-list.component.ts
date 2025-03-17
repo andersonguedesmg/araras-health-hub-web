@@ -23,6 +23,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { InputMask } from 'primeng/inputmask';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 
 interface Column {
   field: string;
@@ -89,6 +90,9 @@ export class DestinationListComponent implements OnInit {
   selectedColumns!: Column[];
   exportColumns!: ExportColumn[];
 
+  getSeverity = getSeverity;
+  getStatus = getStatus;
+
   constructor(private cd: ChangeDetectorRef, private destinationService: DestinationService, private fb: FormBuilder) {
     this.destinationForm = this.fb.group({
       id: [{ value: null, disabled: true }],
@@ -137,24 +141,6 @@ export class DestinationListComponent implements OnInit {
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
 
     this.selectedColumns = this.cols;
-  }
-
-  getSeverity(status: boolean): any {
-    switch (status) {
-      case true:
-        return 'success';
-      case false:
-        return 'danger';
-    }
-  }
-
-  getStatus(status: boolean): any {
-    switch (status) {
-      case true:
-        return 'Ativo';
-      case false:
-        return 'Inativo';
-    }
   }
 
   getAllDestinations(): void {

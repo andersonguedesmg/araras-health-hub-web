@@ -22,8 +22,8 @@ import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { InputMask } from 'primeng/inputmask';
 import { TooltipModule } from 'primeng/tooltip';
+import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 
 interface Column {
   field: string;
@@ -63,7 +63,7 @@ interface ExportColumn {
   templateUrl: './account-list.component.html',
   styleUrl: './account-list.component.scss'
 })
-export class AccountListComponent {
+export class AccountListComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
@@ -89,6 +89,9 @@ export class AccountListComponent {
   cols!: Column[];
   selectedColumns!: Column[];
   exportColumns!: ExportColumn[];
+
+  getSeverity = getSeverity;
+  getStatus = getStatus;
 
   constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder) {
     this.accountForm = this.fb.group({
@@ -124,33 +127,6 @@ export class AccountListComponent {
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
 
     this.selectedColumns = this.cols;
-  }
-
-  getSeverity(status: boolean): any {
-    switch (status) {
-      case true:
-        return 'success';
-      case false:
-        return 'danger';
-    }
-  }
-
-  getStatus(status: boolean): any {
-    switch (status) {
-      case true:
-        return 'Ativo';
-      case false:
-        return 'Inativo';
-    }
-  }
-
-  getAccessLevel(status: string): any {
-    switch (status) {
-      case 'Administrador':
-        return 'success';
-      case 'Usuário':
-        return 'info';
-    }
   }
 
   getAllAccounts(): void {
