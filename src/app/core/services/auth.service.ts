@@ -4,6 +4,8 @@ import { Observable, tap } from 'rxjs';
 import { LoginRequest } from '../interfaces/loginRequest';
 import { LoginResponse } from '../interfaces/loginResponse';
 import { ApiConfigService } from '../../shared/services/api-config.service';
+import { ApiResponse } from '../../shared/interfaces/apiResponse';
+import { Account } from '../interfaces/account';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +23,11 @@ export class AuthService {
         }
       })
     );
+  }
+
+  register(account: Account): Observable<any> {
+    const url = this.apiConfig.getAccountUrl('register');
+    return this.http.post<ApiResponse<any>>(url, account);
   }
 
   logout(): void {

@@ -13,6 +13,7 @@ import { AccountFormComponent } from './features/account/components/account-form
 import { LoginComponent } from './core/components/login/login.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { DestinationProfileComponent } from './features/destination/components/destination-profile/destination-profile.component';
+import { RegisterComponent } from './core/components/register/register.component';
 
 export const routes: Routes = [
   {
@@ -62,6 +63,11 @@ export const routes: Routes = [
   {
     path: 'produtos',
     component: ProductListComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'registrar',
+    component: RegisterComponent,
     canActivate: [AuthGuard]
   },
   {
