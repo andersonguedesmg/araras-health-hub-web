@@ -31,6 +31,7 @@ import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/to
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 
 @Component({
   selector: 'app-user-list',
@@ -70,6 +71,7 @@ export class UserListComponent implements OnInit {
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
+  statusOptions = StatusOptions;
 
   users: User[] = [];
   selectedUser?: User;
@@ -81,11 +83,6 @@ export class UserListComponent implements OnInit {
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
-
-  statusOptions: any[] = [
-    { label: 'Ativo', value: true },
-    { label: 'Inativo', value: false },
-  ];
 
   cols!: Column[];
   selectedColumns!: Column[];

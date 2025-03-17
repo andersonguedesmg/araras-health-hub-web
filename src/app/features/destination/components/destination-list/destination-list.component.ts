@@ -30,6 +30,7 @@ import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/to
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 
 @Component({
   selector: 'app-destination-list',
@@ -66,6 +67,7 @@ export class DestinationListComponent implements OnInit {
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
+  statusOptions = StatusOptions;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }];
 
@@ -78,11 +80,6 @@ export class DestinationListComponent implements OnInit {
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
-
-  statusOptions: any[] = [
-    { label: 'Ativo', value: true },
-    { label: 'Inativo', value: false },
-  ];
 
   cols!: Column[];
   selectedColumns!: Column[];
