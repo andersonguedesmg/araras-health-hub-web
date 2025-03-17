@@ -25,6 +25,11 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
+import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { FormMode } from '../../../../shared/enums/form-mode.enum';
+import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
+import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 
 @Component({
   selector: 'app-account-list',
@@ -59,16 +64,19 @@ export class AccountListComponent implements OnInit {
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
+  FormMode = FormMode;
+  ConfirmMode = ConfirmMode;
+
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Clientes' }];
 
   accounts: Account[] = [];
   selectedAccount?: Account;
   accountForm: FormGroup;
-  formMode: 'create' | 'update' | 'detail' = 'create';
+  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
   displayDialog = false;
   formSubmitted = false;
 
-  confirmMode: 'create' | 'update' | null = null;
+  confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
   statusOptions: any[] = [
@@ -124,19 +132,19 @@ export class AccountListComponent implements OnInit {
     this.accountService.getAllAccounts().subscribe({
       next: (response: ApiResponse<Account[]>) => {
         this.spinnerComponent.loading = false;
-        if (response.statusCode === 200) {
+        if (response.statusCode === HttpStatus.Ok) {
           this.accounts = response.data;
         } else {
-          this.toastComponent.showMessage('error', 'Erro', response.message);
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
         }
       }, error: (error) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', error);
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
       },
     });
   }
 
-  openForm(mode: 'create' | 'update' | 'detail', user?: Account): void {
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, user?: Account): void {
     this.formMode = mode;
     this.selectedAccount = user;
     this.displayDialog = true;
@@ -152,14 +160,14 @@ export class AccountListComponent implements OnInit {
   }
 
   updateFormState(): void {
-    const isDetail = this.formMode === 'detail';
-    const isUpdate = this.formMode === 'update';
+    const isDetail = this.formMode === FormMode.Detail;
+    const isUpdate = this.formMode === FormMode.Update;
 
     this.accountForm.get('userName')?.disable();
     this.accountForm.get('destinationId')?.disable();
     this.accountForm.get('isActive')?.disable();
 
-    if (this.formMode === 'create') {
+    if (this.formMode === FormMode.Create) {
       this.accountForm.get('isActive')?.setValue(true);
       this.accountForm.get('isActive')?.disable();
       this.accountForm.get('userName')?.enable();
@@ -183,20 +191,20 @@ export class AccountListComponent implements OnInit {
   saveAccount(): void {
     this.formSubmitted = true;
     if (this.accountForm.valid) {
-      if (this.formMode === 'create') {
-        this.confirmMessage = 'Tem certeza que deseja cadastrar este cliente?';
-        this.confirmMode = 'create';
-      } else if (this.formMode === 'update') {
-        this.confirmMessage = 'Tem certeza que deseja atualizar este cliente?';
-        this.confirmMode = 'update';
+      if (this.formMode === FormMode.Create) {
+        this.confirmMessage = ConfirmMessages.CREATE_ACCOUNT;
+        this.confirmMode = ConfirmMode.Create;
+      } else if (this.formMode === FormMode.Update) {
+        this.confirmMessage = ConfirmMessages.UPDATE_ACCOUNT;
+        this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
       this.confirmDialog.confirmed.subscribe(() => {
         this.spinnerComponent.loading = true;
         const account: Account = this.accountForm.getRawValue();
-        if (this.confirmMode === 'create') {
+        if (this.confirmMode === ConfirmMode.Create) {
           this.accountService.createAccount(account).subscribe(this.handleResponse());
-        } else if (this.confirmMode === 'update') {
+        } else if (this.confirmMode === ConfirmMode.Update) {
           this.accountService.updateAccount(account, account.id).subscribe(this.handleResponse());
         }
       });
@@ -205,32 +213,32 @@ export class AccountListComponent implements OnInit {
       });
       this.confirmDialog.show();
     } else {
-      this.toastComponent.showMessage('error', 'Erro', 'Preencha todos os campos obrigatórios.');
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
   changeStatusAccount(accountId: string, account: Account): void {
-    this.confirmDialog.message = 'Tem certeza que deseja excluir este cliente?';
+    this.confirmDialog.message = ConfirmMessages.UPDATE_ACCOUNT;
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       let changeAccountIsActive = this.changeIsActive(account);
       this.accountService.changeStatusAccount(accountId, changeAccountIsActive).subscribe({
         next: (response: ApiResponse<Account[]>) => {
           this.spinnerComponent.loading = false;
-          if (response.statusCode === 200) {
-            this.toastComponent.showMessage('success', 'Sucesso', response.message);
+          if (response.statusCode === HttpStatus.Ok) {
+            this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
             this.getAllAccounts();
           } else {
-            this.toastComponent.showMessage('error', 'Erro', response.message);
+            this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
           }
         }, error: (error) => {
           this.spinnerComponent.loading = false;
-          this.toastComponent.showMessage('error', 'Erro', error);
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
         },
       });
     });
     this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage('info', 'Cancelado', 'Exclusão cancelada.');
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
     });
     this.confirmDialog.show();
   }
@@ -243,22 +251,22 @@ export class AccountListComponent implements OnInit {
   }
 
   deleteUser(accountId: string): void {
-    this.confirmDialog.message = 'Tem certeza que deseja excluir este cliente?';
+    this.confirmDialog.message = ConfirmMessages.DELETE_ACCOUNT;
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       this.accountService.deleteAccount(accountId).subscribe({
-        next: () => {
-          this.toastComponent.showMessage('success', 'Sucesso', 'Cliente excluído com sucesso.');
+        next: (response: ApiResponse<Account[]>) => {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
           this.getAllAccounts();
         },
         error: (error) => {
-          this.toastComponent.showMessage('error', 'Erro', 'Erro ao excluir cliente.');
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
           this.spinnerComponent.loading = false;
         },
       });
     });
     this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage('info', 'Cancelado', 'Exclusão cancelada.');
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
     });
     this.confirmDialog.show();
   }
@@ -267,13 +275,13 @@ export class AccountListComponent implements OnInit {
     return {
       next: () => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('success', 'Sucesso', `Cliente ${this.formMode === 'create' ? 'cadastrado' : 'atualizado'} com sucesso.`);
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Cliente ${this.formMode === FormMode.Create ? 'cadastrado' : 'atualizado'} com sucesso.`);
         this.getAllAccounts();
         this.hideDialog();
       }, error: (error: any) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', `Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} cliente.`);
-        console.error(`Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} cliente:`, error);
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, `Erro ao ${this.formMode === FormMode.Create ? 'cadastrar' : 'atualizar'} cliente.`);
+        console.error(`Erro ao ${this.formMode === FormMode.Create ? 'cadastrar' : 'atualizar'} cliente:`, error);
       },
     };
   }

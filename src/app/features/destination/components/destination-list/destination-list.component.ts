@@ -25,6 +25,11 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
+import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { FormMode } from '../../../../shared/enums/form-mode.enum';
+import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
+import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 
 @Component({
   selector: 'app-destination-list',
@@ -59,16 +64,19 @@ export class DestinationListComponent implements OnInit {
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
+  FormMode = FormMode;
+  ConfirmMode = ConfirmMode;
+
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }];
 
   destinations: Destination[] = [];
   selectedDestinations?: Destination;
   destinationForm: FormGroup;
-  formMode: 'create' | 'update' | 'detail' = 'create';
+  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
   displayDialog = false;
   formSubmitted = false;
 
-  confirmMode: 'create' | 'update' | null = null;
+  confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
   statusOptions: any[] = [
@@ -138,19 +146,19 @@ export class DestinationListComponent implements OnInit {
     this.destinationService.getAllDestinations().subscribe({
       next: (response: ApiResponse<Destination[]>) => {
         this.spinnerComponent.loading = false;
-        if (response.statusCode === 200) {
+        if (response.statusCode === HttpStatus.Ok) {
           this.destinations = response.data;
         } else {
-          this.toastComponent.showMessage('error', 'Erro', response.message);
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
         }
       }, error: (error) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', error);
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
       },
     });
   }
 
-  openForm(mode: 'create' | 'update' | 'detail', destination?: Destination): void {
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, destination?: Destination): void {
     this.formMode = mode;
     this.selectedDestinations = destination;
     this.displayDialog = true;
@@ -166,8 +174,8 @@ export class DestinationListComponent implements OnInit {
   }
 
   updateFormState(): void {
-    const isDetail = this.formMode === 'detail';
-    const isUpdate = this.formMode === 'update';
+    const isDetail = this.formMode === FormMode.Detail;
+    const isUpdate = this.formMode === FormMode.Update;
 
     this.destinationForm.get('name')?.disable();
     this.destinationForm.get('address')?.disable();
@@ -220,20 +228,20 @@ export class DestinationListComponent implements OnInit {
   saveDestination(): void {
     this.formSubmitted = true;
     if (this.destinationForm.valid) {
-      if (this.formMode === 'create') {
-        this.confirmMessage = 'Tem certeza que deseja cadastrar este destino?';
-        this.confirmMode = 'create';
-      } else if (this.formMode === 'update') {
-        this.confirmMessage = 'Tem certeza que deseja atualizar este destino?';
-        this.confirmMode = 'update';
+      if (this.formMode === FormMode.Create) {
+        this.confirmMessage = ConfirmMessages.CREATE_DESTINATION;
+        this.confirmMode = ConfirmMode.Create;
+      } else if (this.formMode === FormMode.Update) {
+        this.confirmMessage = ConfirmMessages.UPDATE_DESTINATION;
+        this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
       this.confirmDialog.confirmed.subscribe(() => {
         this.spinnerComponent.loading = true;
         const destination: Destination = this.destinationForm.getRawValue();
-        if (this.confirmMode === 'create') {
+        if (this.confirmMode === ConfirmMode.Create) {
           this.destinationService.createDestination(destination).subscribe(this.handleResponse());
-        } else if (this.confirmMode === 'update') {
+        } else if (this.confirmMode === ConfirmMode.Update) {
           this.destinationService.updateDestination(destination, destination.id).subscribe(this.handleResponse());
         }
       });
@@ -242,32 +250,32 @@ export class DestinationListComponent implements OnInit {
       });
       this.confirmDialog.show();
     } else {
-      this.toastComponent.showMessage('error', 'Erro', 'Preencha todos os campos obrigatórios.');
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
   changeStatusDestination(destinationId: number, destination: Destination): void {
-    this.confirmDialog.message = 'Tem certeza que deseja excluir este destino?';
+    this.confirmDialog.message = ConfirmMessages.UPDATE_DESTINATION;
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       let changeDestinationIsActive = this.changeIsActive(destination);
       this.destinationService.changeStatusDestination(destinationId, changeDestinationIsActive).subscribe({
         next: (response: ApiResponse<Destination[]>) => {
           this.spinnerComponent.loading = false;
-          if (response.statusCode === 200) {
-            this.toastComponent.showMessage('success', 'Sucesso', response.message);
+          if (response.statusCode === HttpStatus.Ok) {
+            this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
             this.getAllDestinations();
           } else {
-            this.toastComponent.showMessage('error', 'Erro', response.message);
+            this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
           }
         }, error: (error) => {
           this.spinnerComponent.loading = false;
-          this.toastComponent.showMessage('error', 'Erro', error);
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
         },
       });
     });
     this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage('info', 'Cancelado', 'Exclusão cancelada.');
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
     });
     this.confirmDialog.show();
   }
@@ -280,22 +288,22 @@ export class DestinationListComponent implements OnInit {
   }
 
   deleteDestination(destinationId: number): void {
-    this.confirmDialog.message = 'Tem certeza que deseja excluir este destino?';
+    this.confirmDialog.message = ConfirmMessages.DELETE_DESTINATION;
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       this.destinationService.deleteDestination(destinationId).subscribe({
-        next: () => {
-          this.toastComponent.showMessage('success', 'Sucesso', 'Destino excluído com sucesso.');
+        next: (response: ApiResponse<Destination[]>) => {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
           this.getAllDestinations();
         },
         error: (error) => {
-          this.toastComponent.showMessage('error', 'Erro', 'Erro ao excluir destino.');
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
           this.spinnerComponent.loading = false;
         },
       });
     });
     this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage('info', 'Cancelado', 'Exclusão cancelada.');
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
     });
     this.confirmDialog.show();
   }
@@ -304,12 +312,12 @@ export class DestinationListComponent implements OnInit {
     return {
       next: () => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('success', 'Sucesso', `Destino ${this.formMode === 'create' ? 'cadastrado' : 'atualizado'} com sucesso.`);
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Destino ${this.formMode === 'create' ? 'cadastrado' : 'atualizado'} com sucesso.`);
         this.getAllDestinations();
         this.hideDialog();
       }, error: (error: any) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', `Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} destino.`);
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, `Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} destino.`);
         console.error(`Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} destino:`, error);
       },
     };

@@ -26,6 +26,11 @@ import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
+import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { FormMode } from '../../../../shared/enums/form-mode.enum';
+import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
+import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 
 @Component({
   selector: 'app-user-list',
@@ -63,14 +68,18 @@ export class UserListComponent implements OnInit {
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Usuários' }];
 
+  FormMode = FormMode;
+  ConfirmMode = ConfirmMode;
+
   users: User[] = [];
   selectedUser?: User;
   userForm: FormGroup;
-  formMode: 'create' | 'update' | 'detail' = 'create';
+  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+
   displayDialog = false;
   formSubmitted = false;
 
-  confirmMode: 'create' | 'update' | null = null;
+  confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
   statusOptions: any[] = [
@@ -130,19 +139,19 @@ export class UserListComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (response: ApiResponse<User[]>) => {
         this.spinnerComponent.loading = false;
-        if (response.statusCode === 200) {
+        if (response.statusCode === HttpStatus.Ok) {
           this.users = response.data;
         } else {
-          this.toastComponent.showMessage('error', 'Erro', response.message);
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
         }
       }, error: (error) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', error);
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
       },
     });
   }
 
-  openForm(mode: 'create' | 'update' | 'detail', user?: User): void {
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, user?: User): void {
     this.formMode = mode;
     this.selectedUser = user;
     this.displayDialog = true;
@@ -158,8 +167,8 @@ export class UserListComponent implements OnInit {
   }
 
   updateFormState(): void {
-    const isDetail = this.formMode === 'detail';
-    const isUpdate = this.formMode === 'update';
+    const isDetail = this.formMode === FormMode.Detail;
+    const isUpdate = this.formMode === FormMode.Update;
 
     this.userForm.get('name')?.disable();
     this.userForm.get('cpf')?.disable();
@@ -167,7 +176,7 @@ export class UserListComponent implements OnInit {
     this.userForm.get('phone')?.disable();
     this.userForm.get('isActive')?.disable();
 
-    if (this.formMode === 'create') {
+    if (this.formMode === FormMode.Create) {
       this.userForm.get('isActive')?.setValue(true);
       this.userForm.get('isActive')?.disable();
       this.userForm.get('name')?.enable();
@@ -197,20 +206,20 @@ export class UserListComponent implements OnInit {
   saveUser(): void {
     this.formSubmitted = true;
     if (this.userForm.valid) {
-      if (this.formMode === 'create') {
-        this.confirmMessage = 'Tem certeza que deseja cadastrar este usuário?';
-        this.confirmMode = 'create';
-      } else if (this.formMode === 'update') {
-        this.confirmMessage = 'Tem certeza que deseja atualizar este usuário?';
-        this.confirmMode = 'update';
+      if (this.formMode === FormMode.Create) {
+        this.confirmMessage = ConfirmMessages.CREATE_USER;
+        this.confirmMode = ConfirmMode.Create;
+      } else if (this.formMode === FormMode.Update) {
+        this.confirmMessage = ConfirmMessages.UPDATE_USER;
+        this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
       this.confirmDialog.confirmed.subscribe(() => {
         this.spinnerComponent.loading = true;
         const user: User = this.userForm.getRawValue();
-        if (this.confirmMode === 'create') {
+        if (this.confirmMode === ConfirmMode.Create) {
           this.userService.createUser(user).subscribe(this.handleResponse());
-        } else if (this.confirmMode === 'update') {
+        } else if (this.confirmMode === ConfirmMode.Update) {
           this.userService.updateUser(user, user.id).subscribe(this.handleResponse());
         }
       });
@@ -219,32 +228,32 @@ export class UserListComponent implements OnInit {
       });
       this.confirmDialog.show();
     } else {
-      this.toastComponent.showMessage('error', 'Erro', 'Preencha todos os campos obrigatórios.');
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
   changeStatusUser(userId: number, user: User): void {
-    this.confirmDialog.message = 'Tem certeza que deseja excluir este usuário?';
+    this.confirmDialog.message = ConfirmMessages.DELETE_USER;
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       let changeUserIsActive = this.changeIsActive(user);
       this.userService.changeStatusUser(userId, changeUserIsActive).subscribe({
         next: (response: ApiResponse<User[]>) => {
           this.spinnerComponent.loading = false;
-          if (response.statusCode === 200) {
-            this.toastComponent.showMessage('success', 'Sucesso', response.message);
+          if (response.statusCode === HttpStatus.Ok) {
+            this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
             this.getAllUsers();
           } else {
-            this.toastComponent.showMessage('error', 'Erro', response.message);
+            this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
           }
         }, error: (error) => {
           this.spinnerComponent.loading = false;
-          this.toastComponent.showMessage('error', 'Erro', error);
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
         },
       });
     });
     this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage('info', 'Cancelado', 'Exclusão cancelada.');
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
     });
     this.confirmDialog.show();
   }
@@ -257,22 +266,22 @@ export class UserListComponent implements OnInit {
   }
 
   deleteUser(userId: number): void {
-    this.confirmDialog.message = 'Tem certeza que deseja excluir este usuário?';
+    this.confirmDialog.message = ConfirmMessages.DELETE_USER;
     this.confirmDialog.confirmed.subscribe(() => {
       this.spinnerComponent.loading = true;
       this.userService.deleteUser(userId).subscribe({
-        next: () => {
-          this.toastComponent.showMessage('success', 'Sucesso', 'Usuário excluído com sucesso.');
+        next: (response: ApiResponse<User[]>) => {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
           this.getAllUsers();
         },
         error: (error) => {
-          this.toastComponent.showMessage('error', 'Erro', 'Erro ao excluir usuário.');
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
           this.spinnerComponent.loading = false;
         },
       });
     });
     this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage('info', 'Cancelado', 'Exclusão cancelada.');
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
     });
     this.confirmDialog.show();
   }
@@ -281,13 +290,13 @@ export class UserListComponent implements OnInit {
     return {
       next: () => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('success', 'Sucesso', `Usuário ${this.formMode === 'create' ? 'cadastrado' : 'atualizado'} com sucesso.`);
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Usuário ${this.formMode === FormMode.Create ? 'cadastrado' : 'atualizado'} com sucesso.`);
         this.getAllUsers();
         this.hideDialog();
       }, error: (error: any) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', `Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} usuário.`);
-        console.error(`Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} usuário:`, error);
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, `Erro ao ${this.formMode === FormMode.Create ? 'cadastrar' : 'atualizar'} usuário.`);
+        console.error(`Erro ao ${this.formMode === FormMode.Create ? 'cadastrar' : 'atualizar'} usuário:`, error);
       },
     };
   }

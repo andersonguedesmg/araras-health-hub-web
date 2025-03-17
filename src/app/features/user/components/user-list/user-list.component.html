@@ -52,7 +52,7 @@
               label="Novo"
               icon="pi pi-plus"
               class="mr-2"
-              (click)="openForm('create')"
+              (click)="openForm(FormMode.Create)"
             />
             <p-button
               label="Exportar"
@@ -97,7 +97,7 @@
               tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
-              (click)="openForm('update', user)"
+              (click)="openForm(FormMode.Update, user)"
             />
             <p-button
               icon="pi pi-info-circle"
@@ -107,7 +107,7 @@
               severity="info"
               [rounded]="true"
               [outlined]="true"
-              (click)="openForm('detail', user)"
+              (click)="openForm(FormMode.Detail, user)"
             />
             <p-button
               icon="pi pi-trash"
