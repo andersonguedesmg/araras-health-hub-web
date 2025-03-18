@@ -12,6 +12,7 @@ export class ToastComponent {
   constructor(public messageService: MessageService) { }
 
   showMessage(severity: 'success' | 'info' | 'warn' | 'error' | 'secondary' | 'contrast', summary: string, detail: string): void {
+    this.messageService.clear();
     this.messageService.add({
       severity: severity,
       summary: summary,
