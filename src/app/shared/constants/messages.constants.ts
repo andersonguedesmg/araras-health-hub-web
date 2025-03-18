@@ -27,6 +27,8 @@ export const ConfirmMessages = {
 export const ToastMessages = {
   REQUIRED_FIELDS: 'Preencha todos os campos obrigatórios.',
   CANCELED_DELETION: 'Exclusão cancelada.',
+  ACTIVATION_DELETION: 'Ativação cancelada.',
+  DEACTIVATION_DELETION: 'Desativação cancelada.',
 
 
   CREATE_SUCCESS: 'Cadastro realizado com sucesso.',

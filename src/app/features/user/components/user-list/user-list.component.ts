@@ -143,7 +143,11 @@ export class UserListComponent implements OnInit {
         }
       }, error: (error) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
+        if (error.error.statusCode === HttpStatus.NotFound) {
+          this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+        } else {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        }
       },
     });
   }
@@ -230,6 +234,7 @@ export class UserListComponent implements OnInit {
   }
 
   changeStatusUser(userId: number, user: User): void {
+    console.log('user.isActive', user.isActive);
     if (user.isActive) {
       this.confirmDialog.message = ConfirmMessages.DISABLE_USER;
     } else {
@@ -254,7 +259,11 @@ export class UserListComponent implements OnInit {
       });
     });
     this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
+      if (user.isActive) {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.ACTIVATION_DELETION);
+      }
     });
     this.confirmDialog.show();
   }
