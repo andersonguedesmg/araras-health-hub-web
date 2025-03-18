@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { Supplier } from '../interfaces/supplier';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
@@ -11,28 +11,28 @@ import { ApiConfigService } from '../../../shared/services/api-config.service';
 export class SupplierService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  getAllSuppliers(): Observable<ApiResponse<Supplier[]>> {
+  async getAllSuppliers(): Promise<ApiResponse<Supplier[]>> {
     const url = this.apiConfig.getSupplierUrl('getAll');
-    return this.http.get<ApiResponse<Supplier[]>>(url);
+    return firstValueFrom(this.http.get<ApiResponse<Supplier[]>>(url));
   }
 
-  createSupplier(supplier: Supplier): Observable<ApiResponse<Supplier>> {
+  async createSupplier(supplier: Supplier): Promise<ApiResponse<Supplier>> {
     const url = this.apiConfig.getSupplierUrl('create');
-    return this.http.post<ApiResponse<Supplier>>(url, supplier);
+    return firstValueFrom(this.http.post<ApiResponse<Supplier>>(url, supplier));
   }
 
-  updateSupplier(supplier: Supplier, supplierId: number): Observable<ApiResponse<Supplier>> {
+  async updateSupplier(supplier: Supplier, supplierId: number): Promise<ApiResponse<Supplier>> {
     const url = this.apiConfig.getSupplierUrl(`update/${supplierId}`);
-    return this.http.put<ApiResponse<Supplier>>(url, supplier);
+    return firstValueFrom(this.http.put<ApiResponse<Supplier>>(url, supplier));
   }
 
-  deleteSupplier(supplierId: number): Observable<ApiResponse<any>> {
+  async deleteSupplier(supplierId: number): Promise<ApiResponse<Supplier>> {
     const url = this.apiConfig.getSupplierUrl(`delete/${supplierId}`);
-    return this.http.delete<ApiResponse<any>>(url);
+    return firstValueFrom(this.http.delete<ApiResponse<Supplier>>(url));
   }
 
-  changeStatusSupplier(supplierId: number, supplier: Supplier): Observable<ApiResponse<any>> {
+  async changeStatusSupplier(supplierId: number, supplier: Supplier): Promise<ApiResponse<Supplier>> {
     const url = this.apiConfig.getSupplierUrl(`changeStatus/${supplierId}`);
-    return this.http.patch<ApiResponse<any>>(url, supplier);
+    return firstValueFrom(this.http.patch<ApiResponse<Supplier>>(url, supplier));
   }
 }
