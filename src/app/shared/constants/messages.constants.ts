@@ -29,6 +29,7 @@ export const ToastMessages = {
   CANCELED_DELETION: 'Exclusão cancelada.',
   ACTIVATION_DELETION: 'Ativação cancelada.',
   DEACTIVATION_DELETION: 'Desativação cancelada.',
+  UNEXPECTED_ERROR: 'Erro inesperado.',
 
 
   CREATE_SUCCESS: 'Cadastro realizado com sucesso.',

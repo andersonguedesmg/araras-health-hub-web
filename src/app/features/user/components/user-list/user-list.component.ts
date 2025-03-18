@@ -32,6 +32,7 @@ import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
@@ -131,25 +132,28 @@ export class UserListComponent implements OnInit {
     this.selectedColumns = this.cols;
   }
 
-  getAllUsers(): void {
+  async getAllUsers(): Promise<void> {
+    this.users = [];
     this.spinnerComponent.loading = true;
-    this.userService.getAllUsers().subscribe({
-      next: (response: ApiResponse<User[]>) => {
-        this.spinnerComponent.loading = false;
-        if (response.statusCode === HttpStatus.Ok) {
-          this.users = response.data;
-        } else {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-        }
-      }, error: (error) => {
-        this.spinnerComponent.loading = false;
-        if (error.error.statusCode === HttpStatus.NotFound) {
-          this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-        } else {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        }
-      },
-    });
+
+    try {
+      const response: ApiResponse<User[]> = await this.userService.getAllUsers();
+      this.spinnerComponent.loading = false;
+      if (response.statusCode === HttpStatus.Ok) {
+        this.users = response.data;
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error.error && error.error.statusCode === HttpStatus.NotFound) {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+      } else if (error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      }
+    }
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, user?: User): void {
@@ -204,7 +208,7 @@ export class UserListComponent implements OnInit {
     this.selectedUser = undefined;
   }
 
-  saveUser(): void {
+  async saveUser(): Promise<void> {
     this.formSubmitted = true;
     if (this.userForm.valid) {
       if (this.formMode === FormMode.Create) {
@@ -215,57 +219,93 @@ export class UserListComponent implements OnInit {
         this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
-      this.confirmDialog.confirmed.subscribe(() => {
+      this.confirmDialog.show();
+
+      try {
+        await firstValueFrom(this.confirmDialog.confirmed);
         this.spinnerComponent.loading = true;
         const user: User = this.userForm.getRawValue();
+        let response: any = null;
         if (this.confirmMode === ConfirmMode.Create) {
-          this.userService.createUser(user).subscribe(this.handleResponse());
+          response = await this.userService.createUser(user);
         } else if (this.confirmMode === ConfirmMode.Update) {
-          this.userService.updateUser(user, user.id).subscribe(this.handleResponse());
+          response = await this.userService.updateUser(user, user.id);
         }
-      });
-      this.confirmDialog.rejected.subscribe(() => {
+        this.spinnerComponent.loading = false;
+        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
+          this.getAllUsers();
+          this.hideDialog();
+        } else if (response) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+        }
         this.confirmMode = null;
-      });
-      this.confirmDialog.show();
+      } catch (error: any) {
+        this.spinnerComponent.loading = false;
+        if (error && error.error && error.error.message) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        } else {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+        }
+        this.confirmMode = null;
+
+        try {
+          await firstValueFrom(this.confirmDialog.rejected);
+          this.confirmMode = null;
+        } catch (rejectError) {
+          this.confirmMode = null;
+        }
+      }
     } else {
       this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
-  changeStatusUser(userId: number, user: User): void {
-    console.log('user.isActive', user.isActive);
+  async changeStatusUser(userId: number, user: User): Promise<void> {
     if (user.isActive) {
       this.confirmDialog.message = ConfirmMessages.DISABLE_USER;
     } else {
       this.confirmDialog.message = ConfirmMessages.ACTIVATE_USER;
     }
-    this.confirmDialog.confirmed.subscribe(() => {
+    this.confirmDialog.show();
+
+    try {
+      await firstValueFrom(this.confirmDialog.confirmed);
       this.spinnerComponent.loading = true;
       let changeUserIsActive = this.changeIsActive(user);
-      this.userService.changeStatusUser(userId, changeUserIsActive).subscribe({
-        next: (response: ApiResponse<User[]>) => {
-          this.spinnerComponent.loading = false;
-          if (response.statusCode === HttpStatus.Ok) {
-            this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-            this.getAllUsers();
-          } else {
-            this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-          }
-        }, error: (error) => {
-          this.spinnerComponent.loading = false;
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
-        },
-      });
-    });
-    this.confirmDialog.rejected.subscribe(() => {
+
+      const response: ApiResponse<User> = await this.userService.changeStatusUser(userId, changeUserIsActive);
+      this.spinnerComponent.loading = false;
+
+      if (response && response.statusCode === HttpStatus.Ok) {
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
+        this.getAllUsers();
+      } else if (response) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+      this.confirmMode = null;
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error && error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      }
+    }
+    this.confirmMode = null;
+
+    try {
+      await firstValueFrom(this.confirmDialog.rejected);
       if (user.isActive) {
         this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
+        this.confirmMode = null;
       } else {
         this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.ACTIVATION_DELETION);
+        this.confirmMode = null;
       }
-    });
-    this.confirmDialog.show();
+    } catch (rejectError) {
+      this.confirmMode = null;
+    }
   }
 
   changeIsActive(objeto: any) {
@@ -275,39 +315,40 @@ export class UserListComponent implements OnInit {
     return objeto;
   }
 
-  deleteUser(userId: number): void {
+  async deleteUser(userId: number): Promise<void> {
     this.confirmDialog.message = ConfirmMessages.DELETE_USER;
-    this.confirmDialog.confirmed.subscribe(() => {
-      this.spinnerComponent.loading = true;
-      this.userService.deleteUser(userId).subscribe({
-        next: (response: ApiResponse<User[]>) => {
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.getAllUsers();
-        },
-        error: (error) => {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
-          this.spinnerComponent.loading = false;
-        },
-      });
-    });
-    this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    });
     this.confirmDialog.show();
-  }
 
-  handleResponse(): any {
-    return {
-      next: () => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Usuário ${this.formMode === FormMode.Create ? 'cadastrado' : 'atualizado'} com sucesso.`);
+    try {
+      await firstValueFrom(this.confirmDialog.confirmed);
+      this.spinnerComponent.loading = true;
+
+      const response: ApiResponse<User> = await this.userService.deleteUser(userId);
+      this.spinnerComponent.loading = false;
+
+      if (response && response.statusCode === HttpStatus.Ok) {
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
         this.getAllUsers();
-        this.hideDialog();
-      }, error: (error: any) => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, `Erro ao ${this.formMode === FormMode.Create ? 'cadastrar' : 'atualizar'} usuário.`);
-        console.error(`Erro ao ${this.formMode === FormMode.Create ? 'cadastrar' : 'atualizar'} usuário:`, error);
-      },
-    };
+      } else if (response) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+      this.confirmMode = null;
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error && error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        this.confirmMode = null;
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+        this.confirmMode = null;
+      }
+    }
+    this.confirmMode = null;
+    try {
+      await firstValueFrom(this.confirmDialog.rejected);
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
+    } catch (rejectError) {
+      this.confirmMode = null;
+    }
   }
 }
