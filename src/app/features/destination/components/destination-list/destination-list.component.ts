@@ -31,6 +31,7 @@ import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-destination-list',
@@ -138,21 +139,28 @@ export class DestinationListComponent implements OnInit {
     this.selectedColumns = this.cols;
   }
 
-  getAllDestinations(): void {
+  async getAllDestinations(): Promise<void> {
+    this.destinations = [];
     this.spinnerComponent.loading = true;
-    this.destinationService.getAllDestinations().subscribe({
-      next: (response: ApiResponse<Destination[]>) => {
-        this.spinnerComponent.loading = false;
-        if (response.statusCode === HttpStatus.Ok) {
-          this.destinations = response.data;
-        } else {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-        }
-      }, error: (error) => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
-      },
-    });
+
+    try {
+      const response: ApiResponse<Destination[]> = await this.destinationService.getAllDestinations();
+      this.spinnerComponent.loading = false;
+      if (response.statusCode === HttpStatus.Ok) {
+        this.destinations = response.data;
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error.error && error.error.statusCode === HttpStatus.NotFound) {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+      } else if (error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      }
+    }
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, destination?: Destination): void {
@@ -222,7 +230,7 @@ export class DestinationListComponent implements OnInit {
     this.selectedDestinations = undefined;
   }
 
-  saveDestination(): void {
+  async saveDestination(): Promise<void> {
     this.formSubmitted = true;
     if (this.destinationForm.valid) {
       if (this.formMode === FormMode.Create) {
@@ -233,52 +241,93 @@ export class DestinationListComponent implements OnInit {
         this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
-      this.confirmDialog.confirmed.subscribe(() => {
+      this.confirmDialog.show();
+
+      try {
+        await firstValueFrom(this.confirmDialog.confirmed);
         this.spinnerComponent.loading = true;
         const destination: Destination = this.destinationForm.getRawValue();
+        let response: any = null;
         if (this.confirmMode === ConfirmMode.Create) {
-          this.destinationService.createDestination(destination).subscribe(this.handleResponse());
+          response = await this.destinationService.createDestination(destination);
         } else if (this.confirmMode === ConfirmMode.Update) {
-          this.destinationService.updateDestination(destination, destination.id).subscribe(this.handleResponse());
+          response = await this.destinationService.updateDestination(destination, destination.id);
         }
-      });
-      this.confirmDialog.rejected.subscribe(() => {
+        this.spinnerComponent.loading = false;
+        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
+          this.getAllDestinations();
+          this.hideDialog();
+        } else if (response) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+        }
         this.confirmMode = null;
-      });
-      this.confirmDialog.show();
+      } catch (error: any) {
+        this.spinnerComponent.loading = false;
+        if (error && error.error && error.error.message) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        } else {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+        }
+        this.confirmMode = null;
+
+        try {
+          await firstValueFrom(this.confirmDialog.rejected);
+          this.confirmMode = null;
+        } catch (rejectError) {
+          this.confirmMode = null;
+        }
+      }
     } else {
       this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
-  changeStatusDestination(destinationId: number, destination: Destination): void {
+  async changeStatusDestination(destinationId: number, destination: Destination): Promise<void> {
     if (destination.isActive) {
       this.confirmDialog.message = ConfirmMessages.DISABLE_DESTINATION;
     } else {
       this.confirmDialog.message = ConfirmMessages.ACTIVATE_DESTINATION;
     }
-    this.confirmDialog.confirmed.subscribe(() => {
+    this.confirmDialog.show();
+
+    try {
+      await firstValueFrom(this.confirmDialog.confirmed);
       this.spinnerComponent.loading = true;
       let changeDestinationIsActive = this.changeIsActive(destination);
-      this.destinationService.changeStatusDestination(destinationId, changeDestinationIsActive).subscribe({
-        next: (response: ApiResponse<Destination[]>) => {
-          this.spinnerComponent.loading = false;
-          if (response.statusCode === HttpStatus.Ok) {
-            this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-            this.getAllDestinations();
-          } else {
-            this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-          }
-        }, error: (error) => {
-          this.spinnerComponent.loading = false;
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
-        },
-      });
-    });
-    this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    });
-    this.confirmDialog.show();
+
+      const response: ApiResponse<Destination> = await this.destinationService.changeStatusDestination(destinationId, changeDestinationIsActive);
+      this.spinnerComponent.loading = false;
+
+      if (response && response.statusCode === HttpStatus.Ok) {
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
+        this.getAllDestinations();
+      } else if (response) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+      this.confirmMode = null;
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error && error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      }
+    }
+    this.confirmMode = null;
+
+    try {
+      await firstValueFrom(this.confirmDialog.rejected);
+      if (destination.isActive) {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
+        this.confirmMode = null;
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.ACTIVATION_DELETION);
+        this.confirmMode = null;
+      }
+    } catch (rejectError) {
+      this.confirmMode = null;
+    }
   }
 
   changeIsActive(objeto: any) {
@@ -288,39 +337,41 @@ export class DestinationListComponent implements OnInit {
     return objeto;
   }
 
-  deleteDestination(destinationId: number): void {
+  async deleteDestination(destinationId: number): Promise<void> {
     this.confirmDialog.message = ConfirmMessages.DELETE_DESTINATION;
-    this.confirmDialog.confirmed.subscribe(() => {
-      this.spinnerComponent.loading = true;
-      this.destinationService.deleteDestination(destinationId).subscribe({
-        next: (response: ApiResponse<Destination[]>) => {
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.getAllDestinations();
-        },
-        error: (error) => {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
-          this.spinnerComponent.loading = false;
-        },
-      });
-    });
-    this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    });
     this.confirmDialog.show();
+
+    try {
+      await firstValueFrom(this.confirmDialog.confirmed);
+      this.spinnerComponent.loading = true;
+
+      const response: ApiResponse<Destination> = await this.destinationService.deleteDestination(destinationId);
+      this.spinnerComponent.loading = false;
+
+      if (response && response.statusCode === HttpStatus.Ok) {
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
+        this.getAllDestinations();
+      } else if (response) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+      this.confirmMode = null;
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error && error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        this.confirmMode = null;
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+        this.confirmMode = null;
+      }
+    }
+    this.confirmMode = null;
+    try {
+      await firstValueFrom(this.confirmDialog.rejected);
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
+    } catch (rejectError) {
+      this.confirmMode = null;
+    }
   }
 
-  handleResponse(): any {
-    return {
-      next: () => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Destino ${this.formMode === 'create' ? 'cadastrado' : 'atualizado'} com sucesso.`);
-        this.getAllDestinations();
-        this.hideDialog();
-      }, error: (error: any) => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, `Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} destino.`);
-        console.error(`Erro ao ${this.formMode === 'create' ? 'cadastrar' : 'atualizar'} destino:`, error);
-      },
-    };
-  }
 }

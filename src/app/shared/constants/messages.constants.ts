@@ -30,12 +30,5 @@ export const ToastMessages = {
   ACTIVATION_DELETION: 'Ativação cancelada.',
   DEACTIVATION_DELETION: 'Desativação cancelada.',
   UNEXPECTED_ERROR: 'Erro inesperado.',
-
-
-  CREATE_SUCCESS: 'Cadastro realizado com sucesso.',
-  UPDATE_SUCCESS: 'Atualização realizada com sucesso.',
-  DELETE_SUCCESS: 'Exclusão realizada com sucesso.',
-  CREATE_ERROR: 'Erro ao realizar cadastro.',
-  UPDATE_ERROR: 'Erro ao realizar atualização.',
-  DELETE_ERROR: 'Erro ao realizar exclusão.',
+  DESTINATION_NOTFOUND: 'Destino não encontrado.',
 };

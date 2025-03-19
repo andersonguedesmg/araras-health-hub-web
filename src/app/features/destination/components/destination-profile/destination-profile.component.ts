@@ -19,17 +19,11 @@ import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { Account } from '../../../account/interfaces/account';
 import { Tag } from 'primeng/tag';
-
-interface Column {
-  field: string;
-  header: string;
-  customExportHeader?: string;
-}
-
-interface ExportColumn {
-  title: string;
-  dataKey: string;
-}
+import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { ToastMessages } from '../../../../shared/constants/messages.constants';
+import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
+import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
 
 @Component({
   selector: 'app-destination-profile',
@@ -60,64 +54,46 @@ export class DestinationProfileComponent implements OnInit {
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }, { label: 'Perfil' },];
 
-  destinations!: Destination[];
-
   destination!: Destination;
-
   accountUsers: Account[] = [];
 
-  selectedDestinations!: Destination | null;
-
   cols!: Column[];
-
   selectedColumns!: Column[];
-
   exportColumns!: ExportColumn[];
+
+  getSeverity = getSeverity;
+  getStatus = getStatus;
 
   constructor(private cd: ChangeDetectorRef, private destinationService: DestinationService) { }
 
   ngOnInit() { }
 
   ngAfterViewInit(): void {
-    this.loadDestinationProfile();
+    this.getDestinationById();
   }
 
-  loadDestinationProfile(): void {
+  async getDestinationById(): Promise<void> {
     const destinationId = localStorage.getItem('destinationId');
     if (!destinationId) {
-      this.toastComponent.showMessage('error', 'Erro', 'ID de destino não encontrado.');
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.DESTINATION_NOTFOUND);
       return;
     }
     this.spinnerComponent.loading = true;
-    this.destinationService.getDestinationById(parseInt(destinationId)).subscribe({
-      next: (response) => {
-        this.destination = response.data;
-        this.accountUsers = response.data.accountUsers;
-        this.spinnerComponent.loading = false;
-      },
-      error: (error) => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage('error', 'Erro', 'Erro ao carregar detalhes do destino.');
-        console.error('Erro ao carregar detalhes do destino:', error);
-      },
-    });
-  }
 
-  getSeverity(status: boolean): any {
-    switch (status) {
-      case true:
-        return 'success';
-      case false:
-        return 'danger';
-    }
-  }
-
-  getStatus(status: boolean): any {
-    switch (status) {
-      case true:
-        return 'Ativo';
-      case false:
-        return 'Inativo';
+    try {
+      const response: ApiResponse<Destination> = await this.destinationService.getDestinationById(
+        parseInt(destinationId)
+      );
+      this.destination = response.data;
+      this.accountUsers = response.data.accountUsers;
+      this.spinnerComponent.loading = false;
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error && error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      }
     }
   }
 }
