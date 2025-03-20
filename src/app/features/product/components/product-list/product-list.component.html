@@ -26,7 +26,7 @@
         'name',
         'description',
         'manufacturer',
-        'measure',
+        'format',
         'category',
         'isActive'
       ]"
@@ -69,12 +69,14 @@
         <tr>
           <th style="min-width: 5rem" pSortableColumn="id">ID</th>
           <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
-          <th style="min-width: 12rem" pSortableColumn="cpf">DESCRIÇÃO</th>
-          <th style="min-width: 20rem" pSortableColumn="function">
+          <th style="min-width: 22rem" pSortableColumn="description">
+            DESCRIÇÃO
+          </th>
+          <th style="min-width: 12rem" pSortableColumn="manufacturer">
             FABRICANTE
           </th>
-          <th style="min-width: 12rem" pSortableColumn="phone">MEDIDA</th>
-          <th style="min-width: 12rem" pSortableColumn="phone">CATEGORIA</th>
+          <th style="min-width: 12rem" pSortableColumn="format">FORMATO</th>
+          <th style="min-width: 15rem" pSortableColumn="category">CATEGORIA</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 15rem">AÇÕES</th>
         </tr>
@@ -86,7 +88,7 @@
           <td>{{ product.name }}</td>
           <td>{{ product.description }}</td>
           <td>{{ product.manufacturer }}</td>
-          <td>{{ product.measure }}</td>
+          <td>{{ product.format }}</td>
           <td>{{ product.category }}</td>
           <td>
             <p-tag
@@ -225,24 +227,24 @@
           </div>
 
           <div class="mb-4">
-            <label for="measure" class="block text-sm font-medium text-gray-500"
-              >Medida:
+            <label for="format" class="block text-sm font-medium text-gray-500"
+              >Formato:
               <span class="text-red-500" *ngIf="formMode !== 'detail'"
                 >*</span
               ></label
             >
             <input
-              id="measure"
+              id="format"
               pInputText
               type="text"
-              formControlName="measure"
+              formControlName="format"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
-                'border-red-500': productForm.get('measure')?.invalid
+                'border-red-500': productForm.get('format')?.invalid
               }"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && productForm.get('measure')?.invalid
+                  formSubmitted && productForm.get('format')?.invalid
               }"
             />
           </div>

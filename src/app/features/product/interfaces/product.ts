@@ -3,7 +3,7 @@ export interface Product {
   name: string;
   description: string;
   manufacturer: string;
-  measure: string;
+  format: string;
   category: string;
   createdOn: string;
   updatedOn: string;

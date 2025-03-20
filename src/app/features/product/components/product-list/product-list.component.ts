@@ -94,7 +94,7 @@ export class ProductListComponent implements OnInit {
       name: ['', Validators.required],
       description: ['', Validators.required],
       manufacturer: ['', Validators.required],
-      measure: ['', Validators.required],
+      format: ['', Validators.required],
       category: ['', Validators.required],
       isActive: [{ value: false, disabled: true }],
     });
@@ -120,7 +120,7 @@ export class ProductListComponent implements OnInit {
       { field: 'name', header: 'NOME' },
       { field: 'description', header: 'DESCRIÇÃO' },
       { field: 'manufacturer', header: 'FABRICANTE' },
-      { field: 'measure', header: 'MEDIDA' },
+      { field: 'format', header: 'FORMATO' },
       { field: 'category', header: 'TELEFONE' },
       { field: 'isActive', header: 'CATEGORIA' },
     ];
@@ -177,7 +177,7 @@ export class ProductListComponent implements OnInit {
     this.productForm.get('name')?.disable();
     this.productForm.get('description')?.disable();
     this.productForm.get('manufacturer')?.disable();
-    this.productForm.get('measure')?.disable();
+    this.productForm.get('format')?.disable();
     this.productForm.get('category')?.disable();
     this.productForm.get('isActive')?.disable();
 
@@ -187,13 +187,13 @@ export class ProductListComponent implements OnInit {
       this.productForm.get('name')?.enable();
       this.productForm.get('description')?.enable();
       this.productForm.get('manufacturer')?.enable();
-      this.productForm.get('measure')?.enable();
+      this.productForm.get('format')?.enable();
       this.productForm.get('category')?.enable();
     } else if (isUpdate) {
       this.productForm.get('name')?.enable();
       this.productForm.get('description')?.enable();
       this.productForm.get('manufacturer')?.enable();
-      this.productForm.get('measure')?.enable();
+      this.productForm.get('format')?.enable();
       this.productForm.get('category')?.enable();
     }
 
