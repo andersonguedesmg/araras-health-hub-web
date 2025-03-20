@@ -1,3 +1,307 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
 
-<p>product-list works!</p>
+<app-toast></app-toast>
+<app-spinner></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <p-toolbar>
+      <ng-template #start>
+        <span class="text-xl font-bold mt-2 mb-2">Produtos</span>
+      </ng-template>
+
+      <ng-template #end></ng-template>
+    </p-toolbar>
+
+    <p-table
+      #dt
+      [value]="products"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 25]"
+      [columns]="cols"
+      [paginator]="true"
+      [globalFilterFields]="[
+        'id',
+        'name',
+        'description',
+        'manufacturer',
+        'measure',
+        'category',
+        'isActive'
+      ]"
+      [tableStyle]="{ 'min-width': '75rem' }"
+      [(selection)]="selectedProduct"
+      [rowHover]="true"
+      dataKey="id"
+      currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"
+      [showCurrentPageReport]="true"
+    >
+      <ng-template #caption>
+        <div class="flex items-center justify-between">
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-search" />
+            <input
+              pInputText
+              type="text"
+              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+              placeholder="Pesquisar..."
+            />
+          </p-iconfield>
+          <div>
+            <p-button
+              label="Novo"
+              icon="pi pi-plus"
+              class="mr-2"
+              (click)="openForm(FormMode.Create)"
+            />
+            <p-button
+              label="Exportar"
+              icon="pi pi-upload"
+              severity="secondary"
+              (onClick)="exportCSV()"
+            />
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #header>
+        <tr>
+          <th style="min-width: 5rem" pSortableColumn="id">ID</th>
+          <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
+          <th style="min-width: 12rem" pSortableColumn="cpf">DESCRIÇÃO</th>
+          <th style="min-width: 20rem" pSortableColumn="function">
+            FABRICANTE
+          </th>
+          <th style="min-width: 12rem" pSortableColumn="phone">MEDIDA</th>
+          <th style="min-width: 12rem" pSortableColumn="phone">CATEGORIA</th>
+          <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
+          <th style="min-width: 15rem">AÇÕES</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-product>
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.description }}</td>
+          <td>{{ product.manufacturer }}</td>
+          <td>{{ product.measure }}</td>
+          <td>{{ product.category }}</td>
+          <td>
+            <p-tag
+              [value]="getStatus(product.isActive)"
+              [severity]="getSeverity(product.isActive)"
+            />
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              class="mr-2"
+              pTooltip="Editar"
+              tooltipPosition="bottom"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="openForm(FormMode.Update, product)"
+            />
+            <p-button
+              icon="pi pi-info-circle"
+              class="mr-2"
+              pTooltip="Detalhar"
+              tooltipPosition="bottom"
+              severity="info"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="openForm(FormMode.Detail, product)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              pTooltip="Excluir"
+              tooltipPosition="bottom"
+              [rounded]="true"
+              [outlined]="true"
+              (click)="changeStatusProduct(product.id, product)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-dialog
+      [(visible)]="displayDialog"
+      [modal]="true"
+      [style]="{ width: '50vw' }"
+      [header]="
+        formMode === 'create'
+          ? 'Novo Produto'
+          : formMode === 'update'
+          ? 'Editar Produto'
+          : 'Detalhes do Produto'
+      "
+      (onHide)="hideDialog()"
+    >
+      <form [formGroup]="productForm" class="mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4" *ngIf="formMode !== 'create'">
+            <label for="id" class="block text-sm font-medium text-gray-500"
+              >ID:</label
+            >
+            <input
+              id="id"
+              pInputText
+              type="text"
+              formControlName="id"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="name" class="block text-sm font-medium text-gray-500"
+              >Nome:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="name"
+              pInputText
+              type="text"
+              formControlName="name"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{ 'border-red-500': productForm.get('name')?.invalid }"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && productForm.get('name')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="description"
+              class="block text-sm font-medium text-gray-500"
+              >Descrição:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="description"
+              pInputText
+              type="text"
+              formControlName="description"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500': productForm.get('description')?.invalid
+              }"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && productForm.get('description')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="manufacturer"
+              class="block text-sm font-medium text-gray-500"
+              >Fabricante:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="manufacturer"
+              pInputText
+              type="text"
+              formControlName="manufacturer"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && productForm.get('manufacturer')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="measure" class="block text-sm font-medium text-gray-500"
+              >Medida:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="measure"
+              pInputText
+              type="text"
+              formControlName="measure"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500': productForm.get('measure')?.invalid
+              }"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && productForm.get('measure')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="category"
+              class="block text-sm font-medium text-gray-500"
+              >Categoria:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="category"
+              pInputText
+              type="text"
+              formControlName="category"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500': productForm.get('category')?.invalid
+              }"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && productForm.get('category')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Status:</label
+            >
+            <p-select
+              [options]="statusOptions"
+              formControlName="isActive"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              placeholder="Selecione"
+            ></p-select>
+          </div>
+        </div>
+      </form>
+      <ng-template pTemplate="footer">
+        <p-button
+          *ngIf="formMode !== 'detail'"
+          label="Salvar"
+          icon="pi pi-check"
+          (click)="saveProduct()"
+        ></p-button>
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="info"
+          [outlined]="true"
+          (click)="hideDialog()"
+        ></p-button>
+      </ng-template>
+    </p-dialog>
+  </div>
+</div>

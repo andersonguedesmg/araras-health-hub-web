@@ -33,4 +33,8 @@ export class ApiConfigService {
   getAccountUrl(endpoint: string): string {
     return this.apiUrl + 'account/' + endpoint;
   }
+
+  getProductUrl(endpoint: string): string {
+    return this.apiUrl + 'product/' + endpoint;
+  }
 }

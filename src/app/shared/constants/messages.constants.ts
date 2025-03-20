@@ -22,6 +22,12 @@ export const ConfirmMessages = {
   DELETE_ACCOUNT: 'Tem certeza que deseja excluir este cliente?',
   ACTIVATE_ACCOUNT: 'Tem certeza que deseja ativar este cliente?',
   DISABLE_ACCOUNT: 'Tem certeza que deseja desativar este cliente?',
+
+  CREATE_PRODUCT: 'Tem certeza que deseja cadastrar este produto?',
+  UPDATE_PRODUCT: 'Tem certeza que deseja atualizar este produto?',
+  DELETE_PRODUCT: 'Tem certeza que deseja excluir este produto?',
+  ACTIVATE_PRODUCT: 'Tem certeza que deseja ativar este produto?',
+  DISABLE_PRODUCT: 'Tem certeza que deseja desativar este produto?',
 };
 
 export const ToastMessages = {
