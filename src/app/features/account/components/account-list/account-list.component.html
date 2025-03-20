@@ -66,7 +66,7 @@
             DESTINO
           </th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
-          <th style="min-width: 10rem">AÇÕES</th>
+          <th style="min-width: 15rem">AÇÕES</th>
         </tr>
       </ng-template>
 
@@ -121,10 +121,10 @@
       [style]="{ width: '50vw' }"
       [header]="
         formMode === 'create'
-          ? 'Novo Usuário'
+          ? 'Novo Cliente'
           : formMode === 'update'
-          ? 'Editar Usuário'
-          : 'Detalhes do Usuário'
+          ? 'Editar Cliente'
+          : 'Detalhes do Cliente'
       "
       (onHide)="hideDialog()"
     >
