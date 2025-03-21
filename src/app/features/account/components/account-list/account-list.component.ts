@@ -31,6 +31,7 @@ import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
+import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.utils';
 
 @Component({
   selector: 'app-account-list',
@@ -89,6 +90,8 @@ export class AccountListComponent implements OnInit {
 
   getSeverity = getSeverity;
   getStatus = getStatus;
+  getRoleSeverity = getRoleSeverity;
+  getRoleValue = getRoleValue;
 
   constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder) {
     this.accountForm = this.fb.group({

@@ -65,6 +65,7 @@
           <th style="min-width: 20rem" pSortableColumn="destinationId">
             DESTINO
           </th>
+          <th style="min-width: 15rem" pSortableColumn="role">FUNÇÃO</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 15rem">AÇÕES</th>
         </tr>
@@ -74,7 +75,13 @@
         <tr>
           <td>{{ account.id }}</td>
           <td>{{ account.userName }}</td>
-          <td>{{ account.destinationId }}</td>
+          <td>{{ account.destination.name }}</td>
+          <td>
+            <p-tag
+              [value]="getRoleValue(account.roles[0].name)"
+              [severity]="getRoleSeverity(account.roles[0].name)"
+            />
+          </td>
           <td>
             <p-tag
               [value]="getStatus(account.isActive)"
