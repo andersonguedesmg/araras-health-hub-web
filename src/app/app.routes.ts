@@ -19,11 +19,13 @@ export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    title: 'Araras Health Hub',
     canActivate: [AuthGuard]
   },
   {
     path: 'clientes',
     component: AccountListComponent,
+    title: 'A2H - Clientes',
     canActivate: [AuthGuard]
   },
   {
@@ -34,54 +36,65 @@ export const routes: Routes = [
   {
     path: 'destinos',
     component: DestinationListComponent,
+    title: 'A2H - Destinos',
     canActivate: [AuthGuard]
   },
   {
     path: 'perfil',
     component: DestinationProfileComponent,
+    title: 'A2H - Perfil',
     canActivate: [AuthGuard]
   },
   {
     path: 'estoque',
     component: StockListComponent,
+    title: 'A2H - Estoque',
     canActivate: [AuthGuard]
   },
   {
     path: 'fornecedores',
     component: SupplierListComponent,
+    title: 'A2H - Fornecedores',
     canActivate: [AuthGuard]
   },
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
+    title: 'A2H - Login',
   },
   {
     path: 'pedidos',
     component: OrderListComponent,
+    title: 'A2H - Pedidos',
     canActivate: [AuthGuard]
   },
   {
     path: 'produtos',
     component: ProductListComponent,
+    title: 'A2H - Produtos',
     canActivate: [AuthGuard]
   },
   {
     path: 'registrar',
     component: RegisterComponent,
+    title: 'A2H - Registro',
     canActivate: [AuthGuard]
   },
   {
     path: 'sobre',
     component: AboutComponent,
+    title: 'A2H - Sobre',
     canActivate: [AuthGuard]
   },
   {
     path: 'usuarios',
     component: UserListComponent,
+    title: 'A2H - Usuários',
     canActivate: [AuthGuard]
   },
   {
     path: '**',
     component: NotFoundComponent,
+    title: 'Araras Health Hub',
   },
 ];
