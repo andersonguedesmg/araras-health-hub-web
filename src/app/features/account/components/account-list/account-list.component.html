@@ -176,20 +176,16 @@
           </div>
 
           <div class="mb-4">
-            <label
-              for="destinationId"
-              class="block text-sm font-medium text-gray-500"
-              >Destino:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
+            <label class="block text-sm font-medium text-gray-500"
+              >Destino:</label
             >
-            <input
-              id="destinationId"
-              pInputText
-              type="text"
+            <p-select
+              [options]="destinationOptions"
               formControlName="destinationId"
-              class="mt-1 p-2 border rounded-md w-full"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              placeholder="Selecione"
               [ngClass]="{
                 'border-red-500': accountForm.get('destinationId')?.invalid
               }"
@@ -197,7 +193,7 @@
                 'border-red-500':
                   formSubmitted && accountForm.get('destinationId')?.invalid
               }"
-            />
+            ></p-select>
           </div>
 
           <div class="mb-4">

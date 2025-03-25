@@ -32,6 +32,8 @@ import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.utils';
+import { SelectOptions } from '../../../../shared/interfaces/select-options';
+import { DestinationService } from '../../../destination/services/destination.service';
 
 @Component({
   selector: 'app-account-list',
@@ -82,7 +84,7 @@ export class AccountListComponent implements OnInit {
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
-
+  destinationOptions: SelectOptions<number>[] = [];
 
   cols!: Column[];
   selectedColumns!: Column[];
@@ -93,7 +95,7 @@ export class AccountListComponent implements OnInit {
   getRoleSeverity = getRoleSeverity;
   getRoleValue = getRoleValue;
 
-  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder) {
+  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder, private destinationService: DestinationService) {
     this.accountForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       userName: ['', Validators.required],
@@ -102,7 +104,8 @@ export class AccountListComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
+    await this.loadDestinationNames();
     this.loadTableData();
   }
 
@@ -144,6 +147,20 @@ export class AccountListComponent implements OnInit {
         this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
       },
     });
+  }
+
+  async loadDestinationNames(): Promise<void> {
+    try {
+      const response: ApiResponse<any[]> = await this.destinationService.getAllDestinationNames();
+      if (response && response.data) {
+        this.destinationOptions = response.data.map((destination) => ({
+          label: destination.name,
+          value: destination.id,
+        }));
+      }
+    } catch (error) {
+      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
+    }
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, user?: Account): void {

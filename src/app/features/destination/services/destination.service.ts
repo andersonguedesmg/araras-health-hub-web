@@ -4,6 +4,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { Destination } from '../interfaces/destination';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
+import { SelectOptions } from '../../../shared/interfaces/select-options';
 
 @Injectable({
   providedIn: 'root'
@@ -39,5 +40,10 @@ export class DestinationService {
   async changeStatusDestination(destinationId: number, destination: Destination): Promise<ApiResponse<Destination>> {
     const url = this.apiConfig.getDestinationUrl(`changeStatus/${destinationId}`);
     return firstValueFrom(this.http.patch<ApiResponse<Destination>>(url, destination));
+  }
+
+  async getAllDestinationNames(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getDestinationUrl('getNames');
+    return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }

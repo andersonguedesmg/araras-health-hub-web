@@ -37,4 +37,5 @@ export const ToastMessages = {
   DEACTIVATION_DELETION: 'Desativação cancelada.',
   UNEXPECTED_ERROR: 'Erro inesperado.',
   DESTINATION_NOTFOUND: 'Destino não encontrado.',
+  ERROR_LOADING_NAMES: 'Erro ao carregar os nomes:',
 };
