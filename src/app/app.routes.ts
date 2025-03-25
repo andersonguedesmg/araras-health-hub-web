@@ -9,7 +9,6 @@ import { ProductListComponent } from './features/product/components/product-list
 import { StockListComponent } from './features/stock/components/stock-list/stock-list.component';
 import { OrderListComponent } from './features/order/components/order-list/order-list.component';
 import { AccountListComponent } from './features/account/components/account-list/account-list.component';
-import { AccountFormComponent } from './features/account/components/account-form/account-form.component';
 import { LoginComponent } from './core/components/login/login.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { DestinationProfileComponent } from './features/destination/components/destination-profile/destination-profile.component';
@@ -26,11 +25,6 @@ export const routes: Routes = [
     path: 'clientes',
     component: AccountListComponent,
     title: 'A2H - Clientes',
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'clientes/form',
-    component: AccountFormComponent,
     canActivate: [AuthGuard]
   },
   {
