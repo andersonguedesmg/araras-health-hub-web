@@ -38,4 +38,5 @@ export const ToastMessages = {
   UNEXPECTED_ERROR: 'Erro inesperado.',
   DESTINATION_NOTFOUND: 'Destino não encontrado.',
   ERROR_LOADING_NAMES: 'Erro ao carregar os nomes:',
+  CANCELED_REGISTRATION: 'Registro cancelado',
 };

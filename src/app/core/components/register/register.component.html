@@ -7,9 +7,7 @@
     <h2 class="text-2xl font-bold text-center mb-4">Cadastro</h2>
     <form [formGroup]="registerForm">
       <div class="mb-4">
-        <label class="block text-white font-medium mb-2"
-          >Nome de usuário:</label
-        >
+        <label class="block text-white font-medium mb-2">Nome:</label>
         <input
           type="text"
           formControlName="userName"
@@ -19,12 +17,6 @@
               formSubmitted && registerForm.get('userName')?.invalid
           }"
         />
-        <div
-          *ngIf="formSubmitted && registerForm.get('userName')?.invalid"
-          class="text-red-500 text-sm"
-        >
-          Nome de usuário é obrigatório.
-        </div>
       </div>
       <div class="mb-4">
         <label class="block text-white font-medium mb-2">Senha:</label>
@@ -37,30 +29,37 @@
               formSubmitted && registerForm.get('password')?.invalid
           }"
         />
-        <div
-          *ngIf="formSubmitted && registerForm.get('password')?.invalid"
-          class="text-red-500 text-sm"
-        >
-          Senha é obrigatória.
-        </div>
       </div>
+
       <div class="mb-4">
-        <label class="block text-white font-medium mb-2">ID do destino:</label>
-        <input
-          type="number"
+        <label class="block text-sm font-medium text-gray-500">Destino:</label>
+        <p-select
+          [options]="destinationOptions"
           formControlName="destinationId"
-          class="mt-1 p-2 border rounded-md w-full"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+          placeholder="Selecione"
           [ngClass]="{
             'border-red-500':
               formSubmitted && registerForm.get('destinationId')?.invalid
           }"
-        />
-        <div
-          *ngIf="formSubmitted && registerForm.get('destinationId')?.invalid"
-          class="text-red-500 text-sm"
-        >
-          ID do destino é obrigatório.
-        </div>
+        ></p-select>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-500">Papel:</label>
+        <p-select
+          [options]="rolesOptions"
+          formControlName="role"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+          placeholder="Selecione"
+          [ngClass]="{
+            'border-red-500': formSubmitted && registerForm.get('role')?.invalid
+          }"
+        ></p-select>
       </div>
       <div class="flex items-center justify-center">
         <button

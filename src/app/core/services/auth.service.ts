@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { firstValueFrom, Observable, tap } from 'rxjs';
 import { LoginRequest } from '../interfaces/loginRequest';
 import { LoginResponse } from '../interfaces/loginResponse';
 import { ApiConfigService } from '../../shared/services/api-config.service';
@@ -13,21 +13,24 @@ import { Account } from '../interfaces/account';
 export class AuthService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  login(credentials: LoginRequest): Observable<LoginResponse> {
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
     const url = this.apiConfig.getAccountUrl('login');
-    return this.http.post<LoginResponse>(url, credentials).pipe(
-      tap((response) => {
-        if (response.data && response.data.token) {
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('destinationId', response.data.destinationId.toString());
-        }
-      })
-    );
+    try {
+      const response = await firstValueFrom(this.http.post<LoginResponse>(url, credentials));
+      if (response && response.data && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('destinationId', response.data.destinationId.toString());
+      }
+      return response;
+    } catch (error) {
+      console.error('Erro no login:', error);
+      throw error;
+    }
   }
 
-  register(account: Account): Observable<any> {
+  async register(account: Account): Promise<ApiResponse<Account>> {
     const url = this.apiConfig.getAccountUrl('register');
-    return this.http.post<ApiResponse<any>>(url, account);
+    return firstValueFrom(this.http.post<ApiResponse<Account>>(url, account));
   }
 
   logout(): void {

@@ -1,6 +1,5 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../shared/components/toast/toast.component';
@@ -8,16 +7,22 @@ import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../services/auth.service';
 import { ToastSeverities, ToastSummaries } from '../../../shared/constants/toast.constants';
-import { ToastMessages } from '../../../shared/constants/messages.constants';
+import { ConfirmMessages, ToastMessages } from '../../../shared/constants/messages.constants';
+import { SelectOptions } from '../../../shared/interfaces/select-options';
+import { ApiResponse } from '../../../shared/interfaces/apiResponse';
+import { DestinationService } from '../../../features/destination/services/destination.service';
+import { SelectModule } from 'primeng/select';
+import { firstValueFrom } from 'rxjs';
+import { HttpStatus } from '../../../shared/enums/http-status.enum';
 
 @Component({
   selector: 'app-register',
   imports: [
     CommonModule,
-    RouterModule,
     ReactiveFormsModule,
     ButtonModule,
     FormsModule,
+    SelectModule,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
@@ -25,7 +30,7 @@ import { ToastMessages } from '../../../shared/constants/messages.constants';
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
@@ -33,29 +38,83 @@ export class RegisterComponent {
   registerForm: FormGroup;
   formSubmitted = false;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router,) {
+  destinationOptions: SelectOptions<number>[] = [];
+  rolesOptions: SelectOptions<string>[] = [];
+
+  constructor(private fb: FormBuilder, private authService: AuthService, private destinationService: DestinationService,) {
     this.registerForm = this.fb.group({
       userName: ['', Validators.required],
       password: ['', Validators.required],
       destinationId: [0, Validators.required],
+      role: ['', Validators.required],
       isActive: [true],
     });
   }
 
-  register(): void {
+  async ngOnInit(): Promise<void> {
+    await this.loadDestinationNames();
+
+    this.rolesOptions = [
+      { label: 'Usuário', value: 'User' },
+      { label: 'Administrador', value: 'Admin' },
+      { label: 'Master', value: 'Master' },
+    ];
+  }
+
+  async register(): Promise<void> {
     this.formSubmitted = true;
     if (this.registerForm.valid) {
-      const user = this.registerForm.value;
-      this.authService.register(user).subscribe({
-        next: (response) => {
+      this.confirmDialog.message = ConfirmMessages.CREATE_USER;
+      this.confirmDialog.show();
+      try {
+        await firstValueFrom(this.confirmDialog.confirmed);
+        this.spinnerComponent.loading = true;
+        const user = this.registerForm.value;
+        const response = await this.authService.register(user);
+        this.spinnerComponent.loading = false;
+        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
           this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        },
-        error: (error) => {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
-        },
-      });
+          this.registerForm.reset({
+            username: '',
+            email: '',
+            password: '',
+            role: 'User',
+            isActive: true,
+          });
+          this.formSubmitted = false;
+        } else if (response) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+        }
+      } catch (error: any) {
+        this.spinnerComponent.loading = false;
+        if (error && error.error && error.error.message) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        } else {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+        }
+
+        try {
+          await firstValueFrom(this.confirmDialog.rejected);
+        } catch (rejectError) {
+          this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_REGISTRATION);
+        }
+      }
     } else {
       this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
+    }
+  }
+
+  async loadDestinationNames(): Promise<void> {
+    try {
+      const response: ApiResponse<any[]> = await this.destinationService.getAllDestinationNames();
+      if (response && response.data) {
+        this.destinationOptions = response.data.map((destination) => ({
+          label: destination.name,
+          value: destination.id,
+        }));
+      }
+    } catch (error) {
+      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
     }
   }
 }

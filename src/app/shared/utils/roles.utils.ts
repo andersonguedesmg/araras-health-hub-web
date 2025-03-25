@@ -4,9 +4,9 @@ import { Severity } from "../enums/severity.enum";
 export function getRoleSeverity(role: string): Severity {
   switch (role) {
     case 'Master':
-      return Severity.Success;
-    case 'Admin':
       return Severity.Secondary;
+    case 'Admin':
+      return Severity.Warn;
     case 'User':
       return Severity.Info;
     default:
