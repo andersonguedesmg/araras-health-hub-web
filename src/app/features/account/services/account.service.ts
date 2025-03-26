@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { Account } from '../interfaces/account';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
@@ -16,23 +16,28 @@ export class AccountService {
     return this.http.get<ApiResponse<Account[]>>(url);
   }
 
-  createAccount(account: Account): Observable<ApiResponse<Account>> {
-    const url = this.apiConfig.getAccountUrl('create');
-    return this.http.post<ApiResponse<Account>>(url, account);
+  async createAccount(account: Account): Promise<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl('register');
+    return firstValueFrom(this.http.post<ApiResponse<Account>>(url, account));
   }
 
-  updateAccount(account: Account, accountId: string): Observable<ApiResponse<Account>> {
+  async updateAccount(account: Account, accountId: string): Promise<ApiResponse<Account>> {
     const url = this.apiConfig.getAccountUrl(`update/${accountId}`);
-    return this.http.put<ApiResponse<Account>>(url, account);
+    return firstValueFrom(this.http.put<ApiResponse<Account>>(url, account));
   }
 
-  deleteAccount(userId: string): Observable<ApiResponse<any>> {
-    const url = this.apiConfig.getAccountUrl(`delete/${userId}`);
-    return this.http.delete<ApiResponse<any>>(url);
+  async deleteAccount(accountId: number): Promise<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl(`delete/${accountId}`);
+    return firstValueFrom(this.http.delete<ApiResponse<Account>>(url));
   }
 
-  changeStatusAccount(userId: string, account: Account): Observable<ApiResponse<any>> {
-    const url = this.apiConfig.getAccountUrl(`changeStatus/${userId}`);
-    return this.http.patch<ApiResponse<any>>(url, account);
+  async changeStatusAccount(accountId: string, account: Account): Promise<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl(`changeStatus/${accountId}`);
+    return firstValueFrom(this.http.patch<ApiResponse<Account>>(url, account));
+  }
+
+  async getByDestinationId(destinationId: number): Promise<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl(`getByDestinationId/${destinationId}`);
+    return firstValueFrom(this.http.get<ApiResponse<Account>>(url));
   }
 }

@@ -34,6 +34,8 @@ import { StatusOptions } from '../../../../shared/constants/status-options.const
 import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.utils';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DestinationService } from '../../../destination/services/destination.service';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-account-list',
@@ -95,10 +97,11 @@ export class AccountListComponent implements OnInit {
   getRoleSeverity = getRoleSeverity;
   getRoleValue = getRoleValue;
 
-  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder, private destinationService: DestinationService) {
+  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder, private destinationService: DestinationService, private authService: AuthService) {
     this.accountForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       userName: ['', Validators.required],
+      password: ['', Validators.required],
       destinationId: ['', Validators.required],
       isActive: [{ value: false, disabled: true }],
     });
@@ -163,9 +166,9 @@ export class AccountListComponent implements OnInit {
     }
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, user?: Account): void {
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, account?: Account): void {
     this.formMode = mode;
-    this.selectedAccount = user;
+    this.selectedAccount = account;
     this.displayDialog = true;
     this.initializeForm();
   }
@@ -190,6 +193,8 @@ export class AccountListComponent implements OnInit {
       this.accountForm.get('isActive')?.setValue(true);
       this.accountForm.get('isActive')?.disable();
       this.accountForm.get('userName')?.enable();
+      this.accountForm.get('destinationId')?.enable();
+      this.accountForm.get('password')?.enable();
     } else if (isUpdate) {
       this.accountForm.get('userName')?.enable();
     }
@@ -207,7 +212,7 @@ export class AccountListComponent implements OnInit {
     this.selectedAccount = undefined;
   }
 
-  saveAccount(): void {
+  async saveAccount(): Promise<void> {
     this.formSubmitted = true;
     if (this.accountForm.valid) {
       if (this.formMode === FormMode.Create) {
@@ -218,52 +223,93 @@ export class AccountListComponent implements OnInit {
         this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
-      this.confirmDialog.confirmed.subscribe(() => {
+      this.confirmDialog.show();
+
+      try {
+        await firstValueFrom(this.confirmDialog.confirmed);
         this.spinnerComponent.loading = true;
         const account: Account = this.accountForm.getRawValue();
+        let response: any = null;
         if (this.confirmMode === ConfirmMode.Create) {
-          this.accountService.createAccount(account).subscribe(this.handleResponse());
+          response = await this.accountService.createAccount(account);
         } else if (this.confirmMode === ConfirmMode.Update) {
-          this.accountService.updateAccount(account, account.id).subscribe(this.handleResponse());
+          response = await this.accountService.updateAccount(account, account.id);
         }
-      });
-      this.confirmDialog.rejected.subscribe(() => {
+        this.spinnerComponent.loading = false;
+        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
+          this.getAllAccounts();
+          this.hideDialog();
+        } else if (response) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+        }
         this.confirmMode = null;
-      });
-      this.confirmDialog.show();
+      } catch (error: any) {
+        this.spinnerComponent.loading = false;
+        if (error && error.error && error.error.message) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        } else {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+        }
+        this.confirmMode = null;
+
+        try {
+          await firstValueFrom(this.confirmDialog.rejected);
+          this.confirmMode = null;
+        } catch (rejectError) {
+          this.confirmMode = null;
+        }
+      }
     } else {
       this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
-  changeStatusAccount(accountId: string, account: Account): void {
+  async changeStatusAccount(accountId: string, account: Account): Promise<void> {
     if (account.isActive) {
       this.confirmDialog.message = ConfirmMessages.DISABLE_ACCOUNT;
     } else {
       this.confirmDialog.message = ConfirmMessages.ACTIVATE_ACCOUNT;
     }
-    this.confirmDialog.confirmed.subscribe(() => {
+    this.confirmDialog.show();
+
+    try {
+      await firstValueFrom(this.confirmDialog.confirmed);
       this.spinnerComponent.loading = true;
       let changeAccountIsActive = this.changeIsActive(account);
-      this.accountService.changeStatusAccount(accountId, changeAccountIsActive).subscribe({
-        next: (response: ApiResponse<Account[]>) => {
-          this.spinnerComponent.loading = false;
-          if (response.statusCode === HttpStatus.Ok) {
-            this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-            this.getAllAccounts();
-          } else {
-            this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-          }
-        }, error: (error) => {
-          this.spinnerComponent.loading = false;
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
-        },
-      });
-    });
-    this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    });
-    this.confirmDialog.show();
+
+      const response: ApiResponse<Account> = await this.accountService.changeStatusAccount(accountId, changeAccountIsActive);
+      this.spinnerComponent.loading = false;
+
+      if (response && response.statusCode === HttpStatus.Ok) {
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
+        this.getAllAccounts();
+      } else if (response) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+      this.confirmMode = null;
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error && error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      }
+    }
+    this.confirmMode = null;
+
+    try {
+      await firstValueFrom(this.confirmDialog.rejected);
+      if (account.isActive) {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
+        this.confirmMode = null;
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.ACTIVATION_DELETION);
+        this.confirmMode = null;
+      }
+    } catch (rejectError) {
+      this.confirmMode = null;
+    }
   }
 
   changeIsActive(objeto: any) {
@@ -273,39 +319,40 @@ export class AccountListComponent implements OnInit {
     return objeto;
   }
 
-  deleteUser(accountId: string): void {
+  async deleteAccount(accountId: number): Promise<void> {
     this.confirmDialog.message = ConfirmMessages.DELETE_ACCOUNT;
-    this.confirmDialog.confirmed.subscribe(() => {
-      this.spinnerComponent.loading = true;
-      this.accountService.deleteAccount(accountId).subscribe({
-        next: (response: ApiResponse<Account[]>) => {
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.getAllAccounts();
-        },
-        error: (error) => {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
-          this.spinnerComponent.loading = false;
-        },
-      });
-    });
-    this.confirmDialog.rejected.subscribe(() => {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    });
     this.confirmDialog.show();
-  }
 
-  handleResponse(): any {
-    return {
-      next: () => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Cliente ${this.formMode === FormMode.Create ? 'cadastrado' : 'atualizado'} com sucesso.`);
+    try {
+      await firstValueFrom(this.confirmDialog.confirmed);
+      this.spinnerComponent.loading = true;
+
+      const response: ApiResponse<Account> = await this.accountService.deleteAccount(accountId);
+      this.spinnerComponent.loading = false;
+
+      if (response && response.statusCode === HttpStatus.Ok) {
+        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
         this.getAllAccounts();
-        this.hideDialog();
-      }, error: (error: any) => {
-        this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, `Erro ao ${this.formMode === FormMode.Create ? 'cadastrar' : 'atualizar'} cliente.`);
-        console.error(`Erro ao ${this.formMode === FormMode.Create ? 'cadastrar' : 'atualizar'} cliente:`, error);
-      },
-    };
+      } else if (response) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+      this.confirmMode = null;
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error && error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        this.confirmMode = null;
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+        this.confirmMode = null;
+      }
+    }
+    this.confirmMode = null;
+    try {
+      await firstValueFrom(this.confirmDialog.rejected);
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
+    } catch (rejectError) {
+      this.confirmMode = null;
+    }
   }
 }

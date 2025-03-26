@@ -196,6 +196,23 @@
             ></p-select>
           </div>
 
+          <div class="mb-4" *ngIf="formMode === 'create'">
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-500"
+              >Senha: <span class="text-red-500">*</span></label
+            >
+            <input
+              type="password"
+              formControlName="password"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && accountForm.get('password')?.invalid
+              }"
+            />
+          </div>
+
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Status:</label
