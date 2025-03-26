@@ -137,7 +137,6 @@ export class ProductListComponent implements OnInit {
     try {
       const response: ApiResponse<Product[]> = await this.productService.getAllProducts();
       this.spinnerComponent.loading = false;
-      console.log('getAllProducts', response);
       if (response.statusCode === HttpStatus.Ok) {
         this.products = response.data;
       } else {
