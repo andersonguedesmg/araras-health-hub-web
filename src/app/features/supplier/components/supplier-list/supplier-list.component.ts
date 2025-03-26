@@ -32,6 +32,7 @@ import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { firstValueFrom } from 'rxjs';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-supplier-list',
@@ -49,6 +50,7 @@ import { firstValueFrom } from 'rxjs';
     InputIconModule,
     IconFieldModule,
     InputMask,
+    TooltipModule,
     Tag,
     DialogModule,
     SelectModule,

@@ -121,7 +121,7 @@
             <p-button
               icon="pi pi-trash"
               severity="danger"
-              pTooltip="Excluir"
+              [pTooltip]="supplier.isActive ? 'Desativar' : 'Ativar'"
               tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
