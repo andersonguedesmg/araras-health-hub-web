@@ -90,16 +90,21 @@
           <ng-template pTemplate="header">
             <tr>
               <th>ID</th>
-              <th>Nome</th>
-              <th>Criado em</th>
-              <th>Status</th>
+              <th>NOME</th>
+              <th>FUNÇÃO</th>
+              <th>STATUS</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-accountUser>
             <tr>
               <td>{{ accountUser.id }}</td>
               <td>{{ accountUser.userName }}</td>
-              <td>{{ accountUser.createdOn }}</td>
+              <td>
+                <p-tag
+                  [value]="getRoleValueId(accountUser.roles[0].roleId)"
+                  [severity]="getRoleSeverity(accountUser.roles[0].roleName)"
+                />
+              </td>
               <td>
                 <p-tag
                   [value]="getStatus(destination.isActive)"

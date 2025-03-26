@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -24,6 +24,8 @@ import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/to
 import { ToastMessages } from '../../../../shared/constants/messages.constants';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { getRoleSeverity, getRoleValue, getRoleValueId } from '../../../../shared/utils/roles.utils';
+import { AccountService } from '../../../account/services/account.service';
 
 @Component({
   selector: 'app-destination-profile',
@@ -55,7 +57,7 @@ export class DestinationProfileComponent implements OnInit {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }, { label: 'Perfil' },];
 
   destination!: Destination;
-  accountUsers: Account[] = [];
+  accountUsers: any;
 
   cols!: Column[];
   selectedColumns!: Column[];
@@ -63,13 +65,17 @@ export class DestinationProfileComponent implements OnInit {
 
   getSeverity = getSeverity;
   getStatus = getStatus;
+  getRoleSeverity = getRoleSeverity;
+  getRoleValue = getRoleValue;
+  getRoleValueId = getRoleValueId;
 
-  constructor(private cd: ChangeDetectorRef, private destinationService: DestinationService) { }
+  constructor(private destinationService: DestinationService, private accountService: AccountService) { }
 
   ngOnInit() { }
 
   ngAfterViewInit(): void {
     this.getDestinationById();
+    this.getByDestinationId();
   }
 
   async getDestinationById(): Promise<void> {
@@ -85,7 +91,30 @@ export class DestinationProfileComponent implements OnInit {
         parseInt(destinationId)
       );
       this.destination = response.data;
-      this.accountUsers = response.data.accountUsers;
+      this.spinnerComponent.loading = false;
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error && error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      }
+    }
+  }
+
+  async getByDestinationId(): Promise<void> {
+    const destinationId = localStorage.getItem('destinationId');
+    if (!destinationId) {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.DESTINATION_NOTFOUND);
+      return;
+    }
+    this.spinnerComponent.loading = true;
+
+    try {
+      const response: ApiResponse<Account> = await this.accountService.getByDestinationId(
+        parseInt(destinationId)
+      );
+      this.accountUsers = response.data;
       this.spinnerComponent.loading = false;
     } catch (error: any) {
       this.spinnerComponent.loading = false;
