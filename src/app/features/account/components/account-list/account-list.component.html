@@ -46,7 +46,7 @@
               label="Novo"
               icon="pi pi-plus"
               class="mr-2"
-              (click)="openForm(FormMode.Create)"
+              (click)="navigateToRegister()"
             />
             <p-button
               label="Exportar"
@@ -115,7 +115,7 @@
               tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
-              (click)="changeStatusAccount(account.id, account)"
+              (click)="changeStatusAccount(account)"
             />
           </td>
         </tr>

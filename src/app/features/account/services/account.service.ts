@@ -21,19 +21,14 @@ export class AccountService {
     return firstValueFrom(this.http.post<ApiResponse<Account>>(url, account));
   }
 
-  async updateAccount(account: Account, accountId: string): Promise<ApiResponse<Account>> {
-    const url = this.apiConfig.getAccountUrl(`update/${accountId}`);
+  async updateAccount(account: Account): Promise<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl('update');
     return firstValueFrom(this.http.put<ApiResponse<Account>>(url, account));
   }
 
-  async deleteAccount(accountId: number): Promise<ApiResponse<Account>> {
-    const url = this.apiConfig.getAccountUrl(`delete/${accountId}`);
-    return firstValueFrom(this.http.delete<ApiResponse<Account>>(url));
-  }
-
-  async changeStatusAccount(accountId: string, account: Account): Promise<ApiResponse<Account>> {
-    const url = this.apiConfig.getAccountUrl(`changeStatus/${accountId}`);
-    return firstValueFrom(this.http.patch<ApiResponse<Account>>(url, account));
+  async changeStatusAccount(account: Account): Promise<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl('changeStatus');
+    return firstValueFrom(this.http.put<ApiResponse<Account>>(url, account));
   }
 
   async getByDestinationId(destinationId: number): Promise<ApiResponse<Account>> {

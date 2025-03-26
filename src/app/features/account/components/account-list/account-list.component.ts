@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
 import { MessageService } from 'primeng/api';
@@ -35,7 +35,6 @@ import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.ut
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DestinationService } from '../../../destination/services/destination.service';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-account-list',
@@ -97,12 +96,12 @@ export class AccountListComponent implements OnInit {
   getRoleSeverity = getRoleSeverity;
   getRoleValue = getRoleValue;
 
-  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder, private destinationService: DestinationService, private authService: AuthService) {
+  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder, private destinationService: DestinationService, private router: Router) {
     this.accountForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       userName: ['', Validators.required],
-      password: ['', Validators.required],
-      destinationId: ['', Validators.required],
+      password: [],
+      destinationId: [],
       isActive: [{ value: false, disabled: true }],
     });
   }
@@ -233,7 +232,7 @@ export class AccountListComponent implements OnInit {
         if (this.confirmMode === ConfirmMode.Create) {
           response = await this.accountService.createAccount(account);
         } else if (this.confirmMode === ConfirmMode.Update) {
-          response = await this.accountService.updateAccount(account, account.id);
+          response = await this.accountService.updateAccount(account);
         }
         this.spinnerComponent.loading = false;
         if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
@@ -265,7 +264,7 @@ export class AccountListComponent implements OnInit {
     }
   }
 
-  async changeStatusAccount(accountId: string, account: Account): Promise<void> {
+  async changeStatusAccount(account: Account): Promise<void> {
     if (account.isActive) {
       this.confirmDialog.message = ConfirmMessages.DISABLE_ACCOUNT;
     } else {
@@ -278,7 +277,7 @@ export class AccountListComponent implements OnInit {
       this.spinnerComponent.loading = true;
       let changeAccountIsActive = this.changeIsActive(account);
 
-      const response: ApiResponse<Account> = await this.accountService.changeStatusAccount(accountId, changeAccountIsActive);
+      const response: ApiResponse<Account> = await this.accountService.changeStatusAccount(changeAccountIsActive);
       this.spinnerComponent.loading = false;
 
       if (response && response.statusCode === HttpStatus.Ok) {
@@ -312,47 +311,14 @@ export class AccountListComponent implements OnInit {
     }
   }
 
+  navigateToRegister(): void {
+    this.router.navigate(['/registrar']);
+  }
+
   changeIsActive(objeto: any) {
     if (objeto && typeof objeto === 'object' && 'isActive' in objeto) {
       objeto.isActive = !objeto.isActive;
     }
     return objeto;
-  }
-
-  async deleteAccount(accountId: number): Promise<void> {
-    this.confirmDialog.message = ConfirmMessages.DELETE_ACCOUNT;
-    this.confirmDialog.show();
-
-    try {
-      await firstValueFrom(this.confirmDialog.confirmed);
-      this.spinnerComponent.loading = true;
-
-      const response: ApiResponse<Account> = await this.accountService.deleteAccount(accountId);
-      this.spinnerComponent.loading = false;
-
-      if (response && response.statusCode === HttpStatus.Ok) {
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllAccounts();
-      } else if (response) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-      this.confirmMode = null;
-    } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error && error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        this.confirmMode = null;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-        this.confirmMode = null;
-      }
-    }
-    this.confirmMode = null;
-    try {
-      await firstValueFrom(this.confirmDialog.rejected);
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    } catch (rejectError) {
-      this.confirmMode = null;
-    }
   }
 }
