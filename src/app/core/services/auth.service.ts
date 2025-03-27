@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom, Observable, tap } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { LoginRequest } from '../interfaces/loginRequest';
 import { LoginResponse } from '../interfaces/loginResponse';
 import { ApiConfigService } from '../../shared/services/api-config.service';
@@ -47,6 +48,39 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return !!this.getToken() && !this.isTokenExpired();
+  }
+
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      return true;
+    }
+    try {
+      const decodedToken: JwtPayload = jwtDecode(token);
+      return decodedToken.exp ? decodedToken.exp * 1000 < Date.now() : true;
+    } catch (error) {
+      return true;
+    }
+  }
+
+  isTokenExpiringSoon(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+    try {
+      const decodedToken: JwtPayload = jwtDecode(token);
+      if (!decodedToken.exp) {
+        return false;
+      }
+      const expirationTime = decodedToken.exp * 1000;
+      const currentTime = Date.now();
+      const timeLeft = expirationTime - currentTime;
+      const warningTime = 5 * 60 * 1000;
+      return timeLeft < warningTime;
+    } catch (error) {
+      return false;
+    }
   }
 }

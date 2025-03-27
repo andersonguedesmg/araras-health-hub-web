@@ -39,4 +39,5 @@ export const ToastMessages = {
   DESTINATION_NOTFOUND: 'Destino não encontrado.',
   ERROR_LOADING_NAMES: 'Erro ao carregar os nomes:',
   CANCELED_REGISTRATION: 'Registro cancelado',
+  SESSION_WILL_EXPIRE_SOON: 'Sua sessão irá expirar em breve.',
 };
