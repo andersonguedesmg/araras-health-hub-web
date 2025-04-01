@@ -9,7 +9,7 @@ import { MenuItem } from 'primeng/api';
   styleUrl: './stock-list.component.scss'
 })
 export class StockListComponent implements OnInit {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Estoque' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }];
 
   constructor() { }
 

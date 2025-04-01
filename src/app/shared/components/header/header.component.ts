@@ -31,39 +31,51 @@ export class HeaderComponent implements OnInit {
         routerLink: '/',
       },
       {
-        label: 'Usuários',
-        icon: PrimeIcons.USER,
-        routerLink: '/usuarios',
+        label: 'Administração',
+        icon: PrimeIcons.BRIEFCASE,
+        items: [
+          {
+            label: 'Usuários',
+            icon: PrimeIcons.USER,
+            routerLink: '/usuarios',
+          },
+          {
+            label: 'Destinos',
+            icon: PrimeIcons.ADDRESS_BOOK,
+            routerLink: '/destinos',
+          },
+          {
+            label: 'Clientes',
+            icon: PrimeIcons.USERS,
+            routerLink: '/clientes',
+          },
+          {
+            label: 'Fornecedores',
+            icon: PrimeIcons.SHOP,
+            routerLink: '/fornecedores',
+          },
+          {
+            label: 'Produtos',
+            icon: PrimeIcons.SHOPPING_BAG,
+            routerLink: '/produtos',
+          },
+        ]
       },
       {
-        label: 'Destinos',
-        icon: PrimeIcons.ADDRESS_BOOK,
-        routerLink: '/destinos',
-      },
-      {
-        label: 'Clientes',
-        icon: PrimeIcons.USERS,
-        routerLink: '/clientes',
-      },
-      {
-        label: 'Fornecedores',
-        icon: PrimeIcons.SHOP,
-        routerLink: '/fornecedores',
-      },
-      {
-        label: 'Produtos',
-        icon: PrimeIcons.SHOPPING_BAG,
-        routerLink: '/produtos',
-      },
-      {
-        label: 'Estoque',
+        label: 'Almoxarifado',
         icon: PrimeIcons.WAREHOUSE,
-        routerLink: '/estoque',
-      },
-      {
-        label: 'Recebimento',
-        icon: PrimeIcons.WAREHOUSE,
-        routerLink: '/recebimentos',
+        items: [
+          {
+            label: 'Estoque',
+            icon: PrimeIcons.TABLE,
+            routerLink: '/estoque',
+          },
+          {
+            label: 'Recebimento',
+            icon: PrimeIcons.BOX,
+            routerLink: '/recebimentos',
+          },
+        ]
       },
       {
         label: 'Pedidos',

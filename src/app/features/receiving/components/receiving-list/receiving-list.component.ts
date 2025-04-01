@@ -69,7 +69,7 @@ export class ReceivingListComponent implements OnInit {
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Estoque' }, { label: 'Recebimentos' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Recebimentos' }];
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
