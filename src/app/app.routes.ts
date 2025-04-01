@@ -13,6 +13,7 @@ import { LoginComponent } from './core/components/login/login.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { DestinationProfileComponent } from './features/destination/components/destination-profile/destination-profile.component';
 import { RegisterComponent } from './core/components/register/register.component';
+import { ReceivingListComponent } from './features/receiving/components/receiving-list/receiving-list.component';
 
 export const routes: Routes = [
   {
@@ -66,6 +67,12 @@ export const routes: Routes = [
     path: 'produtos',
     component: ProductListComponent,
     title: 'A2H - Produtos',
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'recebimentos',
+    component: ReceivingListComponent,
+    title: 'A2H - Recebimentos',
     canActivate: [AuthGuard]
   },
   {
