@@ -37,4 +37,8 @@ export class ApiConfigService {
   getProductUrl(endpoint: string): string {
     return this.apiUrl + 'product/' + endpoint;
   }
+
+  getReceivingUrl(endpoint: string): string {
+    return this.apiUrl + 'receiving/' + endpoint;
+  }
 }

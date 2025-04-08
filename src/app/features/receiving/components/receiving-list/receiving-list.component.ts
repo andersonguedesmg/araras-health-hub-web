@@ -10,11 +10,9 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
-import { Tag } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { DialogModule } from 'primeng/dialog';
-import { InputMask } from 'primeng/inputmask';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { Table } from 'primeng/table';
@@ -24,16 +22,14 @@ import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
-import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
+import { ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { firstValueFrom } from 'rxjs';
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
-
 
 @Component({
   selector: 'app-receiving-list',
@@ -51,13 +47,11 @@ import { Receiving } from '../../interfaces/receiving';
     InputIconModule,
     IconFieldModule,
     TooltipModule,
-    InputMask,
-    Tag,
     DialogModule,
     SelectModule,
     ToastComponent,
     SpinnerComponent,
-    ConfirmDialogComponent,
+    ConfirmDialogComponent
   ],
   providers: [MessageService],
   templateUrl: './receiving-list.component.html',
@@ -79,6 +73,13 @@ export class ReceivingListComponent implements OnInit {
   selectedReceiving?: Receiving;
   receivingForm: FormGroup;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+
+  displayDialog = false;
+  formSubmitted = false;
+
+  confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
+  confirmMessage = '';
+
   cols!: Column[];
   selectedColumns!: Column[];
   exportColumns!: ExportColumn[];
@@ -89,11 +90,11 @@ export class ReceivingListComponent implements OnInit {
   constructor(private cd: ChangeDetectorRef, private receivingService: ReceivingService, private fb: FormBuilder) {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
-      name: ['', Validators.required],
-      cpf: ['', Validators.required],
-      function: ['', Validators.required],
-      phone: ['', Validators.required],
-      isActive: [{ value: false, disabled: true }],
+      supplierId: ['', Validators.required],
+      receivingDate: ['', Validators.required],
+      invoiceNumber: ['', Validators.required],
+      responsibleId: ['', Validators.required],
+      observations: ['', Validators.required],
     });
   }
 
@@ -102,23 +103,81 @@ export class ReceivingListComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    // this.getAllUsers();
+    this.getAllReceivings();
+  }
+
+  exportCSV() {
+    this.dt.exportCSV();
   }
 
   loadTableData() {
     this.cd.markForCheck();
 
     this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO USUÁRIO' },
-      { field: 'name', header: 'NOME' },
-      { field: 'cpf', header: 'CPF' },
-      { field: 'function', header: 'FUNÇÃO' },
-      { field: 'phone', header: 'TELEFONE' },
-      { field: 'isActive', header: 'STATUS' },
+      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO RECEBIMENTO' },
+      { field: 'supplierId', header: 'FORNECEDOR' },
+      { field: 'receivingDate', header: 'DATA' },
+      { field: 'invoiceNumber', header: 'NOTA FISCAL' },
+      { field: 'responsibleId', header: 'RESPONSÁVEL' },
+      { field: 'observations', header: 'OBSERVAÇÃO' },
     ];
 
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
 
     this.selectedColumns = this.cols;
+  }
+
+  async getAllReceivings(): Promise<void> {
+    this.receivings = [];
+    this.spinnerComponent.loading = true;
+
+    try {
+      const response: ApiResponse<Receiving[]> = await this.receivingService.getAllReceivings();
+      this.spinnerComponent.loading = false;
+      console.log('getAllReceivings', response);
+
+      if (response.statusCode === HttpStatus.Ok) {
+        this.receivings = response.data;
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+      }
+    } catch (error: any) {
+      this.spinnerComponent.loading = false;
+      if (error.error && error.error.statusCode === HttpStatus.NotFound) {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+      } else if (error.error && error.error.message) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+      } else {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      }
+    }
+  }
+
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, receiving?: Receiving): void {
+    this.formMode = mode;
+    this.selectedReceiving = receiving;
+    this.displayDialog = true;
+    this.initializeForm();
+  }
+
+  initializeForm(): void {
+    this.receivingForm.reset();
+    if (this.selectedReceiving) {
+      this.receivingForm.patchValue(this.selectedReceiving);
+    }
+    this.updateFormState();
+  }
+
+  updateFormState(): void {
+    this.receivingForm.get('supplierId')?.disable();
+    this.receivingForm.get('receivingDate')?.disable();
+    this.receivingForm.get('invoiceNumber')?.disable();
+    this.receivingForm.get('responsibleId')?.disable();
+    this.receivingForm.get('observations')?.disable();
+  }
+
+  hideDialog(): void {
+    this.displayDialog = false;
+    this.selectedReceiving = undefined;
   }
 }

@@ -1,10 +1,13 @@
 export interface Receiving {
   id: number;
-  name: string;
-  cpf: string;
-  function: string;
-  phone: string;
-  createdOn: string;
-  updatedOn: string;
-  isActive: boolean;
+  supplierId: number;
+  supplier: any;
+  receivingDate: Date;
+  invoiceNumber: string;
+  responsible: any;
+  responsibleId: number;
+  accountId: number;
+  account: any;
+  observations: string;
+  receivedItems: any[];
 }
