@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Product } from '../interfaces/product';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { firstValueFrom } from 'rxjs';
+import { SelectOptions } from '../../../shared/interfaces/select-options';
 
 @Injectable({
   providedIn: 'root'
@@ -34,5 +35,10 @@ export class ProductService {
   async changeStatusProduct(productId: number, product: Product): Promise<ApiResponse<Product>> {
     const url = this.apiConfig.getProductUrl(`changeStatus/${productId}`);
     return firstValueFrom(this.http.patch<ApiResponse<Product>>(url, product));
+  }
+
+  async getAllProductNames(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getUserUrl('getNames');
+    return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }
