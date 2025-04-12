@@ -21,6 +21,8 @@ export class AuthService {
       if (response && response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('destinationId', response.data.destinationId.toString());
+        localStorage.setItem('userId', response.data.userId.toString());
+        localStorage.setItem('userName', response.data.userName.toString());
       }
       return response;
     } catch (error) {
@@ -37,6 +39,8 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('destinationId');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
   }
 
   getToken(): string | null {
@@ -45,6 +49,14 @@ export class AuthService {
 
   getDestinationId(): string | null {
     return localStorage.getItem('destinationId');
+  }
+
+  getUserId(): string | null {
+    return localStorage.getItem('userId');
+  }
+
+  getUserName(): string | null {
+    return localStorage.getItem('userName');
   }
 
   isLoggedIn(): boolean {
