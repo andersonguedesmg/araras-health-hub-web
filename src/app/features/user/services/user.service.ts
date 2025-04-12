@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { User } from '../interfaces/user';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
+import { SelectOptions } from '../../../shared/interfaces/select-options';
 
 @Injectable({
   providedIn: 'root'
@@ -34,5 +35,10 @@ export class UserService {
   async changeStatusUser(userId: number, user: User): Promise<ApiResponse<User>> {
     const url = this.apiConfig.getUserUrl(`changeStatus/${userId}`);
     return firstValueFrom(this.http.patch<ApiResponse<User>>(url, user));
+  }
+
+  async getAllUserNames(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getUserUrl('getNames');
+    return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }
