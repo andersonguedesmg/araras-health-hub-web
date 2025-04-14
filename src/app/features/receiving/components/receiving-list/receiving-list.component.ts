@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
 import { MessageService } from 'primeng/api';
@@ -63,7 +63,7 @@ export class ReceivingListComponent implements OnInit {
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Recebimentos' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }];
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
@@ -87,7 +87,7 @@ export class ReceivingListComponent implements OnInit {
   getSeverity = getSeverity;
   getStatus = getStatus;
 
-  constructor(private cd: ChangeDetectorRef, private receivingService: ReceivingService, private fb: FormBuilder) {
+  constructor(private cd: ChangeDetectorRef, private receivingService: ReceivingService, private fb: FormBuilder, private router: Router) {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       supplierId: ['', Validators.required],
@@ -180,4 +180,9 @@ export class ReceivingListComponent implements OnInit {
     this.displayDialog = false;
     this.selectedReceiving = undefined;
   }
+
+  navigateToCreateReceiving(): void {
+    this.router.navigate(['/entrada/nova']);
+  }
+
 }

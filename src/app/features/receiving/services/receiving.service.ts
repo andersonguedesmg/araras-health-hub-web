@@ -15,4 +15,9 @@ export class ReceivingService {
     const url = this.apiConfig.getReceivingUrl('getAll');
     return firstValueFrom(this.http.get<ApiResponse<Receiving[]>>(url));
   }
+
+  async createReceiving(receiving: Receiving): Promise<ApiResponse<Receiving>> {
+    const url = this.apiConfig.getReceivingUrl('create');
+    return firstValueFrom(this.http.post<ApiResponse<Receiving>>(url, receiving));
+  }
 }

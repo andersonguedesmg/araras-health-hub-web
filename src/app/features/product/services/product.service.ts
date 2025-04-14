@@ -38,7 +38,7 @@ export class ProductService {
   }
 
   async getAllProductNames(): Promise<ApiResponse<SelectOptions<number>[]>> {
-    const url = this.apiConfig.getUserUrl('getNames');
+    const url = this.apiConfig.getProductUrl('getNames');
     return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }

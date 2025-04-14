@@ -8,7 +8,7 @@
   <div class="card mt-10">
     <p-toolbar>
       <ng-template #start>
-        <span class="text-xl font-bold mt-2 mb-2">Recebimentos</span>
+        <span class="text-xl font-bold mt-2 mb-2">Entradas</span>
       </ng-template>
 
       <ng-template #end></ng-template>
@@ -48,12 +48,12 @@
             />
           </p-iconfield>
           <div>
-            <!-- <p-button
+            <p-button
               label="Novo"
               icon="pi pi-plus"
               class="mr-2"
-              (click)="openForm(FormMode.Create)"
-            /> -->
+              (click)="navigateToCreateReceiving()"
+            />
             <p-button
               label="Exportar"
               icon="pi pi-upload"

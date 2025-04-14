@@ -71,9 +71,9 @@ export class HeaderComponent implements OnInit {
             routerLink: '/estoque',
           },
           {
-            label: 'Recebimento',
+            label: 'Entrada',
             icon: PrimeIcons.BOX,
-            routerLink: '/recebimentos',
+            routerLink: '/entradas',
           },
         ]
       },

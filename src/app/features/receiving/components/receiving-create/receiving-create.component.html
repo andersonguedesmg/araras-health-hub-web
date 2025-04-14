@@ -1,0 +1,172 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-toast></app-toast>
+<app-spinner></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <p-toolbar>
+      <ng-template #start>
+        <span class="text-xl font-bold mt-2 mb-2">Nova Entrada</span>
+      </ng-template>
+
+      <ng-template #end></ng-template>
+    </p-toolbar>
+
+    <form [formGroup]="receivingForm" class="mt-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="mb-4" *ngIf="formMode !== 'create'">
+          <label for="id" class="block text-sm font-medium text-gray-500"
+            >ID:</label
+          >
+          <input
+            id="id"
+            pInputText
+            type="text"
+            formControlName="id"
+            class="mt-1 p-2 border rounded-md w-full"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="invoiceNumber"
+            class="block text-sm font-medium text-gray-500"
+            >Nota Fiscal:
+            <span class="text-red-500" *ngIf="formMode !== 'detail'"
+              >*</span
+            ></label
+          >
+          <input
+            id="invoiceNumber"
+            pInputText
+            type="text"
+            formControlName="invoiceNumber"
+            class="mt-1 p-2 border rounded-md w-full"
+            [ngClass]="{
+              'border-red-500':
+                formSubmitted && receivingForm.get('invoiceNumber')?.invalid
+            }"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="receivingDate"
+            class="block text-sm font-medium text-gray-500"
+            >Data:
+            <span class="text-red-500" *ngIf="formMode !== 'detail'"
+              >*</span
+            ></label
+          >
+          <p-datepicker
+            id="receivingDate"
+            formControlName="receivingDate"
+            dateFormat="dd/mm/yy"
+            [showButtonBar]="true"
+            [ngClass]="{
+              'border-red-500':
+                formSubmitted && receivingForm.get('receivingDate')?.invalid
+            }"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-500"
+            >Fornecedor:</label
+          >
+          <p-select
+            [options]="supplierOptions"
+            formControlName="supplierId"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            placeholder="Selecione"
+            [ngClass]="{
+              'border-red-500':
+                formSubmitted && receivingForm.get('supplierId')?.invalid
+            }"
+          ></p-select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-500"
+            >Responsável:</label
+          >
+          <p-select
+            [options]="userOptions"
+            formControlName="responsibleId"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            placeholder="Selecione"
+            [ngClass]="{
+              'border-red-500':
+                formSubmitted && receivingForm.get('responsibleId')?.invalid
+            }"
+          ></p-select>
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="observations"
+            class="block text-sm font-medium text-gray-500"
+            >Observação:
+            <span class="text-red-500" *ngIf="formMode !== 'detail'"
+              >*</span
+            ></label
+          >
+          <input
+            id="observations"
+            pInputText
+            type="text"
+            formControlName="observations"
+            class="mt-1 p-2 border rounded-md w-full"
+            [ngClass]="{
+              'border-red-500':
+                formSubmitted && receivingForm.get('observations')?.invalid
+            }"
+          />
+        </div>
+      </div>
+
+      <h3 class="text-xl font-semibold mt-6 mb-2">Itens</h3>
+      <div formArrayName="receivedItems" class="mb-4">
+        <div *ngFor="let item of receivedItems.controls; let i = index" [formGroupName]="i" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 p-4 border rounded">
+          <div class="field">
+            <label for="productId{{i}}" class="block text-sm font-medium text-gray-500">Produto</label>
+            <p-select [options]="productOptions" formControlName="productId" optionLabel="label" optionValue="value" placeholder="Selecione o Produto" id="productId{{i}}" class="w-full"></p-select>
+            <small *ngIf="receivedItems.controls[i].get('productId')?.invalid && (receivedItems.controls[i].get('productId')?.dirty || receivedItems.controls[i].get('productId')?.touched)" class="text-red-500">Produto é obrigatório.</small>
+          </div>
+
+          <div class="field">
+            <label for="quantity{{i}}" class="block text-sm font-medium text-gray-500">Quantidade</label>
+            <input formControlName="quantity" pInputText type="number" id="quantity{{i}}" class="w-full" />
+            <small *ngIf="receivedItems.controls[i].get('quantity')?.invalid && (receivedItems.controls[i].get('quantity')?.dirty || receivedItems.controls[i].get('quantity')?.touched)" class="text-red-500">Quantidade é obrigatória.</small>
+          </div>
+
+          <div class="field">
+            <label for="batch{{i}}" class="block text-sm font-medium text-gray-500">Lote</label>
+            <input type="text" pInputText formControlName="batch" id="batch{{i}}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          </div>
+
+          <div class="field">
+            <label for="expiryDate{{i}}" class="block text-sm font-medium text-gray-500">Data de Validade</label>
+            <p-datepicker formControlName="expiryDate" id="expiryDate{{i}}" dateFormat="dd/mm/yy" class="w-full"></p-datepicker>
+          </div>
+
+          <div class="field">
+            <label for="manufacturingDate{{i}}" class="block text-sm font-medium text-gray-500">Data de Fabricação</label>
+            <p-datepicker formControlName="manufacturingDate" id="manufacturingDate{{i}}" dateFormat="dd/mm/yy" class="w-full"></p-datepicker>
+          </div>
+
+          <div class="col-span-full md:col-span-1 flex items-end">
+            <button pButton icon="pi pi-trash" (click)="removeReceivedItem(i)" severity="danger" type="button" class="w-full"></button>
+          </div>
+        </div>
+        <p-button label="Adicionar Item" icon="pi pi-plus" (click)="addReceivedItem()" class="mt-2"></p-button>
+      </div>
+    </form>
+  </div>
+</div>
