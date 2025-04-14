@@ -35,9 +35,9 @@ export class HeaderComponent implements OnInit {
         icon: PrimeIcons.BRIEFCASE,
         items: [
           {
-            label: 'Usuários',
+            label: 'Funcionários',
             icon: PrimeIcons.USER,
-            routerLink: '/usuarios',
+            routerLink: '/funcionarios',
           },
           {
             label: 'Destinos',

@@ -8,7 +8,7 @@
   <div class="card mt-10">
     <p-toolbar>
       <ng-template #start>
-        <span class="text-xl font-bold mt-2 mb-2">Usuários</span>
+        <span class="text-xl font-bold mt-2 mb-2">Funcionários</span>
       </ng-template>
 
       <ng-template #end></ng-template>
@@ -16,7 +16,7 @@
 
     <p-table
       #dt
-      [value]="users"
+      [value]="employees"
       [rows]="5"
       [rowsPerPageOptions]="[5, 10, 25]"
       [columns]="cols"
@@ -30,7 +30,7 @@
         'isActive'
       ]"
       [tableStyle]="{ 'min-width': '75rem' }"
-      [(selection)]="selectedUser"
+      [(selection)]="selectedEmployee"
       [rowHover]="true"
       dataKey="id"
       currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"
@@ -76,17 +76,17 @@
         </tr>
       </ng-template>
 
-      <ng-template #body let-user>
+      <ng-template #body let-employee>
         <tr>
-          <td>{{ user.id }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.cpf }}</td>
-          <td>{{ user.function }}</td>
-          <td>{{ user.phone }}</td>
+          <td>{{ employee.id }}</td>
+          <td>{{ employee.name }}</td>
+          <td>{{ employee.cpf }}</td>
+          <td>{{ employee.function }}</td>
+          <td>{{ employee.phone }}</td>
           <td>
             <p-tag
-              [value]="getStatus(user.isActive)"
-              [severity]="getSeverity(user.isActive)"
+              [value]="getStatus(employee.isActive)"
+              [severity]="getSeverity(employee.isActive)"
             />
           </td>
           <td>
@@ -97,7 +97,7 @@
               tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
-              (click)="openForm(FormMode.Update, user)"
+              (click)="openForm(FormMode.Update, employee)"
             />
             <p-button
               icon="pi pi-info-circle"
@@ -107,16 +107,16 @@
               severity="info"
               [rounded]="true"
               [outlined]="true"
-              (click)="openForm(FormMode.Detail, user)"
+              (click)="openForm(FormMode.Detail, employee)"
             />
             <p-button
               icon="pi pi-trash"
               severity="danger"
-              [pTooltip]="user.isActive ? 'Desativar' : 'Ativar'"
+              [pTooltip]="employee.isActive ? 'Desativar' : 'Ativar'"
               tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
-              (click)="changeStatusUser(user.id, user)"
+              (click)="changeStatusEmployee(employee.id, employee)"
             />
           </td>
         </tr>
@@ -129,14 +129,14 @@
       [style]="{ width: '50vw' }"
       [header]="
         formMode === 'create'
-          ? 'Novo Usuário'
+          ? 'Novo Funcionário'
           : formMode === 'update'
-          ? 'Editar Usuário'
-          : 'Detalhes do Usuário'
+          ? 'Editar Funcionário'
+          : 'Detalhes do Funcionário'
       "
       (onHide)="hideDialog()"
     >
-      <form [formGroup]="userForm" class="mt-4">
+      <form [formGroup]="employeeForm" class="mt-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="mb-4" *ngIf="formMode !== 'create'">
             <label for="id" class="block text-sm font-medium text-gray-500"
@@ -164,9 +164,12 @@
               type="text"
               formControlName="name"
               class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{ 'border-red-500': userForm.get('name')?.invalid }"
               [ngClass]="{
-                'border-red-500': formSubmitted && userForm.get('name')?.invalid
+                'border-red-500': employeeForm.get('name')?.invalid
+              }"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && employeeForm.get('name')?.invalid
               }"
             />
           </div>
@@ -184,7 +187,8 @@
               styleClass="w-full"
               formControlName="cpf"
               [ngClass]="{
-                'border-red-500': formSubmitted && userForm.get('cpf')?.invalid
+                'border-red-500':
+                  formSubmitted && employeeForm.get('cpf')?.invalid
               }"
             />
           </div>
@@ -206,7 +210,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && userForm.get('function')?.invalid
+                  formSubmitted && employeeForm.get('function')?.invalid
               }"
             />
           </div>
@@ -225,7 +229,7 @@
               formControlName="phone"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && userForm.get('phone')?.invalid
+                  formSubmitted && employeeForm.get('phone')?.invalid
               }"
             />
           </div>
@@ -250,7 +254,7 @@
           *ngIf="formMode !== 'detail'"
           label="Salvar"
           icon="pi pi-check"
-          (click)="saveUser()"
+          (click)="saveEmployee()"
         ></p-button>
         <p-button
           label="Cancelar"

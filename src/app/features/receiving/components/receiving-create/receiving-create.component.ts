@@ -32,7 +32,7 @@ import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
 import { firstValueFrom } from 'rxjs';
 import { SupplierService } from '../../../supplier/services/supplier.service';
-import { UserService } from '../../../user/services/user.service';
+import { EmployeeService } from '../../../employee/services/employee.service';
 import { ProductService } from '../../../product/services/product.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 
@@ -93,7 +93,7 @@ export class ReceivingCreateComponent implements OnInit {
     private fb: FormBuilder,
     private receivingService: ReceivingService,
     private supplierService: SupplierService,
-    private userService: UserService,
+    private employeeService: EmployeeService,
     private productService: ProductService) {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
@@ -138,10 +138,10 @@ export class ReceivingCreateComponent implements OnInit {
     this.formSubmitted = true;
     if (this.receivingForm.valid) {
       if (this.formMode === FormMode.Create) {
-        this.confirmMessage = ConfirmMessages.CREATE_USER;
+        this.confirmMessage = ConfirmMessages.CREATE_RECEIVING;
         this.confirmMode = ConfirmMode.Create;
       } else if (this.formMode === FormMode.Update) {
-        this.confirmMessage = ConfirmMessages.UPDATE_USER;
+        this.confirmMessage = ConfirmMessages.UPDATE_RECEIVING;
         this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
@@ -204,7 +204,7 @@ export class ReceivingCreateComponent implements OnInit {
 
   async loadUserNames(): Promise<void> {
     try {
-      const response: ApiResponse<any[]> = await this.userService.getAllUserNames();
+      const response: ApiResponse<any[]> = await this.employeeService.getAllEmployeeNames();
       console.log('loadUserNames', response);
       if (response && response.data) {
         this.userOptions = response.data.map((destination) => ({

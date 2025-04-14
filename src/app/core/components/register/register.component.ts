@@ -64,7 +64,7 @@ export class RegisterComponent implements OnInit {
   async register(): Promise<void> {
     this.formSubmitted = true;
     if (this.registerForm.valid) {
-      this.confirmDialog.message = ConfirmMessages.CREATE_USER;
+      this.confirmDialog.message = ConfirmMessages.CREATE_ACCOUNT;
       this.confirmDialog.show();
       try {
         await firstValueFrom(this.confirmDialog.confirmed);

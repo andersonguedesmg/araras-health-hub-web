@@ -3,7 +3,7 @@ import { NotFoundComponent } from './shared/pages/not-found/not-found.component'
 import { AboutComponent } from './shared/pages/about/about.component';
 import { HomeComponent } from './shared/pages/home/home.component';
 import { DestinationListComponent } from './features/destination/components/destination-list/destination-list.component';
-import { UserListComponent } from './features/user/components/user-list/user-list.component';
+import { EmployeeListComponent } from './features/employee/components/employee-list/employee-list.component';
 import { SupplierListComponent } from './features/supplier/components/supplier-list/supplier-list.component';
 import { ProductListComponent } from './features/product/components/product-list/product-list.component';
 import { StockListComponent } from './features/stock/components/stock-list/stock-list.component';
@@ -95,9 +95,9 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'usuarios',
-    component: UserListComponent,
-    title: 'A2H - Usuários',
+    path: 'funcionarios',
+    component: EmployeeListComponent,
+    title: 'A2H - Funcionário',
     canActivate: [AuthGuard]
   },
   {

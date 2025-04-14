@@ -1,9 +1,9 @@
 export const ConfirmMessages = {
-  CREATE_USER: 'Tem certeza que deseja cadastrar este usuário?',
-  UPDATE_USER: 'Tem certeza que deseja atualizar este usuário?',
-  DELETE_USER: 'Tem certeza que deseja excluir este usuário?',
-  ACTIVATE_USER: 'Tem certeza que deseja ativar este usuário?',
-  DISABLE_USER: 'Tem certeza que deseja desativar este usuário?',
+  CREATE_EMPLOYEE: 'Tem certeza que deseja cadastrar este funcionário?',
+  UPDATE_EMPLOYEE: 'Tem certeza que deseja atualizar este funcionário?',
+  DELETE_EMPLOYEE: 'Tem certeza que deseja excluir este funcionário?',
+  ACTIVATE_EMPLOYEE: 'Tem certeza que deseja ativar este funcionário?',
+  DISABLE_EMPLOYEE: 'Tem certeza que deseja desativar este funcionário?',
 
   CREATE_DESTINATION: 'Tem certeza que deseja cadastrar este destino?',
   UPDATE_DESTINATION: 'Tem certeza que deseja atualizar este destino?',
@@ -28,6 +28,9 @@ export const ConfirmMessages = {
   DELETE_PRODUCT: 'Tem certeza que deseja excluir este produto?',
   ACTIVATE_PRODUCT: 'Tem certeza que deseja ativar este produto?',
   DISABLE_PRODUCT: 'Tem certeza que deseja desativar este produto?',
+
+  CREATE_RECEIVING: 'Tem certeza que deseja realizar essa entrada?',
+  UPDATE_RECEIVING: 'Tem certeza que deseja atualizar essa entrada?',
 };
 
 export const ToastMessages = {

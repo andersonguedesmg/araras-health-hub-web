@@ -18,10 +18,8 @@ import { InputMask } from 'primeng/inputmask';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { Table } from 'primeng/table';
-import { User } from '../../interfaces/user';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { UserService } from '../../services/user.service';
 import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
@@ -33,9 +31,11 @@ import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { firstValueFrom } from 'rxjs';
+import { EmployeeService } from '../../services/employee.service';
+import { Employee } from '../../interfaces/employee';
 
 @Component({
-  selector: 'app-user-list',
+  selector: 'app-employee-list',
   imports: [
     BreadcrumbComponent,
     CommonModule,
@@ -59,24 +59,24 @@ import { firstValueFrom } from 'rxjs';
     ConfirmDialogComponent,
   ],
   providers: [MessageService],
-  templateUrl: './user-list.component.html',
-  styleUrl: './user-list.component.scss'
+  templateUrl: './employee-list.component.html',
+  styleUrl: './employee-list.component.scss'
 })
-export class UserListComponent implements OnInit {
+export class EmployeeListComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Usuários' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Funcionários' }];
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  users: User[] = [];
-  selectedUser?: User;
-  userForm: FormGroup;
+  employees: Employee[] = [];
+  selectedEmployee?: Employee;
+  employeeForm: FormGroup;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
 
   displayDialog = false;
@@ -92,8 +92,8 @@ export class UserListComponent implements OnInit {
   getSeverity = getSeverity;
   getStatus = getStatus;
 
-  constructor(private cd: ChangeDetectorRef, private userService: UserService, private fb: FormBuilder) {
-    this.userForm = this.fb.group({
+  constructor(private cd: ChangeDetectorRef, private employeeService: EmployeeService, private fb: FormBuilder) {
+    this.employeeForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
       cpf: ['', Validators.required],
@@ -107,8 +107,8 @@ export class UserListComponent implements OnInit {
     this.loadTableData();
   }
 
-  ngAfterViewInit(): void {
-    this.getAllUsers();
+  async ngAfterViewInit(): Promise<void> {
+    await this.getAllEmployees();
   }
 
   exportCSV() {
@@ -132,15 +132,15 @@ export class UserListComponent implements OnInit {
     this.selectedColumns = this.cols;
   }
 
-  async getAllUsers(): Promise<void> {
-    this.users = [];
+  async getAllEmployees(): Promise<void> {
+    this.employees = [];
     this.spinnerComponent.loading = true;
 
     try {
-      const response: ApiResponse<User[]> = await this.userService.getAllUsers();
+      const response: ApiResponse<Employee[]> = await this.employeeService.getAllEmployees();
       this.spinnerComponent.loading = false;
       if (response.statusCode === HttpStatus.Ok) {
-        this.users = response.data;
+        this.employees = response.data;
       } else {
         this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
       }
@@ -156,17 +156,17 @@ export class UserListComponent implements OnInit {
     }
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, user?: User): void {
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, employee?: Employee): void {
     this.formMode = mode;
-    this.selectedUser = user;
+    this.selectedEmployee = employee;
     this.displayDialog = true;
     this.initializeForm();
   }
 
   initializeForm(): void {
-    this.userForm.reset();
-    if (this.selectedUser) {
-      this.userForm.patchValue(this.selectedUser);
+    this.employeeForm.reset();
+    if (this.selectedEmployee) {
+      this.employeeForm.patchValue(this.selectedEmployee);
     }
     this.updateFormState();
   }
@@ -175,47 +175,47 @@ export class UserListComponent implements OnInit {
     const isDetail = this.formMode === FormMode.Detail;
     const isUpdate = this.formMode === FormMode.Update;
 
-    this.userForm.get('name')?.disable();
-    this.userForm.get('cpf')?.disable();
-    this.userForm.get('function')?.disable();
-    this.userForm.get('phone')?.disable();
-    this.userForm.get('isActive')?.disable();
+    this.employeeForm.get('name')?.disable();
+    this.employeeForm.get('cpf')?.disable();
+    this.employeeForm.get('function')?.disable();
+    this.employeeForm.get('phone')?.disable();
+    this.employeeForm.get('isActive')?.disable();
 
     if (this.formMode === FormMode.Create) {
-      this.userForm.get('isActive')?.setValue(true);
-      this.userForm.get('isActive')?.disable();
-      this.userForm.get('name')?.enable();
-      this.userForm.get('cpf')?.enable();
-      this.userForm.get('function')?.enable();
-      this.userForm.get('phone')?.enable();
+      this.employeeForm.get('isActive')?.setValue(true);
+      this.employeeForm.get('isActive')?.disable();
+      this.employeeForm.get('name')?.enable();
+      this.employeeForm.get('cpf')?.enable();
+      this.employeeForm.get('function')?.enable();
+      this.employeeForm.get('phone')?.enable();
     } else if (isUpdate) {
-      this.userForm.get('name')?.enable();
-      this.userForm.get('cpf')?.enable();
-      this.userForm.get('function')?.enable();
-      this.userForm.get('phone')?.enable();
+      this.employeeForm.get('name')?.enable();
+      this.employeeForm.get('cpf')?.enable();
+      this.employeeForm.get('function')?.enable();
+      this.employeeForm.get('phone')?.enable();
     }
 
     if (!isDetail && !isUpdate) {
-      this.userForm.get('isActive')?.disable();
+      this.employeeForm.get('isActive')?.disable();
     }
     if (isDetail) {
-      this.userForm.get('isActive')?.disable();
+      this.employeeForm.get('isActive')?.disable();
     }
   }
 
   hideDialog(): void {
     this.displayDialog = false;
-    this.selectedUser = undefined;
+    this.selectedEmployee = undefined;
   }
 
-  async saveUser(): Promise<void> {
+  async saveEmployee(): Promise<void> {
     this.formSubmitted = true;
-    if (this.userForm.valid) {
+    if (this.employeeForm.valid) {
       if (this.formMode === FormMode.Create) {
-        this.confirmMessage = ConfirmMessages.CREATE_USER;
+        this.confirmMessage = ConfirmMessages.CREATE_EMPLOYEE;
         this.confirmMode = ConfirmMode.Create;
       } else if (this.formMode === FormMode.Update) {
-        this.confirmMessage = ConfirmMessages.UPDATE_USER;
+        this.confirmMessage = ConfirmMessages.UPDATE_EMPLOYEE;
         this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
@@ -224,17 +224,17 @@ export class UserListComponent implements OnInit {
       try {
         await firstValueFrom(this.confirmDialog.confirmed);
         this.spinnerComponent.loading = true;
-        const user: User = this.userForm.getRawValue();
+        const employee: Employee = this.employeeForm.getRawValue();
         let response: any = null;
         if (this.confirmMode === ConfirmMode.Create) {
-          response = await this.userService.createUser(user);
+          response = await this.employeeService.createEmployee(employee);
         } else if (this.confirmMode === ConfirmMode.Update) {
-          response = await this.userService.updateUser(user, user.id);
+          response = await this.employeeService.updateEmployee(employee, employee.id);
         }
         this.spinnerComponent.loading = false;
         if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
           this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.getAllUsers();
+          this.getAllEmployees();
           this.hideDialog();
         } else if (response) {
           this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
@@ -261,25 +261,25 @@ export class UserListComponent implements OnInit {
     }
   }
 
-  async changeStatusUser(userId: number, user: User): Promise<void> {
-    if (user.isActive) {
-      this.confirmDialog.message = ConfirmMessages.DISABLE_USER;
+  async changeStatusEmployee(employeeId: number, employee: Employee): Promise<void> {
+    if (employee.isActive) {
+      this.confirmDialog.message = ConfirmMessages.DISABLE_EMPLOYEE;
     } else {
-      this.confirmDialog.message = ConfirmMessages.ACTIVATE_USER;
+      this.confirmDialog.message = ConfirmMessages.ACTIVATE_EMPLOYEE;
     }
     this.confirmDialog.show();
 
     try {
       await firstValueFrom(this.confirmDialog.confirmed);
       this.spinnerComponent.loading = true;
-      let changeUserIsActive = this.changeIsActive(user);
+      let changeEmployeeIsActive = this.changeIsActive(employee);
 
-      const response: ApiResponse<User> = await this.userService.changeStatusUser(userId, changeUserIsActive);
+      const response: ApiResponse<Employee> = await this.employeeService.changeStatusEmployee(employeeId, changeEmployeeIsActive);
       this.spinnerComponent.loading = false;
 
       if (response && response.statusCode === HttpStatus.Ok) {
         this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllUsers();
+        this.getAllEmployees();
       } else if (response) {
         this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
       }
@@ -296,7 +296,7 @@ export class UserListComponent implements OnInit {
 
     try {
       await firstValueFrom(this.confirmDialog.rejected);
-      if (user.isActive) {
+      if (employee.isActive) {
         this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
         this.confirmMode = null;
       } else {
@@ -315,20 +315,20 @@ export class UserListComponent implements OnInit {
     return objeto;
   }
 
-  async deleteUser(userId: number): Promise<void> {
-    this.confirmDialog.message = ConfirmMessages.DELETE_USER;
+  async deleteEmployee(employeeId: number): Promise<void> {
+    this.confirmDialog.message = ConfirmMessages.DELETE_EMPLOYEE;
     this.confirmDialog.show();
 
     try {
       await firstValueFrom(this.confirmDialog.confirmed);
       this.spinnerComponent.loading = true;
 
-      const response: ApiResponse<User> = await this.userService.deleteUser(userId);
+      const response: ApiResponse<Employee> = await this.employeeService.deleteEmployee(employeeId);
       this.spinnerComponent.loading = false;
 
       if (response && response.statusCode === HttpStatus.Ok) {
         this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllUsers();
+        this.getAllEmployees();
       } else if (response) {
         this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
       }

@@ -1,6 +1,6 @@
 import { Account } from "../../account/interfaces/account";
+import { Employee } from "../../employee/interfaces/employee";
 import { Supplier } from "../../supplier/interfaces/supplier";
-import { User } from "../../user/interfaces/user";
 import { ReceivingItem } from "./receivingItem";
 
 export interface Receiving {
@@ -12,7 +12,7 @@ export interface Receiving {
   supplierId: number;
   supplier: Supplier;
   responsibleId: number;
-  responsible: User;
+  responsible: Employee;
   accountId: number;
   account: Account;
   receivedItems: ReceivingItem[];
