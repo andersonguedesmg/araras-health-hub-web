@@ -93,7 +93,6 @@ export class ProductListComponent implements OnInit {
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
       description: ['', Validators.required],
-      manufacturer: ['', Validators.required],
       format: ['', Validators.required],
       category: ['', Validators.required],
       isActive: [{ value: false, disabled: true }],
@@ -116,13 +115,12 @@ export class ProductListComponent implements OnInit {
     this.cd.markForCheck();
 
     this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO USUÁRIO' },
+      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO PRODUTO' },
       { field: 'name', header: 'NOME' },
       { field: 'description', header: 'DESCRIÇÃO' },
-      { field: 'manufacturer', header: 'FABRICANTE' },
       { field: 'format', header: 'FORMATO' },
-      { field: 'category', header: 'TELEFONE' },
-      { field: 'isActive', header: 'CATEGORIA' },
+      { field: 'category', header: 'CATEGORIA' },
+      { field: 'isActive', header: 'STATUS' },
     ];
 
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
@@ -175,7 +173,6 @@ export class ProductListComponent implements OnInit {
 
     this.productForm.get('name')?.disable();
     this.productForm.get('description')?.disable();
-    this.productForm.get('manufacturer')?.disable();
     this.productForm.get('format')?.disable();
     this.productForm.get('category')?.disable();
     this.productForm.get('isActive')?.disable();
@@ -185,13 +182,11 @@ export class ProductListComponent implements OnInit {
       this.productForm.get('isActive')?.disable();
       this.productForm.get('name')?.enable();
       this.productForm.get('description')?.enable();
-      this.productForm.get('manufacturer')?.enable();
       this.productForm.get('format')?.enable();
       this.productForm.get('category')?.enable();
     } else if (isUpdate) {
       this.productForm.get('name')?.enable();
       this.productForm.get('description')?.enable();
-      this.productForm.get('manufacturer')?.enable();
       this.productForm.get('format')?.enable();
       this.productForm.get('category')?.enable();
     }

@@ -25,7 +25,6 @@
         'id',
         'name',
         'description',
-        'manufacturer',
         'format',
         'category',
         'isActive'
@@ -72,9 +71,6 @@
           <th style="min-width: 25rem" pSortableColumn="description">
             DESCRIÇÃO
           </th>
-          <th style="min-width: 12rem" pSortableColumn="manufacturer">
-            FABRICANTE
-          </th>
           <th style="min-width: 12rem" pSortableColumn="format">FORMATO</th>
           <th style="min-width: 15rem" pSortableColumn="category">CATEGORIA</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
@@ -87,7 +83,6 @@
           <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
           <td>{{ product.description }}</td>
-          <td>{{ product.manufacturer }}</td>
           <td>{{ product.format }}</td>
           <td>{{ product.category }}</td>
           <td>
@@ -200,28 +195,6 @@
               [ngClass]="{
                 'border-red-500':
                   formSubmitted && productForm.get('description')?.invalid
-              }"
-            />
-          </div>
-
-          <div class="mb-4">
-            <label
-              for="manufacturer"
-              class="block text-sm font-medium text-gray-500"
-              >Fabricante:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="manufacturer"
-              pInputText
-              type="text"
-              formControlName="manufacturer"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && productForm.get('manufacturer')?.invalid
               }"
             />
           </div>
