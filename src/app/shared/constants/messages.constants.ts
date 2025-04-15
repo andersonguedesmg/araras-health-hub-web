@@ -17,11 +17,11 @@ export const ConfirmMessages = {
   ACTIVATE_SUPPLIER: 'Tem certeza que deseja ativar este fornecedor?',
   DISABLE_SUPPLIER: 'Tem certeza que deseja desativar este fornecedor?',
 
-  CREATE_ACCOUNT: 'Tem certeza que deseja cadastrar este cliente?',
-  UPDATE_ACCOUNT: 'Tem certeza que deseja atualizar este cliente?',
-  DELETE_ACCOUNT: 'Tem certeza que deseja excluir este cliente?',
-  ACTIVATE_ACCOUNT: 'Tem certeza que deseja ativar este cliente?',
-  DISABLE_ACCOUNT: 'Tem certeza que deseja desativar este cliente?',
+  CREATE_ACCOUNT: 'Tem certeza que deseja cadastrar esta conta?',
+  UPDATE_ACCOUNT: 'Tem certeza que deseja atualizar esta conta?',
+  DELETE_ACCOUNT: 'Tem certeza que deseja excluir esta conta?',
+  ACTIVATE_ACCOUNT: 'Tem certeza que deseja ativar esta conta?',
+  DISABLE_ACCOUNT: 'Tem certeza que deseja desativar esta conta?',
 
   CREATE_PRODUCT: 'Tem certeza que deseja cadastrar este produto?',
   UPDATE_PRODUCT: 'Tem certeza que deseja atualizar este produto?',

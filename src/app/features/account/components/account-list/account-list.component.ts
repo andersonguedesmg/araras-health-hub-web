@@ -73,7 +73,7 @@ export class AccountListComponent implements OnInit {
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Clientes' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Contas' }];
 
   accounts: Account[] = [];
   selectedAccount?: Account;
@@ -123,7 +123,7 @@ export class AccountListComponent implements OnInit {
     this.cd.markForCheck();
 
     this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO CLIENTE' },
+      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DA CONTA' },
       { field: 'userName', header: 'NOME' },
       { field: 'facilityId', header: 'UNIDADE' },
       { field: 'isActive', header: 'STATUS' },

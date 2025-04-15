@@ -9,7 +9,7 @@
     <p-toast />
     <p-toolbar>
       <ng-template #start>
-        <span class="text-xl font-bold mt-2 mb-2">Clientes</span>
+        <span class="text-xl font-bold mt-2 mb-2">Contas</span>
       </ng-template>
 
       <ng-template #end></ng-template>
@@ -126,10 +126,10 @@
       [style]="{ width: '50vw' }"
       [header]="
         formMode === 'create'
-          ? 'Novo Cliente'
+          ? 'Nova Conta'
           : formMode === 'update'
-          ? 'Editar Cliente'
-          : 'Detalhes do Cliente'
+          ? 'Editar Conta'
+          : 'Detalhes da Conta'
       "
       (onHide)="hideDialog()"
     >

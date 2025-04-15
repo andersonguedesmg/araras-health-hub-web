@@ -24,9 +24,9 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'clientes',
+    path: 'contas',
     component: AccountListComponent,
-    title: 'A2H - Clientes',
+    title: 'A2H - Contas',
     canActivate: [AuthGuard]
   },
   {
