@@ -32,17 +32,17 @@
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-500">Destino:</label>
+        <label class="block text-sm font-medium text-gray-500">Unidade:</label>
         <p-select
-          [options]="destinationOptions"
-          formControlName="destinationId"
+          [options]="facilityOptions"
+          formControlName="facilityId"
           optionLabel="label"
           optionValue="value"
           class="w-full"
           placeholder="Selecione"
           [ngClass]="{
             'border-red-500':
-              formSubmitted && registerForm.get('destinationId')?.invalid
+              formSubmitted && registerForm.get('facilityId')?.invalid
           }"
         ></p-select>
       </div>

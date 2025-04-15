@@ -9,7 +9,7 @@
     <p-toast />
     <p-toolbar>
       <ng-template #start>
-        <span class="text-xl font-bold mt-2 mb-2">Destinos</span>
+        <span class="text-xl font-bold mt-2 mb-2">Unidades</span>
       </ng-template>
 
       <ng-template #end></ng-template>
@@ -17,7 +17,7 @@
 
     <p-table
       #dt
-      [value]="destinations"
+      [value]="facilities"
       [rows]="5"
       [rowsPerPageOptions]="[5, 10, 25]"
       [columns]="cols"
@@ -36,7 +36,7 @@
         'isActive'
       ]"
       [tableStyle]="{ 'min-width': '75rem' }"
-      [(selection)]="selectedDestinations"
+      [(selection)]="selectedFacility"
       [rowHover]="true"
       dataKey="id"
       currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"
@@ -89,22 +89,22 @@
         </tr>
       </ng-template>
 
-      <ng-template #body let-destination>
+      <ng-template #body let-facility>
         <tr>
-          <td>{{ destination.id }}</td>
-          <td>{{ destination.name }}</td>
-          <td>{{ destination.address }}</td>
-          <td>{{ destination.number }}</td>
-          <td>{{ destination.neighborhood }}</td>
-          <td>{{ destination.city }}</td>
-          <td>{{ destination.state }}</td>
-          <td>{{ destination.cep }}</td>
-          <td>{{ destination.email }}</td>
-          <td>{{ destination.phone }}</td>
+          <td>{{ facility.id }}</td>
+          <td>{{ facility.name }}</td>
+          <td>{{ facility.address }}</td>
+          <td>{{ facility.number }}</td>
+          <td>{{ facility.neighborhood }}</td>
+          <td>{{ facility.city }}</td>
+          <td>{{ facility.state }}</td>
+          <td>{{ facility.cep }}</td>
+          <td>{{ facility.email }}</td>
+          <td>{{ facility.phone }}</td>
           <td>
             <p-tag
-              [value]="getStatus(destination.isActive)"
-              [severity]="getSeverity(destination.isActive)"
+              [value]="getStatus(facility.isActive)"
+              [severity]="getSeverity(facility.isActive)"
             />
           </td>
           <td>
@@ -115,7 +115,7 @@
               tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
-              (click)="openForm(FormMode.Update, destination)"
+              (click)="openForm(FormMode.Update, facility)"
             />
             <p-button
               icon="pi pi-info-circle"
@@ -125,16 +125,16 @@
               severity="info"
               [rounded]="true"
               [outlined]="true"
-              (click)="openForm(FormMode.Detail, destination)"
+              (click)="openForm(FormMode.Detail, facility)"
             />
             <p-button
               icon="pi pi-trash"
               severity="danger"
-              [pTooltip]="destination.isActive ? 'Desativar' : 'Ativar'"
+              [pTooltip]="facility.isActive ? 'Desativar' : 'Ativar'"
               tooltipPosition="bottom"
               [rounded]="true"
               [outlined]="true"
-              (click)="changeStatusDestination(destination.id, destination)"
+              (click)="changeStatusFacility(facility.id, facility)"
             />
           </td>
         </tr>
@@ -147,14 +147,14 @@
       [style]="{ width: '50vw' }"
       [header]="
         formMode === 'create'
-          ? 'Novo Destino'
+          ? 'Nova Unidade'
           : formMode === 'update'
-          ? 'Editar Destino'
-          : 'Detalhes do Destino'
+          ? 'Editar Unidade'
+          : 'Detalhes da Unidade'
       "
       (onHide)="hideDialog()"
     >
-      <form [formGroup]="destinationForm" class="mt-4">
+      <form [formGroup]="facilityForm" class="mt-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="mb-4" *ngIf="formMode !== 'create'">
             <label for="id" class="block text-sm font-medium text-gray-500"
@@ -183,11 +183,11 @@
               formControlName="name"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
-                'border-red-500': destinationForm.get('name')?.invalid
+                'border-red-500': facilityForm.get('name')?.invalid
               }"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('name')?.invalid
+                  formSubmitted && facilityForm.get('name')?.invalid
               }"
             />
           </div>
@@ -207,7 +207,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('address')?.invalid
+                  formSubmitted && facilityForm.get('address')?.invalid
               }"
             />
           </div>
@@ -227,7 +227,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('number')?.invalid
+                  formSubmitted && facilityForm.get('number')?.invalid
               }"
             />
           </div>
@@ -249,7 +249,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('neighborhood')?.invalid
+                  formSubmitted && facilityForm.get('neighborhood')?.invalid
               }"
             />
           </div>
@@ -269,7 +269,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('city')?.invalid
+                  formSubmitted && facilityForm.get('city')?.invalid
               }"
             />
           </div>
@@ -289,7 +289,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('state')?.invalid
+                  formSubmitted && facilityForm.get('state')?.invalid
               }"
             />
           </div>
@@ -309,7 +309,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('cep')?.invalid
+                  formSubmitted && facilityForm.get('cep')?.invalid
               }"
             />
           </div>
@@ -329,7 +329,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('email')?.invalid
+                  formSubmitted && facilityForm.get('email')?.invalid
               }"
             />
           </div>
@@ -348,7 +348,7 @@
               formControlName="phone"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && destinationForm.get('phone')?.invalid
+                  formSubmitted && facilityForm.get('phone')?.invalid
               }"
             />
           </div>
@@ -373,7 +373,7 @@
           *ngIf="formMode !== 'detail'"
           label="Salvar"
           icon="pi pi-check"
-          (click)="saveDestination()"
+          (click)="saveFacility()"
         ></p-button>
         <p-button
           label="Cancelar"

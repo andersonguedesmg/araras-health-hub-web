@@ -20,7 +20,7 @@ export class AuthService {
       const response = await firstValueFrom(this.http.post<LoginResponse>(url, credentials));
       if (response && response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('destinationId', response.data.destinationId.toString());
+        localStorage.setItem('facilityId', response.data.facilityId.toString());
         localStorage.setItem('userId', response.data.userId.toString());
         localStorage.setItem('userName', response.data.userName.toString());
       }
@@ -38,7 +38,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
-    localStorage.removeItem('destinationId');
+    localStorage.removeItem('facilityId');
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
   }
@@ -47,8 +47,8 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  getDestinationId(): string | null {
-    return localStorage.getItem('destinationId');
+  getFacilityId(): string | null {
+    return localStorage.getItem('facilityId');
   }
 
   getUserId(): string | null {

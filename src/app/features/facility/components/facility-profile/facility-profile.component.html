@@ -13,38 +13,36 @@
     </p-toolbar>
 
     <div
-      *ngIf="destination"
+      *ngIf="facility"
       class="bg-zinc-900 border border-zinc-600 rounded-md p-4"
     >
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500">Nome:</label>
-            <p class="mt-1">{{ destination.name }}</p>
+            <p class="mt-1">{{ facility.name }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Endereço:</label
             >
-            <p class="mt-1">
-              {{ destination.address }}, {{ destination.number }}
-            </p>
+            <p class="mt-1">{{ facility.address }}, {{ facility.number }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Bairro:</label
             >
-            <p class="mt-1">{{ destination.neighborhood }}</p>
+            <p class="mt-1">{{ facility.neighborhood }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Cidade:</label
             >
-            <p class="mt-1">{{ destination.city }}, {{ destination.state }}</p>
+            <p class="mt-1">{{ facility.city }}, {{ facility.state }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500">CEP:</label>
-            <p class="mt-1">{{ destination.cep }}</p>
+            <p class="mt-1">{{ facility.cep }}</p>
           </div>
         </div>
         <div>
@@ -52,31 +50,31 @@
             <label class="block text-sm font-medium text-gray-500"
               >Email:</label
             >
-            <p class="mt-1">{{ destination.email }}</p>
+            <p class="mt-1">{{ facility.email }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Telefone:</label
             >
-            <p class="mt-1">{{ destination.phone }}</p>
+            <p class="mt-1">{{ facility.phone }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Criado em:</label
             >
-            <p class="mt-1">{{ destination.createdOn | date }}</p>
+            <p class="mt-1">{{ facility.createdOn | date }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Atualizado em:</label
             >
-            <p class="mt-1">{{ destination.updatedOn | date }}</p>
+            <p class="mt-1">{{ facility.updatedOn | date }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Ativo:</label
             >
-            <p class="mt-1">{{ destination.isActive ? "Sim" : "Não" }}</p>
+            <p class="mt-1">{{ facility.isActive ? "Sim" : "Não" }}</p>
           </div>
         </div>
       </div>
@@ -107,8 +105,8 @@
               </td>
               <td>
                 <p-tag
-                  [value]="getStatus(destination.isActive)"
-                  [severity]="getSeverity(destination.isActive)"
+                  [value]="getStatus(facility.isActive)"
+                  [severity]="getSeverity(facility.isActive)"
                 />
               </td>
             </tr>

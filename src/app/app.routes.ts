@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { NotFoundComponent } from './shared/pages/not-found/not-found.component';
 import { AboutComponent } from './shared/pages/about/about.component';
 import { HomeComponent } from './shared/pages/home/home.component';
-import { DestinationListComponent } from './features/destination/components/destination-list/destination-list.component';
+import { FacilityListComponent } from './features/facility/components/facility-list/facility-list.component';
 import { EmployeeListComponent } from './features/employee/components/employee-list/employee-list.component';
 import { SupplierListComponent } from './features/supplier/components/supplier-list/supplier-list.component';
 import { ProductListComponent } from './features/product/components/product-list/product-list.component';
@@ -11,7 +11,7 @@ import { OrderListComponent } from './features/order/components/order-list/order
 import { AccountListComponent } from './features/account/components/account-list/account-list.component';
 import { LoginComponent } from './core/components/login/login.component';
 import { AuthGuard } from './core/guards/auth.guard';
-import { DestinationProfileComponent } from './features/destination/components/destination-profile/destination-profile.component';
+import { FacilityProfileComponent } from './features/facility/components/facility-profile/facility-profile.component';
 import { RegisterComponent } from './core/components/register/register.component';
 import { ReceivingListComponent } from './features/receiving/components/receiving-list/receiving-list.component';
 import { ReceivingCreateComponent } from './features/receiving/components/receiving-create/receiving-create.component';
@@ -30,14 +30,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'destinos',
-    component: DestinationListComponent,
-    title: 'A2H - Destinos',
+    path: 'unidades',
+    component: FacilityListComponent,
+    title: 'A2H - Unidades',
     canActivate: [AuthGuard]
   },
   {
     path: 'perfil',
-    component: DestinationProfileComponent,
+    component: FacilityProfileComponent,
     title: 'A2H - Perfil',
     canActivate: [AuthGuard]
   },

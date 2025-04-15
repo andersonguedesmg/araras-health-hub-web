@@ -15,8 +15,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { Table } from 'primeng/table';
 import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
-import { Destination } from '../../interfaces/destination';
-import { DestinationService } from '../../services/destination.service';
+import { Facility } from '../../interfaces/facility';
+import { FacilityService } from '../../services/facility.service';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -35,7 +35,7 @@ import { firstValueFrom } from 'rxjs';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'app-destination-list',
+  selector: 'app-facility-list',
   imports: [
     BreadcrumbComponent,
     CommonModule,
@@ -59,10 +59,10 @@ import { TooltipModule } from 'primeng/tooltip';
     ConfirmDialogComponent,
   ],
   providers: [MessageService],
-  templateUrl: './destination-list.component.html',
-  styleUrl: './destination-list.component.scss'
+  templateUrl: './facility-list.component.html',
+  styleUrl: './facility-list.component.scss'
 })
-export class DestinationListComponent implements OnInit {
+export class FacilityListComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
@@ -72,11 +72,11 @@ export class DestinationListComponent implements OnInit {
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidades' }];
 
-  destinations: Destination[] = [];
-  selectedDestinations?: Destination;
-  destinationForm: FormGroup;
+  facilities: Facility[] = [];
+  selectedFacility?: Facility;
+  facilityForm: FormGroup;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
   displayDialog = false;
   formSubmitted = false;
@@ -91,8 +91,8 @@ export class DestinationListComponent implements OnInit {
   getSeverity = getSeverity;
   getStatus = getStatus;
 
-  constructor(private cd: ChangeDetectorRef, private destinationService: DestinationService, private fb: FormBuilder) {
-    this.destinationForm = this.fb.group({
+  constructor(private cd: ChangeDetectorRef, private facilityService: FacilityService, private fb: FormBuilder) {
+    this.facilityForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
       address: ['', Validators.required],
@@ -112,7 +112,7 @@ export class DestinationListComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.getAllDestinations();
+    this.getAllFacilities();
   }
 
   exportCSV() {
@@ -123,7 +123,7 @@ export class DestinationListComponent implements OnInit {
     this.cd.markForCheck();
 
     this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO DESTINO' },
+      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DA UNIDADE' },
       { field: 'name', header: 'NOME' },
       { field: 'address', header: 'ENDEREÇO' },
       { field: 'number', header: 'NÚMERO' },
@@ -141,15 +141,15 @@ export class DestinationListComponent implements OnInit {
     this.selectedColumns = this.cols;
   }
 
-  async getAllDestinations(): Promise<void> {
-    this.destinations = [];
+  async getAllFacilities(): Promise<void> {
+    this.facilities = [];
     this.spinnerComponent.loading = true;
 
     try {
-      const response: ApiResponse<Destination[]> = await this.destinationService.getAllDestinations();
+      const response: ApiResponse<Facility[]> = await this.facilityService.getAllFacilities();
       this.spinnerComponent.loading = false;
       if (response.statusCode === HttpStatus.Ok) {
-        this.destinations = response.data;
+        this.facilities = response.data;
       } else {
         this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
       }
@@ -165,17 +165,17 @@ export class DestinationListComponent implements OnInit {
     }
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, destination?: Destination): void {
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, facility?: Facility): void {
     this.formMode = mode;
-    this.selectedDestinations = destination;
+    this.selectedFacility = facility;
     this.displayDialog = true;
     this.initializeForm();
   }
 
   initializeForm(): void {
-    this.destinationForm.reset();
-    if (this.selectedDestinations) {
-      this.destinationForm.patchValue(this.selectedDestinations);
+    this.facilityForm.reset();
+    if (this.selectedFacility) {
+      this.facilityForm.patchValue(this.selectedFacility);
     }
     this.updateFormState();
   }
@@ -184,62 +184,62 @@ export class DestinationListComponent implements OnInit {
     const isDetail = this.formMode === FormMode.Detail;
     const isUpdate = this.formMode === FormMode.Update;
 
-    this.destinationForm.get('name')?.disable();
-    this.destinationForm.get('address')?.disable();
-    this.destinationForm.get('number')?.disable();
-    this.destinationForm.get('neighborhood')?.disable();
-    this.destinationForm.get('city')?.disable();
-    this.destinationForm.get('state')?.disable();
-    this.destinationForm.get('cep')?.disable();
-    this.destinationForm.get('email')?.disable();
-    this.destinationForm.get('phone')?.disable();
-    this.destinationForm.get('isActive')?.disable();
+    this.facilityForm.get('name')?.disable();
+    this.facilityForm.get('address')?.disable();
+    this.facilityForm.get('number')?.disable();
+    this.facilityForm.get('neighborhood')?.disable();
+    this.facilityForm.get('city')?.disable();
+    this.facilityForm.get('state')?.disable();
+    this.facilityForm.get('cep')?.disable();
+    this.facilityForm.get('email')?.disable();
+    this.facilityForm.get('phone')?.disable();
+    this.facilityForm.get('isActive')?.disable();
 
     if (this.formMode === 'create') {
-      this.destinationForm.get('isActive')?.setValue(true);
-      this.destinationForm.get('isActive')?.disable();
-      this.destinationForm.get('name')?.enable();
-      this.destinationForm.get('address')?.enable();
-      this.destinationForm.get('number')?.enable();
-      this.destinationForm.get('neighborhood')?.enable();
-      this.destinationForm.get('city')?.enable();
-      this.destinationForm.get('state')?.enable();
-      this.destinationForm.get('cep')?.enable();
-      this.destinationForm.get('email')?.enable();
-      this.destinationForm.get('phone')?.enable();
+      this.facilityForm.get('isActive')?.setValue(true);
+      this.facilityForm.get('isActive')?.disable();
+      this.facilityForm.get('name')?.enable();
+      this.facilityForm.get('address')?.enable();
+      this.facilityForm.get('number')?.enable();
+      this.facilityForm.get('neighborhood')?.enable();
+      this.facilityForm.get('city')?.enable();
+      this.facilityForm.get('state')?.enable();
+      this.facilityForm.get('cep')?.enable();
+      this.facilityForm.get('email')?.enable();
+      this.facilityForm.get('phone')?.enable();
     } else if (isUpdate) {
-      this.destinationForm.get('name')?.enable();
-      this.destinationForm.get('address')?.enable();
-      this.destinationForm.get('number')?.enable();
-      this.destinationForm.get('neighborhood')?.enable();
-      this.destinationForm.get('city')?.enable();
-      this.destinationForm.get('state')?.enable();
-      this.destinationForm.get('cep')?.enable();
-      this.destinationForm.get('email')?.enable();
-      this.destinationForm.get('phone')?.enable();
+      this.facilityForm.get('name')?.enable();
+      this.facilityForm.get('address')?.enable();
+      this.facilityForm.get('number')?.enable();
+      this.facilityForm.get('neighborhood')?.enable();
+      this.facilityForm.get('city')?.enable();
+      this.facilityForm.get('state')?.enable();
+      this.facilityForm.get('cep')?.enable();
+      this.facilityForm.get('email')?.enable();
+      this.facilityForm.get('phone')?.enable();
     }
 
     if (!isDetail && !isUpdate) {
-      this.destinationForm.get('isActive')?.disable();
+      this.facilityForm.get('isActive')?.disable();
     }
     if (isDetail) {
-      this.destinationForm.get('isActive')?.disable();
+      this.facilityForm.get('isActive')?.disable();
     }
   }
 
   hideDialog(): void {
     this.displayDialog = false;
-    this.selectedDestinations = undefined;
+    this.selectedFacility = undefined;
   }
 
-  async saveDestination(): Promise<void> {
+  async saveFacility(): Promise<void> {
     this.formSubmitted = true;
-    if (this.destinationForm.valid) {
+    if (this.facilityForm.valid) {
       if (this.formMode === FormMode.Create) {
-        this.confirmMessage = ConfirmMessages.CREATE_DESTINATION;
+        this.confirmMessage = ConfirmMessages.CREATE_FACILITY;
         this.confirmMode = ConfirmMode.Create;
       } else if (this.formMode === FormMode.Update) {
-        this.confirmMessage = ConfirmMessages.UPDATE_DESTINATION;
+        this.confirmMessage = ConfirmMessages.UPDATE_FACILITY;
         this.confirmMode = ConfirmMode.Update;
       }
       this.confirmDialog.message = this.confirmMessage;
@@ -248,17 +248,17 @@ export class DestinationListComponent implements OnInit {
       try {
         await firstValueFrom(this.confirmDialog.confirmed);
         this.spinnerComponent.loading = true;
-        const destination: Destination = this.destinationForm.getRawValue();
+        const facility: Facility = this.facilityForm.getRawValue();
         let response: any = null;
         if (this.confirmMode === ConfirmMode.Create) {
-          response = await this.destinationService.createDestination(destination);
+          response = await this.facilityService.createFacility(facility);
         } else if (this.confirmMode === ConfirmMode.Update) {
-          response = await this.destinationService.updateDestination(destination, destination.id);
+          response = await this.facilityService.updateFacility(facility, facility.id);
         }
         this.spinnerComponent.loading = false;
         if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
           this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.getAllDestinations();
+          this.getAllFacilities();
           this.hideDialog();
         } else if (response) {
           this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
@@ -285,25 +285,25 @@ export class DestinationListComponent implements OnInit {
     }
   }
 
-  async changeStatusDestination(destinationId: number, destination: Destination): Promise<void> {
-    if (destination.isActive) {
-      this.confirmDialog.message = ConfirmMessages.DISABLE_DESTINATION;
+  async changeStatusFacility(facilityId: number, facility: Facility): Promise<void> {
+    if (facility.isActive) {
+      this.confirmDialog.message = ConfirmMessages.DISABLE_FACILITY;
     } else {
-      this.confirmDialog.message = ConfirmMessages.ACTIVATE_DESTINATION;
+      this.confirmDialog.message = ConfirmMessages.ACTIVATE_FACILITY;
     }
     this.confirmDialog.show();
 
     try {
       await firstValueFrom(this.confirmDialog.confirmed);
       this.spinnerComponent.loading = true;
-      let changeDestinationIsActive = this.changeIsActive(destination);
+      let changeFacilityIsActive = this.changeIsActive(facility);
 
-      const response: ApiResponse<Destination> = await this.destinationService.changeStatusDestination(destinationId, changeDestinationIsActive);
+      const response: ApiResponse<Facility> = await this.facilityService.changeStatusFacility(facilityId, changeFacilityIsActive);
       this.spinnerComponent.loading = false;
 
       if (response && response.statusCode === HttpStatus.Ok) {
         this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllDestinations();
+        this.getAllFacilities();
       } else if (response) {
         this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
       }
@@ -320,7 +320,7 @@ export class DestinationListComponent implements OnInit {
 
     try {
       await firstValueFrom(this.confirmDialog.rejected);
-      if (destination.isActive) {
+      if (facility.isActive) {
         this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
         this.confirmMode = null;
       } else {
@@ -339,20 +339,20 @@ export class DestinationListComponent implements OnInit {
     return objeto;
   }
 
-  async deleteDestination(destinationId: number): Promise<void> {
-    this.confirmDialog.message = ConfirmMessages.DELETE_DESTINATION;
+  async deleteFacility(facilityId: number): Promise<void> {
+    this.confirmDialog.message = ConfirmMessages.DELETE_FACILITY;
     this.confirmDialog.show();
 
     try {
       await firstValueFrom(this.confirmDialog.confirmed);
       this.spinnerComponent.loading = true;
 
-      const response: ApiResponse<Destination> = await this.destinationService.deleteDestination(destinationId);
+      const response: ApiResponse<Facility> = await this.facilityService.deleteFacility(facilityId);
       this.spinnerComponent.loading = false;
 
       if (response && response.statusCode === HttpStatus.Ok) {
         this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllDestinations();
+        this.getAllFacilities();
       } else if (response) {
         this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
       }

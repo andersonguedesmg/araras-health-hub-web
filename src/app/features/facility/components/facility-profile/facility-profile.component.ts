@@ -13,8 +13,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { Table } from 'primeng/table';
-import { Destination } from '../../interfaces/destination';
-import { DestinationService } from '../../services/destination.service';
+import { Facility } from '../../interfaces/facility';
+import { FacilityService } from '../../services/facility.service';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { Account } from '../../../account/interfaces/account';
@@ -28,7 +28,7 @@ import { getRoleSeverity, getRoleValue, getRoleValueId } from '../../../../share
 import { AccountService } from '../../../account/services/account.service';
 
 @Component({
-  selector: 'app-destination-profile',
+  selector: 'app-facility-profile',
   imports: [
     BreadcrumbComponent,
     CommonModule,
@@ -46,17 +46,17 @@ import { AccountService } from '../../../account/services/account.service';
     SpinnerComponent,
   ],
   providers: [MessageService],
-  templateUrl: './destination-profile.component.html',
-  styleUrl: './destination-profile.component.scss'
+  templateUrl: './facility-profile.component.html',
+  styleUrl: './facility-profile.component.scss'
 })
-export class DestinationProfileComponent implements OnInit {
+export class FacilityProfileComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Destinos' }, { label: 'Perfil' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidade' }, { label: 'Perfil' },];
 
-  destination!: Destination;
+  facility!: Facility;
   accountUsers: any;
 
   cols!: Column[];
@@ -69,28 +69,28 @@ export class DestinationProfileComponent implements OnInit {
   getRoleValue = getRoleValue;
   getRoleValueId = getRoleValueId;
 
-  constructor(private destinationService: DestinationService, private accountService: AccountService) { }
+  constructor(private facilityService: FacilityService, private accountService: AccountService) { }
 
   ngOnInit() { }
 
   ngAfterViewInit(): void {
-    this.getDestinationById();
-    this.getByDestinationId();
+    this.getFacilityById();
+    this.getByFacilityId();
   }
 
-  async getDestinationById(): Promise<void> {
-    const destinationId = localStorage.getItem('destinationId');
-    if (!destinationId) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.DESTINATION_NOTFOUND);
+  async getFacilityById(): Promise<void> {
+    const facilityId = localStorage.getItem('facilityId');
+    if (!facilityId) {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.FACILITY_NOTFOUND);
       return;
     }
     this.spinnerComponent.loading = true;
 
     try {
-      const response: ApiResponse<Destination> = await this.destinationService.getDestinationById(
-        parseInt(destinationId)
+      const response: ApiResponse<Facility> = await this.facilityService.getFacilityById(
+        parseInt(facilityId)
       );
-      this.destination = response.data;
+      this.facility = response.data;
       this.spinnerComponent.loading = false;
     } catch (error: any) {
       this.spinnerComponent.loading = false;
@@ -102,17 +102,17 @@ export class DestinationProfileComponent implements OnInit {
     }
   }
 
-  async getByDestinationId(): Promise<void> {
-    const destinationId = localStorage.getItem('destinationId');
-    if (!destinationId) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.DESTINATION_NOTFOUND);
+  async getByFacilityId(): Promise<void> {
+    const facilityId = localStorage.getItem('facilityId');
+    if (!facilityId) {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.FACILITY_NOTFOUND);
       return;
     }
     this.spinnerComponent.loading = true;
 
     try {
-      const response: ApiResponse<Account> = await this.accountService.getByDestinationId(
-        parseInt(destinationId)
+      const response: ApiResponse<Account> = await this.accountService.getByFacilityId(
+        parseInt(facilityId)
       );
       this.accountUsers = response.data;
       this.spinnerComponent.loading = false;

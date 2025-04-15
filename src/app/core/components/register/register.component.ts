@@ -10,7 +10,7 @@ import { ToastSeverities, ToastSummaries } from '../../../shared/constants/toast
 import { ConfirmMessages, ToastMessages } from '../../../shared/constants/messages.constants';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
-import { DestinationService } from '../../../features/destination/services/destination.service';
+import { FacilityService } from '../../../features/facility/services/facility.service';
 import { SelectModule } from 'primeng/select';
 import { firstValueFrom } from 'rxjs';
 import { HttpStatus } from '../../../shared/enums/http-status.enum';
@@ -38,21 +38,21 @@ export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   formSubmitted = false;
 
-  destinationOptions: SelectOptions<number>[] = [];
+  facilityOptions: SelectOptions<number>[] = [];
   rolesOptions: SelectOptions<string>[] = [];
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private destinationService: DestinationService,) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private facilityService: FacilityService,) {
     this.registerForm = this.fb.group({
       userName: ['', Validators.required],
       password: ['', Validators.required],
-      destinationId: [0, Validators.required],
+      facilityId: [0, Validators.required],
       role: ['', Validators.required],
       isActive: [true],
     });
   }
 
   async ngOnInit(): Promise<void> {
-    await this.loadDestinationNames();
+    await this.loadFacilitiesNames();
 
     this.rolesOptions = [
       { label: 'Usuário', value: 'User' },
@@ -104,13 +104,13 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  async loadDestinationNames(): Promise<void> {
+  async loadFacilitiesNames(): Promise<void> {
     try {
-      const response: ApiResponse<any[]> = await this.destinationService.getAllDestinationNames();
+      const response: ApiResponse<any[]> = await this.facilityService.getAllFacilitiesNames();
       if (response && response.data) {
-        this.destinationOptions = response.data.map((destination) => ({
-          label: destination.name,
-          value: destination.id,
+        this.facilityOptions = response.data.map((facility) => ({
+          label: facility.name,
+          value: facility.id,
         }));
       }
     } catch (error) {

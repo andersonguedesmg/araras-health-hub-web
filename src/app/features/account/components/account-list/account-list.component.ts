@@ -33,7 +33,7 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.utils';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { DestinationService } from '../../../destination/services/destination.service';
+import { FacilityService } from '../../../facility/services/facility.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -85,7 +85,7 @@ export class AccountListComponent implements OnInit {
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
-  destinationOptions: SelectOptions<number>[] = [];
+  facilityOptions: SelectOptions<number>[] = [];
 
   cols!: Column[];
   selectedColumns!: Column[];
@@ -96,18 +96,18 @@ export class AccountListComponent implements OnInit {
   getRoleSeverity = getRoleSeverity;
   getRoleValue = getRoleValue;
 
-  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder, private destinationService: DestinationService, private router: Router) {
+  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder, private facilityService: FacilityService, private router: Router) {
     this.accountForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       userName: ['', Validators.required],
       password: [],
-      destinationId: [],
+      facilityId: [],
       isActive: [{ value: false, disabled: true }],
     });
   }
 
   async ngOnInit(): Promise<void> {
-    await this.loadDestinationNames();
+    await this.loadFacilitiesNames();
     this.loadTableData();
   }
 
@@ -125,7 +125,7 @@ export class AccountListComponent implements OnInit {
     this.cols = [
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO CLIENTE' },
       { field: 'userName', header: 'NOME' },
-      { field: 'destinationId', header: 'DESTINO' },
+      { field: 'facilityId', header: 'UNIDADE' },
       { field: 'isActive', header: 'STATUS' },
     ];
 
@@ -151,13 +151,13 @@ export class AccountListComponent implements OnInit {
     });
   }
 
-  async loadDestinationNames(): Promise<void> {
+  async loadFacilitiesNames(): Promise<void> {
     try {
-      const response: ApiResponse<any[]> = await this.destinationService.getAllDestinationNames();
+      const response: ApiResponse<any[]> = await this.facilityService.getAllFacilitiesNames();
       if (response && response.data) {
-        this.destinationOptions = response.data.map((destination) => ({
-          label: destination.name,
-          value: destination.id,
+        this.facilityOptions = response.data.map((facility) => ({
+          label: facility.name,
+          value: facility.id,
         }));
       }
     } catch (error) {
@@ -185,14 +185,14 @@ export class AccountListComponent implements OnInit {
     const isUpdate = this.formMode === FormMode.Update;
 
     this.accountForm.get('userName')?.disable();
-    this.accountForm.get('destinationId')?.disable();
+    this.accountForm.get('facilityId')?.disable();
     this.accountForm.get('isActive')?.disable();
 
     if (this.formMode === FormMode.Create) {
       this.accountForm.get('isActive')?.setValue(true);
       this.accountForm.get('isActive')?.disable();
       this.accountForm.get('userName')?.enable();
-      this.accountForm.get('destinationId')?.enable();
+      this.accountForm.get('facilityId')?.enable();
       this.accountForm.get('password')?.enable();
     } else if (isUpdate) {
       this.accountForm.get('userName')?.enable();

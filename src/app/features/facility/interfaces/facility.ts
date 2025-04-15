@@ -1,6 +1,6 @@
 import { Account } from "../../account/interfaces/account";
 
-export interface Destination {
+export interface Facility {
   id: number;
   name: string;
   cep: string;

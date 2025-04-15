@@ -1,7 +1,7 @@
 export interface Account {
   id: string;
   userName: string;
-  destinationId: number;
+  facilityId: number;
   createdOn: string;
   updatedOn: string;
   isActive: boolean;

@@ -31,8 +31,8 @@ export class AccountService {
     return firstValueFrom(this.http.put<ApiResponse<Account>>(url, account));
   }
 
-  async getByDestinationId(destinationId: number): Promise<ApiResponse<Account>> {
-    const url = this.apiConfig.getAccountUrl(`getByDestinationId/${destinationId}`);
+  async getByFacilityId(facilityId: number): Promise<ApiResponse<Account>> {
+    const url = this.apiConfig.getAccountUrl(`getByFacilityId/${facilityId}`);
     return firstValueFrom(this.http.get<ApiResponse<Account>>(url));
   }
 }

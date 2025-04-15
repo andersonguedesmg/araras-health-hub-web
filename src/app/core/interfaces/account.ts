@@ -5,6 +5,6 @@ export interface Account {
   updatedOn: string;
   role: string;
   isActive: boolean;
-  destinationId: number;
+  facilityId: number;
   token: string;
 }

@@ -22,7 +22,7 @@
       [rowsPerPageOptions]="[5, 10, 25]"
       [columns]="cols"
       [paginator]="true"
-      [globalFilterFields]="['id', 'userName', 'destinationId', 'isActive']"
+      [globalFilterFields]="['id', 'userName', 'facilityId', 'isActive']"
       [tableStyle]="{ 'min-width': '75rem' }"
       [(selection)]="selectedAccount"
       [rowHover]="true"
@@ -62,9 +62,7 @@
         <tr>
           <th style="min-width: 5rem" pSortableColumn="id">ID</th>
           <th style="min-width: 20rem" pSortableColumn="userName">NOME</th>
-          <th style="min-width: 20rem" pSortableColumn="destinationId">
-            DESTINO
-          </th>
+          <th style="min-width: 20rem" pSortableColumn="facilityId">UNIDADE</th>
           <th style="min-width: 15rem" pSortableColumn="role">FUNÇÃO</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 15rem">AÇÕES</th>
@@ -75,7 +73,7 @@
         <tr>
           <td>{{ account.id }}</td>
           <td>{{ account.userName }}</td>
-          <td>{{ account.destination.name }}</td>
+          <td>{{ account.facility.name }}</td>
           <td>
             <p-tag
               [value]="getRoleValue(account.roles[0].name)"
@@ -177,21 +175,21 @@
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
-              >Destino:</label
+              >Unidade:</label
             >
             <p-select
-              [options]="destinationOptions"
-              formControlName="destinationId"
+              [options]="facilityOptions"
+              formControlName="facilityId"
               optionLabel="label"
               optionValue="value"
               class="w-full"
               placeholder="Selecione"
               [ngClass]="{
-                'border-red-500': accountForm.get('destinationId')?.invalid
+                'border-red-500': accountForm.get('facilityId')?.invalid
               }"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && accountForm.get('destinationId')?.invalid
+                  formSubmitted && accountForm.get('facilityId')?.invalid
               }"
             ></p-select>
           </div>
