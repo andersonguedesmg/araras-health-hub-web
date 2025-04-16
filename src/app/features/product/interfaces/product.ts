@@ -2,7 +2,7 @@ export interface Product {
   id: number;
   name: string;
   description: string;
-  format: string;
+  dosageForm: string;
   category: string;
   createdOn: string;
   updatedOn: string;

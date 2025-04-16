@@ -93,7 +93,7 @@ export class ProductListComponent implements OnInit {
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
       description: ['', Validators.required],
-      format: ['', Validators.required],
+      dosageForm: ['', Validators.required],
       category: ['', Validators.required],
       isActive: [{ value: false, disabled: true }],
     });
@@ -118,7 +118,7 @@ export class ProductListComponent implements OnInit {
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO PRODUTO' },
       { field: 'name', header: 'NOME' },
       { field: 'description', header: 'DESCRIÇÃO' },
-      { field: 'format', header: 'FORMATO' },
+      { field: 'dosageForm', header: 'UNIDADE DE MEDIDA' },
       { field: 'category', header: 'CATEGORIA' },
       { field: 'isActive', header: 'STATUS' },
     ];
@@ -173,7 +173,7 @@ export class ProductListComponent implements OnInit {
 
     this.productForm.get('name')?.disable();
     this.productForm.get('description')?.disable();
-    this.productForm.get('format')?.disable();
+    this.productForm.get('dosageForm')?.disable();
     this.productForm.get('category')?.disable();
     this.productForm.get('isActive')?.disable();
 
@@ -182,12 +182,12 @@ export class ProductListComponent implements OnInit {
       this.productForm.get('isActive')?.disable();
       this.productForm.get('name')?.enable();
       this.productForm.get('description')?.enable();
-      this.productForm.get('format')?.enable();
+      this.productForm.get('dosageForm')?.enable();
       this.productForm.get('category')?.enable();
     } else if (isUpdate) {
       this.productForm.get('name')?.enable();
       this.productForm.get('description')?.enable();
-      this.productForm.get('format')?.enable();
+      this.productForm.get('dosageForm')?.enable();
       this.productForm.get('category')?.enable();
     }
 

@@ -25,7 +25,7 @@
         'id',
         'name',
         'description',
-        'format',
+        'dosageForm',
         'category',
         'isActive'
       ]"
@@ -71,7 +71,7 @@
           <th style="min-width: 25rem" pSortableColumn="description">
             DESCRIÇÃO
           </th>
-          <th style="min-width: 12rem" pSortableColumn="format">FORMATO</th>
+          <th style="min-width: 12rem" pSortableColumn="dosageForm">UNIDADE DE MEDIDA</th>
           <th style="min-width: 15rem" pSortableColumn="category">CATEGORIA</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 15rem">AÇÕES</th>
@@ -83,7 +83,7 @@
           <td>{{ product.id }}</td>
           <td>{{ product.name }}</td>
           <td>{{ product.description }}</td>
-          <td>{{ product.format }}</td>
+          <td>{{ product.dosageForm }}</td>
           <td>{{ product.category }}</td>
           <td>
             <p-tag
@@ -200,24 +200,24 @@
           </div>
 
           <div class="mb-4">
-            <label for="format" class="block text-sm font-medium text-gray-500"
-              >Formato:
+            <label for="dosageForm" class="block text-sm font-medium text-gray-500"
+              >Unidade de Medida:
               <span class="text-red-500" *ngIf="formMode !== 'detail'"
                 >*</span
               ></label
             >
             <input
-              id="format"
+              id="dosageForm"
               pInputText
               type="text"
-              formControlName="format"
+              formControlName="dosageForm"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
-                'border-red-500': productForm.get('format')?.invalid
+                'border-red-500': productForm.get('dosageForm')?.invalid
               }"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && productForm.get('format')?.invalid
+                  formSubmitted && productForm.get('dosageForm')?.invalid
               }"
             />
           </div>
