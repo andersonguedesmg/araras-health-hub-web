@@ -67,13 +67,18 @@ export class HeaderComponent implements OnInit {
         items: [
           {
             label: 'Estoque',
-            icon: PrimeIcons.TABLE,
+            icon: PrimeIcons.BOX,
             routerLink: '/estoque',
           },
           {
-            label: 'Entrada',
-            icon: PrimeIcons.BOX,
+            label: 'Entradas',
+            icon: PrimeIcons.PLUS_CIRCLE,
             routerLink: '/entradas',
+          },
+          {
+            label: 'Saídas',
+            icon: PrimeIcons.MINUS_CIRCLE,
+            routerLink: '/saidas',
           },
         ]
       },
@@ -81,11 +86,6 @@ export class HeaderComponent implements OnInit {
         label: 'Pedidos',
         icon: PrimeIcons.SHOPPING_CART,
         items: [
-          {
-            label: 'Criado',
-            icon: PrimeIcons.PAPERCLIP,
-            routerLink: '/pedidos',
-          },
           {
             label: 'Aguardando Aprovação',
             icon: PrimeIcons.CLOCK,
@@ -97,18 +97,8 @@ export class HeaderComponent implements OnInit {
             routerLink: '/pedidos',
           },
           {
-            label: 'Em Processamento',
-            icon: PrimeIcons.CART_ARROW_DOWN,
-            routerLink: '/pedidos',
-          },
-          {
             label: 'Separado',
-            icon: PrimeIcons.HOURGLASS,
-            routerLink: '/pedidos',
-          },
-          {
-            label: 'Em Transito',
-            icon: PrimeIcons.TRUCK,
+            icon: PrimeIcons.CART_PLUS,
             routerLink: '/pedidos',
           },
           {
@@ -133,6 +123,16 @@ export class HeaderComponent implements OnInit {
             ]
           }
         ]
+      },
+      {
+        label: 'Nova Entrada',
+        icon: PrimeIcons.PLUS_CIRCLE,
+        routerLink: '/entrada/nova',
+      },
+      {
+        label: 'Saídas',
+        icon: PrimeIcons.MINUS_CIRCLE,
+        routerLink: '/saidas',
       },
     ];
 
