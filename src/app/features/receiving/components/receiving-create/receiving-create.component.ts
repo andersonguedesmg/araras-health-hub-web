@@ -98,9 +98,11 @@ export class ReceivingCreateComponent implements OnInit {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       invoiceNumber: ['', Validators.required],
-      observations: [''],
+      observation: [''],
+      supplyAuthorization: [''],
       receivingDate: [new Date(), Validators.required],
       supplierId: [null],
+      totalValue: [0],
       responsibleId: [null],
       accountId: [null],
       receivedItems: this.fb.array([]),
@@ -123,9 +125,10 @@ export class ReceivingCreateComponent implements OnInit {
       this.fb.group({
         productId: [null, Validators.required],
         quantity: [0, Validators.required],
+        unitValue: [0, Validators.required],
+        totalValue: [0, Validators.required],
         batch: [''],
         expiryDate: [new Date()],
-        manufacturingDate: [new Date()],
       })
     );
   }

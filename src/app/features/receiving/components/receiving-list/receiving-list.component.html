@@ -26,8 +26,9 @@
         'supplierId',
         'receivingDate',
         'invoiceNumber',
+        'supplyAuthorization',
         'responsibleId',
-        'observations'
+        'observation'
       ]"
       [tableStyle]="{ 'min-width': '75rem' }"
       [(selection)]="selectedReceiving"
@@ -67,11 +68,14 @@
       <ng-template #header>
         <tr>
           <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-          <th style="min-width: 20rem" pSortableColumn="name">FORNECEDOR</th>
-          <th style="min-width: 12rem" pSortableColumn="cpf">DATA</th>
           <th style="min-width: 12rem" pSortableColumn="function">
             NOTA FISCAL
           </th>
+          <th style="min-width: 20rem" pSortableColumn="supplyAuthorization">
+            AUTORIZAÇÃO DE FORNECIMENTO
+          </th>
+          <th style="min-width: 20rem" pSortableColumn="name">FORNECEDOR</th>
+          <th style="min-width: 12rem" pSortableColumn="cpf">DATA</th>
           <th style="min-width: 20rem" pSortableColumn="phone">RESPONSÁVEL</th>
           <th style="min-width: 20rem" pSortableColumn="isActive">
             OBSERVAÇÃO
@@ -83,11 +87,12 @@
       <ng-template #body let-receiving>
         <tr>
           <td>{{ receiving.id }}</td>
+          <td>{{ receiving.invoiceNumber }}</td>
+          <td>{{ receiving.supplyAuthorization }}</td>
           <td>{{ receiving.supplier.name }}</td>
           <td>{{ receiving.receivingDate | date }}</td>
-          <td>{{ receiving.invoiceNumber }}</td>
           <td>{{ receiving.responsible.name }}</td>
-          <td>{{ receiving.observations }}</td>
+          <td>{{ receiving.observation }}</td>
           <td>
             <p-button
               icon="pi pi-info-circle"
@@ -110,10 +115,10 @@
       [style]="{ width: '50vw' }"
       [header]="
         formMode === 'create'
-          ? 'Novo Recebimento'
+          ? 'Nova Entrada'
           : formMode === 'update'
-          ? 'Editar Recebimento'
-          : 'Detalhes do Recebimento'
+          ? 'Editar Entrada'
+          : 'Detalhes da Entrada'
       "
       (onHide)="hideDialog()"
     >
@@ -222,7 +227,7 @@
 
           <div class="mb-4">
             <label
-              for="observations"
+              for="observation"
               class="block text-sm font-medium text-gray-500"
               >Observação:
               <span class="text-red-500" *ngIf="formMode !== 'detail'"
@@ -230,14 +235,14 @@
               ></label
             >
             <input
-              id="observations"
+              id="observation"
               pInputText
               type="text"
-              formControlName="observations"
+              formControlName="observation"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && receivingForm.get('observations')?.invalid
+                  formSubmitted && receivingForm.get('observation')?.invalid
               }"
             />
           </div>

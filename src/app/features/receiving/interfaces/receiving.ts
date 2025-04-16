@@ -7,13 +7,14 @@ export interface Receiving {
   id: number;
   invoiceNumber: string;
   supplyAuthorization: string;
-  observations: string;
+  observation: string;
   receivingDate: Date;
   supplierId: number;
   supplier: Supplier;
   responsibleId: number;
   responsible: Employee;
   accountId: number;
+  totalValue: number;
   account: Account;
   receivedItems: ReceivingItem[];
 }

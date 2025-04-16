@@ -91,10 +91,11 @@ export class ReceivingListComponent implements OnInit {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       supplierId: ['', Validators.required],
+      supplyAuthorization: ['', Validators.required],
       receivingDate: ['', Validators.required],
       invoiceNumber: ['', Validators.required],
       responsibleId: ['', Validators.required],
-      observations: ['', Validators.required],
+      observation: ['', Validators.required],
     });
   }
 
@@ -114,12 +115,13 @@ export class ReceivingListComponent implements OnInit {
     this.cd.markForCheck();
 
     this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO RECEBIMENTO' },
+      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DA ENTRADA' },
+      { field: 'invoiceNumber', header: 'NOTA FISCAL' },
+      { field: 'supplyAuthorization', header: 'AUTORIZAÇÃO DE FORNECIMENTO' },
       { field: 'supplierId', header: 'FORNECEDOR' },
       { field: 'receivingDate', header: 'DATA' },
-      { field: 'invoiceNumber', header: 'NOTA FISCAL' },
       { field: 'responsibleId', header: 'RESPONSÁVEL' },
-      { field: 'observations', header: 'OBSERVAÇÃO' },
+      { field: 'observation', header: 'OBSERVAÇÃO' },
     ];
 
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
@@ -172,8 +174,9 @@ export class ReceivingListComponent implements OnInit {
     this.receivingForm.get('supplierId')?.disable();
     this.receivingForm.get('receivingDate')?.disable();
     this.receivingForm.get('invoiceNumber')?.disable();
+    this.receivingForm.get('supplyAuthorization')?.disable();
     this.receivingForm.get('responsibleId')?.disable();
-    this.receivingForm.get('observations')?.disable();
+    this.receivingForm.get('observation')?.disable();
   }
 
   hideDialog(): void {
