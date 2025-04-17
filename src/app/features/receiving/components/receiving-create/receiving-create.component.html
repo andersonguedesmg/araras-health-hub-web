@@ -86,7 +86,7 @@
 
             <div class="mb-4">
               <label
-                for="invoiceNumber"
+                for="totalValue"
                 class="block text-sm font-medium text-gray-500"
                 >Valor da Nota:
                 <span class="text-red-500" *ngIf="formMode !== 'detail'"
@@ -94,14 +94,14 @@
                 ></label
               >
               <input
-                id="invoiceNumber"
+                id="totalValue"
                 pInputText
-                type="text"
-                formControlName="invoiceNumber"
+                type="number"
+                formControlName="totalValue"
                 class="mt-1 p-2 border rounded-md w-full"
                 [ngClass]="{
                   'border-red-500':
-                    formSubmitted && receivingForm.get('invoiceNumber')?.invalid
+                    formSubmitted && receivingForm.get('totalValue')?.invalid
                 }"
               />
             </div>

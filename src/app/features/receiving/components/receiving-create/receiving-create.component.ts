@@ -110,7 +110,7 @@ export class ReceivingCreateComponent implements OnInit {
       supplyAuthorization: ['', Validators.required],
       receivingDate: [new Date(), Validators.required],
       supplierId: [null, Validators.required],
-      totalValue: [0, Validators.required],
+      totalValue: ['', Validators.required],
       responsibleId: [null, Validators.required],
       accountId: this.authService.getUserId(),
       receivedItems: this.fb.array([]),
@@ -162,8 +162,6 @@ export class ReceivingCreateComponent implements OnInit {
 
   async saveReceiving(): Promise<void> {
     this.formSubmitted = true;
-    console.log('this.receivingForm', this.receivingForm);
-    console.log('this.receivingForm.valid', this.receivingForm.valid);
     if (this.receivingForm.valid) {
       if (this.formMode === FormMode.Create) {
         this.confirmMessage = ConfirmMessages.CREATE_RECEIVING;
@@ -188,9 +186,12 @@ export class ReceivingCreateComponent implements OnInit {
         this.spinnerComponent.loading = false;
         if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
           this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.receivingForm.reset();
-          this.receivingForm.get('accountId')?.setValue(this.authService.getUserId());
-          this.receivingForm.get('receivingDate')?.setValue(new Date());
+          this.receivingForm.reset({
+            receivingDate: new Date(),
+            accountId: this.authService.getUserId(),
+          });
+          // this.receivingForm.get('accountId')?.setValue(this.authService.getUserId());
+          // this.receivingForm.get('receivingDate')?.setValue(new Date());
         } else if (response) {
           this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
         }
