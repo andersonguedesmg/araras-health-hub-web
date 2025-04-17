@@ -35,6 +35,9 @@ import { SupplierService } from '../../../supplier/services/supplier.service';
 import { EmployeeService } from '../../../employee/services/employee.service';
 import { ProductService } from '../../../product/services/product.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Supplier } from '../../../supplier/interfaces/supplier';
+import { InputMask } from 'primeng/inputmask';
 
 @Component({
   selector: 'app-receiving-create',
@@ -56,6 +59,7 @@ import { SelectOptions } from '../../../../shared/interfaces/select-options';
     SelectModule,
     DatePickerModule,
     InputNumberModule,
+    InputMask,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent
@@ -86,26 +90,45 @@ export class ReceivingCreateComponent implements OnInit {
   displayDialog = false;
   formSubmitted = false;
 
+  supplierForm: FormGroup;
+  selectedSupplier?: Supplier;
+
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
   constructor(
     private fb: FormBuilder,
     private receivingService: ReceivingService,
+    private authService: AuthService,
     private supplierService: SupplierService,
     private employeeService: EmployeeService,
     private productService: ProductService) {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       invoiceNumber: ['', Validators.required],
-      observation: [''],
-      supplyAuthorization: [''],
+      observation: ['', Validators.required],
+      supplyAuthorization: ['', Validators.required],
       receivingDate: [new Date(), Validators.required],
-      supplierId: [null],
-      totalValue: [0],
-      responsibleId: [null],
-      accountId: [null],
+      supplierId: [null, Validators.required],
+      totalValue: [0, Validators.required],
+      responsibleId: [null, Validators.required],
+      accountId: this.authService.getUserId(),
       receivedItems: this.fb.array([]),
+    });
+
+    this.supplierForm = this.fb.group({
+      id: [{ value: null, disabled: true }],
+      name: ['', Validators.required],
+      cnpj: ['', Validators.required],
+      address: ['', Validators.required],
+      number: ['', Validators.required],
+      neighborhood: ['', Validators.required],
+      city: ['', Validators.required],
+      state: ['', Validators.required],
+      cep: ['', Validators.required],
+      email: ['', Validators.required],
+      phone: ['', Validators.required],
+      isActive: [{ value: false, disabled: true }],
     });
   }
 
@@ -124,11 +147,11 @@ export class ReceivingCreateComponent implements OnInit {
     this.receivedItems.push(
       this.fb.group({
         productId: [null, Validators.required],
-        quantity: [0, Validators.required],
-        unitValue: [0, Validators.required],
-        totalValue: [0, Validators.required],
+        quantity: ['', Validators.required],
+        unitValue: ['', Validators.required],
+        totalValue: ['', Validators.required],
         batch: [''],
-        expiryDate: [new Date()],
+        expiryDate: [],
       })
     );
   }
@@ -139,6 +162,8 @@ export class ReceivingCreateComponent implements OnInit {
 
   async saveReceiving(): Promise<void> {
     this.formSubmitted = true;
+    console.log('this.receivingForm', this.receivingForm);
+    console.log('this.receivingForm.valid', this.receivingForm.valid);
     if (this.receivingForm.valid) {
       if (this.formMode === FormMode.Create) {
         this.confirmMessage = ConfirmMessages.CREATE_RECEIVING;
@@ -163,8 +188,9 @@ export class ReceivingCreateComponent implements OnInit {
         this.spinnerComponent.loading = false;
         if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
           this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          // this.getAllUsers();
-          // this.hideDialog();
+          this.receivingForm.reset();
+          this.receivingForm.get('accountId')?.setValue(this.authService.getUserId());
+          this.receivingForm.get('receivingDate')?.setValue(new Date());
         } else if (response) {
           this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
         }
@@ -193,7 +219,6 @@ export class ReceivingCreateComponent implements OnInit {
   async loadSupplierNames(): Promise<void> {
     try {
       const response: ApiResponse<any[]> = await this.supplierService.getAllSupplierNames();
-      console.log('loadSupplierNames', response);
       if (response && response.data) {
         this.supplierOptions = response.data.map((destination) => ({
           label: destination.name,
@@ -208,7 +233,6 @@ export class ReceivingCreateComponent implements OnInit {
   async loadUserNames(): Promise<void> {
     try {
       const response: ApiResponse<any[]> = await this.employeeService.getAllEmployeeNames();
-      console.log('loadUserNames', response);
       if (response && response.data) {
         this.userOptions = response.data.map((destination) => ({
           label: destination.name,
@@ -223,7 +247,6 @@ export class ReceivingCreateComponent implements OnInit {
   async loadProductsNames(): Promise<void> {
     try {
       const response: ApiResponse<any[]> = await this.productService.getAllProductNames();
-      console.log('loadProductsNames', response);
       if (response && response.data) {
         this.productOptions = response.data.map((destination) => ({
           label: destination.name,
@@ -232,6 +255,131 @@ export class ReceivingCreateComponent implements OnInit {
       }
     } catch (error) {
       console.error(ToastMessages.ERROR_LOADING_NAMES, error);
+    }
+  }
+
+
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Supplier): void {
+    this.formMode = mode;
+    this.selectedSupplier = supplier;
+    this.displayDialog = true;
+    this.initializeForm();
+  }
+
+  initializeForm(): void {
+    this.supplierForm.reset();
+    if (this.selectedSupplier) {
+      this.supplierForm.patchValue(this.selectedSupplier);
+    }
+    this.updateFormState();
+  }
+
+  updateFormState(): void {
+    const isDetail = this.formMode === FormMode.Detail;
+    const isUpdate = this.formMode === FormMode.Update;
+
+    this.supplierForm.get('name')?.disable();
+    this.supplierForm.get('cnpj')?.disable();
+    this.supplierForm.get('address')?.disable();
+    this.supplierForm.get('number')?.disable();
+    this.supplierForm.get('neighborhood')?.disable();
+    this.supplierForm.get('city')?.disable();
+    this.supplierForm.get('state')?.disable();
+    this.supplierForm.get('cep')?.disable();
+    this.supplierForm.get('email')?.disable();
+    this.supplierForm.get('phone')?.disable();
+    this.supplierForm.get('isActive')?.disable();
+
+    if (this.formMode === FormMode.Create) {
+      this.supplierForm.get('isActive')?.setValue(true);
+      this.supplierForm.get('isActive')?.disable();
+      this.supplierForm.get('name')?.enable();
+      this.supplierForm.get('cnpj')?.enable();
+      this.supplierForm.get('address')?.enable();
+      this.supplierForm.get('number')?.enable();
+      this.supplierForm.get('neighborhood')?.enable();
+      this.supplierForm.get('city')?.enable();
+      this.supplierForm.get('state')?.enable();
+      this.supplierForm.get('cep')?.enable();
+      this.supplierForm.get('email')?.enable();
+      this.supplierForm.get('phone')?.enable();
+    } else if (isUpdate) {
+      this.supplierForm.get('name')?.enable();
+      this.supplierForm.get('cnpj')?.enable();
+      this.supplierForm.get('address')?.enable();
+      this.supplierForm.get('number')?.enable();
+      this.supplierForm.get('neighborhood')?.enable();
+      this.supplierForm.get('city')?.enable();
+      this.supplierForm.get('state')?.enable();
+      this.supplierForm.get('cep')?.enable();
+      this.supplierForm.get('email')?.enable();
+      this.supplierForm.get('phone')?.enable();
+    }
+
+    if (!isDetail && !isUpdate) {
+      this.supplierForm.get('isActive')?.disable();
+    }
+    if (isDetail) {
+      this.supplierForm.get('isActive')?.disable();
+    }
+  }
+
+  hideDialog(): void {
+    this.displayDialog = false;
+    this.selectedSupplier = undefined;
+  }
+
+  async saveSupplier(): Promise<void> {
+    this.formSubmitted = true;
+    if (this.supplierForm.valid) {
+      if (this.formMode === FormMode.Create) {
+        this.confirmMessage = ConfirmMessages.CREATE_SUPPLIER;
+        this.confirmMode = ConfirmMode.Create;
+      } else if (this.formMode === FormMode.Update) {
+        this.confirmMessage = ConfirmMessages.UPDATE_SUPPLIER;
+        this.confirmMode = ConfirmMode.Update;
+      }
+      this.confirmDialog.message = this.confirmMessage;
+      this.confirmDialog.show();
+
+      try {
+        await firstValueFrom(this.confirmDialog.confirmed);
+        this.spinnerComponent.loading = true;
+        const supplier: Supplier = this.supplierForm.getRawValue();
+        let response: any = null;
+        if (this.confirmMode === ConfirmMode.Create) {
+          response = await this.supplierService.createSupplier(supplier);
+        } else if (this.confirmMode === ConfirmMode.Update) {
+          response = await this.supplierService.updateSupplier(supplier, supplier.id);
+        }
+        this.spinnerComponent.loading = false;
+        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
+          this.loadSupplierNames();
+          this.hideDialog();
+          this.receivingForm.get('supplierId')?.setValue(response.data.id);
+        } else if (response) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+        }
+        this.confirmMode = null;
+      } catch (error: any) {
+        this.spinnerComponent.loading = false;
+        if (error && error.error && error.error.message) {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+        } else {
+          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+        }
+        this.confirmMode = null;
+
+        try {
+          await firstValueFrom(this.confirmDialog.rejected);
+          this.confirmMode = null;
+        } catch (rejectError) {
+          this.confirmMode = null;
+        }
+      }
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 }
