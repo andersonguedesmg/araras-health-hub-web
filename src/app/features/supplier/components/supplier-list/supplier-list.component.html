@@ -193,7 +193,7 @@
             <p-inputmask
               id="cnpj"
               mask="99.999.999/9999-99"
-              styleClass="w-full"
+              styleClass="w-full mt-1"
               formControlName="cnpj"
               [ngClass]="{
                 'border-red-500':
@@ -311,12 +311,11 @@
                 >*</span
               ></label
             >
-            <input
+            <p-inputmask
               id="cep"
-              pInputText
-              type="text"
+              mask="99999-999"
+              styleClass="w-full mt-1"
               formControlName="cep"
-              class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
                   formSubmitted && supplierForm.get('cep')?.invalid
@@ -354,7 +353,7 @@
             <p-inputmask
               id="phone"
               mask="(99) 9999-9999"
-              styleClass="w-full"
+              styleClass="w-full mt-1"
               formControlName="phone"
               [ngClass]="{
                 'border-red-500':
@@ -372,7 +371,7 @@
               formControlName="isActive"
               optionLabel="label"
               optionValue="value"
-              class="w-full"
+              class="w-full mt-1"
               placeholder="Selecione"
             ></p-select>
           </div>
