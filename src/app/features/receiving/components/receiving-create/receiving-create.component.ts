@@ -192,7 +192,7 @@ export class ReceivingCreateComponent implements OnInit {
     this.formSubmitted = true;
     if (this.receivingForm.valid) {
       if (!this.isTotalValueValid()) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'A soma dos valores totais dos itens não confere com o valor total da entrada.');
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.SUM_TOTAL_VALUES_ITEMS_DIFFERENT_TOTAL_VALUE);
         return;
       }
       if (this.formMode === FormMode.Create) {

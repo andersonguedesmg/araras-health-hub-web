@@ -43,4 +43,5 @@ export const ToastMessages = {
   ERROR_LOADING_NAMES: 'Erro ao carregar os nomes:',
   CANCELED_REGISTRATION: 'Registro cancelado',
   SESSION_WILL_EXPIRE_SOON: 'Sua sessão irá expirar em breve.',
+  SUM_TOTAL_VALUES_ITEMS_DIFFERENT_TOTAL_VALUE: 'A soma dos valores totais dos itens não confere com o valor total da entrada.',
 };
