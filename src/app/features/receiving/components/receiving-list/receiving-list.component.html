@@ -94,7 +94,7 @@
           <td>{{ receiving.invoiceNumber }}</td>
           <td>{{ receiving.supplyAuthorization }}</td>
           <td>{{ receiving.supplier.name }}</td>
-          <td>{{ receiving.receivingDate | date }}</td>
+          <td>{{ receiving.receivingDate | date : "dd/MM/yyyy" }}</td>
           <td>{{ receiving.responsible.name }}</td>
           <td>{{ receiving.observation }}</td>
           <td>

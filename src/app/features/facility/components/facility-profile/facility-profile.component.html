@@ -62,13 +62,13 @@
             <label class="block text-sm font-medium text-gray-500"
               >Criado em:</label
             >
-            <p class="mt-1">{{ facility.createdOn | date }}</p>
+            <p class="mt-1">{{ facility.createdOn | date : "dd/MM/yyyy" }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
               >Atualizado em:</label
             >
-            <p class="mt-1">{{ facility.updatedOn | date }}</p>
+            <p class="mt-1">{{ facility.updatedOn | date : "dd/MM/yyyy" }}</p>
           </div>
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
