@@ -144,16 +144,44 @@ export class ReceivingCreateComponent implements OnInit {
   }
 
   addReceivedItem(): void {
-    this.receivedItems.push(
-      this.fb.group({
-        productId: [null, Validators.required],
-        quantity: ['', Validators.required],
-        unitValue: ['', Validators.required],
-        totalValue: ['', Validators.required],
-        batch: [''],
-        expiryDate: [],
-      })
-    );
+    const itemGroup = this.fb.group({
+      productId: [null, Validators.required],
+      quantity: ['', Validators.required],
+      unitValue: ['', Validators.required],
+      totalValue: [{ value: '', disabled: true }, Validators.required],
+      batch: [''],
+      expiryDate: [],
+    });
+
+    this.receivedItems.push(itemGroup);
+    this.setupValueChangeListener(itemGroup);
+  }
+
+  private setupValueChangeListener(itemGroup: FormGroup): void {
+    const quantityCtrl = itemGroup.get('quantity');
+    const unitValueCtrl = itemGroup.get('unitValue');
+    const totalValueCtrl = itemGroup.get('totalValue');
+
+    quantityCtrl?.valueChanges.subscribe(() => {
+      this.updateTotalValue(itemGroup);
+    });
+
+    unitValueCtrl?.valueChanges.subscribe(() => {
+      this.updateTotalValue(itemGroup);
+    });
+  }
+
+  private updateTotalValue(itemGroup: FormGroup): void {
+    const quantity = parseFloat(itemGroup.get('quantity')?.value);
+    const unitValue = parseFloat(itemGroup.get('unitValue')?.value);
+    const totalValueCtrl = itemGroup.get('totalValue');
+
+    if (!isNaN(quantity) && !isNaN(unitValue)) {
+      const total = quantity * unitValue;
+      totalValueCtrl?.setValue(total.toFixed(2), { emitEvent: false });
+    } else {
+      totalValueCtrl?.setValue('', { emitEvent: false });
+    }
   }
 
   removeReceivedItem(index: number): void {
@@ -163,6 +191,10 @@ export class ReceivingCreateComponent implements OnInit {
   async saveReceiving(): Promise<void> {
     this.formSubmitted = true;
     if (this.receivingForm.valid) {
+      if (!this.isTotalValueValid()) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'A soma dos valores totais dos itens não confere com o valor total da entrada.');
+        return;
+      }
       if (this.formMode === FormMode.Create) {
         this.confirmMessage = ConfirmMessages.CREATE_RECEIVING;
         this.confirmMode = ConfirmMode.Create;
@@ -186,12 +218,7 @@ export class ReceivingCreateComponent implements OnInit {
         this.spinnerComponent.loading = false;
         if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
           this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.receivingForm.reset({
-            receivingDate: new Date(),
-            accountId: this.authService.getUserId(),
-          });
-          // this.receivingForm.get('accountId')?.setValue(this.authService.getUserId());
-          // this.receivingForm.get('receivingDate')?.setValue(new Date());
+          this.resetReceivingForm();
         } else if (response) {
           this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
         }
@@ -214,6 +241,37 @@ export class ReceivingCreateComponent implements OnInit {
       }
     } else {
       this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
+    }
+  }
+
+  private isTotalValueValid(): boolean {
+    const itemsTotal = this.receivedItems.controls.reduce((sum, item) => {
+      const rawValue = item.get('totalValue')?.value ?? '0';
+      const normalized = String(rawValue).replace(',', '.');
+
+      const val = parseFloat(normalized);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0);
+
+    const rawFormTotal = this.receivingForm.get('totalValue')?.value ?? '0';
+    const formTotal = parseFloat(String(rawFormTotal).replace(',', '.'));
+
+    const precision = 0.01;
+    return Math.abs(itemsTotal - formTotal) < precision;
+  }
+
+  private resetReceivingForm(): void {
+    this.receivingForm.reset({
+      receivingDate: new Date(),
+      accountId: this.authService.getUserId(),
+    });
+    const firstReceivedItem = this.receivedItems.controls[0]?.getRawValue();
+    this.receivedItems.clear();
+
+    if (firstReceivedItem) {
+      this.addReceivedItem();
+      const newItem = this.receivedItems.at(0);
+      newItem.patchValue(firstReceivedItem);
     }
   }
 
@@ -259,13 +317,12 @@ export class ReceivingCreateComponent implements OnInit {
     }
   }
 
-
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Supplier): void {
     this.formMode = mode;
     this.selectedSupplier = supplier;
     this.displayDialog = true;
     this.initializeForm();
-  }
+  };
 
   initializeForm(): void {
     this.supplierForm.reset();
