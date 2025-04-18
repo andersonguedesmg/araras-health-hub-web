@@ -38,6 +38,7 @@ import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Supplier } from '../../../supplier/interfaces/supplier';
 import { InputMask } from 'primeng/inputmask';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-receiving-create',
@@ -60,6 +61,7 @@ import { InputMask } from 'primeng/inputmask';
     DatePickerModule,
     InputNumberModule,
     InputMask,
+    TextareaModule,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent
@@ -78,7 +80,7 @@ export class ReceivingCreateComponent implements OnInit {
 
   receivingForm: FormGroup;
   supplierOptions: SelectOptions<number>[] = [];
-  userOptions: SelectOptions<number>[] = [];
+  employeeOptions: SelectOptions<number>[] = [];
   productOptions: SelectOptions<number>[] = [];
 
   FormMode = FormMode;
@@ -106,7 +108,7 @@ export class ReceivingCreateComponent implements OnInit {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       invoiceNumber: ['', Validators.required],
-      observation: ['', Validators.required],
+      observation: [''],
       supplyAuthorization: ['', Validators.required],
       receivingDate: [new Date(), Validators.required],
       supplierId: [null, Validators.required],
@@ -135,7 +137,7 @@ export class ReceivingCreateComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.addReceivedItem();
     this.loadSupplierNames();
-    this.loadUserNames();
+    this.loadEmployeeNames();
     this.loadProductsNames();
   }
 
@@ -279,9 +281,9 @@ export class ReceivingCreateComponent implements OnInit {
     try {
       const response: ApiResponse<any[]> = await this.supplierService.getAllSupplierNames();
       if (response && response.data) {
-        this.supplierOptions = response.data.map((destination) => ({
-          label: destination.name,
-          value: destination.id,
+        this.supplierOptions = response.data.map((supplier) => ({
+          label: supplier.name,
+          value: supplier.id,
         }));
       }
     } catch (error) {
@@ -289,13 +291,13 @@ export class ReceivingCreateComponent implements OnInit {
     }
   }
 
-  async loadUserNames(): Promise<void> {
+  async loadEmployeeNames(): Promise<void> {
     try {
       const response: ApiResponse<any[]> = await this.employeeService.getAllEmployeeNames();
       if (response && response.data) {
-        this.userOptions = response.data.map((destination) => ({
-          label: destination.name,
-          value: destination.id,
+        this.employeeOptions = response.data.map((employee) => ({
+          label: employee.name,
+          value: employee.id,
         }));
       }
     } catch (error) {
@@ -307,9 +309,9 @@ export class ReceivingCreateComponent implements OnInit {
     try {
       const response: ApiResponse<any[]> = await this.productService.getAllProductNames();
       if (response && response.data) {
-        this.productOptions = response.data.map((destination) => ({
-          label: destination.name,
-          value: destination.id,
+        this.productOptions = response.data.map((product) => ({
+          label: product.name,
+          value: product.id,
         }));
       }
     } catch (error) {

@@ -141,7 +141,7 @@
                 >
               </label>
               <p-select
-                [options]="userOptions"
+                [options]="employeeOptions"
                 formControlName="responsibleId"
                 optionLabel="label"
                 optionValue="value"
@@ -152,28 +152,6 @@
                     formSubmitted && receivingForm.get('responsibleId')?.invalid
                 }"
               ></p-select>
-            </div>
-
-            <div class="mb-4">
-              <label
-                for="observation"
-                class="block text-sm font-medium text-gray-500"
-                >Observação:
-                <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                  >*</span
-                ></label
-              >
-              <input
-                id="observation"
-                pInputText
-                type="text"
-                formControlName="observation"
-                class="mt-1 p-2 border rounded-md w-full"
-                [ngClass]="{
-                  'border-red-500':
-                    formSubmitted && receivingForm.get('observation')?.invalid
-                }"
-              />
             </div>
 
             <div class="mb-4">
@@ -196,6 +174,20 @@
                     formSubmitted && receivingForm.get('receivingDate')?.invalid
                 }"
               />
+            </div>
+
+            <div class="mb-4">
+              <label
+                for="observation"
+                class="block text-sm font-medium text-gray-500"
+                >Observação:
+              </label>
+              <textarea
+                rows="5"
+                pTextarea
+                formControlName="observation"
+                class="mt-1 p-2 border rounded-md w-full"
+              ></textarea>
             </div>
           </div>
         </section>

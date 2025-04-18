@@ -16,6 +16,7 @@ import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { Table } from 'primeng/table';
+import { TextareaModule } from 'primeng/textarea';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
@@ -30,6 +31,9 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
+import { SelectOptions } from '../../../../shared/interfaces/select-options';
+import { SupplierService } from '../../../supplier/services/supplier.service';
+import { EmployeeService } from '../../../employee/services/employee.service';
 
 @Component({
   selector: 'app-receiving-list',
@@ -46,6 +50,7 @@ import { Receiving } from '../../interfaces/receiving';
     InputTextModule,
     InputIconModule,
     IconFieldModule,
+    TextareaModule,
     TooltipModule,
     DialogModule,
     SelectModule,
@@ -68,6 +73,8 @@ export class ReceivingListComponent implements OnInit {
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
+  supplierOptions: SelectOptions<number>[] = [];
+  employeeOptions: SelectOptions<number>[] = [];
 
   receivings: Receiving[] = [];
   selectedReceiving?: Receiving;
@@ -87,20 +94,30 @@ export class ReceivingListComponent implements OnInit {
   getSeverity = getSeverity;
   getStatus = getStatus;
 
-  constructor(private cd: ChangeDetectorRef, private receivingService: ReceivingService, private fb: FormBuilder, private router: Router) {
+  constructor(
+    private cd: ChangeDetectorRef,
+    private receivingService: ReceivingService,
+    private supplierService: SupplierService,
+    private employeeService: EmployeeService,
+    private fb: FormBuilder,
+    private router: Router
+  ) {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       supplierId: ['', Validators.required],
       supplyAuthorization: ['', Validators.required],
       receivingDate: ['', Validators.required],
       invoiceNumber: ['', Validators.required],
+      totalValue: ['', Validators.required],
       responsibleId: ['', Validators.required],
-      observation: ['', Validators.required],
+      observation: [''],
     });
   }
 
-  ngOnInit() {
+  async ngOnInit(): Promise<void> {
     this.loadTableData();
+    this.loadSupplierNames();
+    this.loadEmployeeNames();
   }
 
   ngAfterViewInit(): void {
@@ -120,6 +137,7 @@ export class ReceivingListComponent implements OnInit {
       { field: 'supplyAuthorization', header: 'AUTORIZAÇÃO DE FORNECIMENTO' },
       { field: 'supplierId', header: 'FORNECEDOR' },
       { field: 'receivingDate', header: 'DATA' },
+      { field: 'totalValue', header: 'VALOR DA NOTA' },
       { field: 'responsibleId', header: 'RESPONSÁVEL' },
       { field: 'observation', header: 'OBSERVAÇÃO' },
     ];
@@ -174,6 +192,7 @@ export class ReceivingListComponent implements OnInit {
     this.receivingForm.get('supplierId')?.disable();
     this.receivingForm.get('receivingDate')?.disable();
     this.receivingForm.get('invoiceNumber')?.disable();
+    this.receivingForm.get('totalValue')?.disable();
     this.receivingForm.get('supplyAuthorization')?.disable();
     this.receivingForm.get('responsibleId')?.disable();
     this.receivingForm.get('observation')?.disable();
@@ -188,4 +207,31 @@ export class ReceivingListComponent implements OnInit {
     this.router.navigate(['/entrada/nova']);
   }
 
+  async loadSupplierNames(): Promise<void> {
+    try {
+      const response: ApiResponse<any[]> = await this.supplierService.getAllSupplierNames();
+      if (response && response.data) {
+        this.supplierOptions = response.data.map((supplier) => ({
+          label: supplier.name,
+          value: supplier.id,
+        }));
+      }
+    } catch (error) {
+      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
+    }
+  }
+
+  async loadEmployeeNames(): Promise<void> {
+    try {
+      const response: ApiResponse<any[]> = await this.employeeService.getAllEmployeeNames();
+      if (response && response.data) {
+        this.employeeOptions = response.data.map((employee) => ({
+          label: employee.name,
+          value: employee.id,
+        }));
+      }
+    } catch (error) {
+      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
+    }
+  }
 }

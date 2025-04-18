@@ -78,6 +78,9 @@
             FORNECEDOR
           </th>
           <th style="min-width: 12rem" pSortableColumn="receivingDate">DATA</th>
+          <th style="min-width: 12rem" pSortableColumn="totalValue">
+            VALOR DA NOTA
+          </th>
           <th style="min-width: 15rem" pSortableColumn="responsible.name">
             RESPONSÁVEL
           </th>
@@ -95,6 +98,7 @@
           <td>{{ receiving.supplyAuthorization }}</td>
           <td>{{ receiving.supplier.name }}</td>
           <td>{{ receiving.receivingDate | date : "dd/MM/yyyy" }}</td>
+          <td>{{ receiving.totalValue }}</td>
           <td>{{ receiving.responsible.name }}</td>
           <td>{{ receiving.observation }}</td>
           <td>
@@ -117,13 +121,7 @@
       [(visible)]="displayDialog"
       [modal]="true"
       [style]="{ width: '50vw' }"
-      [header]="
-        formMode === 'create'
-          ? 'Nova Entrada'
-          : formMode === 'update'
-          ? 'Editar Entrada'
-          : 'Detalhes da Entrada'
-      "
+      [header]="'Detalhes da Entrada'"
       (onHide)="hideDialog()"
     >
       <form [formGroup]="receivingForm" class="mt-4">
@@ -143,24 +141,48 @@
 
           <div class="mb-4">
             <label
-              for="supplierId"
+              for="invoiceNumber"
               class="block text-sm font-medium text-gray-500"
-              >Fornecedor:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
+              >Nota Fiscal:
+            </label>
             <input
-              id="supplierId"
+              id="invoiceNumber"
               pInputText
               type="text"
-              formControlName="supplierId"
+              formControlName="invoiceNumber"
               class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && receivingForm.get('supplierId')?.invalid
-              }"
             />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="supplyAuthorization"
+              class="block text-sm font-medium text-gray-500"
+              >Autorização de Fornecimento:
+            </label>
+            <input
+              id="supplyAuthorization"
+              pInputText
+              type="text"
+              formControlName="supplyAuthorization"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="supplierId"
+              class="block text-sm font-medium text-gray-500"
+              >Fornecedor:</label
+            >
+            <p-select
+              [options]="supplierOptions"
+              formControlName="supplierId"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+            ></p-select>
           </div>
 
           <div class="mb-4">
@@ -168,42 +190,28 @@
               for="receivingDate"
               class="block text-sm font-medium text-gray-500"
               >Data:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
+            </label>
             <input
               id="receivingDate"
               pInputText
               type="text"
               formControlName="receivingDate"
               class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && receivingForm.get('receivingDate')?.invalid
-              }"
             />
           </div>
 
           <div class="mb-4">
             <label
-              for="invoiceNumber"
+              for="totalValue"
               class="block text-sm font-medium text-gray-500"
-              >Nota Fiscal:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
+              >Valor da Nota:
+            </label>
             <input
-              id="invoiceNumber"
+              id="totalValue"
               pInputText
               type="text"
-              formControlName="invoiceNumber"
+              formControlName="totalValue"
               class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && receivingForm.get('invoiceNumber')?.invalid
-              }"
             />
           </div>
 
@@ -211,22 +219,16 @@
             <label
               for="responsibleId"
               class="block text-sm font-medium text-gray-500"
-              >Responsável:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
+              >Responsável:</label
             >
-            <input
-              id="responsibleId"
-              pInputText
-              type="text"
+            <p-select
+              [options]="employeeOptions"
               formControlName="responsibleId"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && receivingForm.get('responsibleId')?.invalid
-              }"
-            />
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+            ></p-select>
           </div>
 
           <div class="mb-4">
@@ -234,24 +236,71 @@
               for="observation"
               class="block text-sm font-medium text-gray-500"
               >Observação:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="observation"
-              pInputText
-              type="text"
+            </label>
+            <textarea
+              rows="5"
+              pTextarea
               formControlName="observation"
               class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && receivingForm.get('observation')?.invalid
-              }"
-            />
+            ></textarea>
           </div>
         </div>
       </form>
+
+      <div class="bg-zinc-900 border border-zinc-600 rounded-md p-8 mt-4">
+        <h2 class="text-xl font-medium text-gray-500 mb-6">Itens</h2>
+        <hr class="mt-6 mb-2 border-t border-zinc-600" />
+        <p-table
+          *ngIf="
+            selectedReceiving &&
+            selectedReceiving.receivedItems &&
+            selectedReceiving.receivedItems.length > 0
+          "
+          [value]="selectedReceiving.receivedItems"
+          [rows]="10"
+          [paginator]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Itens"
+          [showCurrentPageReport]="true"
+        >
+          <ng-template #header>
+            <tr>
+              <th style="min-width: 25rem" pSortableColumn="invoiceNumber">
+                PRODUTO
+              </th>
+              <th
+                style="min-width: 10rem"
+                pSortableColumn="supplyAuthorization"
+              >
+                QUANTIDADE
+              </th>
+              <th style="min-width: 10rem" pSortableColumn="supplier.name">
+                VALOR UNITÁRIO
+              </th>
+              <th style="min-width: 10rem" pSortableColumn="receivingDate">
+                VALOR TOTAL
+              </th>
+              <th style="min-width: 18rem" pSortableColumn="responsible.name">
+                LOTE
+              </th>
+              <th style="min-width: 10rem" pSortableColumn="responsible.name">
+                VALIDADE
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template #body let-item>
+            <tr>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.totalValue | currency : "BRL" }}</td>
+              <td>{{ item.unitValue | currency : "BRL" }}</td>
+              <td>{{ item.batch }}</td>
+              <td>{{ item.expiryDate | date : "dd/MM/yyyy" }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
       <ng-template pTemplate="footer">
         <p-button
           label="Cancelar"
