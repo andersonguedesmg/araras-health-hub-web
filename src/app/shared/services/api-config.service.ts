@@ -41,4 +41,8 @@ export class ApiConfigService {
   getReceivingUrl(endpoint: string): string {
     return this.apiUrl + 'receiving/' + endpoint;
   }
+
+  getStockUrl(endpoint: string): string {
+    return this.apiUrl + 'stock/' + endpoint;
+  }
 }
