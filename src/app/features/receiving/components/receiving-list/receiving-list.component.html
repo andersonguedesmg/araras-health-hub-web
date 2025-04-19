@@ -98,7 +98,7 @@
           <td>{{ receiving.supplyAuthorization }}</td>
           <td>{{ receiving.supplier.name }}</td>
           <td>{{ receiving.receivingDate | date : "dd/MM/yyyy" }}</td>
-          <td>{{ receiving.totalValue }}</td>
+          <td>{{ receiving.totalValue | currency : "BRL" }}</td>
           <td>{{ receiving.responsible.name }}</td>
           <td>{{ receiving.observation }}</td>
           <td>
@@ -264,25 +264,20 @@
         >
           <ng-template #header>
             <tr>
-              <th style="min-width: 25rem" pSortableColumn="invoiceNumber">
+              <th style="min-width: 25rem" pSortableColumn="product.name">
                 PRODUTO
               </th>
-              <th
-                style="min-width: 10rem"
-                pSortableColumn="supplyAuthorization"
-              >
+              <th style="min-width: 10rem" pSortableColumn="quantity">
                 QUANTIDADE
               </th>
-              <th style="min-width: 10rem" pSortableColumn="supplier.name">
+              <th style="min-width: 10rem" pSortableColumn="unitValue">
                 VALOR UNITÁRIO
               </th>
-              <th style="min-width: 10rem" pSortableColumn="receivingDate">
+              <th style="min-width: 10rem" pSortableColumn="totalValue">
                 VALOR TOTAL
               </th>
-              <th style="min-width: 18rem" pSortableColumn="responsible.name">
-                LOTE
-              </th>
-              <th style="min-width: 10rem" pSortableColumn="responsible.name">
+              <th style="min-width: 18rem" pSortableColumn="batch">LOTE</th>
+              <th style="min-width: 10rem" pSortableColumn="expiryDate">
                 VALIDADE
               </th>
             </tr>
@@ -292,8 +287,8 @@
             <tr>
               <td>{{ item.product.name }}</td>
               <td>{{ item.quantity }}</td>
-              <td>{{ item.totalValue | currency : "BRL" }}</td>
               <td>{{ item.unitValue | currency : "BRL" }}</td>
+              <td>{{ item.totalValue | currency : "BRL" }}</td>
               <td>{{ item.batch }}</td>
               <td>{{ item.expiryDate | date : "dd/MM/yyyy" }}</td>
             </tr>
