@@ -123,6 +123,9 @@
                 optionValue="value"
                 class="w-full mt-1"
                 placeholder="Selecione"
+                [showClear]="true"
+                [filter]="true"
+                filterBy="label"
                 [ngClass]="{
                   'border-red-500':
                     formSubmitted && receivingForm.get('supplierId')?.invalid
@@ -147,6 +150,9 @@
                 optionValue="value"
                 class="w-full mt-1"
                 placeholder="Selecione"
+                [showClear]="true"
+                [filter]="true"
+                filterBy="label"
                 [ngClass]="{
                   'border-red-500':
                     formSubmitted && receivingForm.get('responsibleId')?.invalid
@@ -222,6 +228,9 @@
                   formControlName="productId"
                   placeholder="Selecione"
                   class="w-full mt-1"
+                  [showClear]="true"
+                  [filter]="true"
+                  filterBy="label"
                 ></p-select>
               </div>
 

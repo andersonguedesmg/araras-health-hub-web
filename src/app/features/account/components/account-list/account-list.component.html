@@ -184,6 +184,9 @@
               optionValue="value"
               class="w-full mt-1"
               placeholder="Selecione"
+              [showClear]="true"
+              [filter]="true"
+              filterBy="label"
               [ngClass]="{
                 'border-red-500': accountForm.get('facilityId')?.invalid
               }"
