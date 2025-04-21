@@ -1,0 +1,204 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-toast></app-toast>
+<app-spinner></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <p-toolbar>
+      <ng-template #start>
+        <span class="text-xl font-bold mt-2 mb-2">Novo Pedido</span>
+      </ng-template>
+
+      <ng-template #end></ng-template>
+    </p-toolbar>
+
+    <div class="bg-surface-900 rounded-md shadow-md p-6">
+      <form [formGroup]="orderForm" class="mt-4">
+        <section>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="mb-4" *ngIf="formMode !== 'create'">
+              <label for="id" class="block text-sm font-medium text-gray-500"
+                >ID:</label
+              >
+              <input
+                id="id"
+                pInputText
+                type="text"
+                formControlName="id"
+                class="mt-1 p-2 border rounded-md w-full"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label
+                for="orderNumber"
+                class="block text-sm font-medium text-gray-500"
+                >Número do Pedido:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="orderNumber"
+                pInputText
+                type="text"
+                formControlName="orderNumber"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && orderForm.get('orderNumber')?.invalid
+                }"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label
+                for="createdByEmployeeId"
+                class="block text-sm font-medium text-gray-500"
+              >
+                Responsável:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                >
+              </label>
+              <p-select
+                [options]="employeeOptions"
+                formControlName="createdByEmployeeId"
+                optionLabel="label"
+                optionValue="value"
+                class="w-full mt-1"
+                placeholder="Selecione"
+                [showClear]="true"
+                [filter]="true"
+                filterBy="label"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted &&
+                    orderForm.get('createdByEmployeeId')?.invalid
+                }"
+              ></p-select>
+            </div>
+
+            <div class="mb-4">
+              <label
+                for="createdAt"
+                class="block text-sm font-medium text-gray-500 mb-1"
+                >Data:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <p-datepicker
+                id="createdAt"
+                formControlName="createdAt"
+                dateFormat="dd/mm/yy"
+                [showButtonBar]="true"
+                class="w-full mt-1"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && orderForm.get('createdAt')?.invalid
+                }"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label
+                for="observation"
+                class="block text-sm font-medium text-gray-500"
+                >Observação:
+              </label>
+              <textarea
+                rows="5"
+                pTextarea
+                formControlName="observation"
+                class="mt-1 p-2 border rounded-md w-full"
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <hr class="mt-6 mb-2 border-t border-surface-700" />
+
+        <section>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-white mt-4">
+              Itens
+              <span class="text-red-500" *ngIf="formMode !== 'detail'">*</span>
+            </h2>
+            <p-button
+              label="Adicionar"
+              icon="pi pi-plus"
+              (click)="addOrderItem()"
+              class="p-button-sm"
+            ></p-button>
+          </div>
+          <div formArrayName="orderItems" class="space-y-6">
+            <div
+              *ngFor="let item of orderItems.controls; let i = index"
+              [formGroupName]="i"
+              class="grid grid-cols-1 md:grid-cols-10 gap-4 p-4 border border-surface-700 rounded-md bg-surface-900"
+            >
+              <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-gray-500"
+                  >Produto</label
+                >
+                <p-select
+                  [options]="productOptions"
+                  formControlName="productId"
+                  placeholder="Selecione"
+                  class="w-full mt-1"
+                  [showClear]="true"
+                  [filter]="true"
+                  filterBy="label"
+                ></p-select>
+              </div>
+
+              <div class="md:col-span-1">
+                <label class="block text-sm font-medium text-gray-500"
+                  >Quantidade</label
+                >
+                <input
+                  type="number"
+                  pInputText
+                  formControlName="requestedQuantity"
+                  class="w-full mt-1"
+                />
+              </div>
+
+              <div class="md:col-span-1 flex items-end">
+                <button
+                  pButton
+                  pTooltip="Excluir"
+                  tooltipPosition="top"
+                  icon="pi pi-trash"
+                  (click)="removeOrderItem(i)"
+                  severity="danger"
+                  type="button"
+                  [rounded]="true"
+                  [outlined]="true"
+                  class="mt-1 p-button-sm"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div class="flex justify-end pt-4 mt-4">
+          <p-button
+            label="Salvar"
+            icon="pi pi-check"
+            class="mr-2"
+            (click)="saveOrder()"
+          ></p-button>
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="info"
+            [outlined]="true"
+          ></p-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

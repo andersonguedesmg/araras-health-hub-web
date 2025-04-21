@@ -15,6 +15,7 @@ import { FacilityProfileComponent } from './features/facility/components/facilit
 import { RegisterComponent } from './core/components/register/register.component';
 import { ReceivingListComponent } from './features/receiving/components/receiving-list/receiving-list.component';
 import { ReceivingCreateComponent } from './features/receiving/components/receiving-create/receiving-create.component';
+import { OrderCreateComponent } from './features/order/components/order-create/order-create.component';
 
 export const routes: Routes = [
   {
@@ -98,6 +99,12 @@ export const routes: Routes = [
     path: 'funcionarios',
     component: EmployeeListComponent,
     title: 'A2H - Funcionário',
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'pedido/novo',
+    component: OrderCreateComponent,
+    title: 'A2H - Novo Pedido',
     canActivate: [AuthGuard]
   },
   {

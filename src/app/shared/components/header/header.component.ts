@@ -130,9 +130,9 @@ export class HeaderComponent implements OnInit {
         routerLink: '/entrada/nova',
       },
       {
-        label: 'Saídas',
-        icon: PrimeIcons.MINUS_CIRCLE,
-        routerLink: '/saidas',
+        label: 'Novo Pedido',
+        icon: PrimeIcons.PLUS_CIRCLE,
+        routerLink: '/pedido/novo',
       },
     ];
 

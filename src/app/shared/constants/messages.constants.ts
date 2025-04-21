@@ -31,6 +31,9 @@ export const ConfirmMessages = {
 
   CREATE_RECEIVING: 'Tem certeza que deseja realizar essa entrada?',
   UPDATE_RECEIVING: 'Tem certeza que deseja atualizar essa entrada?',
+
+  CREATE_ORDER: 'Tem certeza que deseja realizar esse pedido?',
+  UPDATE_ORDER: 'Tem certeza que deseja atualizar esse pedido?',
 };
 
 export const ToastMessages = {
