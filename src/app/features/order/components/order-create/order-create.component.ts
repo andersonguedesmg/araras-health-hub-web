@@ -20,7 +20,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { Table } from 'primeng/table';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
@@ -29,13 +28,12 @@ import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { firstValueFrom } from 'rxjs';
-import { EmployeeService } from '../../../employee/services/employee.service';
-import { ProductService } from '../../../product/services/product.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { AuthService } from '../../../../core/services/auth.service';
 import { TextareaModule } from 'primeng/textarea';
 import { OrderService } from '../../services/order.service';
 import { Order } from '../../interfaces/order';
+import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 
 @Component({
   selector: 'app-order-create',
@@ -94,8 +92,8 @@ export class OrderCreateComponent implements OnInit {
     private fb: FormBuilder,
     private orderService: OrderService,
     private authService: AuthService,
-    private employeeService: EmployeeService,
-    private productService: ProductService) {
+    private dropdownDataService: DropdownDataService,
+  ) {
     this.orderForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       orderNumber: [''],
@@ -110,8 +108,8 @@ export class OrderCreateComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.addOrderItem();
-    this.loadEmployeeNames();
-    this.loadProductsNames();
+    this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+    this.productOptions = await this.dropdownDataService.getProductOptions();
   }
 
   get orderItems(): FormArray {
@@ -195,34 +193,6 @@ export class OrderCreateComponent implements OnInit {
       this.addOrderItem();
       const newItem = this.orderItems.at(0);
       newItem.patchValue(firstOrderItem);
-    }
-  }
-
-  async loadEmployeeNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.employeeService.getAllEmployeeNames();
-      if (response && response.data) {
-        this.employeeOptions = response.data.map((employee) => ({
-          label: employee.name,
-          value: employee.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-    }
-  }
-
-  async loadProductsNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.productService.getAllProductNames();
-      if (response && response.data) {
-        this.productOptions = response.data.map((product) => ({
-          label: product.name,
-          value: product.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
     }
   }
 }

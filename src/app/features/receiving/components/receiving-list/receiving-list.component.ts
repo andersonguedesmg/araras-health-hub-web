@@ -32,8 +32,7 @@ import { StatusOptions } from '../../../../shared/constants/status-options.const
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { SupplierService } from '../../../supplier/services/supplier.service';
-import { EmployeeService } from '../../../employee/services/employee.service';
+import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 
 @Component({
   selector: 'app-receiving-list',
@@ -97,8 +96,7 @@ export class ReceivingListComponent implements OnInit {
   constructor(
     private cd: ChangeDetectorRef,
     private receivingService: ReceivingService,
-    private supplierService: SupplierService,
-    private employeeService: EmployeeService,
+    private dropdownDataService: DropdownDataService,
     private fb: FormBuilder,
     private router: Router
   ) {
@@ -116,8 +114,8 @@ export class ReceivingListComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.loadTableData();
-    this.loadSupplierNames();
-    this.loadEmployeeNames();
+    this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+    this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
   }
 
   ngAfterViewInit(): void {
@@ -205,33 +203,5 @@ export class ReceivingListComponent implements OnInit {
 
   navigateToCreateReceiving(): void {
     this.router.navigate(['/entrada/nova']);
-  }
-
-  async loadSupplierNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.supplierService.getAllSupplierNames();
-      if (response && response.data) {
-        this.supplierOptions = response.data.map((supplier) => ({
-          label: supplier.name,
-          value: supplier.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-    }
-  }
-
-  async loadEmployeeNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.employeeService.getAllEmployeeNames();
-      if (response && response.data) {
-        this.employeeOptions = response.data.map((employee) => ({
-          label: employee.name,
-          value: employee.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-    }
   }
 }

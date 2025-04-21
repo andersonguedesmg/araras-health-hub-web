@@ -37,8 +37,8 @@ export class ProductService {
     return firstValueFrom(this.http.patch<ApiResponse<Product>>(url, product));
   }
 
-  async getAllProductNames(): Promise<ApiResponse<SelectOptions<number>[]>> {
-    const url = this.apiConfig.getProductUrl('getNames');
+  async getProductOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getProductUrl('getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }

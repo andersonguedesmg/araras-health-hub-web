@@ -37,8 +37,8 @@ export class SupplierService {
     return firstValueFrom(this.http.patch<ApiResponse<Supplier>>(url, supplier));
   }
 
-  async getAllSupplierNames(): Promise<ApiResponse<SelectOptions<number>[]>> {
-    const url = this.apiConfig.getSupplierUrl('getNames');
+  async getSupplierOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getSupplierUrl('getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }

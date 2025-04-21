@@ -37,8 +37,8 @@ export class EmployeeService {
     return firstValueFrom(this.http.patch<ApiResponse<Employee>>(url, employee));
   }
 
-  async getAllEmployeeNames(): Promise<ApiResponse<SelectOptions<number>[]>> {
-    const url = this.apiConfig.getEmployeeUrl('getNames');
+  async getEmployeeOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getEmployeeUrl('getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }

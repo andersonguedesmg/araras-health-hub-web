@@ -33,8 +33,8 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.utils';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { FacilityService } from '../../../facility/services/facility.service';
 import { firstValueFrom } from 'rxjs';
+import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 
 @Component({
   selector: 'app-account-list',
@@ -96,7 +96,13 @@ export class AccountListComponent implements OnInit {
   getRoleSeverity = getRoleSeverity;
   getRoleValue = getRoleValue;
 
-  constructor(private cd: ChangeDetectorRef, private accountService: AccountService, private fb: FormBuilder, private facilityService: FacilityService, private router: Router) {
+  constructor(
+    private cd: ChangeDetectorRef,
+    private accountService: AccountService,
+    private fb: FormBuilder,
+    private dropdownDataService: DropdownDataService,
+    private router: Router,
+  ) {
     this.accountForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       userName: ['', Validators.required],
@@ -107,7 +113,7 @@ export class AccountListComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.loadFacilitiesNames();
+    this.facilityOptions = await this.dropdownDataService.getEmployeeOptions();
     this.loadTableData();
   }
 
@@ -149,20 +155,6 @@ export class AccountListComponent implements OnInit {
         this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error);
       },
     });
-  }
-
-  async loadFacilitiesNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.facilityService.getAllFacilitiesNames();
-      if (response && response.data) {
-        this.facilityOptions = response.data.map((facility) => ({
-          label: facility.name,
-          value: facility.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-    }
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, account?: Account): void {

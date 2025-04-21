@@ -9,11 +9,10 @@ import { AuthService } from '../../services/auth.service';
 import { ToastSeverities, ToastSummaries } from '../../../shared/constants/toast.constants';
 import { ConfirmMessages, ToastMessages } from '../../../shared/constants/messages.constants';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
-import { ApiResponse } from '../../../shared/interfaces/apiResponse';
-import { FacilityService } from '../../../features/facility/services/facility.service';
 import { SelectModule } from 'primeng/select';
 import { firstValueFrom } from 'rxjs';
 import { HttpStatus } from '../../../shared/enums/http-status.enum';
+import { DropdownDataService } from '../../../shared/services/dropdown-data.service';
 
 @Component({
   selector: 'app-register',
@@ -41,7 +40,11 @@ export class RegisterComponent implements OnInit {
   facilityOptions: SelectOptions<number>[] = [];
   rolesOptions: SelectOptions<string>[] = [];
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private facilityService: FacilityService,) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private dropdownDataService: DropdownDataService,
+  ) {
     this.registerForm = this.fb.group({
       userName: ['', Validators.required],
       password: ['', Validators.required],
@@ -52,7 +55,7 @@ export class RegisterComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.loadFacilitiesNames();
+    this.facilityOptions = await this.dropdownDataService.getFacilitiesOptions();
 
     this.rolesOptions = [
       { label: 'Usuário', value: 'User' },
@@ -104,17 +107,5 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  async loadFacilitiesNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.facilityService.getAllFacilitiesNames();
-      if (response && response.data) {
-        this.facilityOptions = response.data.map((facility) => ({
-          label: facility.name,
-          value: facility.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-    }
-  }
+
 }

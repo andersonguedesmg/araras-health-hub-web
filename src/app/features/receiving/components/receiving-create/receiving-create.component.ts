@@ -20,7 +20,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { Table } from 'primeng/table';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
@@ -32,13 +31,12 @@ import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
 import { firstValueFrom } from 'rxjs';
 import { SupplierService } from '../../../supplier/services/supplier.service';
-import { EmployeeService } from '../../../employee/services/employee.service';
-import { ProductService } from '../../../product/services/product.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Supplier } from '../../../supplier/interfaces/supplier';
 import { InputMask } from 'primeng/inputmask';
 import { TextareaModule } from 'primeng/textarea';
+import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 
 @Component({
   selector: 'app-receiving-create',
@@ -102,9 +100,9 @@ export class ReceivingCreateComponent implements OnInit {
     private fb: FormBuilder,
     private receivingService: ReceivingService,
     private authService: AuthService,
+    private dropdownDataService: DropdownDataService,
     private supplierService: SupplierService,
-    private employeeService: EmployeeService,
-    private productService: ProductService) {
+  ) {
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       invoiceNumber: ['', Validators.required],
@@ -136,9 +134,9 @@ export class ReceivingCreateComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.addReceivedItem();
-    this.loadSupplierNames();
-    this.loadEmployeeNames();
-    this.loadProductsNames();
+    this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+    this.productOptions = await this.dropdownDataService.getProductOptions();
+    this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
   }
 
   get receivedItems(): FormArray {
@@ -277,48 +275,6 @@ export class ReceivingCreateComponent implements OnInit {
     }
   }
 
-  async loadSupplierNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.supplierService.getAllSupplierNames();
-      if (response && response.data) {
-        this.supplierOptions = response.data.map((supplier) => ({
-          label: supplier.name,
-          value: supplier.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-    }
-  }
-
-  async loadEmployeeNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.employeeService.getAllEmployeeNames();
-      if (response && response.data) {
-        this.employeeOptions = response.data.map((employee) => ({
-          label: employee.name,
-          value: employee.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-    }
-  }
-
-  async loadProductsNames(): Promise<void> {
-    try {
-      const response: ApiResponse<any[]> = await this.productService.getAllProductNames();
-      if (response && response.data) {
-        this.productOptions = response.data.map((product) => ({
-          label: product.name,
-          value: product.id,
-        }));
-      }
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-    }
-  }
-
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Supplier): void {
     this.formMode = mode;
     this.selectedSupplier = supplier;
@@ -415,7 +371,7 @@ export class ReceivingCreateComponent implements OnInit {
         this.spinnerComponent.loading = false;
         if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
           this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.loadSupplierNames();
+          this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
           this.hideDialog();
           this.receivingForm.get('supplierId')?.setValue(response.data.id);
         } else if (response) {

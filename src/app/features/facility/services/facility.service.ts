@@ -42,8 +42,8 @@ export class FacilityService {
     return firstValueFrom(this.http.patch<ApiResponse<Facility>>(url, facility));
   }
 
-  async getAllFacilitiesNames(): Promise<ApiResponse<SelectOptions<number>[]>> {
-    const url = this.apiConfig.getFacilityUrl('getNames');
+  async getFacilitiesOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getFacilityUrl('getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }
