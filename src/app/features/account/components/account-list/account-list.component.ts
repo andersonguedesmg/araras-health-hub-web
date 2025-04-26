@@ -113,7 +113,7 @@ export class AccountListComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.facilityOptions = await this.dropdownDataService.getEmployeeOptions();
+    this.facilityOptions = await this.dropdownDataService.getFacilitiesOptions();
     this.loadTableData();
   }
 
