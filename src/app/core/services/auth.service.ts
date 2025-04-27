@@ -18,11 +18,16 @@ export class AuthService {
     const url = this.apiConfig.getAccountUrl('login');
     try {
       const response = await firstValueFrom(this.http.post<LoginResponse>(url, credentials));
+      console.log('response', response);
+
       if (response && response.data && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('facilityId', response.data.facilityId.toString());
-        localStorage.setItem('userId', response.data.userId.toString());
-        localStorage.setItem('userName', response.data.userName.toString());
+        const { token, facilityId, userId, userName, roles } = response.data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('facilityId', facilityId.toString());
+        localStorage.setItem('userId', userId.toString());
+        localStorage.setItem('userName', userName.toString());
+        const roleNames = roles.map(role => role.name);
+        localStorage.setItem('roles', JSON.stringify(roleNames));
       }
       return response;
     } catch (error) {
@@ -41,10 +46,20 @@ export class AuthService {
     localStorage.removeItem('facilityId');
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
+    localStorage.removeItem('roles');
   }
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  getUserRoles(): string[] {
+    const roles = localStorage.getItem('roles');
+    return roles ? JSON.parse(roles) : [];
+  }
+
+  hasRole(role: string): boolean {
+    return this.getUserRoles().includes(role);
   }
 
   getFacilityId(): string | null {

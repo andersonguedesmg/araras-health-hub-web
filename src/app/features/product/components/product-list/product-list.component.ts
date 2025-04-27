@@ -30,6 +30,7 @@ import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/mes
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { firstValueFrom } from 'rxjs';
+import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
 
 @Component({
   selector: 'app-product-list',
@@ -53,6 +54,7 @@ import { firstValueFrom } from 'rxjs';
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
+    HasRoleDirective,
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',

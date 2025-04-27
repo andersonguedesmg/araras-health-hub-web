@@ -33,6 +33,7 @@ import { StatusOptions } from '../../../../shared/constants/status-options.const
 import { firstValueFrom } from 'rxjs';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../interfaces/employee';
+import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
 
 @Component({
   selector: 'app-employee-list',
@@ -57,6 +58,7 @@ import { Employee } from '../../interfaces/employee';
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
+    HasRoleDirective,
   ],
   providers: [MessageService],
   templateUrl: './employee-list.component.html',

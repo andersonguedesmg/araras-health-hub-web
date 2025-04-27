@@ -35,6 +35,7 @@ import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.ut
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { firstValueFrom } from 'rxjs';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
+import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
 
 @Component({
   selector: 'app-account-list',
@@ -58,6 +59,7 @@ import { DropdownDataService } from '../../../../shared/services/dropdown-data.s
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
+    HasRoleDirective,
   ],
   providers: [MessageService],
   templateUrl: './account-list.component.html',

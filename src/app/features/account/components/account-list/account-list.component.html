@@ -43,6 +43,7 @@
           </p-iconfield>
           <div>
             <p-button
+              *appHasRole="['Master', 'Admin']"
               label="Novo"
               icon="pi pi-plus"
               class="mr-2"
@@ -88,6 +89,7 @@
           </td>
           <td>
             <p-button
+              *appHasRole="['Master', 'Admin']"
               icon="pi pi-pencil"
               class="mr-2"
               pTooltip="Editar"
@@ -107,6 +109,7 @@
               (click)="openForm(FormMode.Detail, account)"
             />
             <p-button
+              *appHasRole="['Master', 'Admin']"
               icon="pi pi-trash"
               severity="danger"
               [pTooltip]="account.isActive ? 'Desativar' : 'Ativar'"

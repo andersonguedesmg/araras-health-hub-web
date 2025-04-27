@@ -33,6 +33,7 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { firstValueFrom } from 'rxjs';
 import { TooltipModule } from 'primeng/tooltip';
+import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
 
 @Component({
   selector: 'app-facility-list',
@@ -57,6 +58,7 @@ import { TooltipModule } from 'primeng/tooltip';
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
+    HasRoleDirective,
   ],
   providers: [MessageService],
   templateUrl: './facility-list.component.html',

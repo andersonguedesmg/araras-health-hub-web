@@ -49,6 +49,7 @@
           </p-iconfield>
           <div>
             <p-button
+              *appHasRole="['Master', 'Admin']"
               label="Novo"
               icon="pi pi-plus"
               class="mr-2"
@@ -71,7 +72,9 @@
           <th style="min-width: 25rem" pSortableColumn="description">
             DESCRIÇÃO
           </th>
-          <th style="min-width: 12rem" pSortableColumn="dosageForm">UNIDADE DE MEDIDA</th>
+          <th style="min-width: 12rem" pSortableColumn="dosageForm">
+            UNIDADE DE MEDIDA
+          </th>
           <th style="min-width: 15rem" pSortableColumn="category">CATEGORIA</th>
           <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
           <th style="min-width: 15rem">AÇÕES</th>
@@ -93,6 +96,7 @@
           </td>
           <td>
             <p-button
+              *appHasRole="['Master', 'Admin']"
               icon="pi pi-pencil"
               class="mr-2"
               pTooltip="Editar"
@@ -112,6 +116,7 @@
               (click)="openForm(FormMode.Detail, product)"
             />
             <p-button
+              *appHasRole="['Master', 'Admin']"
               icon="pi pi-trash"
               severity="danger"
               [pTooltip]="product.isActive ? 'Desativar' : 'Ativar'"
@@ -200,7 +205,9 @@
           </div>
 
           <div class="mb-4">
-            <label for="dosageForm" class="block text-sm font-medium text-gray-500"
+            <label
+              for="dosageForm"
+              class="block text-sm font-medium text-gray-500"
               >Unidade de Medida:
               <span class="text-red-500" *ngIf="formMode !== 'detail'"
                 >*</span
