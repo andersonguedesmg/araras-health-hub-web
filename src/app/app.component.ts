@@ -6,15 +6,17 @@ import { ToastComponent } from './shared/components/toast/toast.component';
 import { RouteStateService } from './core/services/route-state.service';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from './shared/components/spinner/spinner.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, ToastComponent, SpinnerComponent, CommonModule],
+  imports: [RouterOutlet, HeaderComponent, ToastComponent, SpinnerComponent, CommonModule, FooterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
   showHeader = false;
+  showFooter: boolean = false;
 
   constructor(private primeng: PrimeNG, private routeStateService: RouteStateService) { }
 
@@ -29,6 +31,7 @@ export class AppComponent implements OnInit {
 
     this.routeStateService.showHeader$.subscribe((show) => {
       this.showHeader = show;
+      this.showFooter = show;
     });
   }
 }

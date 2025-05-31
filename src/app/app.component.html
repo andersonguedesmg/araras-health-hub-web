@@ -1,6 +1,12 @@
 <app-toast></app-toast>
 <app-spinner></app-spinner>
 
-<app-header *ngIf="showHeader"></app-header>
+<div class="flex flex-col min-h-screen">
+  <app-header *ngIf="showHeader"></app-header>
 
-<router-outlet />
+  <main class="flex-grow">
+    <router-outlet />
+  </main>
+
+  <app-footer *ngIf="showFooter"></app-footer>
+</div>
