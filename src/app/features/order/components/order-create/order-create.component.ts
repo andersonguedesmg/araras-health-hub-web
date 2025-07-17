@@ -96,9 +96,8 @@ export class OrderCreateComponent implements OnInit {
   ) {
     this.orderForm = this.fb.group({
       id: [{ value: null, disabled: true }],
-      orderNumber: [''],
       observation: [''],
-      orderStatusId: [''],
+      orderStatusId: [1],
       createdAt: [new Date(), Validators.required],
       createdByEmployeeId: [null, Validators.required],
       createdByAccountId: this.authService.getUserId(),

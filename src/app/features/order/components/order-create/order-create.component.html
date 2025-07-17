@@ -33,28 +33,6 @@
 
             <div class="mb-4">
               <label
-                for="orderNumber"
-                class="block text-sm font-medium text-gray-500"
-                >Número do Pedido:
-                <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                  >*</span
-                ></label
-              >
-              <input
-                id="orderNumber"
-                pInputText
-                type="text"
-                formControlName="orderNumber"
-                class="mt-1 p-2 border rounded-md w-full"
-                [ngClass]="{
-                  'border-red-500':
-                    formSubmitted && orderForm.get('orderNumber')?.invalid
-                }"
-              />
-            </div>
-
-            <div class="mb-4">
-              <label
                 for="createdByEmployeeId"
                 class="block text-sm font-medium text-gray-500"
               >

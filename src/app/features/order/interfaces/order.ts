@@ -5,7 +5,6 @@ import { OrderStatus } from "./orderStatus";
 
 export interface Order {
   id: number;
-  orderNumber: string;
   observation: string;
 
   orderStatusId: number;
