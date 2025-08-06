@@ -1,0 +1,49 @@
+<p-table
+  #dt
+  [value]="value"
+  [rows]="rows"
+  [rowsPerPageOptions]="rowsPerPageOptions"
+  [paginator]="paginator"
+  [lazy]="lazy"
+  (onLazyLoad)="onLazyLoadEvent($event)"
+  [totalRecords]="totalRecords"
+  [globalFilterFields]="globalFilterFields"
+  [tableStyle]="{ 'min-width': '75rem' }"
+  dataKey="id"
+  [rowHover]="true"
+  currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"
+  [showCurrentPageReport]="true"
+  [loading]="loading"
+  [responsive]="true"
+  [style]="{ 'font-size': '14px' }"
+>
+  <ng-template pTemplate="caption">
+    <ng-container
+      *ngIf="captionTemplate"
+      [ngTemplateOutlet]="captionTemplate"
+      [ngTemplateOutletContext]="{ $implicit: dt, loading: loading }"
+    ></ng-container>
+  </ng-template>
+
+  <ng-template pTemplate="header">
+    <ng-container
+      *ngIf="headerTemplate"
+      [ngTemplateOutlet]="headerTemplate"
+    ></ng-container>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-rowData let-columns="columns">
+    <ng-container
+      *ngIf="bodyTemplate"
+      [ngTemplateOutlet]="bodyTemplate"
+      [ngTemplateOutletContext]="{ $implicit: rowData, columns: columns }"
+    ></ng-container>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <ng-container
+      *ngIf="footerTemplate"
+      [ngTemplateOutlet]="footerTemplate"
+    ></ng-container>
+  </ng-template>
+</p-table>
