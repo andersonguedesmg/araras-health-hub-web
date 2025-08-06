@@ -1,0 +1,25 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [style]="{ width: '50vw' }"
+  [header]="headerText"
+  (onHide)="hideDialog()"
+>
+  <ng-content></ng-content>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      *ngIf="formMode !== FormMode.Detail && showSaveButton"
+      [label]="saveButtonLabel"
+      icon="pi pi-check"
+      (click)="save()"
+    ></p-button>
+    <p-button
+      [label]="cancelButtonLabel"
+      icon="pi pi-times"
+      severity="info"
+      [outlined]="true"
+      (click)="cancel()"
+    ></p-button>
+  </ng-template>
+</p-dialog>
