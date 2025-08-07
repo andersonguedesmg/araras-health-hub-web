@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@ang
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -10,8 +10,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table, TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
+import { Table } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
@@ -38,22 +38,21 @@ import { TableComponent } from '../../../../shared/components/table/table.compon
 @Component({
   selector: 'app-product-list',
   imports: [
-    BreadcrumbComponent,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    TableModule,
+    FormsModule,
     ToastModule,
     ToolbarModule,
     ButtonModule,
-    FormsModule,
     InputTextModule,
     InputIconModule,
     IconFieldModule,
     TooltipModule,
-    Tag,
+    TagModule,
     DialogModule,
     SelectModule,
+    BreadcrumbComponent,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
@@ -93,6 +92,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   cols!: Column[];
   selectedColumns!: Column[];
   exportColumns!: ExportColumn[];
+
+  private formLabels: { [key: string]: string; } = {
+    name: 'Nome do Produto',
+    description: 'Descrição',
+    dosageForm: 'Unidade de Medida',
+    category: 'Categoria'
+  };
 
   getSeverity = getSeverity;
   getStatus = getStatus;
@@ -166,7 +172,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, product?: Product): void {
-    this.formMode = mode;
+    this.productForm.reset();
+    this.formSubmitted = false; this.formMode = mode;
     this.selectedProduct = product;
     this.displayDialog = true;
     this.initializeForm();
@@ -213,7 +220,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   async saveProduct(): Promise<void> {
     this.formSubmitted = true;
-    if (this.productForm.valid) {
+    if (this.validateForm()) {
       this.confirmMessage = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_PRODUCT : ConfirmMessages.UPDATE_PRODUCT;
       this.confirmDialog.message = this.confirmMessage;
       this.confirmDialog.show();
@@ -239,8 +246,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
           this.handleApiError(error);
         }
       }
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
@@ -286,6 +291,53 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.handleApiError(error);
       }
     }
+  }
+
+  private validateForm(): boolean {
+    if (this.productForm.valid) {
+      return true;
+    }
+
+    const invalidControls = this.findInvalidControlsRecursive(this.productForm);
+    const invalidFields = invalidControls.map(control => {
+      const controlName = this.getFormControlName(control);
+      return controlName;
+    });
+
+    const invalidFieldsMessage = invalidFields.length > 0
+      ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
+      : ToastMessages.REQUIRED_FIELDS;
+
+    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
+    return false;
+  }
+
+  private findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
+    const invalidControls: AbstractControl[] = [];
+    if (form instanceof FormGroup) {
+      for (const name in form.controls) {
+        const control = form.controls[name];
+        if (control.invalid) {
+          invalidControls.push(control);
+        } else if (control instanceof FormGroup) {
+          invalidControls.push(...this.findInvalidControlsRecursive(control));
+        }
+      }
+    }
+    return invalidControls;
+  }
+
+  private getFormControlName(control: AbstractControl): string {
+    const parent = control.parent;
+    if (parent instanceof FormGroup) {
+      const formGroup = parent as FormGroup;
+      for (const name in formGroup.controls) {
+        if (control === formGroup.controls[name]) {
+          return this.formLabels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+        }
+      }
+    }
+    return '';
   }
 
   private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
