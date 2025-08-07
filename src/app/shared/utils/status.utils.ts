@@ -1,14 +1,16 @@
 import { Severity } from "../enums/severity.enum";
 import { Status } from "../enums/status.enum";
 
-export function getSeverity(status: boolean): Severity {
+type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
+
+export function getSeverity(status: boolean): TagSeverity {
   switch (status) {
     case true:
-      return Severity.Success;
+      return Severity.Success as TagSeverity;
     case false:
-      return Severity.Danger;
+      return Severity.Danger as TagSeverity;
     default:
-      return Severity.Warn;
+      return Severity.Warn as TagSeverity;
   }
 }
 

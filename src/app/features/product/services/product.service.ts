@@ -3,42 +3,82 @@ import { ApiConfigService } from '../../../shared/services/api-config.service';
 import { HttpClient } from '@angular/common/http';
 import { Product } from '../interfaces/product';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
-import { firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
+  private productsSubject = new BehaviorSubject<Product[]>([]);
+  public products$ = this.productsSubject.asObservable();
+
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  async getAllProducts(): Promise<ApiResponse<Product[]>> {
-    const url = this.apiConfig.getProductUrl('getAll');
-    return firstValueFrom(this.http.get<ApiResponse<Product[]>>(url));
+  public loadProducts(pageNumber: number, pageSize: number): Observable<ApiResponse<Product[]>> {
+    const url = this.apiConfig.getUrl('product', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    return this.http.get<ApiResponse<Product[]>>(url).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.productsSubject.next(response.data);
+        }
+      })
+    );
   }
 
-  async createProduct(product: Product): Promise<ApiResponse<Product>> {
-    const url = this.apiConfig.getProductUrl('create');
-    return firstValueFrom(this.http.post<ApiResponse<Product>>(url, product));
+  public createProduct(product: Product): Observable<ApiResponse<Product>> {
+    const url = this.apiConfig.getUrl('product', 'create');
+    return this.http.post<ApiResponse<Product>>(url, product).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentProducts = this.productsSubject.getValue();
+          this.productsSubject.next([...currentProducts, response.data]);
+        }
+      })
+    );
   }
 
-  async updateProduct(product: Product, productId: number): Promise<ApiResponse<Product>> {
-    const url = this.apiConfig.getProductUrl(`update/${productId}`);
-    return firstValueFrom(this.http.put<ApiResponse<Product>>(url, product));
+  public updateProduct(product: Product, productId: number): Observable<ApiResponse<Product>> {
+    const url = this.apiConfig.getUrl('product', `update/${productId}`);
+    return this.http.put<ApiResponse<Product>>(url, product).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentProducts = this.productsSubject.getValue();
+          const updatedList = currentProducts.map(p => p.id === productId ? response.data! : p);
+          this.productsSubject.next(updatedList);
+        }
+      })
+    );
   }
 
-  async deleteProduct(productId: number): Promise<ApiResponse<Product>> {
-    const url = this.apiConfig.getProductUrl(`delete/${productId}`);
-    return firstValueFrom(this.http.delete<ApiResponse<Product>>(url));
+  public changeStatusProduct(productId: number, product: Product): Observable<ApiResponse<Product>> {
+    const url = this.apiConfig.getUrl('product', `changeStatus/${productId}`);
+    return this.http.patch<ApiResponse<Product>>(url, product).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentProducts = this.productsSubject.getValue();
+          const updatedList = currentProducts.map(p => p.id === productId ? response.data! : p);
+          this.productsSubject.next(updatedList);
+        }
+      })
+    );
   }
 
-  async changeStatusProduct(productId: number, product: Product): Promise<ApiResponse<Product>> {
-    const url = this.apiConfig.getProductUrl(`changeStatus/${productId}`);
-    return firstValueFrom(this.http.patch<ApiResponse<Product>>(url, product));
+  public deleteProduct(productId: number): Observable<ApiResponse<Product>> {
+    const url = this.apiConfig.getUrl('product', `delete/${productId}`);
+    return this.http.delete<ApiResponse<Product>>(url).pipe(
+      tap(response => {
+        if (response.success) {
+          const currentProducts = this.productsSubject.getValue();
+          const updatedList = currentProducts.filter(p => p.id !== productId);
+          this.productsSubject.next(updatedList);
+        }
+      })
+    );
   }
 
-  async getProductOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
-    const url = this.apiConfig.getProductUrl('getDropdownOptions');
+  public async getProductOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getUrl('product', 'getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -29,8 +29,11 @@ import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
-import { firstValueFrom } from 'rxjs';
+import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
+import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
+import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { TableComponent } from '../../../../shared/components/table/table.component';
 
 @Component({
   selector: 'app-product-list',
@@ -54,25 +57,28 @@ import { HasRoleDirective } from '../../../../core/directives/has-role.directive
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
+    TableComponent,
+    DialogComponent,
+    TableHeaderComponent,
     HasRoleDirective,
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
-export class ProductListComponent implements OnInit {
-  @ViewChild('dt') dt!: Table;
+export class ProductListComponent implements OnInit, OnDestroy {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Produtos' }];
+
+  isLoading = false;
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  products: Product[] = [];
+  products$!: Observable<Product[]>;
   selectedProduct?: Product;
   productForm: FormGroup;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
@@ -82,6 +88,7 @@ export class ProductListComponent implements OnInit {
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
+  headerText = '';
 
   cols!: Column[];
   selectedColumns!: Column[];
@@ -89,6 +96,10 @@ export class ProductListComponent implements OnInit {
 
   getSeverity = getSeverity;
   getStatus = getStatus;
+
+  private loadLazy = new Subject<any>();
+  private subscriptions: Subscription = new Subscription();
+  totalRecords = 0;
 
   constructor(private cd: ChangeDetectorRef, private productService: ProductService, private fb: FormBuilder) {
     this.productForm = this.fb.group({
@@ -103,19 +114,41 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit() {
     this.loadTableData();
+    this.products$ = this.productService.products$;
+    this.subscriptions.add(
+      this.loadLazy
+        .pipe(
+          debounceTime(300),
+          switchMap(event => {
+            this.isLoading = true;
+            const pageNumber = event.first / event.rows + 1;
+            const pageSize = event.rows;
+            return this.productService.loadProducts(pageNumber, pageSize);
+          })
+        )
+        .subscribe({
+          next: response => {
+            this.isLoading = false;
+            if (response.success) {
+              this.totalRecords = response.totalCount || 0;
+            } else {
+              this.handleApiResponse(response, '');
+            }
+          },
+          error: (error) => {
+            this.isLoading = false;
+            this.handleApiError(error);
+          }
+        })
+    );
   }
 
-  ngAfterViewInit(): void {
-    this.getAllProducts();
-  }
-
-  exportCSV() {
-    this.dt.exportCSV();
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   loadTableData() {
     this.cd.markForCheck();
-
     this.cols = [
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO PRODUTO' },
       { field: 'name', header: 'NOME' },
@@ -124,34 +157,12 @@ export class ProductListComponent implements OnInit {
       { field: 'category', header: 'CATEGORIA' },
       { field: 'isActive', header: 'STATUS' },
     ];
-
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-
     this.selectedColumns = this.cols;
   }
 
-  async getAllProducts(): Promise<void> {
-    this.products = [];
-    this.spinnerComponent.loading = true;
-
-    try {
-      const response: ApiResponse<Product[]> = await this.productService.getAllProducts();
-      this.spinnerComponent.loading = false;
-      if (response.statusCode === HttpStatus.Ok) {
-        this.products = response.data;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-    } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-      } else if (error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-      }
-    }
+  loadProducts(event: any) {
+    this.loadLazy.next(event);
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, product?: Product): void {
@@ -159,6 +170,13 @@ export class ProductListComponent implements OnInit {
     this.selectedProduct = product;
     this.displayDialog = true;
     this.initializeForm();
+    if (mode === FormMode.Create) {
+      this.headerText = 'Novo Produto';
+    } else if (mode === FormMode.Update) {
+      this.headerText = 'Editar Produto';
+    } else {
+      this.headerText = 'Detalhes do Produto';
+    }
   }
 
   initializeForm(): void {
@@ -170,33 +188,20 @@ export class ProductListComponent implements OnInit {
   }
 
   updateFormState(): void {
-    const isDetail = this.formMode === FormMode.Detail;
+    this.productForm.disable();
+
+    const isCreate = this.formMode === FormMode.Create;
     const isUpdate = this.formMode === FormMode.Update;
 
-    this.productForm.get('name')?.disable();
-    this.productForm.get('description')?.disable();
-    this.productForm.get('dosageForm')?.disable();
-    this.productForm.get('category')?.disable();
-    this.productForm.get('isActive')?.disable();
+    if (isCreate || isUpdate) {
+      this.productForm.get('name')?.enable();
+      this.productForm.get('description')?.enable();
+      this.productForm.get('dosageForm')?.enable();
+      this.productForm.get('category')?.enable();
+    }
 
-    if (this.formMode === FormMode.Create) {
+    if (isCreate) {
       this.productForm.get('isActive')?.setValue(true);
-      this.productForm.get('isActive')?.disable();
-      this.productForm.get('name')?.enable();
-      this.productForm.get('description')?.enable();
-      this.productForm.get('dosageForm')?.enable();
-      this.productForm.get('category')?.enable();
-    } else if (isUpdate) {
-      this.productForm.get('name')?.enable();
-      this.productForm.get('description')?.enable();
-      this.productForm.get('dosageForm')?.enable();
-      this.productForm.get('category')?.enable();
-    }
-
-    if (!isDetail && !isUpdate) {
-      this.productForm.get('isActive')?.disable();
-    }
-    if (isDetail) {
       this.productForm.get('isActive')?.disable();
     }
   }
@@ -209,49 +214,29 @@ export class ProductListComponent implements OnInit {
   async saveProduct(): Promise<void> {
     this.formSubmitted = true;
     if (this.productForm.valid) {
-      if (this.formMode === FormMode.Create) {
-        this.confirmMessage = ConfirmMessages.CREATE_PRODUCT;
-        this.confirmMode = ConfirmMode.Create;
-      } else if (this.formMode === FormMode.Update) {
-        this.confirmMessage = ConfirmMessages.UPDATE_PRODUCT;
-        this.confirmMode = ConfirmMode.Update;
-      }
+      this.confirmMessage = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_PRODUCT : ConfirmMessages.UPDATE_PRODUCT;
       this.confirmDialog.message = this.confirmMessage;
       this.confirmDialog.show();
 
       try {
         await firstValueFrom(this.confirmDialog.confirmed);
-        this.spinnerComponent.loading = true;
+        this.isLoading = true;
         const product: Product = this.productForm.getRawValue();
-        let response: any = null;
-        if (this.confirmMode === ConfirmMode.Create) {
-          response = await this.productService.createProduct(product);
-        } else if (this.confirmMode === ConfirmMode.Update) {
-          response = await this.productService.updateProduct(product, product.id);
-        }
-        this.spinnerComponent.loading = false;
-        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.getAllProducts();
-          this.hideDialog();
-        } else if (response) {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-        }
-        this.confirmMode = null;
-      } catch (error: any) {
-        this.spinnerComponent.loading = false;
-        if (error && error.error && error.error.message) {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        } else {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-        }
-        this.confirmMode = null;
 
-        try {
-          await firstValueFrom(this.confirmDialog.rejected);
-          this.confirmMode = null;
-        } catch (rejectError) {
-          this.confirmMode = null;
+        const apiCall$ = this.formMode === FormMode.Create
+          ? this.productService.createProduct(product)
+          : this.productService.updateProduct(product, product.id);
+
+        const response = await firstValueFrom(apiCall$);
+
+        this.isLoading = false;
+        this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+        this.hideDialog();
+
+      } catch (error: any) {
+        this.isLoading = false;
+        if (error.message !== 'cancel') {
+          this.handleApiError(error);
         }
       }
     } else {
@@ -260,49 +245,64 @@ export class ProductListComponent implements OnInit {
   }
 
   async changeStatusProduct(productId: number, product: Product): Promise<void> {
-    if (product.isActive) {
-      this.confirmDialog.message = ConfirmMessages.DISABLE_PRODUCT;
-    } else {
-      this.confirmDialog.message = ConfirmMessages.ACTIVATE_PRODUCT;
-    }
+    this.confirmMessage = product.isActive ? ConfirmMessages.DISABLE_PRODUCT : ConfirmMessages.ACTIVATE_PRODUCT;
+    this.confirmDialog.message = this.confirmMessage;
     this.confirmDialog.show();
 
     try {
       await firstValueFrom(this.confirmDialog.confirmed);
-      this.spinnerComponent.loading = true;
-      let changeProductIsActive = this.changeIsActive(product);
+      this.isLoading = true;
 
-      const response: ApiResponse<Product> = await this.productService.changeStatusProduct(productId, changeProductIsActive);
-      this.spinnerComponent.loading = false;
+      const changeProductIsActive = this.changeIsActive(product);
+      const response = await firstValueFrom(this.productService.changeStatusProduct(productId, changeProductIsActive));
 
-      if (response && response.statusCode === HttpStatus.Ok) {
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllProducts();
-      } else if (response) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-      this.confirmMode = null;
+      this.isLoading = false;
+      this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+
     } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error && error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      this.isLoading = false;
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
       }
     }
-    this.confirmMode = null;
+  }
+
+  async deleteProduct(productId: number): Promise<void> {
+    this.confirmDialog.message = ConfirmMessages.DELETE_PRODUCT;
+    this.confirmDialog.show();
 
     try {
-      await firstValueFrom(this.confirmDialog.rejected);
-      if (product.isActive) {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
-        this.confirmMode = null;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.ACTIVATION_DELETION);
-        this.confirmMode = null;
+      await firstValueFrom(this.confirmDialog.confirmed);
+      this.isLoading = true;
+
+      const response = await firstValueFrom(this.productService.deleteProduct(productId));
+
+      this.isLoading = false;
+      this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+
+    } catch (error: any) {
+      this.isLoading = false;
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
       }
-    } catch (rejectError) {
-      this.confirmMode = null;
+    }
+  }
+
+  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
+    if (response.success) {
+      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
+  private handleApiError(error: any) {
+    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+    } else if (error.error && error.error.message) {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
     }
   }
 
@@ -313,40 +313,7 @@ export class ProductListComponent implements OnInit {
     return objeto;
   }
 
-  async deleteProduct(productId: number): Promise<void> {
-    this.confirmDialog.message = ConfirmMessages.DELETE_PRODUCT;
-    this.confirmDialog.show();
-
-    try {
-      await firstValueFrom(this.confirmDialog.confirmed);
-      this.spinnerComponent.loading = true;
-
-      const response: ApiResponse<Product> = await this.productService.deleteProduct(productId);
-      this.spinnerComponent.loading = false;
-
-      if (response && response.statusCode === HttpStatus.Ok) {
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllProducts();
-      } else if (response) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-      this.confirmMode = null;
-    } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error && error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        this.confirmMode = null;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-        this.confirmMode = null;
-      }
-    }
-    this.confirmMode = null;
-    try {
-      await firstValueFrom(this.confirmDialog.rejected);
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    } catch (rejectError) {
-      this.confirmMode = null;
-    }
+  exportCSV(dt: Table) {
+    dt.exportCSV();
   }
 }

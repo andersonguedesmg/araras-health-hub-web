@@ -14,8 +14,9 @@ export class ApiConfigService {
     return this.apiUrl;
   }
 
-  getUrl(endpoint: string): string {
-    return this.apiUrl + endpoint;
+  getUrl(feature: string, endpoint: string): string {
+    const featureUrl = `${this.apiUrl}${feature}`;
+    return `${featureUrl}/${endpoint}`;
   }
 
   getFacilityUrl(endpoint: string): string {
@@ -32,10 +33,6 @@ export class ApiConfigService {
 
   getAccountUrl(endpoint: string): string {
     return this.apiUrl + 'account/' + endpoint;
-  }
-
-  getProductUrl(endpoint: string): string {
-    return this.apiUrl + 'product/' + endpoint;
   }
 
   getReceivingUrl(endpoint: string): string {
