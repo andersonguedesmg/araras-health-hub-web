@@ -23,10 +23,6 @@ export class ApiConfigService {
     return this.apiUrl + 'facility/' + endpoint;
   }
 
-  getEmployeeUrl(endpoint: string): string {
-    return this.apiUrl + 'employee/' + endpoint;
-  }
-
   getAccountUrl(endpoint: string): string {
     return this.apiUrl + 'account/' + endpoint;
   }
