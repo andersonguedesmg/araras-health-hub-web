@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { Facility } from '../interfaces/facility';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
@@ -10,40 +10,80 @@ import { SelectOptions } from '../../../shared/interfaces/select-options';
   providedIn: 'root'
 })
 export class FacilityService {
+  private facilitySubject = new BehaviorSubject<Facility[]>([]);
+  public facilities$ = this.facilitySubject.asObservable();
+
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  async getAllFacilities(): Promise<ApiResponse<Facility[]>> {
-    const url = this.apiConfig.getFacilityUrl('getAll');
-    return firstValueFrom(this.http.get<ApiResponse<Facility[]>>(url));
+  public loadFacilities(pageNumber: number, pageSize: number): Observable<ApiResponse<Facility[]>> {
+    const url = this.apiConfig.getUrl('facility', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    return this.http.get<ApiResponse<Facility[]>>(url).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.facilitySubject.next(response.data);
+        }
+      })
+    );
   }
 
   async getFacilityById(facilityId: number): Promise<ApiResponse<Facility>> {
-    const url = this.apiConfig.getFacilityUrl(`getById/${facilityId}`);
+    const url = this.apiConfig.getUrl('facility', `getById/${facilityId}`);
     return firstValueFrom(this.http.get<ApiResponse<Facility>>(url));
   }
 
-  async createFacility(facility: Facility): Promise<ApiResponse<Facility>> {
-    const url = this.apiConfig.getFacilityUrl('create');
-    return firstValueFrom(this.http.post<ApiResponse<Facility>>(url, facility));
+  public createFacility(facility: Facility): Observable<ApiResponse<Facility>> {
+    const url = this.apiConfig.getUrl('facility', 'create');
+    return this.http.post<ApiResponse<Facility>>(url, facility).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentFacility = this.facilitySubject.getValue();
+          this.facilitySubject.next([...currentFacility, response.data]);
+        }
+      })
+    );
   }
 
-  async updateFacility(facility: Facility, facilityId: number): Promise<ApiResponse<Facility>> {
-    const url = this.apiConfig.getFacilityUrl(`update/${facilityId}`);
-    return firstValueFrom(this.http.put<ApiResponse<Facility>>(url, facility));
+  public updateFacility(facility: Facility, facilityId: number): Observable<ApiResponse<Facility>> {
+    const url = this.apiConfig.getUrl('facility', `update/${facilityId}`);
+    return this.http.put<ApiResponse<Facility>>(url, facility).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentFacility = this.facilitySubject.getValue();
+          const updatedList = currentFacility.map(p => p.id === facilityId ? response.data! : p);
+          this.facilitySubject.next(updatedList);
+        }
+      })
+    );
   }
 
-  async deleteFacility(facilityId: number): Promise<ApiResponse<Facility>> {
-    const url = this.apiConfig.getFacilityUrl(`delete/${facilityId}`);
-    return firstValueFrom(this.http.delete<ApiResponse<Facility>>(url));
+  public changeStatusFacility(facilityId: number, facility: Facility): Observable<ApiResponse<Facility>> {
+    const url = this.apiConfig.getUrl('facility', `changeStatus/${facilityId}`);
+    return this.http.patch<ApiResponse<Facility>>(url, facility).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentFacility = this.facilitySubject.getValue();
+          const updatedList = currentFacility.map(p => p.id === facilityId ? response.data! : p);
+          this.facilitySubject.next(updatedList);
+        }
+      })
+    );
   }
 
-  async changeStatusFacility(facilityId: number, facility: Facility): Promise<ApiResponse<Facility>> {
-    const url = this.apiConfig.getFacilityUrl(`changeStatus/${facilityId}`);
-    return firstValueFrom(this.http.patch<ApiResponse<Facility>>(url, facility));
+  public deleteFacility(facilityId: number): Observable<ApiResponse<Facility>> {
+    const url = this.apiConfig.getUrl('facility', `delete/${facilityId}`);
+    return this.http.delete<ApiResponse<Facility>>(url).pipe(
+      tap(response => {
+        if (response.success) {
+          const currentFacility = this.facilitySubject.getValue();
+          const updatedList = currentFacility.filter(p => p.id !== facilityId);
+          this.facilitySubject.next(updatedList);
+        }
+      })
+    );
   }
 
-  async getFacilitiesOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
-    const url = this.apiConfig.getFacilityUrl('getDropdownOptions');
+  public async getFacilityOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+    const url = this.apiConfig.getUrl('facility', 'getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
   }
 }

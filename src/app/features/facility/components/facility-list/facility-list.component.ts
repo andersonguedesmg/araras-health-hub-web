@@ -1,97 +1,118 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem } from 'primeng/api';
-import { MessageService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { MenuItem, MessageService } from 'primeng/api';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputTextModule } from 'primeng/inputtext';
-import { Tag } from 'primeng/tag';
+import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { Table } from 'primeng/table';
-import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 import { Facility } from '../../interfaces/facility';
 import { FacilityService } from '../../services/facility.service';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { InputMask } from 'primeng/inputmask';
-import { DialogModule } from 'primeng/dialog';
-import { SelectModule } from 'primeng/select';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
-import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { firstValueFrom } from 'rxjs';
-import { TooltipModule } from 'primeng/tooltip';
+import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
+import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
+import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
+import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { TableComponent } from '../../../../shared/components/table/table.component';
+import { InputMask } from 'primeng/inputmask';
 
 @Component({
   selector: 'app-facility-list',
   imports: [
-    BreadcrumbComponent,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    TableModule,
+    FormsModule,
     ToastModule,
     ToolbarModule,
     ButtonModule,
-    FormsModule,
     InputTextModule,
     InputIconModule,
     IconFieldModule,
-    InputMask,
     TooltipModule,
-    Tag,
+    TagModule,
     DialogModule,
     SelectModule,
+    InputMask,
+    BreadcrumbComponent,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
+    TableComponent,
+    DialogComponent,
+    TableHeaderComponent,
     HasRoleDirective,
   ],
   providers: [MessageService],
   templateUrl: './facility-list.component.html',
   styleUrl: './facility-list.component.scss'
 })
-export class FacilityListComponent implements OnInit {
-  @ViewChild('dt') dt!: Table;
+export class FacilityListComponent implements OnInit, OnDestroy {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
+
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidades' }];
+
+  isLoading = false;
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidades' }];
-
-  facilities: Facility[] = [];
+  facilities$!: Observable<Facility[]>;
   selectedFacility?: Facility;
   facilityForm: FormGroup;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+
   displayDialog = false;
   formSubmitted = false;
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
+  headerText = '';
 
   cols!: Column[];
   selectedColumns!: Column[];
   exportColumns!: ExportColumn[];
 
+  private formLabels: { [key: string]: string; } = {
+    name: 'Nome da Unidade',
+    cep: 'CEP',
+    address: 'Endereço',
+    number: 'Número',
+    neighborhood: 'Bairro',
+    city: 'Cidade',
+    state: 'Estado',
+    email: 'E-mail',
+    phone: 'Telefone',
+  };
+
   getSeverity = getSeverity;
   getStatus = getStatus;
+
+  private loadLazy = new Subject<any>();
+  private subscriptions: Subscription = new Subscription();
+  totalRecords = 0;
 
   constructor(private cd: ChangeDetectorRef, private facilityService: FacilityService, private fb: FormBuilder) {
     this.facilityForm = this.fb.group({
@@ -111,19 +132,41 @@ export class FacilityListComponent implements OnInit {
 
   ngOnInit() {
     this.loadTableData();
+    this.facilities$ = this.facilityService.facilities$;
+    this.subscriptions.add(
+      this.loadLazy
+        .pipe(
+          debounceTime(300),
+          switchMap(event => {
+            this.isLoading = true;
+            const pageNumber = event.first / event.rows + 1;
+            const pageSize = event.rows;
+            return this.facilityService.loadFacilities(pageNumber, pageSize);
+          })
+        )
+        .subscribe({
+          next: response => {
+            this.isLoading = false;
+            if (response.success) {
+              this.totalRecords = response.totalCount || 0;
+            } else {
+              this.handleApiResponse(response, '');
+            }
+          },
+          error: (error) => {
+            this.isLoading = false;
+            this.handleApiError(error);
+          }
+        })
+    );
   }
 
-  ngAfterViewInit(): void {
-    this.getAllFacilities();
-  }
-
-  exportCSV() {
-    this.dt.exportCSV();
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   loadTableData() {
     this.cd.markForCheck();
-
     this.cols = [
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DA UNIDADE' },
       { field: 'name', header: 'NOME' },
@@ -137,41 +180,27 @@ export class FacilityListComponent implements OnInit {
       { field: 'phone', header: 'TELEFONE' },
       { field: 'isActive', header: 'STATUS' },
     ];
-
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-
     this.selectedColumns = this.cols;
   }
 
-  async getAllFacilities(): Promise<void> {
-    this.facilities = [];
-    this.spinnerComponent.loading = true;
-
-    try {
-      const response: ApiResponse<Facility[]> = await this.facilityService.getAllFacilities();
-      this.spinnerComponent.loading = false;
-      if (response.statusCode === HttpStatus.Ok) {
-        this.facilities = response.data;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-    } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-      } else if (error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-      }
-    }
+  loadFacilities(event: any) {
+    this.loadLazy.next(event);
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, facility?: Facility): void {
-    this.formMode = mode;
+    this.facilityForm.reset();
+    this.formSubmitted = false; this.formMode = mode;
     this.selectedFacility = facility;
     this.displayDialog = true;
     this.initializeForm();
+    if (mode === FormMode.Create) {
+      this.headerText = 'Nova Unidade';
+    } else if (mode === FormMode.Update) {
+      this.headerText = 'Editar Unidade';
+    } else {
+      this.headerText = 'Detalhes da Unidade';
+    }
   }
 
   initializeForm(): void {
@@ -183,48 +212,26 @@ export class FacilityListComponent implements OnInit {
   }
 
   updateFormState(): void {
-    const isDetail = this.formMode === FormMode.Detail;
+    this.facilityForm.disable();
+
+    const isCreate = this.formMode === FormMode.Create;
     const isUpdate = this.formMode === FormMode.Update;
 
-    this.facilityForm.get('name')?.disable();
-    this.facilityForm.get('address')?.disable();
-    this.facilityForm.get('number')?.disable();
-    this.facilityForm.get('neighborhood')?.disable();
-    this.facilityForm.get('city')?.disable();
-    this.facilityForm.get('state')?.disable();
-    this.facilityForm.get('cep')?.disable();
-    this.facilityForm.get('email')?.disable();
-    this.facilityForm.get('phone')?.disable();
-    this.facilityForm.get('isActive')?.disable();
+    if (isCreate || isUpdate) {
+      this.facilityForm.get('name')?.enable();
+      this.facilityForm.get('cnpj')?.enable();
+      this.facilityForm.get('address')?.enable();
+      this.facilityForm.get('number')?.enable();
+      this.facilityForm.get('neighborhood')?.enable();
+      this.facilityForm.get('city')?.enable();
+      this.facilityForm.get('state')?.enable();
+      this.facilityForm.get('cep')?.enable();
+      this.facilityForm.get('email')?.enable();
+      this.facilityForm.get('phone')?.enable();
+    }
 
-    if (this.formMode === 'create') {
+    if (isCreate) {
       this.facilityForm.get('isActive')?.setValue(true);
-      this.facilityForm.get('isActive')?.disable();
-      this.facilityForm.get('name')?.enable();
-      this.facilityForm.get('address')?.enable();
-      this.facilityForm.get('number')?.enable();
-      this.facilityForm.get('neighborhood')?.enable();
-      this.facilityForm.get('city')?.enable();
-      this.facilityForm.get('state')?.enable();
-      this.facilityForm.get('cep')?.enable();
-      this.facilityForm.get('email')?.enable();
-      this.facilityForm.get('phone')?.enable();
-    } else if (isUpdate) {
-      this.facilityForm.get('name')?.enable();
-      this.facilityForm.get('address')?.enable();
-      this.facilityForm.get('number')?.enable();
-      this.facilityForm.get('neighborhood')?.enable();
-      this.facilityForm.get('city')?.enable();
-      this.facilityForm.get('state')?.enable();
-      this.facilityForm.get('cep')?.enable();
-      this.facilityForm.get('email')?.enable();
-      this.facilityForm.get('phone')?.enable();
-    }
-
-    if (!isDetail && !isUpdate) {
-      this.facilityForm.get('isActive')?.disable();
-    }
-    if (isDetail) {
       this.facilityForm.get('isActive')?.disable();
     }
   }
@@ -236,101 +243,141 @@ export class FacilityListComponent implements OnInit {
 
   async saveFacility(): Promise<void> {
     this.formSubmitted = true;
-    if (this.facilityForm.valid) {
-      if (this.formMode === FormMode.Create) {
-        this.confirmMessage = ConfirmMessages.CREATE_FACILITY;
-        this.confirmMode = ConfirmMode.Create;
-      } else if (this.formMode === FormMode.Update) {
-        this.confirmMessage = ConfirmMessages.UPDATE_FACILITY;
-        this.confirmMode = ConfirmMode.Update;
-      }
+    if (this.validateForm()) {
+      this.confirmMessage = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_FACILITY : ConfirmMessages.UPDATE_FACILITY;
       this.confirmDialog.message = this.confirmMessage;
       this.confirmDialog.show();
 
       try {
         await firstValueFrom(this.confirmDialog.confirmed);
-        this.spinnerComponent.loading = true;
+        this.isLoading = true;
         const facility: Facility = this.facilityForm.getRawValue();
-        let response: any = null;
-        if (this.confirmMode === ConfirmMode.Create) {
-          response = await this.facilityService.createFacility(facility);
-        } else if (this.confirmMode === ConfirmMode.Update) {
-          response = await this.facilityService.updateFacility(facility, facility.id);
-        }
-        this.spinnerComponent.loading = false;
-        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.getAllFacilities();
-          this.hideDialog();
-        } else if (response) {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-        }
-        this.confirmMode = null;
-      } catch (error: any) {
-        this.spinnerComponent.loading = false;
-        if (error && error.error && error.error.message) {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        } else {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-        }
-        this.confirmMode = null;
 
-        try {
-          await firstValueFrom(this.confirmDialog.rejected);
-          this.confirmMode = null;
-        } catch (rejectError) {
-          this.confirmMode = null;
+        const apiCall$ = this.formMode === FormMode.Create
+          ? this.facilityService.createFacility(facility)
+          : this.facilityService.updateFacility(facility, facility.id);
+
+        const response = await firstValueFrom(apiCall$);
+
+        this.isLoading = false;
+        this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+        this.hideDialog();
+
+      } catch (error: any) {
+        this.isLoading = false;
+        if (error.message !== 'cancel') {
+          this.handleApiError(error);
         }
       }
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
   async changeStatusFacility(facilityId: number, facility: Facility): Promise<void> {
-    if (facility.isActive) {
-      this.confirmDialog.message = ConfirmMessages.DISABLE_FACILITY;
-    } else {
-      this.confirmDialog.message = ConfirmMessages.ACTIVATE_FACILITY;
-    }
+    this.confirmMessage = facility.isActive ? ConfirmMessages.DISABLE_FACILITY : ConfirmMessages.ACTIVATE_FACILITY;
+    this.confirmDialog.message = this.confirmMessage;
     this.confirmDialog.show();
 
     try {
       await firstValueFrom(this.confirmDialog.confirmed);
-      this.spinnerComponent.loading = true;
-      let changeFacilityIsActive = this.changeIsActive(facility);
+      this.isLoading = true;
 
-      const response: ApiResponse<Facility> = await this.facilityService.changeStatusFacility(facilityId, changeFacilityIsActive);
-      this.spinnerComponent.loading = false;
+      const changeFacilityIsActive = this.changeIsActive(facility);
+      const response = await firstValueFrom(this.facilityService.changeStatusFacility(facilityId, changeFacilityIsActive));
 
-      if (response && response.statusCode === HttpStatus.Ok) {
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllFacilities();
-      } else if (response) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-      this.confirmMode = null;
+      this.isLoading = false;
+      this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+
     } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error && error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      this.isLoading = false;
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
       }
     }
-    this.confirmMode = null;
+  }
+
+  async deleteFacility(facilityId: number): Promise<void> {
+    this.confirmDialog.message = ConfirmMessages.DELETE_FACILITY;
+    this.confirmDialog.show();
 
     try {
-      await firstValueFrom(this.confirmDialog.rejected);
-      if (facility.isActive) {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
-        this.confirmMode = null;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.ACTIVATION_DELETION);
-        this.confirmMode = null;
+      await firstValueFrom(this.confirmDialog.confirmed);
+      this.isLoading = true;
+
+      const response = await firstValueFrom(this.facilityService.deleteFacility(facilityId));
+
+      this.isLoading = false;
+      this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+
+    } catch (error: any) {
+      this.isLoading = false;
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
       }
-    } catch (rejectError) {
-      this.confirmMode = null;
+    }
+  }
+
+  private validateForm(): boolean {
+    if (this.facilityForm.valid) {
+      return true;
+    }
+
+    const invalidControls = this.findInvalidControlsRecursive(this.facilityForm);
+    const invalidFields = invalidControls.map(control => {
+      const controlName = this.getFormControlName(control);
+      return controlName;
+    });
+
+    const invalidFieldsMessage = invalidFields.length > 0
+      ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
+      : ToastMessages.REQUIRED_FIELDS;
+
+    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
+    return false;
+  }
+
+  private findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
+    const invalidControls: AbstractControl[] = [];
+    if (form instanceof FormGroup) {
+      for (const name in form.controls) {
+        const control = form.controls[name];
+        if (control.invalid) {
+          invalidControls.push(control);
+        } else if (control instanceof FormGroup) {
+          invalidControls.push(...this.findInvalidControlsRecursive(control));
+        }
+      }
+    }
+    return invalidControls;
+  }
+
+  private getFormControlName(control: AbstractControl): string {
+    const parent = control.parent;
+    if (parent instanceof FormGroup) {
+      const formGroup = parent as FormGroup;
+      for (const name in formGroup.controls) {
+        if (control === formGroup.controls[name]) {
+          return this.formLabels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+        }
+      }
+    }
+    return '';
+  }
+
+  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
+    if (response.success) {
+      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
+  private handleApiError(error: any) {
+    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+    } else if (error.error && error.error.message) {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
     }
   }
 
@@ -341,41 +388,7 @@ export class FacilityListComponent implements OnInit {
     return objeto;
   }
 
-  async deleteFacility(facilityId: number): Promise<void> {
-    this.confirmDialog.message = ConfirmMessages.DELETE_FACILITY;
-    this.confirmDialog.show();
-
-    try {
-      await firstValueFrom(this.confirmDialog.confirmed);
-      this.spinnerComponent.loading = true;
-
-      const response: ApiResponse<Facility> = await this.facilityService.deleteFacility(facilityId);
-      this.spinnerComponent.loading = false;
-
-      if (response && response.statusCode === HttpStatus.Ok) {
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllFacilities();
-      } else if (response) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-      this.confirmMode = null;
-    } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error && error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        this.confirmMode = null;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-        this.confirmMode = null;
-      }
-    }
-    this.confirmMode = null;
-    try {
-      await firstValueFrom(this.confirmDialog.rejected);
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    } catch (rejectError) {
-      this.confirmMode = null;
-    }
+  exportCSV(dt: Table) {
+    dt.exportCSV();
   }
-
 }

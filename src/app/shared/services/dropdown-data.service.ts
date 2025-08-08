@@ -58,7 +58,7 @@ export class DropdownDataService {
 
   async getFacilitiesOptions(): Promise<{ label: string; value: any; }[]> {
     try {
-      const response: ApiResponse<any[]> = await this.facilityService.getFacilitiesOptions();
+      const response: ApiResponse<any[]> = await this.facilityService.getFacilityOptions();
       return response?.data?.map((facility) => ({
         label: facility.name,
         value: facility.id,

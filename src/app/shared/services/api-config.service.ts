@@ -19,10 +19,6 @@ export class ApiConfigService {
     return `${featureUrl}/${endpoint}`;
   }
 
-  getFacilityUrl(endpoint: string): string {
-    return this.apiUrl + 'facility/' + endpoint;
-  }
-
   getAccountUrl(endpoint: string): string {
     return this.apiUrl + 'account/' + endpoint;
   }
