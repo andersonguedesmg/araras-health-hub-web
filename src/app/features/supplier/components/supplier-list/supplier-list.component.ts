@@ -1,74 +1,77 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem } from 'primeng/api';
-import { MessageService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { MenuItem, MessageService } from 'primeng/api';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputTextModule } from 'primeng/inputtext';
-import { Tag } from 'primeng/tag';
+import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { Table } from 'primeng/table';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
-import { Supplier } from '../../interfaces/supplier';
-import { SupplierService } from '../../services/supplier.service';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { DialogModule } from 'primeng/dialog';
-import { InputMask } from 'primeng/inputmask';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
-import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { Table } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
+import { Supplier } from '../../interfaces/supplier';
+import { SupplierService } from '../../services/supplier.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { firstValueFrom } from 'rxjs';
-import { TooltipModule } from 'primeng/tooltip';
+import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
+import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
+import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
+import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { TableComponent } from '../../../../shared/components/table/table.component';
+import { InputMask } from 'primeng/inputmask';
 
 @Component({
   selector: 'app-supplier-list',
   imports: [
-    BreadcrumbComponent,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    TableModule,
+    FormsModule,
     ToastModule,
     ToolbarModule,
     ButtonModule,
-    FormsModule,
     InputTextModule,
     InputIconModule,
     IconFieldModule,
-    InputMask,
     TooltipModule,
-    Tag,
+    TagModule,
     DialogModule,
     SelectModule,
+    InputMask,
+    BreadcrumbComponent,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
+    TableComponent,
+    DialogComponent,
+    TableHeaderComponent,
     HasRoleDirective,
   ],
   providers: [MessageService],
   templateUrl: './supplier-list.component.html',
   styleUrl: './supplier-list.component.scss'
 })
-export class SupplierListComponent implements OnInit {
-  @ViewChild('dt') dt!: Table;
+export class SupplierListComponent implements OnInit, OnDestroy {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
+
+  isLoading = false;
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
@@ -76,22 +79,41 @@ export class SupplierListComponent implements OnInit {
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Fornecedores' }];
 
-  suppliers: Supplier[] = [];
+  suppliers$!: Observable<Supplier[]>;
   selectedSupplier?: Supplier;
   supplierForm: FormGroup;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+
   displayDialog = false;
   formSubmitted = false;
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
+  headerText = '';
 
   cols!: Column[];
   selectedColumns!: Column[];
   exportColumns!: ExportColumn[];
 
+  private formLabels: { [key: string]: string; } = {
+    name: 'Nome do Fornecedor',
+    cnpj: 'CNPJ',
+    cep: 'CEP',
+    address: 'Endereço',
+    number: 'Número',
+    neighborhood: 'Bairro',
+    city: 'Cidade',
+    state: 'Estado',
+    email: 'E-mail',
+    phone: 'Telefone',
+  };
+
   getSeverity = getSeverity;
   getStatus = getStatus;
+
+  private loadLazy = new Subject<any>();
+  private subscriptions: Subscription = new Subscription();
+  totalRecords = 0;
 
   constructor(private cd: ChangeDetectorRef, private supplierService: SupplierService, private fb: FormBuilder) {
     this.supplierForm = this.fb.group({
@@ -112,19 +134,41 @@ export class SupplierListComponent implements OnInit {
 
   ngOnInit() {
     this.loadTableData();
+    this.suppliers$ = this.supplierService.suppliers$;
+    this.subscriptions.add(
+      this.loadLazy
+        .pipe(
+          debounceTime(300),
+          switchMap(event => {
+            this.isLoading = true;
+            const pageNumber = event.first / event.rows + 1;
+            const pageSize = event.rows;
+            return this.supplierService.loadSuppliers(pageNumber, pageSize);
+          })
+        )
+        .subscribe({
+          next: response => {
+            this.isLoading = false;
+            if (response.success) {
+              this.totalRecords = response.totalCount || 0;
+            } else {
+              this.handleApiResponse(response, '');
+            }
+          },
+          error: (error) => {
+            this.isLoading = false;
+            this.handleApiError(error);
+          }
+        })
+    );
   }
 
-  ngAfterViewInit(): void {
-    this.getAllSuppliers();
-  }
-
-  exportCSV() {
-    this.dt.exportCSV();
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   loadTableData() {
     this.cd.markForCheck();
-
     this.cols = [
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO FORNECEDOR' },
       { field: 'name', header: 'NOME' },
@@ -139,41 +183,27 @@ export class SupplierListComponent implements OnInit {
       { field: 'phone', header: 'TELEFONE' },
       { field: 'isActive', header: 'STATUS' },
     ];
-
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-
     this.selectedColumns = this.cols;
   }
 
-  async getAllSuppliers(): Promise<void> {
-    this.suppliers = [];
-    this.spinnerComponent.loading = true;
-
-    try {
-      const response: ApiResponse<Supplier[]> = await this.supplierService.getAllSuppliers();
-      this.spinnerComponent.loading = false;
-      if (response.statusCode === HttpStatus.Ok) {
-        this.suppliers = response.data;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-    } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-      } else if (error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-      }
-    }
+  loadSuppliers(event: any) {
+    this.loadLazy.next(event);
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Supplier): void {
-    this.formMode = mode;
+    this.supplierForm.reset();
+    this.formSubmitted = false; this.formMode = mode;
     this.selectedSupplier = supplier;
     this.displayDialog = true;
     this.initializeForm();
+    if (mode === FormMode.Create) {
+      this.headerText = 'Novo Fornecedor';
+    } else if (mode === FormMode.Update) {
+      this.headerText = 'Editar Fornecedor';
+    } else {
+      this.headerText = 'Detalhes do Fornecedor';
+    }
   }
 
   initializeForm(): void {
@@ -185,51 +215,26 @@ export class SupplierListComponent implements OnInit {
   }
 
   updateFormState(): void {
-    const isDetail = this.formMode === FormMode.Detail;
+    this.supplierForm.disable();
+
+    const isCreate = this.formMode === FormMode.Create;
     const isUpdate = this.formMode === FormMode.Update;
 
-    this.supplierForm.get('name')?.disable();
-    this.supplierForm.get('cnpj')?.disable();
-    this.supplierForm.get('address')?.disable();
-    this.supplierForm.get('number')?.disable();
-    this.supplierForm.get('neighborhood')?.disable();
-    this.supplierForm.get('city')?.disable();
-    this.supplierForm.get('state')?.disable();
-    this.supplierForm.get('cep')?.disable();
-    this.supplierForm.get('email')?.disable();
-    this.supplierForm.get('phone')?.disable();
-    this.supplierForm.get('isActive')?.disable();
+    if (isCreate || isUpdate) {
+      this.supplierForm.get('name')?.enable();
+      this.supplierForm.get('cnpj')?.enable();
+      this.supplierForm.get('address')?.enable();
+      this.supplierForm.get('number')?.enable();
+      this.supplierForm.get('neighborhood')?.enable();
+      this.supplierForm.get('city')?.enable();
+      this.supplierForm.get('state')?.enable();
+      this.supplierForm.get('cep')?.enable();
+      this.supplierForm.get('email')?.enable();
+      this.supplierForm.get('phone')?.enable();
+    }
 
-    if (this.formMode === FormMode.Create) {
+    if (isCreate) {
       this.supplierForm.get('isActive')?.setValue(true);
-      this.supplierForm.get('isActive')?.disable();
-      this.supplierForm.get('name')?.enable();
-      this.supplierForm.get('cnpj')?.enable();
-      this.supplierForm.get('address')?.enable();
-      this.supplierForm.get('number')?.enable();
-      this.supplierForm.get('neighborhood')?.enable();
-      this.supplierForm.get('city')?.enable();
-      this.supplierForm.get('state')?.enable();
-      this.supplierForm.get('cep')?.enable();
-      this.supplierForm.get('email')?.enable();
-      this.supplierForm.get('phone')?.enable();
-    } else if (isUpdate) {
-      this.supplierForm.get('name')?.enable();
-      this.supplierForm.get('cnpj')?.enable();
-      this.supplierForm.get('address')?.enable();
-      this.supplierForm.get('number')?.enable();
-      this.supplierForm.get('neighborhood')?.enable();
-      this.supplierForm.get('city')?.enable();
-      this.supplierForm.get('state')?.enable();
-      this.supplierForm.get('cep')?.enable();
-      this.supplierForm.get('email')?.enable();
-      this.supplierForm.get('phone')?.enable();
-    }
-
-    if (!isDetail && !isUpdate) {
-      this.supplierForm.get('isActive')?.disable();
-    }
-    if (isDetail) {
       this.supplierForm.get('isActive')?.disable();
     }
   }
@@ -241,101 +246,141 @@ export class SupplierListComponent implements OnInit {
 
   async saveSupplier(): Promise<void> {
     this.formSubmitted = true;
-    if (this.supplierForm.valid) {
-      if (this.formMode === FormMode.Create) {
-        this.confirmMessage = ConfirmMessages.CREATE_SUPPLIER;
-        this.confirmMode = ConfirmMode.Create;
-      } else if (this.formMode === FormMode.Update) {
-        this.confirmMessage = ConfirmMessages.UPDATE_SUPPLIER;
-        this.confirmMode = ConfirmMode.Update;
-      }
+    if (this.validateForm()) {
+      this.confirmMessage = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_SUPPLIER : ConfirmMessages.UPDATE_SUPPLIER;
       this.confirmDialog.message = this.confirmMessage;
       this.confirmDialog.show();
 
       try {
         await firstValueFrom(this.confirmDialog.confirmed);
-        this.spinnerComponent.loading = true;
+        this.isLoading = true;
         const supplier: Supplier = this.supplierForm.getRawValue();
-        let response: any = null;
-        if (this.confirmMode === ConfirmMode.Create) {
-          response = await this.supplierService.createSupplier(supplier);
-        } else if (this.confirmMode === ConfirmMode.Update) {
-          response = await this.supplierService.updateSupplier(supplier, supplier.id);
-        }
-        this.spinnerComponent.loading = false;
-        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.getAllSuppliers();
-          this.hideDialog();
-        } else if (response) {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-        }
-        this.confirmMode = null;
-      } catch (error: any) {
-        this.spinnerComponent.loading = false;
-        if (error && error.error && error.error.message) {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        } else {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-        }
-        this.confirmMode = null;
 
-        try {
-          await firstValueFrom(this.confirmDialog.rejected);
-          this.confirmMode = null;
-        } catch (rejectError) {
-          this.confirmMode = null;
+        const apiCall$ = this.formMode === FormMode.Create
+          ? this.supplierService.createSupplier(supplier)
+          : this.supplierService.updateSupplier(supplier, supplier.id);
+
+        const response = await firstValueFrom(apiCall$);
+
+        this.isLoading = false;
+        this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+        this.hideDialog();
+
+      } catch (error: any) {
+        this.isLoading = false;
+        if (error.message !== 'cancel') {
+          this.handleApiError(error);
         }
       }
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
   async changeStatusSupplier(supplierId: number, supplier: Supplier): Promise<void> {
-    if (supplier.isActive) {
-      this.confirmDialog.message = ConfirmMessages.DISABLE_SUPPLIER;
-    } else {
-      this.confirmDialog.message = ConfirmMessages.ACTIVATE_SUPPLIER;
-    }
+    this.confirmMessage = supplier.isActive ? ConfirmMessages.DISABLE_SUPPLIER : ConfirmMessages.ACTIVATE_SUPPLIER;
+    this.confirmDialog.message = this.confirmMessage;
     this.confirmDialog.show();
 
     try {
       await firstValueFrom(this.confirmDialog.confirmed);
-      this.spinnerComponent.loading = true;
-      let changeSupplierIsActive = this.changeIsActive(supplier);
+      this.isLoading = true;
 
-      const response: ApiResponse<Supplier> = await this.supplierService.changeStatusSupplier(supplierId, changeSupplierIsActive);
-      this.spinnerComponent.loading = false;
+      const changeSupplierIsActive = this.changeIsActive(supplier);
+      const response = await firstValueFrom(this.supplierService.changeStatusSupplier(supplierId, changeSupplierIsActive));
 
-      if (response && response.statusCode === HttpStatus.Ok) {
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllSuppliers();
-      } else if (response) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-      this.confirmMode = null;
+      this.isLoading = false;
+      this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+
     } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error && error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      this.isLoading = false;
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
       }
     }
-    this.confirmMode = null;
+  }
+
+  async deleteSupplier(supplierId: number): Promise<void> {
+    this.confirmDialog.message = ConfirmMessages.DELETE_SUPPLIER;
+    this.confirmDialog.show();
 
     try {
-      await firstValueFrom(this.confirmDialog.rejected);
-      if (supplier.isActive) {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.DEACTIVATION_DELETION);
-        this.confirmMode = null;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.ACTIVATION_DELETION);
-        this.confirmMode = null;
+      await firstValueFrom(this.confirmDialog.confirmed);
+      this.isLoading = true;
+
+      const response = await firstValueFrom(this.supplierService.deleteSupplier(supplierId));
+
+      this.isLoading = false;
+      this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+
+    } catch (error: any) {
+      this.isLoading = false;
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
       }
-    } catch (rejectError) {
-      this.confirmMode = null;
+    }
+  }
+
+  private validateForm(): boolean {
+    if (this.supplierForm.valid) {
+      return true;
+    }
+
+    const invalidControls = this.findInvalidControlsRecursive(this.supplierForm);
+    const invalidFields = invalidControls.map(control => {
+      const controlName = this.getFormControlName(control);
+      return controlName;
+    });
+
+    const invalidFieldsMessage = invalidFields.length > 0
+      ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
+      : ToastMessages.REQUIRED_FIELDS;
+
+    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
+    return false;
+  }
+
+  private findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
+    const invalidControls: AbstractControl[] = [];
+    if (form instanceof FormGroup) {
+      for (const name in form.controls) {
+        const control = form.controls[name];
+        if (control.invalid) {
+          invalidControls.push(control);
+        } else if (control instanceof FormGroup) {
+          invalidControls.push(...this.findInvalidControlsRecursive(control));
+        }
+      }
+    }
+    return invalidControls;
+  }
+
+  private getFormControlName(control: AbstractControl): string {
+    const parent = control.parent;
+    if (parent instanceof FormGroup) {
+      const formGroup = parent as FormGroup;
+      for (const name in formGroup.controls) {
+        if (control === formGroup.controls[name]) {
+          return this.formLabels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+        }
+      }
+    }
+    return '';
+  }
+
+  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
+    if (response.success) {
+      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
+  private handleApiError(error: any) {
+    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+    } else if (error.error && error.error.message) {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
     }
   }
 
@@ -346,40 +391,7 @@ export class SupplierListComponent implements OnInit {
     return objeto;
   }
 
-  async deleteSupplier(supplierId: number): Promise<void> {
-    this.confirmDialog.message = ConfirmMessages.DELETE_SUPPLIER;
-    this.confirmDialog.show();
-
-    try {
-      await firstValueFrom(this.confirmDialog.confirmed);
-      this.spinnerComponent.loading = true;
-
-      const response: ApiResponse<Supplier> = await this.supplierService.deleteSupplier(supplierId);
-      this.spinnerComponent.loading = false;
-
-      if (response && response.statusCode === HttpStatus.Ok) {
-        this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-        this.getAllSuppliers();
-      } else if (response) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
-      this.confirmMode = null;
-    } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error && error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        this.confirmMode = null;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-        this.confirmMode = null;
-      }
-    }
-    this.confirmMode = null;
-    try {
-      await firstValueFrom(this.confirmDialog.rejected);
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.CANCELED, ToastMessages.CANCELED_DELETION);
-    } catch (rejectError) {
-      this.confirmMode = null;
-    }
+  exportCSV(dt: Table) {
+    dt.exportCSV();
   }
 }
