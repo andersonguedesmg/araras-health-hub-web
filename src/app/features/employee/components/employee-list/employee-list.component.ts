@@ -97,9 +97,9 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
 
   private formLabels: { [key: string]: string; } = {
     name: 'Nome do Produto',
-    description: 'Descrição',
-    dosageForm: 'Unidade de Medida',
-    category: 'Categoria'
+    cpf: 'CPF',
+    function: 'Função',
+    phone: 'Telefone'
   };
 
   getSeverity = getSeverity;
