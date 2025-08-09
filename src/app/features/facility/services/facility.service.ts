@@ -5,6 +5,7 @@ import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { Facility } from '../interfaces/facility';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
+import { ApiDropdownItem } from '../../../shared/interfaces/ApiDropdownItem';
 
 @Injectable({
   providedIn: 'root'
@@ -26,11 +27,6 @@ export class FacilityService {
     );
   }
 
-  async getFacilityById(facilityId: number): Promise<ApiResponse<Facility>> {
-    const url = this.apiConfig.getUrl('facility', `getById/${facilityId}`);
-    return firstValueFrom(this.http.get<ApiResponse<Facility>>(url));
-  }
-
   public createFacility(facility: Facility): Observable<ApiResponse<Facility>> {
     const url = this.apiConfig.getUrl('facility', 'create');
     return this.http.post<ApiResponse<Facility>>(url, facility).pipe(
@@ -41,6 +37,11 @@ export class FacilityService {
         }
       })
     );
+  }
+
+  public getFacilityById(facilityId: number): Observable<ApiResponse<Facility>> {
+    const url = this.apiConfig.getUrl('facility', `getById/${facilityId}`);
+    return this.http.get<ApiResponse<Facility>>(url);
   }
 
   public updateFacility(facility: Facility, facilityId: number): Observable<ApiResponse<Facility>> {
@@ -82,8 +83,17 @@ export class FacilityService {
     );
   }
 
-  public async getFacilityOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+  public getFacilityOptions(): Promise<SelectOptions<number>[]> {
     const url = this.apiConfig.getUrl('facility', 'getDropdownOptions');
-    return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
+    return firstValueFrom(this.http.get<ApiResponse<ApiDropdownItem[]>>(url))
+      .then(response => {
+        return response?.data?.map((item) => ({
+          label: item.name,
+          value: item.id,
+        })) || [];
+      })
+      .catch(error => {
+        return [];
+      });
   }
 }
