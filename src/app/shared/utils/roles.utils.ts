@@ -26,16 +26,3 @@ export function getRoleValue(role: string): Roles {
       return Roles.Unknown;
   }
 }
-
-export function getRoleValueId(role: number): Roles {
-  switch (role) {
-    case 1:
-      return Roles.Master;
-    case 2:
-      return Roles.Admin;
-    case 3:
-      return Roles.User;
-    default:
-      return Roles.Unknown;
-  }
-}
