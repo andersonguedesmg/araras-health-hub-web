@@ -5,6 +5,7 @@ import { Employee } from '../interfaces/employee';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
+import { ApiDropdownItem } from '../../../shared/interfaces/ApiDropdownItem';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,11 @@ export class EmployeeService {
         }
       })
     );
+  }
+
+  public getEmployeeById(employeeId: number): Observable<ApiResponse<Employee>> {
+    const url = this.apiConfig.getUrl('employee', `getById/${employeeId}`);
+    return this.http.get<ApiResponse<Employee>>(url);
   }
 
   public updateEmployee(employee: Employee, employeeId: number): Observable<ApiResponse<Employee>> {
@@ -76,9 +82,17 @@ export class EmployeeService {
       })
     );
   }
-
-  public async getEmployeeOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+  public getEmployeeOptions(): Promise<SelectOptions<number>[]> {
     const url = this.apiConfig.getUrl('employee', 'getDropdownOptions');
-    return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
+    return firstValueFrom(this.http.get<ApiResponse<ApiDropdownItem[]>>(url))
+      .then(response => {
+        return response?.data?.map((item) => ({
+          label: item.name,
+          value: item.id,
+        })) || [];
+      })
+      .catch(error => {
+        return [];
+      });
   }
 }
