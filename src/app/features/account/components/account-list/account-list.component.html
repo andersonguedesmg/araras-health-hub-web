@@ -1,140 +1,125 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
 
 <app-toast></app-toast>
-<app-spinner></app-spinner>
+<app-spinner [loading]="isLoading"></app-spinner>
 <app-confirm-dialog></app-confirm-dialog>
 
 <div class="container mx-auto">
   <div class="card mt-10">
-    <p-toast />
-    <p-toolbar>
-      <ng-template #start>
-        <span class="text-xl font-bold mt-2 mb-2">Contas</span>
-      </ng-template>
+    <app-table-header [title]="'Contas'"></app-table-header>
 
-      <ng-template #end></ng-template>
-    </p-toolbar>
-
-    <p-table
-      #dt
-      [value]="accounts"
-      [rows]="5"
-      [rowsPerPageOptions]="[5, 10, 25]"
-      [columns]="cols"
-      [paginator]="true"
-      [globalFilterFields]="['id', 'userName', 'facilityId', 'isActive']"
-      [tableStyle]="{ 'min-width': '75rem' }"
-      [(selection)]="selectedAccount"
-      [rowHover]="true"
-      dataKey="id"
-      currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"
-      [showCurrentPageReport]="true"
-    >
-      <ng-template #caption>
-        <div class="flex items-center justify-between">
-          <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
-            <input
-              pInputText
-              type="text"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-              placeholder="Pesquisar..."
-            />
-          </p-iconfield>
-          <div>
-            <p-button
-              *appHasRole="['Master', 'Admin']"
-              label="Novo"
-              icon="pi pi-plus"
-              class="mr-2"
-              (click)="navigateToRegister()"
-            />
-            <p-button
-              label="Exportar"
-              icon="pi pi-upload"
-              severity="secondary"
-              (onClick)="exportCSV()"
-            />
+    <ng-container *ngIf="accounts$ | async as accounts">
+      <app-table
+        [value]="accounts"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [lazy]="true"
+        (onLazyLoad)="loadAccounts($event)"
+        [totalRecords]="totalRecords"
+        [globalFilterFields]="['userId', 'userName', 'facilityId', 'isActive']"
+        [loading]="isLoading"
+      >
+        <ng-template #captionTemplate let-dt>
+          <div class="flex items-center justify-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Pesquisar..."
+              />
+            </p-iconfield>
+            <div>
+              <p-button
+                *appHasRole="['Master', 'Admin']"
+                label="Novo"
+                icon="pi pi-plus"
+                class="mr-2"
+                (click)="navigateToRegister()"
+              />
+              <p-button
+                label="Exportar"
+                icon="pi pi-upload"
+                severity="secondary"
+                (onClick)="exportCSV(dt)"
+              />
+            </div>
           </div>
-        </div>
-      </ng-template>
+        </ng-template>
 
-      <ng-template #header>
-        <tr>
-          <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-          <th style="min-width: 20rem" pSortableColumn="userName">NOME</th>
-          <th style="min-width: 20rem" pSortableColumn="facilityId">UNIDADE</th>
-          <th style="min-width: 15rem" pSortableColumn="role">FUNÇÃO</th>
-          <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
-          <th style="min-width: 15rem">AÇÕES</th>
-        </tr>
-      </ng-template>
+        <ng-template #headerTemplate>
+          <tr>
+            <th style="min-width: 5rem" pSortableColumn="userId">ID</th>
+            <th style="min-width: 20rem" pSortableColumn="userName">NOME</th>
+            <th style="min-width: 20rem" pSortableColumn="facilityId">
+              UNIDADE
+            </th>
+            <th style="min-width: 15rem" pSortableColumn="role">FUNÇÃO</th>
+            <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
+            <th style="min-width: 15rem">AÇÕES</th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-account>
-        <tr>
-          <td>{{ account.id }}</td>
-          <td>{{ account.userName }}</td>
-          <td>{{ account.facility.name }}</td>
-          <td>
-            <p-tag
-              [value]="getRoleValue(account.roles[0].name)"
-              [severity]="getRoleSeverity(account.roles[0].name)"
-            />
-          </td>
-          <td>
-            <p-tag
-              [value]="getStatus(account.isActive)"
-              [severity]="getSeverity(account.isActive)"
-            />
-          </td>
-          <td>
-            <p-button
-              *appHasRole="['Master', 'Admin']"
-              icon="pi pi-pencil"
-              class="mr-2"
-              pTooltip="Editar"
-              tooltipPosition="bottom"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="openForm(FormMode.Update, account)"
-            />
-            <p-button
-              icon="pi pi-info-circle"
-              class="mr-2"
-              pTooltip="Detalhar"
-              tooltipPosition="bottom"
-              severity="info"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="openForm(FormMode.Detail, account)"
-            />
-            <p-button
-              *appHasRole="['Master', 'Admin']"
-              icon="pi pi-trash"
-              severity="danger"
-              [pTooltip]="account.isActive ? 'Desativar' : 'Ativar'"
-              tooltipPosition="bottom"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="changeStatusAccount(account)"
-            />
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+        <ng-template #bodyTemplate let-account>
+          <tr>
+            <td>{{ account.userId }}</td>
+            <td>{{ account.userName }}</td>
+            <td>{{ account.facility.name }}</td>
+            <td>
+              <p-tag
+                [value]="getRoleValue(account.roles[0])"
+                [severity]="getRoleSeverity(account.roles[0])"
+              />
+            </td>
+            <td>
+              <p-tag
+                [value]="getStatus(account.isActive)"
+                [severity]="getSeverity(account.isActive)"
+              />
+            </td>
+            <td>
+              <p-button
+                *appHasRole="['Master', 'Admin']"
+                icon="pi pi-pencil"
+                class="mr-2"
+                pTooltip="Editar"
+                tooltipPosition="bottom"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="openForm(FormMode.Update, account)"
+              />
+              <p-button
+                icon="pi pi-info-circle"
+                class="mr-2"
+                pTooltip="Detalhar"
+                tooltipPosition="bottom"
+                severity="info"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="openForm(FormMode.Detail, account)"
+              />
+              <p-button
+                *appHasRole="['Master', 'Admin']"
+                icon="pi pi-trash"
+                severity="danger"
+                [pTooltip]="account.isActive ? 'Desativar' : 'Ativar'"
+                tooltipPosition="bottom"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="changeStatusAccount(account.userId, account)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </ng-container>
 
-    <p-dialog
+    <app-dialog
       [(visible)]="displayDialog"
-      [modal]="true"
-      [style]="{ width: '50vw' }"
-      [header]="
-        formMode === 'create'
-          ? 'Nova Conta'
-          : formMode === 'update'
-          ? 'Editar Conta'
-          : 'Detalhes da Conta'
-      "
-      (onHide)="hideDialog()"
+      [formMode]="formMode"
+      [headerText]="headerText"
+      (onSave)="saveAccount()"
     >
       <form [formGroup]="accountForm" class="mt-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -143,10 +128,10 @@
               >ID:</label
             >
             <input
-              id="id"
+              id="userId"
               pInputText
               type="text"
-              formControlName="id"
+              formControlName="userId"
               class="mt-1 p-2 border rounded-md w-full"
             />
           </div>
@@ -232,21 +217,6 @@
           </div>
         </div>
       </form>
-      <ng-template pTemplate="footer">
-        <p-button
-          *ngIf="formMode !== 'detail'"
-          label="Salvar"
-          icon="pi pi-check"
-          (click)="saveAccount()"
-        ></p-button>
-        <p-button
-          label="Cancelar"
-          icon="pi pi-times"
-          severity="info"
-          [outlined]="true"
-          (click)="hideDialog()"
-        ></p-button>
-      </ng-template>
-    </p-dialog>
+    </app-dialog>
   </div>
 </div>
