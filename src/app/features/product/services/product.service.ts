@@ -5,6 +5,7 @@ import { Product } from '../interfaces/product';
 import { ApiResponse } from '../../../shared/interfaces/apiResponse';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
+import { ApiDropdownItem } from '../../../shared/interfaces/ApiDropdownItem';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,11 @@ export class ProductService {
         }
       })
     );
+  }
+
+  public getProductById(productId: number): Observable<ApiResponse<Product>> {
+    const url = this.apiConfig.getUrl('product', `getById/${productId}`);
+    return this.http.get<ApiResponse<Product>>(url);
   }
 
   public updateProduct(product: Product, productId: number): Observable<ApiResponse<Product>> {
@@ -77,8 +83,17 @@ export class ProductService {
     );
   }
 
-  public async getProductOptions(): Promise<ApiResponse<SelectOptions<number>[]>> {
+  public getProductOptions(): Promise<SelectOptions<number>[]> {
     const url = this.apiConfig.getUrl('product', 'getDropdownOptions');
-    return firstValueFrom(this.http.get<ApiResponse<SelectOptions<number>[]>>(url));
+    return firstValueFrom(this.http.get<ApiResponse<ApiDropdownItem[]>>(url))
+      .then(response => {
+        return response?.data?.map((item) => ({
+          label: item.name,
+          value: item.id,
+        })) || [];
+      })
+      .catch(error => {
+        return [];
+      });
   }
 }
