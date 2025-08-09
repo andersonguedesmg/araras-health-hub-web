@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { EmployeeService } from '../../features/employee/services/employee.service';
 import { ProductService } from '../../features/product/services/product.service';
-import { ApiResponse } from '../interfaces/apiResponse';
 import { SupplierService } from '../../features/supplier/services/supplier.service';
 import { ToastMessages } from '../constants/messages.constants';
 import { FacilityService } from '../../features/facility/services/facility.service';
+import { firstValueFrom, Observable } from 'rxjs';
+import { SelectOptions } from '../interfaces/select-options';
 
 @Injectable({
   providedIn: 'root'
@@ -17,55 +18,32 @@ export class DropdownDataService {
     private facilityService: FacilityService,
   ) { }
 
-  async getEmployeeOptions(): Promise<{ label: string; value: any; }[]> {
+  private async getOptions<T>(
+    serviceCall: () => Promise<SelectOptions<T>[]> | Observable<SelectOptions<T>[]>
+  ): Promise<SelectOptions<T>[]> {
     try {
-      const response: ApiResponse<any[]> = await this.employeeService.getEmployeeOptions();
-      return response?.data?.map((employee) => ({
-        label: employee.name,
-        value: employee.id,
-      })) || [];
+      const response = serviceCall();
+      const options = response instanceof Observable ? await firstValueFrom(response) : await response;
+      return options || [];
     } catch (error) {
       console.error(ToastMessages.ERROR_LOADING_NAMES, error);
       return [];
     }
   }
 
-  async getProductOptions(): Promise<{ label: string; value: any; }[]> {
-    try {
-      const response: ApiResponse<any[]> = await this.productService.getProductOptions();
-      return response?.data?.map((product) => ({
-        label: product.name,
-        value: product.id,
-      })) || [];
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-      return [];
-    }
+  getEmployeeOptions(): Promise<SelectOptions<number>[]> {
+    return this.getOptions(() => this.employeeService.getEmployeeOptions());
   }
 
-  async getSupplierOptions(): Promise<{ label: string; value: any; }[]> {
-    try {
-      const response: ApiResponse<any[]> = await this.supplierService.getSupplierOptions();
-      return response?.data?.map((supplier) => ({
-        label: supplier.name,
-        value: supplier.id,
-      })) || [];
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-      return [];
-    }
+  getProductOptions(): Promise<SelectOptions<number>[]> {
+    return this.getOptions(() => this.productService.getProductOptions());
   }
 
-  async getFacilitiesOptions(): Promise<{ label: string; value: any; }[]> {
-    try {
-      const response: ApiResponse<any[]> = await this.facilityService.getFacilityOptions();
-      return response?.data?.map((facility) => ({
-        label: facility.name,
-        value: facility.id,
-      })) || [];
-    } catch (error) {
-      console.error(ToastMessages.ERROR_LOADING_NAMES, error);
-      return [];
-    }
+  getSupplierOptions(): Promise<SelectOptions<number>[]> {
+    return this.getOptions(() => this.supplierService.getSupplierOptions());
+  }
+
+  getFacilitiesOptions(): Promise<SelectOptions<number>[]> {
+    return this.getOptions(() => this.facilityService.getFacilityOptions());
   }
 }
