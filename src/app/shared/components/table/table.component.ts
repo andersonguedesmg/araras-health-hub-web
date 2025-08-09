@@ -6,6 +6,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToolbarModule } from 'primeng/toolbar';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-table',
@@ -17,6 +18,7 @@ import { ToolbarModule } from 'primeng/toolbar';
     IconFieldModule,
     InputIconModule,
     InputTextModule,
+    TagModule,
   ],
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss'
