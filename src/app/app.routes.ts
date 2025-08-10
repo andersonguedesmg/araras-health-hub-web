@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
-import { RoleGuard } from './core/guards/role.guard';
+import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 import { NotFoundComponent } from './shared/pages/not-found/not-found.component';
 import { AboutComponent } from './shared/pages/about/about.component';
 import { HomeComponent } from './shared/pages/home/home.component';
@@ -21,112 +21,98 @@ import { UnauthorizedComponent } from './shared/pages/unauthorized/unauthorized.
 
 export const routes: Routes = [
   {
-    path: '',
-    component: HomeComponent,
-    title: 'Araras Health Hub',
-    canActivate: [AuthGuard],
-  },
-  {
-    path: 'contas',
-    component: AccountListComponent,
-    title: 'A2H - Contas',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'unidades',
-    component: FacilityListComponent,
-    title: 'A2H - Unidades',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'perfil',
-    component: FacilityProfileComponent,
-    title: 'A2H - Perfil',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'estoque',
-    component: StockListComponent,
-    title: 'A2H - Estoque',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'fornecedores',
-    component: SupplierListComponent,
-    title: 'A2H - Fornecedores',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
     path: 'login',
     component: LoginComponent,
     title: 'A2H - Login',
-  },
-  {
-    path: 'pedidos',
-    component: OrderListComponent,
-    title: 'A2H - Pedidos',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'produtos',
-    component: ProductListComponent,
-    title: 'A2H - Produtos',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'entradas',
-    component: ReceivingListComponent,
-    title: 'A2H - Entradas',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'entrada/nova',
-    component: ReceivingCreateComponent,
-    title: 'A2H - Nova Entrada',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'registrar',
-    component: RegisterComponent,
-    title: 'A2H - Registro',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'sobre',
-    component: AboutComponent,
-    title: 'A2H - Sobre',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'funcionarios',
-    component: EmployeeListComponent,
-    title: 'A2H - Funcionário',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
-  },
-  {
-    path: 'pedido/novo',
-    component: OrderCreateComponent,
-    title: 'A2H - Novo Pedido',
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
   },
   {
     path: 'unauthorized',
     component: UnauthorizedComponent,
     title: 'Araras Health Hub',
   },
+  {
+    path: 'registrar',
+    component: RegisterComponent,
+    title: 'A2H - Registro',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin', 'Master'] },
+  },
+
+  {
+    path: '',
+    component: HomeComponent,
+    title: 'Araras Health Hub',
+    canActivate: [authGuard],
+  },
+
+  {
+    path: '',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['Admin', 'Master', 'User'] },
+    children: [
+      {
+        path: 'contas',
+        component: AccountListComponent,
+        title: 'A2H - Contas',
+      },
+      {
+        path: 'unidades',
+        component: FacilityListComponent,
+        title: 'A2H - Unidades',
+      },
+      {
+        path: 'perfil',
+        component: FacilityProfileComponent,
+        title: 'A2H - Perfil',
+      },
+      {
+        path: 'estoque',
+        component: StockListComponent,
+        title: 'A2H - Estoque',
+      },
+      {
+        path: 'fornecedores',
+        component: SupplierListComponent,
+        title: 'A2H - Fornecedores',
+      },
+      {
+        path: 'pedidos',
+        component: OrderListComponent,
+        title: 'A2H - Pedidos',
+      },
+      {
+        path: 'pedido/novo',
+        component: OrderCreateComponent,
+        title: 'A2H - Novo Pedido',
+      },
+      {
+        path: 'produtos',
+        component: ProductListComponent,
+        title: 'A2H - Produtos',
+      },
+      {
+        path: 'entradas',
+        component: ReceivingListComponent,
+        title: 'A2H - Entradas',
+      },
+      {
+        path: 'entrada/nova',
+        component: ReceivingCreateComponent,
+        title: 'A2H - Nova Entrada',
+      },
+      {
+        path: 'sobre',
+        component: AboutComponent,
+        title: 'A2H - Sobre',
+      },
+      {
+        path: 'funcionarios',
+        component: EmployeeListComponent,
+        title: 'A2H - Funcionário',
+      },
+    ],
+  },
+
   {
     path: '**',
     component: NotFoundComponent,
