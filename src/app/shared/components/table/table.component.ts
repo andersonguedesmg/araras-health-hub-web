@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, ContentChild, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
 
 @Component({
@@ -35,11 +35,14 @@ export class TableComponent {
   @Input() globalFilterFields: string[] = [];
   @Input() dataKey: string = 'id';
   @Input() loading: boolean = false;
+  @Input() colspan: number = 1;
+  @Input() emptyMessage: string = 'Nenhum registro encontrado.';
 
   @ContentChild('captionTemplate', { static: false }) captionTemplate!: TemplateRef<any>;
   @ContentChild('headerTemplate', { static: false }) headerTemplate!: TemplateRef<any>;
   @ContentChild('bodyTemplate', { static: false }) bodyTemplate!: TemplateRef<any>;
   @ContentChild('footerTemplate', { static: false }) footerTemplate!: TemplateRef<any>;
+  @ContentChild('emptyMessageTemplate', { static: false }) emptyMessageTemplate!: TemplateRef<any>;
 
   @Output() onLazyLoad = new EventEmitter<TableLazyLoadEvent>();
 
