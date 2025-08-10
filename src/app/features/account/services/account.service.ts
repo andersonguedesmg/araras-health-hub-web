@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
-import { ApiResponse } from '../../../shared/interfaces/apiResponse';
+import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { Account } from '../interfaces/account';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
 
@@ -27,13 +27,13 @@ export class AccountService {
     );
   }
 
-  public createAccount(account: Account): Observable<ApiResponse<Account>> {
-    const url = this.apiConfig.getUrl('account', 'create');
+  public registerAccount(account: Account): Observable<ApiResponse<Account>> {
+    const url = this.apiConfig.getUrl('account', 'register');
     return this.http.post<ApiResponse<Account>>(url, account).pipe(
       tap(response => {
         if (response.success && response.data) {
-          const currentAccount = this.accountSubject.getValue();
-          this.accountSubject.next([...currentAccount, response.data]);
+          const currentAccounts = this.accountSubject.getValue();
+          this.accountSubject.next([...currentAccounts, response.data]);
         }
       })
     );

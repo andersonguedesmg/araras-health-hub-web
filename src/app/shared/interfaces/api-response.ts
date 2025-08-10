@@ -1,13 +1,10 @@
-export interface ApiResponse<T> {
+import { BaseApiResponse } from "./base-api-response";
+
+export interface ApiResponse<T> extends BaseApiResponse<T> {
   pageNumber: number;
   pageSize: number;
   totalPages: number;
   totalCount: number;
   hasPreviousPage: boolean;
   hasNextPage: boolean;
-  data: T;
-  statusCode: number;
-  message: string;
-  success: boolean;
-  errors: string[] | null;
 }

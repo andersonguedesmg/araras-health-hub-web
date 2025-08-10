@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
 import { HttpClient } from '@angular/common/http';
 import { Stock } from '../interfaces/stock';
-import { ApiResponse } from '../../../shared/interfaces/apiResponse';
+import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({

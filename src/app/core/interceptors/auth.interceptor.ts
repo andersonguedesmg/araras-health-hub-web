@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService) { }
 
   intercept(
     request: HttpRequest<unknown>,
@@ -31,9 +31,8 @@ export class JwtInterceptor implements HttpInterceptor {
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401 && this.authService.isTokenExpired()) {
           this.authService.logout();
-          this.router.navigate(['/login']);
         }
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }

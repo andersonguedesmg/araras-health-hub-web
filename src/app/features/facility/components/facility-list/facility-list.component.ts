@@ -25,7 +25,7 @@ import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { ApiResponse } from '../../../../shared/interfaces/api-response';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';

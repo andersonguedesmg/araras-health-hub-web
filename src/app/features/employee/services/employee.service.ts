@@ -2,10 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 import { Employee } from '../interfaces/employee';
-import { ApiResponse } from '../../../shared/interfaces/apiResponse';
+import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
-import { ApiDropdownItem } from '../../../shared/interfaces/ApiDropdownItem';
+import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
 
 @Injectable({
   providedIn: 'root'

@@ -1,44 +1,50 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, catchError, map, Observable, tap, throwError } from 'rxjs';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
-import { LoginRequest } from '../interfaces/loginRequest';
-import { LoginResponse } from '../interfaces/loginResponse';
+import { LoginRequest } from '../interfaces/login-request';
 import { ApiConfigService } from '../../shared/services/api-config.service';
-import { ApiResponse } from '../../shared/interfaces/apiResponse';
 import { Account } from '../interfaces/account';
+import { Router } from '@angular/router';
+import { BaseApiResponse } from '../../shared/interfaces/base-api-response';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
+  private loggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn());
+  public isLoggedIn$ = this.loggedInSubject.asObservable();
 
-  async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const url = this.apiConfig.getAccountUrl('login');
-    try {
-      const response = await firstValueFrom(this.http.post<LoginResponse>(url, credentials));
-      console.log('response', response);
+  constructor(private http: HttpClient, private apiConfig: ApiConfigService, private router: Router) { }
 
-      if (response && response.data && response.data.token) {
-        const { token, facilityId, userId, userName, roles } = response.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('facilityId', facilityId.toString());
-        localStorage.setItem('userId', userId.toString());
-        localStorage.setItem('userName', userName.toString());
-        const roleNames = roles.map(role => role.name);
-        localStorage.setItem('roles', JSON.stringify(roleNames));
-      }
-      return response;
-    } catch (error) {
-      console.error('Erro no login:', error);
-      throw error;
-    }
+  login(credentials: LoginRequest): Observable<BaseApiResponse<Account>> {
+    const url = this.apiConfig.getUrl('account', 'login');
+
+    return this.http.post<BaseApiResponse<Account>>(url, credentials).pipe(
+      tap(response => {
+        if (response.success && response.data?.token) {
+          this.saveAuthData(response.data);
+          this.loggedInSubject.next(true);
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Erro no login:', error);
+        const errorMessage = error.error?.message || 'Erro de autenticação desconhecido. Por favor, verifique suas credenciais.';
+        this.loggedInSubject.next(false);
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 
-  async register(account: Account): Promise<ApiResponse<Account>> {
-    const url = this.apiConfig.getAccountUrl('register');
-    return firstValueFrom(this.http.post<ApiResponse<Account>>(url, account));
+  private saveAuthData(account: Account): void {
+    if (account.token) {
+      localStorage.setItem('token', account.token);
+      localStorage.setItem('facilityId', account.facilityId.toString());
+      localStorage.setItem('userId', account.userId.toString());
+      localStorage.setItem('userName', account.userName);
+      const roleNames = account.roles.map(role => role.name);
+      localStorage.setItem('roles', JSON.stringify(roleNames));
+    }
   }
 
   logout(): void {
@@ -47,6 +53,8 @@ export class AuthService {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     localStorage.removeItem('roles');
+    this.loggedInSubject.next(false);
+    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
@@ -78,6 +86,22 @@ export class AuthService {
     return !!this.getToken() && !this.isTokenExpired();
   }
 
+  hasRole$(requiredRoles: string[]): Observable<boolean> {
+    return this.isLoggedIn$.pipe(
+      map(isLoggedIn => {
+        if (!isLoggedIn) {
+          return false;
+        }
+        const userRoles = this.getUserRoles();
+        return requiredRoles.some(role => userRoles.includes(role));
+      })
+    );
+  }
+
+  /**
+   * Verifica se um token expirou.
+   * @returns True se o token expirou ou não existe, false caso contrário.
+   */
   isTokenExpired(): boolean {
     const token = this.getToken();
     if (!token) {
@@ -91,6 +115,10 @@ export class AuthService {
     }
   }
 
+  /**
+   * Verifica se o token irá expirar em breve (em menos de 5 minutos).
+   * @returns True se o token estiver prestes a expirar, false caso contrário.
+   */
   isTokenExpiringSoon(): boolean {
     const token = this.getToken();
     if (!token) {

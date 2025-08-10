@@ -25,7 +25,7 @@ import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { ApiResponse } from '../../../../shared/interfaces/api-response';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
@@ -260,7 +260,7 @@ export class AccountListComponent implements OnInit, OnDestroy {
         const account: Account = this.accountForm.getRawValue();
 
         const apiCall$ = this.formMode === FormMode.Create
-          ? this.accountService.createAccount(account)
+          ? this.accountService.registerAccount(account)
           : this.accountService.updateAccount(account, account.userId);
 
         const response = await firstValueFrom(apiCall$);

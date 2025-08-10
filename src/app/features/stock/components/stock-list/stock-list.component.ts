@@ -18,7 +18,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
-import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { ApiResponse } from '../../../../shared/interfaces/api-response';
 import { ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
