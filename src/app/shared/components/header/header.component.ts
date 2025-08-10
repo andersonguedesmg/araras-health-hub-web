@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { PrimeIcons, MenuItem } from 'primeng/api';
-import { Menubar } from 'primeng/menubar';
+import { Menubar, MenubarModule } from 'primeng/menubar';
 import { AvatarModule } from 'primeng/avatar';
 import { Menu, MenuModule } from 'primeng/menu';
 import { AuthService } from '../../../core/services/auth.service';
@@ -9,7 +9,12 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
-  imports: [Menubar, AvatarModule, MenuModule, CommonModule],
+  imports: [
+    MenubarModule,
+    AvatarModule,
+    MenuModule,
+    CommonModule,
+  ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
