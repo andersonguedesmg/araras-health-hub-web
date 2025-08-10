@@ -1,128 +1,121 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
 
 <app-toast></app-toast>
-<app-spinner></app-spinner>
+<app-spinner [loading]="isLoading"></app-spinner>
 <app-confirm-dialog></app-confirm-dialog>
 
 <div class="container mx-auto">
   <div class="card mt-10">
-    <p-toolbar>
-      <ng-template #start>
-        <span class="text-xl font-bold mt-2 mb-2">Entradas</span>
-      </ng-template>
+    <app-table-header [title]="'Entradas'"></app-table-header>
 
-      <ng-template #end></ng-template>
-    </p-toolbar>
-
-    <p-table
-      #dt
-      [value]="receivings"
-      [rows]="5"
-      [rowsPerPageOptions]="[5, 10, 25]"
-      [columns]="cols"
-      [paginator]="true"
-      [globalFilterFields]="[
-        'id',
-        'supplierId',
-        'receivingDate',
-        'invoiceNumber',
-        'supplyAuthorization',
-        'responsibleId',
-        'observation'
-      ]"
-      [tableStyle]="{ 'min-width': '75rem' }"
-      [(selection)]="selectedReceiving"
-      [rowHover]="true"
-      dataKey="id"
-      currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"
-      [showCurrentPageReport]="true"
-    >
-      <ng-template #caption>
-        <div class="flex items-center justify-between">
-          <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
-            <input
-              pInputText
-              type="text"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-              placeholder="Pesquisar..."
-            />
-          </p-iconfield>
-          <div>
-            <p-button
-              label="Novo"
-              icon="pi pi-plus"
-              class="mr-2"
-              (click)="navigateToCreateReceiving()"
-            />
-            <p-button
-              label="Exportar"
-              icon="pi pi-upload"
-              severity="secondary"
-              (onClick)="exportCSV()"
-            />
+    <ng-container *ngIf="receivings$ | async as receivings">
+      <app-table
+        [value]="receivings"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [lazy]="true"
+        (onLazyLoad)="loadReceivings($event)"
+        [totalRecords]="totalRecords"
+        [globalFilterFields]="[
+          'id',
+          'supplierId',
+          'receivingDate',
+          'invoiceNumber',
+          'supplyAuthorization',
+          'responsibleId',
+          'totalValue',
+          'observation'
+        ]"
+        [loading]="isLoading"
+        [colspan]="9"
+      >
+        <ng-template #captionTemplate let-dt>
+          <div class="flex items-center justify-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Pesquisar..."
+              />
+            </p-iconfield>
+            <div>
+              <p-button
+                label="Novo"
+                icon="pi pi-plus"
+                class="mr-2"
+                (click)="navigateToCreateReceiving()"
+              />
+              <p-button
+                label="Exportar"
+                icon="pi pi-upload"
+                severity="secondary"
+                (click)="exportCSV(dt)"
+              />
+            </div>
           </div>
-        </div>
-      </ng-template>
+        </ng-template>
 
-      <ng-template #header>
-        <tr>
-          <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-          <th style="min-width: 15rem" pSortableColumn="invoiceNumber">
-            NOTA FISCAL
-          </th>
-          <th style="min-width: 19rem" pSortableColumn="supplyAuthorization">
-            AUTORIZAÇÃO DE FORNECIMENTO
-          </th>
-          <th style="min-width: 25rem" pSortableColumn="supplier.name">
-            FORNECEDOR
-          </th>
-          <th style="min-width: 12rem" pSortableColumn="receivingDate">DATA</th>
-          <th style="min-width: 12rem" pSortableColumn="totalValue">
-            VALOR DA NOTA
-          </th>
-          <th style="min-width: 15rem" pSortableColumn="responsible.name">
-            RESPONSÁVEL
-          </th>
-          <th style="min-width: 20rem" pSortableColumn="observation">
-            OBSERVAÇÃO
-          </th>
-          <th style="min-width: 15rem">AÇÕES</th>
-        </tr>
-      </ng-template>
+        <ng-template #headerTemplate>
+          <tr>
+            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
+            <th style="min-width: 15rem" pSortableColumn="invoiceNumber">
+              NOTA FISCAL
+            </th>
+            <th style="min-width: 19rem" pSortableColumn="supplyAuthorization">
+              AUTORIZAÇÃO DE FORNECIMENTO
+            </th>
+            <th style="min-width: 25rem" pSortableColumn="supplier.name">
+              FORNECEDOR
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="receivingDate">
+              DATA
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="totalValue">
+              VALOR DA NOTA
+            </th>
+            <th style="min-width: 15rem" pSortableColumn="responsible.name">
+              RESPONSÁVEL
+            </th>
+            <th style="min-width: 20rem" pSortableColumn="observation">
+              OBSERVAÇÃO
+            </th>
+            <th style="min-width: 15rem">AÇÕES</th>
+          </tr>
+        </ng-template>
 
-      <ng-template #body let-receiving>
-        <tr>
-          <td>{{ receiving.id }}</td>
-          <td>{{ receiving.invoiceNumber }}</td>
-          <td>{{ receiving.supplyAuthorization }}</td>
-          <td>{{ receiving.supplier.name }}</td>
-          <td>{{ receiving.receivingDate | date : "dd/MM/yyyy" }}</td>
-          <td>{{ receiving.totalValue | currency : "BRL" }}</td>
-          <td>{{ receiving.responsible.name }}</td>
-          <td>{{ receiving.observation }}</td>
-          <td>
-            <p-button
-              icon="pi pi-info-circle"
-              class="mr-2"
-              pTooltip="Detalhar"
-              tooltipPosition="bottom"
-              severity="info"
-              [rounded]="true"
-              [outlined]="true"
-              (click)="openForm(FormMode.Detail, receiving)"
-            />
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+        <ng-template #bodyTemplate let-receiving>
+          <tr>
+            <td>{{ receiving.id }}</td>
+            <td>{{ receiving.invoiceNumber }}</td>
+            <td>{{ receiving.supplyAuthorization }}</td>
+            <td>{{ receiving.supplier.name }}</td>
+            <td>{{ receiving.receivingDate | date : "dd/MM/yyyy" }}</td>
+            <td>{{ receiving.totalValue | currency : "BRL" }}</td>
+            <td>{{ receiving.responsible.name }}</td>
+            <td>{{ receiving.observation }}</td>
+            <td>
+              <p-button
+                icon="pi pi-info-circle"
+                class="mr-2"
+                pTooltip="Detalhar"
+                tooltipPosition="bottom"
+                severity="info"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="openForm(FormMode.Detail, receiving)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </ng-container>
 
-    <p-dialog
+    <app-dialog
       [(visible)]="displayDialog"
-      [modal]="true"
-      [style]="{ width: '50vw' }"
-      [header]="'Detalhes da Entrada'"
-      (onHide)="hideDialog()"
+      [formMode]="formMode"
+      [headerText]="headerText"
     >
       <form [formGroup]="receivingForm" class="mt-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -250,7 +243,7 @@
       <div class="bg-zinc-900 border border-zinc-600 rounded-md p-8 mt-4">
         <h2 class="text-xl font-medium text-gray-500 mb-6">Itens</h2>
         <hr class="mt-6 mb-2 border-t border-zinc-600" />
-        <p-table
+        <!-- <p-table
           *ngIf="
             selectedReceiving &&
             selectedReceiving.receivedItems &&
@@ -293,18 +286,8 @@
               <td>{{ item.expiryDate | date : "dd/MM/yyyy" }}</td>
             </tr>
           </ng-template>
-        </p-table>
+        </p-table> -->
       </div>
-
-      <ng-template pTemplate="footer">
-        <p-button
-          label="Cancelar"
-          icon="pi pi-times"
-          severity="info"
-          [outlined]="true"
-          (click)="hideDialog()"
-        ></p-button>
-      </ng-template>
-    </p-dialog>
+    </app-dialog>
   </div>
 </div>

@@ -1,90 +1,96 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem } from 'primeng/api';
-import { MessageService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
+import { MenuItem, MessageService } from 'primeng/api';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputTextModule } from 'primeng/inputtext';
+import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
 import { Table } from 'primeng/table';
-import { TextareaModule } from 'primeng/textarea';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
+import { ApiResponse } from '../../../../shared/interfaces/apiResponse';
+import { ToastMessages } from '../../../../shared/constants/messages.constants';
+import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
+import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
+import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { TableComponent } from '../../../../shared/components/table/table.component';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 
 @Component({
   selector: 'app-receiving-list',
   imports: [
-    BreadcrumbComponent,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    TableModule,
+    FormsModule,
     ToastModule,
     ToolbarModule,
     ButtonModule,
-    FormsModule,
     InputTextModule,
     InputIconModule,
     IconFieldModule,
-    TextareaModule,
     TooltipModule,
+    TagModule,
     DialogModule,
     SelectModule,
+    BreadcrumbComponent,
     ToastComponent,
     SpinnerComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    TableComponent,
+    DialogComponent,
+    TableHeaderComponent,
   ],
   providers: [MessageService],
   templateUrl: './receiving-list.component.html',
   styleUrl: './receiving-list.component.scss'
 })
-export class ReceivingListComponent implements OnInit {
-  @ViewChild('dt') dt!: Table;
+export class ReceivingListComponent implements OnInit, OnDestroy {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }];
+  isLoading = false;
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
-  supplierOptions: SelectOptions<number>[] = [];
-  employeeOptions: SelectOptions<number>[] = [];
 
-  receivings: Receiving[] = [];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }];
+
+  receivings$!: Observable<Receiving[]>;
   selectedReceiving?: Receiving;
   receivingForm: FormGroup;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+
+  supplierOptions: SelectOptions<number>[] = [];
+  employeeOptions: SelectOptions<number>[] = [];
 
   displayDialog = false;
   formSubmitted = false;
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
+  headerText = '';
 
   cols!: Column[];
   selectedColumns!: Column[];
@@ -92,6 +98,10 @@ export class ReceivingListComponent implements OnInit {
 
   getSeverity = getSeverity;
   getStatus = getStatus;
+
+  private loadLazy = new Subject<any>();
+  private subscriptions: Subscription = new Subscription();
+  totalRecords = 0;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -112,23 +122,45 @@ export class ReceivingListComponent implements OnInit {
     });
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
     this.loadTableData();
-    this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
-    this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
+    this.loadSuppliersOptions();
+    this.loadEmployeesOptions();
+    this.receivings$ = this.receivingService.receivings$;
+    this.subscriptions.add(
+      this.loadLazy
+        .pipe(
+          debounceTime(300),
+          switchMap(event => {
+            this.isLoading = true;
+            const pageNumber = event.first / event.rows + 1;
+            const pageSize = event.rows;
+            return this.receivingService.loadReceivings(pageNumber, pageSize);
+          })
+        )
+        .subscribe({
+          next: response => {
+            this.isLoading = false;
+            if (response.success) {
+              this.totalRecords = response.totalCount || 0;
+            } else {
+              this.handleApiResponse(response, '');
+            }
+          },
+          error: (error) => {
+            this.isLoading = false;
+            this.handleApiError(error);
+          }
+        })
+    );
   }
 
-  ngAfterViewInit(): void {
-    this.getAllReceivings();
-  }
-
-  exportCSV() {
-    this.dt.exportCSV();
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   loadTableData() {
     this.cd.markForCheck();
-
     this.cols = [
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DA ENTRADA' },
       { field: 'invoiceNumber', header: 'NOTA FISCAL' },
@@ -139,43 +171,47 @@ export class ReceivingListComponent implements OnInit {
       { field: 'responsibleId', header: 'RESPONSÁVEL' },
       { field: 'observation', header: 'OBSERVAÇÃO' },
     ];
-
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-
     this.selectedColumns = this.cols;
   }
 
-  async getAllReceivings(): Promise<void> {
-    this.receivings = [];
-    this.spinnerComponent.loading = true;
+  loadReceivings(event: any) {
+    this.loadLazy.next(event);
+  }
 
+  async loadSuppliersOptions(): Promise<void> {
     try {
-      const response: ApiResponse<Receiving[]> = await this.receivingService.getAllReceivings();
-      this.spinnerComponent.loading = false;
-      console.log('getAllReceivings', response);
-
-      if (response.statusCode === HttpStatus.Ok) {
-        this.receivings = response.data;
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-      }
+      this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
     } catch (error: any) {
-      this.spinnerComponent.loading = false;
-      if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-      } else if (error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
       }
     }
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, receiving?: Receiving): void {
-    this.formMode = mode;
-    this.selectedReceiving = receiving;
+  async loadEmployeesOptions(): Promise<void> {
+    try {
+      this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+    } catch (error: any) {
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
+      }
+    }
+  }
+
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Receiving): void {
+    this.receivingForm.reset();
+    this.formSubmitted = false; this.formMode = mode;
+    this.selectedReceiving = supplier;
     this.displayDialog = true;
     this.initializeForm();
+    if (mode === FormMode.Create) {
+      this.headerText = 'Nova Entrada';
+    } else if (mode === FormMode.Update) {
+      this.headerText = 'Editar Entrada';
+    } else {
+      this.headerText = 'Detalhes da Entrada';
+    }
   }
 
   initializeForm(): void {
@@ -187,6 +223,7 @@ export class ReceivingListComponent implements OnInit {
   }
 
   updateFormState(): void {
+    this.receivingForm.disable();
     this.receivingForm.get('supplierId')?.disable();
     this.receivingForm.get('receivingDate')?.disable();
     this.receivingForm.get('invoiceNumber')?.disable();
@@ -204,4 +241,34 @@ export class ReceivingListComponent implements OnInit {
   navigateToCreateReceiving(): void {
     this.router.navigate(['/entrada/nova']);
   }
+
+  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
+    if (response.success) {
+      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
+  private handleApiError(error: any) {
+    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+    } else if (error.error && error.error.message) {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
+  changeIsActive(objeto: any) {
+    if (objeto && typeof objeto === 'object' && 'isActive' in objeto) {
+      objeto.isActive = !objeto.isActive;
+    }
+    return objeto;
+  }
+
+  exportCSV(dt: Table) {
+    dt.exportCSV();
+  }
+
 }
