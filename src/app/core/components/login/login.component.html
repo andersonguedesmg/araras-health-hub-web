@@ -1,44 +1,47 @@
-<div class="flex h-screen">
+<div class="flex h-screen bg-zinc-900">
   <app-toast></app-toast>
   <app-spinner></app-spinner>
+
   <div class="w-1/2 flex items-center justify-center p-8">
     <div class="w-full max-w-md">
-      <div class="bg-surface-900 p-8 rounded shadow-md w-96">
-        <h2 class="text-2xl font-semibold mb-6 text-center">Login</h2>
+      <div class="bg-zinc-800 p-8 rounded-lg shadow-xl w-full">
+        <h2 class="text-3xl font-bold mb-6 text-center text-white">Login</h2>
+
         <div class="mb-4">
-          <label for="username" class="block text-white font-medium mb-2"
-            >Usuário</label
-          >
+          <label for="username" class="block text-gray-300 font-medium mb-2">Usuário</label>
           <input
             type="text"
             id="username"
             [(ngModel)]="credentials.userName"
             pInputText
-            class="w-full p-2 border rounded"
+            class="w-full p-2 border-none bg-zinc-700 rounded text-white placeholder-gray-400"
+            placeholder="Seu nome de usuário"
           />
         </div>
+
         <div class="mb-6">
-          <label for="password" class="block text-white font-medium mb-2"
-            >Senha</label
-          >
+          <label for="password" class="block text-gray-300 font-medium mb-2">Senha</label>
           <input
             type="password"
             id="password"
             [(ngModel)]="credentials.password"
             pInputText
-            class="w-full p-2 border rounded"
+            class="w-full p-2 border-none bg-zinc-700 rounded text-white placeholder-gray-400"
+            placeholder="Sua senha"
           />
         </div>
+
         <button
           pButton
           label="Entrar"
-          class="w-full"
+          class="w-full p-button-sm"
           (click)="login()"
         ></button>
       </div>
     </div>
   </div>
-  <div class="w-1/2 flex items-center justify-center bg-gray-100">
-    <img src="URL_DO_SEU_LOGOTIPO" alt="A2H" class="max-w-xs" />
+
+  <div class="w-1/2 flex items-center justify-center bg-zinc-950 p-8">
+    <img src="URL_DO_SEU_LOGOTIPO" alt="Araras Health Hub" class="max-w-xs" />
   </div>
 </div>

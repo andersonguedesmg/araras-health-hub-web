@@ -4,6 +4,7 @@ import { LoginRequest } from '../../interfaces/loginRequest';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { ToastComponent } from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { ToastSeverities, ToastSummaries } from '../../../shared/constants/toast.constants';
@@ -12,7 +13,14 @@ import { Greetings } from '../../../shared/enums/greetings.enum';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, FormsModule, ButtonModule, ToastComponent, SpinnerComponent],
+  imports: [
+    FormsModule,
+    ButtonModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    ToastComponent,
+    SpinnerComponent
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -29,6 +37,7 @@ export class LoginComponent {
     try {
       const response = await this.authService.login(this.credentials);
       this.spinnerComponent.loading = false;
+
       if (response.statusCode === HttpStatus.Ok) {
         const greeting = this.getGreeting();
         this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, greeting);
