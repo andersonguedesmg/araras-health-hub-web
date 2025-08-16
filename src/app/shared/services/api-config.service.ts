@@ -19,19 +19,7 @@ export class ApiConfigService {
     return `${featureUrl}/${endpoint}`;
   }
 
-  getAccountUrl(endpoint: string): string {
-    return this.apiUrl + 'account/' + endpoint;
-  }
-
-  getReceivingUrl(endpoint: string): string {
-    return this.apiUrl + 'receiving/' + endpoint;
-  }
-
   getStockUrl(endpoint: string): string {
     return this.apiUrl + 'stock/' + endpoint;
-  }
-
-  getOrderUrl(endpoint: string): string {
-    return this.apiUrl + 'order/' + endpoint;
   }
 }

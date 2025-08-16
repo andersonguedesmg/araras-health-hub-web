@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
 import { MessageService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -17,7 +16,6 @@ import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { Table } from 'primeng/table';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -38,34 +36,32 @@ import { DropdownDataService } from '../../../../shared/services/dropdown-data.s
 @Component({
   selector: 'app-order-create',
   imports: [
-    BreadcrumbComponent,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    TableModule,
+    FormsModule,
     ToastModule,
     ToolbarModule,
     ButtonModule,
-    FormsModule,
     InputTextModule,
     InputIconModule,
     IconFieldModule,
-    TooltipModule,
-    DialogModule,
-    SelectModule,
-    DatePickerModule,
     InputNumberModule,
     TextareaModule,
+    TooltipModule,
+    DatePickerModule,
+    DialogModule,
+    SelectModule,
+    BreadcrumbComponent,
     ToastComponent,
     SpinnerComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
   ],
   providers: [MessageService],
   templateUrl: './order-create.component.html',
   styleUrl: './order-create.component.scss'
 })
 export class OrderCreateComponent implements OnInit {
-  @ViewChild('dt') dt!: Table;
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
@@ -88,6 +84,14 @@ export class OrderCreateComponent implements OnInit {
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
+  private orderFormLabels: { [key: string]: string; } = {
+    createdByEmployeeId: 'Responsável',
+    createdAt: 'Data',
+    orderItems: 'Itens do Pedido',
+    productId: 'Produto',
+    requestedQuantity: 'Quantidade Solicitada',
+  };
+
   constructor(
     private fb: FormBuilder,
     private orderService: OrderService,
@@ -101,7 +105,7 @@ export class OrderCreateComponent implements OnInit {
       createdAt: [new Date(), Validators.required],
       createdByEmployeeId: [null, Validators.required],
       createdByAccountId: this.authService.getUserId(),
-      orderItems: this.fb.array([]),
+      orderItems: this.fb.array([], Validators.minLength(1)),
     });
   }
 
@@ -118,26 +122,22 @@ export class OrderCreateComponent implements OnInit {
   addOrderItem(): void {
     const itemGroup = this.fb.group({
       productId: [null, Validators.required],
-      requestedQuantity: ['', Validators.required],
+      requestedQuantity: ['', [Validators.required, Validators.min(1)]],
     });
 
     this.orderItems.push(itemGroup);
   }
 
   removeOrderItem(index: number): void {
-    this.orderItems.removeAt(index);
+    if (this.orderItems.length > 1) {
+      this.orderItems.removeAt(index);
+    }
   }
 
   async saveOrder(): Promise<void> {
     this.formSubmitted = true;
-    if (this.orderForm.valid) {
-      if (this.formMode === FormMode.Create) {
-        this.confirmMessage = ConfirmMessages.CREATE_ORDER;
-        this.confirmMode = ConfirmMode.Create;
-      } else if (this.formMode === FormMode.Update) {
-        this.confirmMessage = ConfirmMessages.UPDATE_ORDER;
-        this.confirmMode = ConfirmMode.Update;
-      }
+    if (this.validateForm(this.orderForm, this.orderFormLabels)) {
+      this.confirmMessage = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_ORDER : ConfirmMessages.UPDATE_ORDER;
       this.confirmDialog.message = this.confirmMessage;
       this.confirmDialog.show();
 
@@ -145,53 +145,147 @@ export class OrderCreateComponent implements OnInit {
         await firstValueFrom(this.confirmDialog.confirmed);
         this.spinnerComponent.loading = true;
         const order: Order = this.orderForm.getRawValue();
-        let response: any = null;
-        if (this.confirmMode === ConfirmMode.Create) {
-          response = await this.orderService.createOrder(order);
-        } else if (this.confirmMode === ConfirmMode.Update) {
-          // response = await this.orderService.createOrder(order, order.id);
-        }
+
+        const apiCall$ = this.formMode === FormMode.Create
+          ? this.orderService.createOrder(order)
+          : this.orderService.updateOrder(order, order.id);
+
+        const response = await firstValueFrom(apiCall$);
+
         this.spinnerComponent.loading = false;
-        if (response && (response.statusCode === HttpStatus.Ok || response.statusCode === HttpStatus.Created)) {
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message);
-          this.resetOrderForm();
-        } else if (response) {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
-        }
-        this.confirmMode = null;
+        this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+        this.resetOrderForm();
+
       } catch (error: any) {
         this.spinnerComponent.loading = false;
-        if (error && error.error && error.error.message) {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-        } else {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-        }
-        this.confirmMode = null;
-
-        try {
-          await firstValueFrom(this.confirmDialog.rejected);
-          this.confirmMode = null;
-        } catch (rejectError) {
-          this.confirmMode = null;
+        if (error.message !== 'cancel') {
+          this.handleApiError(error);
         }
       }
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.REQUIRED_FIELDS);
     }
   }
 
-  private resetOrderForm(): void {
+  public resetOrderForm(): void {
     this.orderForm.reset({
       createdAt: new Date(),
       createdByAccountId: this.authService.getUserId(),
     });
-    const firstOrderItem = this.orderItems.controls[0]?.getRawValue();
     this.orderItems.clear();
+    this.addOrderItem();
+    this.formSubmitted = false;
+  }
 
-    if (firstOrderItem) {
-      this.addOrderItem();
-      const newItem = this.orderItems.at(0);
-      newItem.patchValue(firstOrderItem);
+  private validateForm(formGroup: FormGroup, labels: { [key: string]: string; }): boolean {
+    this.markAllControlsAsTouched(formGroup);
+
+    if (formGroup.valid) {
+      return true;
+    }
+
+    const invalidControls = this.findInvalidControlsRecursive(formGroup);
+    const invalidFields = invalidControls.map(control => {
+      const controlName = this.getFormControlName(control, labels);
+      return controlName;
+    }).filter(name => name !== '');
+
+    const invalidFieldsMessage = invalidFields.length > 0
+      ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
+      : ToastMessages.REQUIRED_FIELDS;
+
+    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
+    return false;
+  }
+
+  private markAllControlsAsTouched(abstractControl: AbstractControl): void {
+    if (abstractControl instanceof FormGroup) {
+      Object.values(abstractControl.controls).forEach(control => {
+        control.markAsTouched();
+        if (control instanceof FormGroup || control instanceof FormArray) {
+          this.markAllControlsAsTouched(control);
+        }
+      });
+    } else if (abstractControl instanceof FormArray) {
+      abstractControl.controls.forEach(control => {
+        control.markAsTouched();
+        if (control instanceof FormGroup || control instanceof FormArray) {
+          this.markAllControlsAsTouched(control);
+        }
+      });
+    }
+  }
+
+  private findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
+    const invalidControls: AbstractControl[] = [];
+
+    if (form instanceof FormGroup || form instanceof FormArray) {
+      Object.values(form.controls).forEach(control => {
+        if (control.invalid) {
+          if (control instanceof FormArray && control.errors?.['minlength']) {
+            invalidControls.push(control);
+          }
+          else if (!(control instanceof FormGroup) && !(control instanceof FormArray)) {
+            invalidControls.push(control);
+          }
+          else {
+            invalidControls.push(...this.findInvalidControlsRecursive(control));
+          }
+        }
+      });
+    }
+    return invalidControls;
+  }
+
+  private getFormControlName(control: AbstractControl, labels: { [key: string]: string; }): string {
+    const parent = control.parent;
+
+    if (control instanceof FormArray && control.errors?.['minlength']) {
+      const parentFormGroup = control.parent as FormGroup;
+      if (parentFormGroup) {
+        for (const name in parentFormGroup.controls) {
+          if (control === parentFormGroup.controls[name]) {
+            return labels[name] || `Pelo menos um item em '${name.replace(/([A-Z])/g, ' $1').toLowerCase()}' é obrigatório`;
+          }
+        }
+      }
+    }
+
+    if (parent instanceof FormGroup) {
+      for (const name in parent.controls) {
+        if (control === parent.controls[name]) {
+          return labels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+        }
+      }
+    }
+
+    if (parent instanceof FormGroup && parent.parent instanceof FormArray) {
+      const itemFormArray = parent.parent as FormArray;
+      const itemIndex = itemFormArray.controls.indexOf(parent);
+
+      for (const subControlName in parent.controls) {
+        if (control === parent.controls[subControlName]) {
+          const label = labels[subControlName] || subControlName.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+          return `Item ${itemIndex + 1} - ${label}`;
+        }
+      }
+    }
+    return '';
+  }
+
+  private handleApiResponse(response: any, successMessage: string) {
+    if (response.success) {
+      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
+  private handleApiError(error: any) {
+    if (error.error?.statusCode === HttpStatus.NotFound || error.error?.statusCode === HttpStatus.BadRequest) {
+      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
+    } else if (error.error?.message) {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
+    } else {
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
     }
   }
 }
