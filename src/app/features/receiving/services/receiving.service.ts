@@ -38,6 +38,19 @@ export class ReceivingService {
     );
   }
 
+  public updateReceiving(receiving: Receiving, receivingId: number): Observable<ApiResponse<Receiving>> {
+    const url = this.apiConfig.getUrl('receiving', `update/${receivingId}`);
+    return this.http.put<ApiResponse<Receiving>>(url, receiving).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentProducts = this.receivingsSubject.getValue();
+          const updatedList = currentProducts.map(r => r.id === receivingId ? response.data! : r);
+          this.receivingsSubject.next(updatedList);
+        }
+      })
+    );
+  }
+
   public getReceivingById(id: number): Observable<ApiResponse<Receiving>> {
     const url = this.apiConfig.getUrl('receiving', `getById/${id}`);
     return this.http.get<ApiResponse<Receiving>>(url);
