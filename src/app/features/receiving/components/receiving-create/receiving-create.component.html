@@ -445,8 +445,9 @@
               styleClass="w-full"
               formControlName="cnpj"
               [ngClass]="{
-                'border-red-500':
-                  supplierFormSubmitted && supplierForm.get('cnpj')?.invalid
+                'ng-invalid ng-dirty':
+                  supplierForm.get('cnpj')?.invalid &&
+                  (supplierFormSubmitted || supplierForm.get('cnpj')?.touched)
               }"
             />
           </div>
@@ -567,8 +568,9 @@
               styleClass="w-full mt-1"
               formControlName="cep"
               [ngClass]="{
-                'border-red-500':
-                  supplierFormSubmitted && supplierForm.get('cep')?.invalid
+                'ng-invalid ng-dirty':
+                  supplierForm.get('cep')?.invalid &&
+                  (supplierFormSubmitted || supplierForm.get('cep')?.touched)
               }"
             />
           </div>
@@ -606,8 +608,9 @@
               styleClass="w-full"
               formControlName="phone"
               [ngClass]="{
-                'border-red-500':
-                  supplierFormSubmitted && supplierForm.get('phone')?.invalid
+                'ng-invalid ng-dirty':
+                  supplierForm.get('phone')?.invalid &&
+                  (supplierFormSubmitted || supplierForm.get('phone')?.touched)
               }"
             />
           </div>

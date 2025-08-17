@@ -324,8 +324,6 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
     this.receivingFormSubmitted = false;
   }
 
-  // --- Métodos relacionados ao Modal de Fornecedor ---
-
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Supplier): void {
     this.formMode = mode;
     this.selectedSupplier = supplier;
@@ -342,12 +340,10 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
   }
 
   updateSupplierFormState(): void {
+    this.supplierForm.disable();
+
     const isDetail = this.formMode === FormMode.Detail;
     const isCreate = this.formMode === FormMode.Create;
-
-    Object.keys(this.supplierForm.controls).forEach(key => {
-      this.supplierForm.get(key)?.disable();
-    });
 
     if (!isDetail) {
       this.supplierForm.get('name')?.enable();
