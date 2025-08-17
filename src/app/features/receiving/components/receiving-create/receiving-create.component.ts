@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -27,7 +27,7 @@ import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
-import { firstValueFrom } from 'rxjs';
+import { combineLatest, firstValueFrom, Subscription } from 'rxjs';
 import { SupplierService } from '../../../supplier/services/supplier.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -36,6 +36,7 @@ import { InputMask } from 'primeng/inputmask';
 import { TextareaModule } from 'primeng/textarea';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-receiving-create',
@@ -46,6 +47,7 @@ import { DialogComponent } from '../../../../shared/components/dialog/dialog.com
     FormsModule,
     ToastModule,
     ToolbarModule,
+    TableModule,
     ButtonModule,
     InputTextModule,
     InputIconModule,
@@ -67,12 +69,14 @@ import { DialogComponent } from '../../../../shared/components/dialog/dialog.com
   templateUrl: './receiving-create.component.html',
   styleUrl: './receiving-create.component.scss'
 })
-export class ReceivingCreateComponent implements OnInit {
+export class ReceivingCreateComponent implements OnInit, OnDestroy {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }, { label: 'Nova' }];
+
+  isLoading: boolean = false;
 
   receivingForm: FormGroup;
   supplierOptions: SelectOptions<number>[] = [];
@@ -125,6 +129,8 @@ export class ReceivingCreateComponent implements OnInit {
     phone: 'Telefone',
   };
 
+  private subscriptions = new Subscription();
+
   constructor(
     private fb: FormBuilder,
     private receivingService: ReceivingService,
@@ -163,10 +169,29 @@ export class ReceivingCreateComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.addReceivedItem();
-    this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
-    this.productOptions = await this.dropdownDataService.getProductOptions();
-    this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
+    this.isLoading = true;
+    try {
+      const [employeeOpts, productOpts, supplierOpts] = await Promise.all([
+        this.dropdownDataService.getEmployeeOptions(),
+        this.dropdownDataService.getProductOptions(),
+        this.dropdownDataService.getSupplierOptions(),
+      ]);
+      this.employeeOptions = employeeOpts;
+      this.productOptions = productOpts;
+      this.supplierOptions = supplierOpts;
+
+      this.addReceivedItem();
+
+    } catch (error) {
+      console.error('Erro ao carregar opções de dropdown:', error);
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar dados iniciais. Por favor, tente novamente.');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   get receivedItems(): FormArray {
@@ -176,40 +201,61 @@ export class ReceivingCreateComponent implements OnInit {
   addReceivedItem(): void {
     const itemGroup = this.fb.group({
       productId: [null, Validators.required],
-      quantity: ['', [Validators.required, Validators.min(0.01)]],
-      unitValue: ['', [Validators.required, Validators.min(0.01)]],
-      totalValue: [{ value: '', disabled: true }],
+      quantity: [null, [Validators.required, Validators.min(0.01)]],
+      unitValue: [null, [Validators.required, Validators.min(0.01)]],
+      totalValue: [{ value: null, disabled: true }],
       batch: ['', Validators.required],
       expiryDate: [null, Validators.required],
     });
 
     this.receivedItems.push(itemGroup);
-    this.setupValueChangeListener(itemGroup);
-  }
 
-  private setupValueChangeListener(itemGroup: FormGroup): void {
     const quantityCtrl = itemGroup.get('quantity');
     const unitValueCtrl = itemGroup.get('unitValue');
-    const totalValueCtrl = itemGroup.get('totalValue');
 
-    if (!quantityCtrl || !unitValueCtrl || !totalValueCtrl) return;
-
-    itemGroup.valueChanges.subscribe(() => {
-      const quantity = parseFloat(quantityCtrl.value);
-      const unitValue = parseFloat(unitValueCtrl.value);
-
-      if (!isNaN(quantity) && !isNaN(unitValue)) {
-        const total = quantity * unitValue;
-        totalValueCtrl.setValue(total.toFixed(2), { emitEvent: false });
-      } else {
-        totalValueCtrl.setValue('', { emitEvent: false });
-      }
-    });
+    if (quantityCtrl && unitValueCtrl) {
+      const sub = combineLatest([
+        quantityCtrl.valueChanges,
+        unitValueCtrl.valueChanges
+      ]).subscribe(() => {
+        this.calculateTotalValue(itemGroup);
+      });
+      this.subscriptions.add(sub);
+    }
   }
 
   removeReceivedItem(index: number): void {
-    if (this.receivedItems.length > 1) {
-      this.receivedItems.removeAt(index);
+    this.confirmDialog.message = `Tem certeza que deseja remover o item ${index + 1}?`;
+    this.confirmDialog.show();
+
+    firstValueFrom(this.confirmDialog.confirmed)
+      .then(() => {
+        if (this.receivedItems.length > 1) {
+          this.receivedItems.removeAt(index);
+          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Item ${index + 1} removido com sucesso.`);
+        }
+      })
+      .catch(() => {
+        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, 'Remoção cancelada.');
+      });
+  }
+
+
+  private calculateTotalValue(itemGroup: FormGroup): void {
+    const quantity = parseFloat(itemGroup.get('quantity')?.value || 0);
+    const unitValue = parseFloat(itemGroup.get('unitValue')?.value || 0);
+    const total = (quantity * unitValue).toFixed(2);
+
+    const totalValueCtrl = itemGroup.get('totalValue');
+    if (totalValueCtrl) {
+      const wasDisabled = totalValueCtrl.disabled;
+      if (wasDisabled) {
+        totalValueCtrl.enable({ emitEvent: false });
+      }
+      totalValueCtrl.setValue(parseFloat(total), { emitEvent: false });
+      if (wasDisabled) {
+        totalValueCtrl.disable({ emitEvent: false });
+      }
     }
   }
 
@@ -229,7 +275,7 @@ export class ReceivingCreateComponent implements OnInit {
 
       try {
         await firstValueFrom(this.confirmDialog.confirmed);
-        this.spinnerComponent.loading = true;
+        this.isLoading = true;
         const receiving: Receiving = this.receivingForm.getRawValue();
 
         const apiCall$ = this.formMode === FormMode.Create
@@ -238,12 +284,12 @@ export class ReceivingCreateComponent implements OnInit {
 
         const response = await firstValueFrom(apiCall$);
 
-        this.spinnerComponent.loading = false;
+        this.isLoading = false;
         this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
         this.resetReceivingForm();
 
       } catch (error: any) {
-        this.spinnerComponent.loading = false;
+        this.isLoading = false;
         if (error.message !== 'cancel') {
           this.handleApiError(error);
         }
@@ -253,13 +299,13 @@ export class ReceivingCreateComponent implements OnInit {
 
   private isTotalValueValid(): boolean {
     const itemsTotal = this.receivedItems.controls.reduce((sum, item) => {
-      const rawValue = item.get('totalValue')?.value ?? '0';
+      const rawValue = item.get('totalValue')?.value ?? 0;
       const normalized = String(rawValue).replace(',', '.');
       const val = parseFloat(normalized);
       return sum + (isNaN(val) ? 0 : val);
     }, 0);
 
-    const rawFormTotal = this.receivingForm.get('totalValue')?.value ?? '0';
+    const rawFormTotal = this.receivingForm.get('totalValue')?.value ?? 0;
     const formTotal = parseFloat(String(rawFormTotal).replace(',', '.'));
 
     const precision = 0.01;
@@ -272,9 +318,13 @@ export class ReceivingCreateComponent implements OnInit {
       accountId: this.authService.getUserId(),
     });
     this.receivedItems.clear();
+    this.subscriptions.unsubscribe();
+    this.subscriptions = new Subscription();
     this.addReceivedItem();
     this.receivingFormSubmitted = false;
   }
+
+  // --- Métodos relacionados ao Modal de Fornecedor ---
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Supplier): void {
     this.formMode = mode;
@@ -292,10 +342,12 @@ export class ReceivingCreateComponent implements OnInit {
   }
 
   updateSupplierFormState(): void {
-    this.supplierForm.disable();
-
     const isDetail = this.formMode === FormMode.Detail;
     const isCreate = this.formMode === FormMode.Create;
+
+    Object.keys(this.supplierForm.controls).forEach(key => {
+      this.supplierForm.get(key)?.disable();
+    });
 
     if (!isDetail) {
       this.supplierForm.get('name')?.enable();
@@ -333,7 +385,7 @@ export class ReceivingCreateComponent implements OnInit {
 
       try {
         await firstValueFrom(this.confirmDialog.confirmed);
-        this.spinnerComponent.loading = true;
+        this.isLoading = true;
         const supplier: Supplier = this.supplierForm.getRawValue();
 
         const apiCall$ = this.formMode === FormMode.Create
@@ -342,7 +394,7 @@ export class ReceivingCreateComponent implements OnInit {
 
         const response = await firstValueFrom(apiCall$);
 
-        this.spinnerComponent.loading = false;
+        this.isLoading = false;
         this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
         if (response.success && response.data) {
           this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
@@ -351,7 +403,7 @@ export class ReceivingCreateComponent implements OnInit {
         this.hideDialog();
 
       } catch (error: any) {
-        this.spinnerComponent.loading = false;
+        this.isLoading = false;
         if (error.message !== 'cancel') {
           this.handleApiError(error);
         }

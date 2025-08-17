@@ -1,7 +1,7 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
 
 <app-toast></app-toast>
-<app-spinner></app-spinner>
+<app-spinner [loading]="isLoading"></app-spinner>
 <app-confirm-dialog></app-confirm-dialog>
 
 <div class="container mx-auto">
@@ -18,8 +18,9 @@
             icon="pi pi-plus"
             severity="secondary"
             (click)="openForm(FormMode.Create)"
-          /></div
-      ></ng-template>
+          ></p-button>
+        </div>
+      </ng-template>
     </p-toolbar>
 
     <div class="bg-surface-900 rounded-md shadow-md p-6">
@@ -132,9 +133,10 @@
                 [filter]="true"
                 filterBy="label"
                 [ngClass]="{
-                  'border-red-500':
-                    receivingFormSubmitted &&
-                    receivingForm.get('supplierId')?.invalid
+                  'ng-invalid ng-dirty':
+                    receivingForm.get('supplierId')?.invalid &&
+                    (receivingFormSubmitted ||
+                      receivingForm.get('supplierId')?.touched)
                 }"
               ></p-select>
             </div>
@@ -160,9 +162,10 @@
                 [filter]="true"
                 filterBy="label"
                 [ngClass]="{
-                  'border-red-500':
-                    receivingFormSubmitted &&
-                    receivingForm.get('responsibleId')?.invalid
+                  'ng-invalid ng-dirty':
+                    receivingForm.get('responsibleId')?.invalid &&
+                    (receivingFormSubmitted ||
+                      receivingForm.get('responsibleId')?.touched)
                 }"
               ></p-select>
             </div>
@@ -183,9 +186,10 @@
                 [showButtonBar]="true"
                 class="w-full mt-1"
                 [ngClass]="{
-                  'border-red-500':
-                    receivingFormSubmitted &&
-                    receivingForm.get('receivingDate')?.invalid
+                  'ng-invalid ng-dirty':
+                    receivingForm.get('receivingDate')?.invalid &&
+                    (receivingFormSubmitted ||
+                      receivingForm.get('receivingDate')?.touched)
                 }"
               ></p-datepicker>
             </div>
@@ -219,130 +223,159 @@
               class="p-button-sm"
             ></p-button>
           </div>
-          <div formArrayName="receivedItems" class="space-y-6">
-            <div
-              *ngFor="let item of receivedItems.controls; let i = index"
-              [formGroupName]="i"
-              class="grid grid-cols-1 md:grid-cols-10 gap-4 p-4 border rounded-md bg-surface-900"
-              [ngClass]="{
-                'border-red-500': receivingFormSubmitted && item.invalid,
-                'border-surface-700': !item.invalid
-              }"
+
+          <div class="border border-surface-700 rounded-lg overflow-hidden">
+            <p-table
+              [value]="receivedItems.controls"
+              formArrayName="receivedItems"
+              [responsive]="true"
+              [responsiveLayout]="'scroll'"
+              [scrollable]="true"
+              scrollHeight="flex"
+              dataKey="id"
+              styleClass="p-datatable-gridlines p-datatable-sm"
             >
-              <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-gray-500"
-                  >Produto</label
-                >
-                <p-select
-                  [options]="productOptions"
-                  formControlName="productId"
-                  placeholder="Selecione"
-                  class="w-full mt-1"
-                  [showClear]="true"
-                  [filter]="true"
-                  filterBy="label"
-                  [ngClass]="{
-                    'border-red-500':
-                      receivingFormSubmitted && item.get('productId')?.invalid
-                  }"
-                ></p-select>
-              </div>
+              <ng-template pTemplate="header">
+                <tr>
+                  <th [style]="{ width: '25%' }">Produto</th>
+                  <th [style]="{ width: '10%' }">Quantidade</th>
+                  <th [style]="{ width: '15%' }">Valor Unitário</th>
+                  <th [style]="{ width: '15%' }">Valor Total</th>
+                  <th [style]="{ width: '15%' }">Lote</th>
+                  <th [style]="{ width: '15%' }">Validade</th>
+                  <th [style]="{ width: '5%', 'text-align': 'center' }">
+                    Ações
+                  </th>
+                </tr>
+              </ng-template>
 
-              <div class="md:col-span-1">
-                <label class="block text-sm font-medium text-gray-500"
-                  >Quantidade</label
-                >
-                <input
-                  type="number"
-                  pInputText
-                  formControlName="quantity"
-                  class="w-full mt-1"
+              <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+                <tr
+                  [formGroup]="item"
                   [ngClass]="{
-                    'border-red-500':
-                      receivingFormSubmitted && item.get('quantity')?.invalid
+                    'border-red-500': receivingFormSubmitted && item.invalid
                   }"
-                />
-              </div>
-
-              <div class="md:col-span-1">
-                <label class="block text-sm font-medium text-gray-500"
-                  >Valor Unitário</label
                 >
-                <input
-                  type="number"
-                  pInputText
-                  formControlName="unitValue"
-                  class="w-full mt-1"
-                  [ngClass]="{
-                    'border-red-500':
-                      receivingFormSubmitted && item.get('unitValue')?.invalid
-                  }"
-                />
-              </div>
+                  <td>
+                    <p-select
+                      [options]="productOptions"
+                      formControlName="productId"
+                      placeholder="Selecione"
+                      class="w-full"
+                      [showClear]="true"
+                      [filter]="true"
+                      filterBy="label"
+                      appendTo="body"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          item.get('productId')?.invalid &&
+                          (receivingFormSubmitted ||
+                            item.get('productId')?.touched)
+                      }"
+                    ></p-select>
+                  </td>
+                  <td>
+                    <p-inputNumber
+                      formControlName="quantity"
+                      mode="decimal"
+                      [minFractionDigits]="0"
+                      [maxFractionDigits]="2"
+                      locale="pt-BR"
+                      class="w-full"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          item.get('quantity')?.invalid &&
+                          (receivingFormSubmitted ||
+                            item.get('quantity')?.touched)
+                      }"
+                    ></p-inputNumber>
+                  </td>
+                  <td>
+                    <p-inputNumber
+                      formControlName="unitValue"
+                      mode="decimal"
+                      [minFractionDigits]="2"
+                      [maxFractionDigits]="2"
+                      locale="pt-BR"
+                      class="w-full"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          item.get('unitValue')?.invalid &&
+                          (receivingFormSubmitted ||
+                            item.get('unitValue')?.touched)
+                      }"
+                    ></p-inputNumber>
+                  </td>
+                  <td>
+                    <p-inputNumber
+                      formControlName="totalValue"
+                      mode="decimal"
+                      [minFractionDigits]="2"
+                      [maxFractionDigits]="2"
+                      locale="pt-BR"
+                      class="w-full"
+                      [readonly]="true"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          item.get('totalValue')?.invalid &&
+                          (receivingFormSubmitted ||
+                            item.get('totalValue')?.touched)
+                      }"
+                    ></p-inputNumber>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      pInputText
+                      formControlName="batch"
+                      class="w-full"
+                      [ngClass]="{
+                        'border-red-500':
+                          receivingFormSubmitted && item.get('batch')?.invalid
+                      }"
+                    />
+                  </td>
+                  <td>
+                    <p-datepicker
+                      formControlName="expiryDate"
+                      dateFormat="dd/mm/yy"
+                      [showButtonBar]="true"
+                      class="w-full"
+                      appendTo="body"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          item.get('expiryDate')?.invalid &&
+                          (receivingFormSubmitted ||
+                            item.get('expiryDate')?.touched)
+                      }"
+                    ></p-datepicker>
+                  </td>
+                  <td style="text-align: center">
+                    <button
+                      pButton
+                      pTooltip="Excluir"
+                      tooltipPosition="top"
+                      icon="pi pi-trash"
+                      (click)="removeReceivedItem(rowIndex)"
+                      severity="danger"
+                      type="button"
+                      [rounded]="true"
+                      [outlined]="true"
+                      [disabled]="receivedItems.length <= 1"
+                      class="p-button-sm"
+                    ></button>
+                  </td>
+                </tr>
+              </ng-template>
 
-              <div class="md:col-span-1">
-                <label class="block text-sm font-medium text-gray-500"
-                  >Valor Total</label
-                >
-                <input
-                  type="number"
-                  pInputText
-                  formControlName="totalValue"
-                  class="w-full mt-1"
-                  [ngClass]="{
-                    'border-red-500':
-                      receivingFormSubmitted && item.get('totalValue')?.invalid
-                  }"
-                />
-              </div>
-
-              <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-500"
-                  >Lote</label
-                >
-                <input
-                  type="text"
-                  pInputText
-                  formControlName="batch"
-                  class="w-full mt-1"
-                  [ngClass]="{
-                    'border-red-500':
-                      receivingFormSubmitted && item.get('batch')?.invalid
-                  }"
-                />
-              </div>
-
-              <div class="md:col-span-1">
-                <label class="block text-sm font-medium text-gray-500 mb-1"
-                  >Validade</label
-                >
-                <p-datepicker
-                  formControlName="expiryDate"
-                  dateFormat="dd/mm/yy"
-                  [showButtonBar]="true"
-                  [ngClass]="{
-                    'border-red-500':
-                      receivingFormSubmitted && item.get('expiryDate')?.invalid
-                  }"
-                ></p-datepicker>
-              </div>
-
-              <div class="md:col-span-1 flex items-end">
-                <button
-                  pButton
-                  pTooltip="Excluir"
-                  tooltipPosition="top"
-                  icon="pi pi-trash"
-                  (click)="removeReceivedItem(i)"
-                  severity="danger"
-                  type="button"
-                  [rounded]="true"
-                  [outlined]="true"
-                  [disabled]="receivedItems.length <= 1"
-                  class="mt-1 p-button-sm"
-                ></button>
-              </div>
-            </div>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td [attr.colspan]="7" class="text-center text-gray-500 p-4">
+                    Nenhum item adicionado.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
           </div>
         </div>
 
@@ -591,7 +624,7 @@
               class="w-full mt-1"
               placeholder="Selecione"
               [ngClass]="{
-                'border-red-500':
+                'ng-invalid ng-dirty':
                   supplierFormSubmitted && supplierForm.get('isActive')?.invalid
               }"
             ></p-select>
