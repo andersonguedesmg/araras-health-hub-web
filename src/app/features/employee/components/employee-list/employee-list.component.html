@@ -175,8 +175,9 @@
               styleClass="w-full mt-1"
               formControlName="cpf"
               [ngClass]="{
-                'border-red-500':
-                  formSubmitted && employeeForm.get('cpf')?.invalid
+                'ng-invalid ng-dirty':
+                  employeeForm.get('phone')?.invalid &&
+                  (formSubmitted || employeeForm.get('cpf')?.touched)
               }"
             />
           </div>
@@ -216,8 +217,9 @@
               styleClass="w-full mt-1"
               formControlName="phone"
               [ngClass]="{
-                'border-red-500':
-                  formSubmitted && employeeForm.get('phone')?.invalid
+                'ng-invalid ng-dirty':
+                  employeeForm.get('phone')?.invalid &&
+                  (formSubmitted || employeeForm.get('phone')?.touched)
               }"
             />
           </div>
