@@ -24,7 +24,10 @@
 
     <div class="bg-surface-900 rounded-md shadow-md p-6">
       <form [formGroup]="receivingForm" class="mt-4">
-        <section>
+        <div class="bg-surface-800 p-6 rounded-md shadow-inner">
+          <h2 class="text-xl font-semibold text-white mb-4">
+            Detalhes da Entrada
+          </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="mb-4" *ngIf="formMode !== 'create'">
               <label for="id" class="block text-sm font-medium text-gray-500"
@@ -201,13 +204,11 @@
               ></textarea>
             </div>
           </div>
-        </section>
+        </div>
 
-        <hr class="mt-6 mb-2 border-t border-surface-700" />
-
-        <section>
+        <div class="bg-surface-800 p-6 rounded-md shadow-inner mt-6">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold text-white mt-4">
+            <h2 class="text-xl font-semibold text-white">
               Itens
               <span class="text-red-500" *ngIf="formMode !== 'detail'">*</span>
             </h2>
@@ -337,12 +338,14 @@
                   type="button"
                   [rounded]="true"
                   [outlined]="true"
+                  [disabled]="receivedItems.length <= 1"
                   class="mt-1 p-button-sm"
                 ></button>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+
         <div class="flex justify-end pt-4 mt-4">
           <p-button
             label="Salvar"
@@ -351,10 +354,11 @@
             (click)="saveReceiving()"
           ></p-button>
           <p-button
-            label="Cancelar"
-            icon="pi pi-times"
+            label="Limpar"
+            icon="pi pi-eraser"
             severity="info"
             [outlined]="true"
+            (click)="resetReceivingForm()"
           ></p-button>
         </div>
       </form>

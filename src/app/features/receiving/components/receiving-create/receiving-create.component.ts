@@ -208,7 +208,9 @@ export class ReceivingCreateComponent implements OnInit {
   }
 
   removeReceivedItem(index: number): void {
-    this.receivedItems.removeAt(index);
+    if (this.receivedItems.length > 1) {
+      this.receivedItems.removeAt(index);
+    }
   }
 
   async saveReceiving(): Promise<void> {
@@ -264,7 +266,7 @@ export class ReceivingCreateComponent implements OnInit {
     return Math.abs(itemsTotal - formTotal) < precision;
   }
 
-  private resetReceivingForm(): void {
+  public resetReceivingForm(): void {
     this.receivingForm.reset({
       receivingDate: new Date(),
       accountId: this.authService.getUserId(),
