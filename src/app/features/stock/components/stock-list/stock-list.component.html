@@ -1,104 +1,88 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
 
 <app-toast></app-toast>
-<app-spinner></app-spinner>
+<app-spinner [loading]="isLoading"></app-spinner>
 <app-confirm-dialog></app-confirm-dialog>
 
-<div class="container mx-auto mb-10">
+<div class="container mx-auto">
   <div class="card mt-10">
-    <p-toolbar>
-      <ng-template #start>
-        <span class="text-xl font-bold mt-2 mb-2">Estoque</span>
-      </ng-template>
+    <app-table-header [title]="'Estoque'"></app-table-header>
 
-      <ng-template #end></ng-template>
-    </p-toolbar>
-
-    <p-table
-      #dt
-      [value]="stocks"
-      [columns]="cols"
-      [globalFilterFields]="[
-        'product.name',
-        'total',
-        'quantity',
-        'product.dosageForm',
-        'batch',
-        'product.description'
-      ]"
-      [tableStyle]="{ 'min-width': '75rem' }"
-      showGridlines
-      [scrollable]="true"
-      scrollHeight="35rem"
-      dataKey="product.name"
-      rowGroupMode="rowspan"
-      groupRowsBy="product.name"
-      sortMode="single"
-    >
-      <ng-template #caption>
-        <div class="flex items-center justify-between">
-          <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
-            <input
-              pInputText
-              type="text"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-              placeholder="Pesquisar..."
-            />
-          </p-iconfield>
-          <div>
-            <p-button
-              label="Exportar"
-              icon="pi pi-upload"
-              severity="secondary"
-              (onClick)="exportCSV()"
-            />
-          </div>
-        </div>
-      </ng-template>
-
-      <ng-template #header>
-        <tr>
-          <th style="min-width: 25rem" pSortableColumn="product.name">
-            PRODUTO
-          </th>
-          <th style="min-width: 10rem" pSortableColumn="total">TOTAL</th>
-          <th style="min-width: 10rem" pSortableColumn="quantity">
-            QUANTIDADE
-          </th>
-          <th style="min-width: 12rem" pSortableColumn="product.dosageForm">
-            UNIDADE DE MEDIDA
-          </th>
-          <th style="min-width: 18rem" pSortableColumn="batch">LOTE</th>
-        </tr>
-      </ng-template>
-
-      <ng-template
-        #body
-        let-stock
-        let-rowIndex="rowIndex"
-        let-rowgroup="rowgroup"
-        let-rowspan="rowspan"
+    <ng-container *ngIf="stocks$ | async as stocks">
+      <app-table
+        [value]="stocks"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [lazy]="true"
+        (onLazyLoad)="loadStocks($event)"
+        [totalRecords]="totalRecords"
+        [globalFilterFields]="[
+          'product.name',
+          'product.description',
+          'product.dosageForm',
+          'product.category',
+          'currentQuantity',
+          'minQuantity'
+        ]"
+        [loading]="isLoading"
+        [colspan]="6"
       >
-        <tr>
-          <td
-            *ngIf="rowgroup"
-            pTooltip="{{ stock.product.description }}"
-            tooltipPosition="left"
-            [attr.rowspan]="rowspan"
-          >
-            <div class="flex items-center gap-2">
-              <span>{{ stock.product.name }}</span>
+        <ng-template #captionTemplate let-dt>
+          <div class="flex items-center justify-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Pesquisar..."
+              />
+            </p-iconfield>
+            <div>
+              <p-button
+                label="Exportar"
+                icon="pi pi-upload"
+                severity="secondary"
+                (click)="exportCSV(dt)"
+              />
             </div>
-          </td>
-          <td *ngIf="rowgroup" [attr.rowspan]="rowspan">
-            {{ getTotalQuantity(stock.product.name) }}
-          </td>
-          <td>{{ stock.quantity }}</td>
-          <td>{{ stock.product.dosageForm }}</td>
-          <td>{{ stock.batch }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
+          </div>
+        </ng-template>
+
+        <ng-template #headerTemplate>
+          <tr>
+            <th style="min-width: 20rem" pSortableColumn="product.name">
+              PRODUTO
+            </th>
+            <th style="min-width: 25rem" pSortableColumn="product.description">
+              DESCRIÇÃO
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="product.dosageForm">
+              UNIDADE DE MEDIDA
+            </th>
+            <th style="min-width: 15rem" pSortableColumn="product.category">
+              CATEGORIA
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="currentQuantity">
+              QUANTIDADE ATUAL
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="minQuantity">
+              QUANTIDADE MÍNIMA
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template #bodyTemplate let-stock>
+          <tr>
+            <td>{{ stock.product.name }}</td>
+            <td>{{ stock.product.description }}</td>
+            <td>{{ stock.product.dosageForm }}</td>
+            <td>{{ stock.product.category }}</td>
+            <td>{{ stock.currentQuantity }}</td>
+            <td>{{ stock.minQuantity }}</td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </ng-container>
   </div>
 </div>
