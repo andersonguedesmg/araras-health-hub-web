@@ -94,7 +94,7 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Aguardando Aprovação',
             icon: PrimeIcons.CLOCK,
-            routerLink: '/pedidos',
+            routerLink: '/pedido/aprovar',
           },
           {
             label: 'Aprovado',

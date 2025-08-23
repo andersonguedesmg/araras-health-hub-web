@@ -18,6 +18,7 @@ import { ReceivingListComponent } from './features/receiving/components/receivin
 import { ReceivingCreateComponent } from './features/receiving/components/receiving-create/receiving-create.component';
 import { OrderCreateComponent } from './features/order/components/order-create/order-create.component';
 import { UnauthorizedComponent } from './shared/pages/unauthorized/unauthorized.component';
+import { OrderApproveComponent } from './features/order/components/order-approve/order-approve.component';
 
 export const routes: Routes = [
   {
@@ -84,6 +85,11 @@ export const routes: Routes = [
         path: 'pedido/novo',
         component: OrderCreateComponent,
         title: 'A2H - Novo Pedido',
+      },
+      {
+        path: 'pedido/aprovar',
+        component: OrderApproveComponent,
+        title: 'A2H - Aprovar Pedidos',
       },
       {
         path: 'produtos',
