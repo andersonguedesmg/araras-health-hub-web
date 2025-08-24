@@ -1,1 +1,122 @@
-<p>order-approve works!</p>
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-toast></app-toast>
+<app-spinner [loading]="isLoading"></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <app-table-header [title]="'Pedidos'"></app-table-header>
+
+    <ng-container *ngIf="orders$ | async as orders">
+      <app-table
+        [value]="orders"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [lazy]="true"
+        (onLazyLoad)="loadOrders($event)"
+        [totalRecords]="totalRecords"
+        [globalFilterFields]="[
+          'id',
+          'createdAt',
+          'createdByAccount.facility.name',
+          'createdByAccount.userName',
+          'createdByEmployee.name',
+          'orderItems.length',
+          'orderStatus.description'
+        ]"
+        [loading]="isLoading"
+        [colspan]="8"
+      >
+        <ng-template #captionTemplate let-dt>
+          <div class="flex items-center justify-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Pesquisar..."
+              />
+            </p-iconfield>
+            <div>
+              <p-button
+                label="Exportar"
+                icon="pi pi-upload"
+                severity="secondary"
+                (click)="exportCSV(dt)"
+              />
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #headerTemplate>
+          <tr>
+            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
+            <th style="min-width: 12rem" pSortableColumn="createdAt">
+              DATA DE PEDIDO
+            </th>
+            <th style="min-width: 20rem" pSortableColumn="facility.name">
+              UNIDADE
+            </th>
+            <th style="min-width: 10rem" pSortableColumn="userName">CONTA</th>
+            <th
+              style="min-width: 12rem"
+              pSortableColumn="createdByEmployee.name"
+            >
+              RESPONSÁVEL
+            </th>
+            <th style="min-width: 8rem" pSortableColumn="orderItems.length">
+              ITENS
+            </th>
+            <th
+              style="min-width: 12rem"
+              pSortableColumn="orderStatus.description"
+            >
+              STATUS
+            </th>
+            <th style="min-width: 15rem">AÇÕES</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #bodyTemplate let-order>
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.createdAt | date : "dd/MM/yyyy" }}</td>
+            <td>{{ order.createdByAccount.facility.name }}</td>
+            <td>{{ order.createdByAccount.userName }}</td>
+            <td>{{ order.createdByEmployee.name }}</td>
+            <td>{{ order.orderItems.length }}</td>
+            <td>
+              <p-tag
+                [value]="getOrderStatus(order.orderStatus.description)"
+                [severity]="getOrderSeverity(order.orderStatus.description)"
+              />
+            </td>
+            <td>
+              <p-button
+                *appHasRole="['Master', 'Admin']"
+                icon="pi pi-check"
+                class="mr-2"
+                pTooltip="Aprovar"
+                tooltipPosition="bottom"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="onApproveClick(order)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </ng-container>
+  </div>
+</div>
+
+<app-order-action-modal
+  [display]="displayActionModal"
+  [order]="selectedOrderForAction!"
+  [actionType]="OrderActionType.Approve"
+  (displayChange)="displayActionModal = $event"
+  (onActionComplete)="handleActionComplete($event)"
+>
+</app-order-action-modal>
