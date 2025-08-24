@@ -34,6 +34,10 @@ export const ConfirmMessages = {
 
   CREATE_ORDER: 'Tem certeza que deseja realizar esse pedido?',
   UPDATE_ORDER: 'Tem certeza que deseja atualizar esse pedido?',
+  APPROVE_ORDER: 'Tem certeza que deseja realizar esse pedido?',
+  SEPARATE_ORDER: 'Tem certeza que deseja atualizar esse pedido?',
+  FINALIZE_ORDER: 'Tem certeza que deseja atualizar esse pedido?',
+  CONFIRM_OPERATION: 'Tem certeza que deseja atualizar esse pedido?',
 };
 
 export const ToastMessages = {

@@ -1,0 +1,235 @@
+<p-dialog
+  [(visible)]="display"
+  (onHide)="closeModal()"
+  [modal]="true"
+  [style]="{ width: '70vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  [header]="'Pedido #' + (order?.id || '')"
+>
+  <ng-container *ngIf="order">
+    <div class="p-4">
+      <form [formGroup]="actionForm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+
+          <!-- Card de Informações do Pedido (1º Card) -->
+          <div class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col justify-between">
+            <h3 class="text-base font-semibold text-white flex items-center mb-4"> <!-- FONTE DO TÍTULO DIMINUÍDA (text-base) -->
+              <i class="pi pi-book text-xl text-blue-400 mr-3"></i> <!-- ÍCONE DIMINUÍDO (text-xl) -->
+              Pedido
+            </h3>
+            <div class="space-y-3 text-gray-300 text-sm">
+              <div class="truncate">
+                <label class="block text-gray-400">Responsável:</label>
+                <p class="font-light">{{ order.createdByEmployee?.name || 'N/A' }}</p>
+              </div>
+              <div class="truncate">
+                <label class="block text-gray-400">Unidade:</label>
+                <!-- <p class="font-light">{{ order.createdByAccount?.facility?.name || 'N/A' }}</p> -->
+              </div>
+              <div>
+                <label class="block text-gray-400">Data:</label>
+                <p class="font-light">{{ order.createdAt | date: 'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card de Informações de Aprovação (2º Card) -->
+          <div class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col justify-between">
+            <h3 class="text-base font-semibold text-white flex items-center mb-4"> <!-- FONTE DO TÍTULO DIMINUÍDA (text-base) -->
+              <i class="pi pi-check text-xl text-green-400 mr-3"></i> <!-- ÍCONE DIMINUÍDO (text-xl) -->
+              Aprovação
+            </h3>
+            <div class="space-y-3 text-gray-300 text-sm">
+              <div *ngIf="order.approvedByEmployee?.name; else noApproval">
+                <label class="block text-gray-400">Responsável:</label>
+                <p class="font-light">{{ order.approvedByEmployee?.name }}</p>
+              </div>
+              <div *ngIf="order.approvedAt; else noApprovalDate">
+                <label class="block text-gray-400">Data:</label>
+                <p class="font-light">{{ order.approvedAt | date: 'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card de Informações de Separação (3º Card) -->
+          <div class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col justify-between">
+            <h3 class="text-base font-semibold text-white flex items-center mb-4"> <!-- FONTE DO TÍTULO DIMINUÍDA (text-base) -->
+              <i class="pi pi-list text-xl text-orange-400 mr-3"></i> <!-- ÍCONE DIMINUÍDO (text-xl) -->
+              Separação
+            </h3>
+            <div class="space-y-3 text-gray-300 text-sm">
+              <div *ngIf="order.separatedByEmployee?.name; else noSeparation">
+                <label class="block text-gray-400">Responsável:</label>
+                <p class="font-light">{{ order.separatedByEmployee?.name }}</p>
+              </div>
+              <div *ngIf="order.separatedAt; else noSeparationDate">
+                <label class="block text-gray-400">Data:</label>
+                <p class="font-light">{{ order.separatedAt | date: 'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card de Informações de Finalização (4º Card) -->
+          <div class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col justify-between">
+            <h3 class="text-base font-semibold text-white flex items-center mb-4"> <!-- FONTE DO TÍTULO DIMINUÍDA (text-base) -->
+              <i class="pi pi-box text-xl text-purple-400 mr-3"></i> <!-- ÍCONE DIMINUÍDO (text-xl) -->
+              Finalização
+            </h3>
+            <div class="space-y-3 text-gray-300 text-sm">
+              <div *ngIf="order.finalizedByEmployee?.name; else noFinalization">
+                <label class="block text-gray-400">Responsável:</label>
+                <p class="font-light">{{ order.finalizedByEmployee?.name }}</p>
+              </div>
+              <div *ngIf="order.finalizedAt; else noFinalizationDate">
+                <label class="block text-gray-400">Data:</label>
+                <p class="font-light">{{ order.finalizedAt | date: 'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card de Status do Pedido (5º Card - Último) -->
+          <div class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col justify-between">
+            <h3 class="text-base font-semibold text-white flex items-center mb-4"> <!-- FONTE DO TÍTULO DIMINUÍDA (text-base) -->
+              <i class="pi pi-bell text-xl text-yellow-400 mr-3"></i> <!-- ÍCONE DIMINUÍDO (text-xl) -->
+              Status
+            </h3>
+            <p-tag
+              [value]="order.orderStatus?.description"
+              [severity]="order.orderStatus?.description === 'Aprovado' ? 'success' : 'info'"
+              class="text-sm font-light w-fit mb-4"
+            />
+            <div *ngIf="actionType === OrderActionType.Approve || actionType === OrderActionType.Separate || actionType === OrderActionType.Finalize">
+              <label class="block text-gray-400 mt-2">Responsável pela Ação:</label>
+              <p-select
+                [options]="employeeOptions"
+                formControlName="employeeId"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Selecione"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': actionForm.get('responsibleEmployeeId')?.invalid && formSubmitted}"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Templates para valores "N/A" -->
+        <ng-template #noApproval><p class="font-light text-gray-500">N/A</p></ng-template>
+        <ng-template #noApprovalDate><p class="font-light text-gray-500">N/A</p></ng-template>
+        <ng-template #noSeparation><p class="font-light text-gray-500">N/A</p></ng-template>
+        <ng-template #noSeparationDate><p class="font-light text-gray-500">N/A</p></ng-template>
+        <ng-template #noFinalization><p class="font-light text-gray-500">N/A</p></ng-template>
+        <ng-template #noFinalizationDate><p class="font-light text-gray-500">N/A</p></ng-template>
+
+        <!-- Tabela de Itens (mantida abaixo dos cards) -->
+        <p-table
+          [value]="orderItemsFormArray.controls"
+          dataKey="id"
+          [tableStyle]="{ 'min-width': '50rem' }"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="w-1/4">Produto</th>
+              <th class="w-1/5">Quantidade Solicitada</th>
+              <th class="w-1/5">Quantidade Disponível</th>
+              <th class="w-1/5">Quantidade Aprovada</th>
+              <th
+                class="w-1/5"
+                *ngIf="
+                  actionType === OrderActionType.Separate ||
+                  actionType === OrderActionType.Finalize
+                "
+              >
+                Quantidade Real
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-itemFormGroup let-ri="rowIndex">
+            <tr [formGroup]="itemFormGroup">
+              <td>{{ itemFormGroup.get('productName')?.value }}</td>
+              <td>{{ itemFormGroup.get('requestedQuantity')?.value }}</td>
+              <td>{{ itemFormGroup.get('availableQuantity')?.value || 0 }}</td>
+
+              <td>
+                <ng-container *ngIf="actionType === OrderActionType.Approve; else approvedQuantityReadonly">
+                  <p-inputNumber
+                    formControlName="approvedQuantity"
+                    mode="decimal"
+                    [showButtons]="true"
+                    [min]="0"
+                    [max]="itemFormGroup.get('requestedQuantity')?.value || 0"
+                    class="w-full"
+                    [ngClass]="{'ng-invalid ng-dirty': itemFormGroup.get('approvedQuantity')?.invalid && formSubmitted}"
+                  />
+                </ng-container>
+                <ng-template #approvedQuantityReadonly>
+                  {{ itemFormGroup.get('approvedQuantity')?.value }}
+                </ng-template>
+              </td>
+
+              <td
+                *ngIf="
+                  actionType === OrderActionType.Separate ||
+                  actionType === OrderActionType.Finalize
+                "
+              >
+                <ng-container *ngIf="actionType === OrderActionType.Separate; else actualQuantityReadonly">
+                  <p-inputNumber
+                    formControlName="actualQuantity"
+                    mode="decimal"
+                    [showButtons]="true"
+                    [min]="0"
+                    [max]="itemFormGroup.get('approvedQuantity')?.value || 0"
+                    class="w-full"
+                    [ngClass]="{'ng-invalid ng-dirty': itemFormGroup.get('actualQuantity')?.invalid && formSubmitted}"
+                  />
+                </ng-container>
+                <ng-template #actualQuantityReadonly>
+                  {{ itemFormGroup.get('actualQuantity')?.value }}
+                </ng-template>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </form>
+    </div>
+  </ng-container>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        (click)="closeModal()"
+      />
+      <p-button
+        [label]="actionType"
+        icon="pi pi-check"
+        (click)="onActionClick()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Templates para valores "N/A" se os campos não existirem -->
+<ng-template #noApproval>
+  <p class="font-light text-gray-500">N/A</p>
+</ng-template>
+<ng-template #noApprovalDate>
+  <p class="font-light text-gray-500">N/A</p>
+</ng-template>
+<ng-template #noSeparation>
+  <p class="font-light text-gray-500">N/A</p>
+</ng-template>
+<ng-template #noSeparationDate>
+  <p class="font-light text-gray-500">N/A</p>
+</ng-template>
+<ng-template #noFinalization>
+  <p class="font-light text-gray-500">N/A</p>
+</ng-template>
+<ng-template #noFinalizationDate>
+  <p class="font-light text-gray-500">N/A</p>
+</ng-template>
