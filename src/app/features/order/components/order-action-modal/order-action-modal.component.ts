@@ -18,7 +18,7 @@ import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/mes
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { ApiResponse } from '../../../../shared/interfaces/api-response';
-import { firstValueFrom, Subscription, combineLatest } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { ApproveOrderCommand, SeparateOrderCommand, FinalizeOrderCommand } from '../../interfaces/order-commands';
 import { OrderItem } from '../../interfaces/orderItem';
