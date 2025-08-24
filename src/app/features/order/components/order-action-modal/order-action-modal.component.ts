@@ -10,19 +10,17 @@ import { OrderActionType } from '../../../../shared/enums/order-action-type.enum
 import { Order } from '../../interfaces/order';
 import { OrderService } from '../../services/order.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { ApiResponse } from '../../../../shared/interfaces/api-response';
 import { firstValueFrom, Subscription } from 'rxjs';
-import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { ApproveOrderCommand, SeparateOrderCommand, FinalizeOrderCommand } from '../../interfaces/order-commands';
 import { OrderItem } from '../../interfaces/orderItem';
 import { TagModule } from 'primeng/tag';
+import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order-status.utils';
 
 @Component({
   selector: 'app-order-action-modal',
@@ -45,55 +43,46 @@ import { TagModule } from 'primeng/tag';
 })
 export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
   @Input() display = false;
   @Input() order!: Order;
   @Input() actionType!: OrderActionType;
+  @Input() responsibleEmployeeOptions: any[] = [];
 
   @Output() displayChange = new EventEmitter<boolean>();
   @Output() onActionComplete = new EventEmitter<Order>();
 
+  isLoading: boolean = false;
+
   OrderActionType = OrderActionType;
   actionForm!: FormGroup;
   formSubmitted = false;
-  isLoading = false;
-
-  employeeOptions: SelectOptions<number>[] = [];
-  currentAccountId: string;
-
   confirmMessage = '';
-  confirmMode: ConfirmMode = ConfirmMode.Create;
+
+  currentAccountId: number;
+
+  private orderFormLabels: { [key: string]: string; } = {
+    responsibleEmployeeId: 'Responsável',
+    approvedQuantity: 'Quantidade Aprovada',
+    actualQuantity: 'Quantidade Real'
+  };
+
+  getOrderSeverity = getOrderSeverity;
+  getOrderStatus = getOrderStatus;
 
   private subscriptions: Subscription = new Subscription();
-
-  private actionFormLabels: { [key: string]: string; } = {
-    responsibleId: 'Responsável',
-    approvedQuantity: 'Quantidade Aprovada',
-    actualQuantity: 'Quantidade Real',
-  };
 
   constructor(
     private fb: FormBuilder,
     private orderService: OrderService,
     private authService: AuthService,
-    private dropdownDataService: DropdownDataService,
   ) {
-    this.currentAccountId = this.authService.getUserId() || '';
-    this.initForm();
+    this.currentAccountId = Number(this.authService.getUserId());
   }
 
-  async ngOnInit(): Promise<void> {
-    this.isLoading = true;
-    try {
-      this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
-    } catch (error) {
-      console.error('Erro ao carregar opções de funcionário:', error);
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar responsáveis. Por favor, tente novamente.');
-    } finally {
-      this.isLoading = false;
-    }
+  ngOnInit(): void {
+    this.initForm();
   }
 
   ngOnDestroy(): void {
@@ -102,7 +91,7 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('changes', changes);
-    console.log('this.employeeOptions', this.employeeOptions);
+    console.log('this.responsibleEmployeeOptions', this.responsibleEmployeeOptions);
     console.log('this.currentAccountId', this.currentAccountId);
     console.log('this.order', this.order);
     console.log('this.actionType', this.actionType);
@@ -117,7 +106,7 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
   private initForm(): void {
     this.actionForm = this.fb.group({
       id: [this.order?.id],
-      responsibleId: [null, Validators.required],
+      responsibleEmployeeId: [null, Validators.required],
       accountId: [this.currentAccountId],
       orderItems: this.fb.array([])
     });
@@ -140,22 +129,21 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
       const itemGroup = this.fb.group({
         id: [item.id],
         productId: [item.productId],
-        // productName: [item.productName],
+        productName: [item.productName],
         requestedQuantity: [item.requestedQuantity],
-        // availableQuantity: [item.availableQuantity || 0],
-        approvedQuantity: [item.approvedQuantity || 0],
-        actualQuantity: [item.actualQuantity || 0],
+        availableQuantity: [item.availableQuantity],
+        approvedQuantity: [item.approvedQuantity === 0 ? null : item.approvedQuantity],
+        actualQuantity: [item.actualQuantity === 0 ? null : item.actualQuantity],
       });
 
       this.applyConditionalValidators(itemGroup, item);
 
       orderItemsFormArray.push(itemGroup);
     });
-    this.actionForm.get('responsibleId')?.updateValueAndValidity();
+    this.actionForm.get('responsibleEmployeeId')?.updateValueAndValidity();
   }
 
   private applyConditionalValidators(itemGroup: FormGroup, item: OrderItem): void {
-    // Validação para Quantidade Aprovada
     const approvedQuantityControl = itemGroup.get('approvedQuantity');
     if (approvedQuantityControl) {
       approvedQuantityControl.clearValidators();
@@ -169,7 +157,6 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
       approvedQuantityControl.updateValueAndValidity();
     }
 
-    // Validação para Quantidade Real
     const actualQuantityControl = itemGroup.get('actualQuantity');
     if (actualQuantityControl) {
       actualQuantityControl.clearValidators();
@@ -274,11 +261,10 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
   async onActionClick(): Promise<void> {
     this.formSubmitted = true;
 
-    if (!this.validateForm(this.actionForm, this.actionFormLabels)) {
+    if (!this.validateForm(this.actionForm, this.orderFormLabels)) {
       return;
     }
 
-    // Configura a mensagem de confirmação
     switch (this.actionType) {
       case OrderActionType.Approve:
         this.confirmMessage = ConfirmMessages.APPROVE_ORDER;
@@ -307,7 +293,7 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
         case OrderActionType.Approve:
           const approveCommand: ApproveOrderCommand = {
             orderId: formValue.id,
-            approvedByEmployeeId: formValue.responsibleId,
+            approvedByEmployeeId: formValue.responsibleEmployeeId,
             approvedByAccountId: formValue.accountId,
             orderItems: formValue.orderItems.map((item: any) => ({
               orderItemId: item.id,
@@ -319,7 +305,7 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
         case OrderActionType.Separate:
           const separateCommand: SeparateOrderCommand = {
             orderId: formValue.id,
-            separatedByEmployeeId: formValue.responsibleId,
+            separatedByEmployeeId: formValue.responsibleEmployeeId,
             separatedByAccountId: formValue.accountId,
             orderItems: formValue.orderItems.map((item: any) => ({
               orderItemId: item.id,
@@ -331,7 +317,7 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
         case OrderActionType.Finalize:
           const finalizeCommand: FinalizeOrderCommand = {
             orderId: formValue.id,
-            finalizedByEmployeeId: formValue.responsibleId,
+            finalizedByEmployeeId: formValue.responsibleEmployeeId,
             finalizedByAccountId: formValue.accountId,
           };
           response = await firstValueFrom(this.orderService.finalizeOrder(finalizeCommand));

@@ -58,7 +58,7 @@ export class OrderService {
   }
 
   public approveOrder(order: ApproveOrderCommand): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', 'create');
+    const url = this.apiConfig.getUrl('order', 'approve');
     return this.http.post<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -70,7 +70,7 @@ export class OrderService {
   }
 
   public separateOrder(order: SeparateOrderCommand): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', 'create');
+    const url = this.apiConfig.getUrl('order', 'separate');
     return this.http.post<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -82,7 +82,7 @@ export class OrderService {
   }
 
   public finalizeOrder(order: FinalizeOrderCommand): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', 'create');
+    const url = this.apiConfig.getUrl('order', 'finalize');
     return this.http.post<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {

@@ -1,3 +1,7 @@
+<app-toast></app-toast>
+<app-spinner [loading]="isLoading"></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
 <p-dialog
   [(visible)]="display"
   (onHide)="closeModal()"
@@ -28,12 +32,8 @@
                 Pedido
               </h3>
               <p-tag
-                [value]="order.orderStatus.description"
-                [severity]="
-                  order.orderStatus.description === 'Aprovado'
-                    ? 'success'
-                    : 'info'
-                "
+                [value]="getOrderStatus(order.orderStatus.description)"
+                [severity]="getOrderSeverity(order.orderStatus.description)"
                 class="text-sm font-light w-fit"
               />
             </div>
@@ -78,10 +78,10 @@
               <div *ngIf="actionType === OrderActionType.Approve">
                 <label class="block text-gray-400 mt-4">Responsável:</label>
                 <p-select
-                  [options]="employeeOptions"
+                  [options]="responsibleEmployeeOptions"
                   formControlName="responsibleEmployeeId"
-                  optionLabel="name"
-                  optionValue="id"
+                  optionLabel="label"
+                  optionValue="value"
                   placeholder="Selecione"
                   class="w-full"
                   [ngClass]="{
@@ -114,14 +114,13 @@
                 <label class="block text-gray-400">Responsável:</label>
                 <p class="font-light">{{ order.separatedByEmployee.name }}</p>
               </div>
-
               <div *ngIf="actionType === OrderActionType.Separate">
                 <label class="block text-gray-400 mt-4">Responsável:</label>
                 <p-select
-                  [options]="employeeOptions"
+                  [options]="responsibleEmployeeOptions"
                   formControlName="responsibleEmployeeId"
-                  optionLabel="name"
-                  optionValue="id"
+                  optionLabel="label"
+                  optionValue="value"
                   placeholder="Selecione"
                   class="w-full"
                   [ngClass]="{
@@ -154,14 +153,13 @@
                 <label class="block text-gray-400">Responsável:</label>
                 <p class="font-light">{{ order.finalizedByEmployee.name }}</p>
               </div>
-
               <div *ngIf="actionType === OrderActionType.Finalize">
                 <label class="block text-gray-400 mt-4">Responsável:</label>
                 <p-select
-                  [options]="employeeOptions"
+                  [options]="responsibleEmployeeOptions"
                   formControlName="responsibleEmployeeId"
-                  optionLabel="name"
-                  optionValue="id"
+                  optionLabel="label"
+                  optionValue="value"
                   placeholder="Selecione"
                   class="w-full"
                   [ngClass]="{
@@ -202,8 +200,8 @@
           <ng-template pTemplate="header">
             <tr>
               <th class="w-1/4">Produto</th>
-              <th class="w-1/5">Quantidade Solicitada</th>
               <th class="w-1/5">Quantidade Disponível</th>
+              <th class="w-1/5">Quantidade Solicitada</th>
               <th class="w-1/5">Quantidade Aprovada</th>
               <th
                 class="w-1/5"
@@ -220,8 +218,8 @@
           <ng-template pTemplate="body" let-itemFormGroup let-ri="rowIndex">
             <tr [formGroup]="itemFormGroup">
               <td>{{ itemFormGroup.get("productName")?.value }}</td>
+              <td>{{ itemFormGroup.get("availableQuantity")?.value }}</td>
               <td>{{ itemFormGroup.get("requestedQuantity")?.value }}</td>
-              <td>{{ itemFormGroup.get("availableQuantity")?.value || 0 }}</td>
 
               <td>
                 <ng-container
@@ -233,9 +231,8 @@
                   <p-inputNumber
                     formControlName="approvedQuantity"
                     mode="decimal"
-                    [showButtons]="true"
                     [min]="0"
-                    [max]="itemFormGroup.get('requestedQuantity')?.value || 0"
+                    [max]="itemFormGroup.get('requestedQuantity')?.value"
                     class="w-full"
                     [ngClass]="{
                       'ng-invalid ng-dirty':
@@ -264,9 +261,8 @@
                   <p-inputNumber
                     formControlName="actualQuantity"
                     mode="decimal"
-                    [showButtons]="true"
                     [min]="0"
-                    [max]="itemFormGroup.get('approvedQuantity')?.value || 0"
+                    [max]="itemFormGroup.get('approvedQuantity')?.value"
                     class="w-full"
                     [ngClass]="{
                       'ng-invalid ng-dirty':

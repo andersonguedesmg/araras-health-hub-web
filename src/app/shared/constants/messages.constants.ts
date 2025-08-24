@@ -34,9 +34,9 @@ export const ConfirmMessages = {
 
   CREATE_ORDER: 'Tem certeza que deseja realizar esse pedido?',
   UPDATE_ORDER: 'Tem certeza que deseja atualizar esse pedido?',
-  APPROVE_ORDER: 'Tem certeza que deseja realizar esse pedido?',
-  SEPARATE_ORDER: 'Tem certeza que deseja atualizar esse pedido?',
-  FINALIZE_ORDER: 'Tem certeza que deseja atualizar esse pedido?',
+  APPROVE_ORDER: 'Tem certeza que deseja <b>aprovar</b> esse pedido?',
+  SEPARATE_ORDER: 'Tem certeza que deseja <b>separar</b> esse pedido?',
+  FINALIZE_ORDER: 'Tem certeza que deseja <b>finalizar</b> esse pedido?',
   CONFIRM_OPERATION: 'Tem certeza que deseja atualizar esse pedido?',
 };
 

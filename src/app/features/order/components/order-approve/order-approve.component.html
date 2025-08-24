@@ -116,6 +116,7 @@
   [display]="displayActionModal"
   [order]="selectedOrderForAction!"
   [actionType]="OrderActionType.Approve"
+  [responsibleEmployeeOptions]="employeeOptions"
   (displayChange)="displayActionModal = $event"
   (onActionComplete)="handleActionComplete($event)"
 >

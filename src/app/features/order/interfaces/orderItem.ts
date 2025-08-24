@@ -6,8 +6,10 @@ export interface OrderItem {
   requestedQuantity: number;
   approvedQuantity: number;
   separatedQuantity: number;
-  actualQuantity: string;
+  actualQuantity: number;
 
+  availableQuantity: number;
   productId: number;
+  productName: string;
   product: Product;
 }

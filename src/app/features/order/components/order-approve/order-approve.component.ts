@@ -37,6 +37,8 @@ import { InputMask } from 'primeng/inputmask';
 import { Order } from '../../interfaces/order';
 import { OrderActionModalComponent } from '../order-action-modal/order-action-modal.component';
 import { OrderActionType } from '../../../../shared/enums/order-action-type.enum';
+import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
+import { SelectOptions } from '../../../../shared/interfaces/select-options';
 
 @Component({
   selector: 'app-order-approve',
@@ -55,13 +57,11 @@ import { OrderActionType } from '../../../../shared/enums/order-action-type.enum
     TagModule,
     DialogModule,
     SelectModule,
-    // InputMask,
     BreadcrumbComponent,
     ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
-    // DialogComponent,
     TableHeaderComponent,
     OrderActionModalComponent,
     HasRoleDirective,
@@ -107,10 +107,11 @@ export class OrderApproveComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(private cd: ChangeDetectorRef, private orderService: OrderService, private fb: FormBuilder) { }
+  constructor(private cd: ChangeDetectorRef, private orderService: OrderService, private fb: FormBuilder, private dropdownDataService: DropdownDataService,) { }
 
   ngOnInit() {
     this.loadTableData();
+    this.loadddd()
     this.orders$ = this.orderService.orders$;
     this.subscriptions.add(
       this.loadLazy
@@ -161,6 +162,19 @@ export class OrderApproveComponent implements OnInit, OnDestroy {
 
   loadOrders(event: any) {
     this.loadLazy.next(event);
+  }
+  employeeOptions: SelectOptions<number>[] = [];
+
+  async loadddd(): Promise<void> {
+    try {
+      this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+      console.log('this.employeeOptions', this.employeeOptions);
+
+    } catch (error) {
+      console.error('Erro ao carregar opções de funcionário:', error);
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar responsáveis. Por favor, tente novamente.');
+    } finally {
+    }
   }
 
   actionType!: OrderActionType;
