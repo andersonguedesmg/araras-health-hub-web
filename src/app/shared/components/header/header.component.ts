@@ -102,9 +102,9 @@ export class HeaderComponent implements OnInit {
             routerLink: '/pedido/separar',
           },
           {
-            label: 'Separado',
+            label: 'Aguardando Finalização',
             icon: PrimeIcons.CART_PLUS,
-            routerLink: '/pedidos',
+            routerLink: '/pedido/finalizar',
           },
           {
             label: 'Finalizados',

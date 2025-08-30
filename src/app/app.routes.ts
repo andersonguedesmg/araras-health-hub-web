@@ -20,6 +20,7 @@ import { OrderCreateComponent } from './features/order/components/order-create/o
 import { UnauthorizedComponent } from './shared/pages/unauthorized/unauthorized.component';
 import { OrderApproveComponent } from './features/order/components/order-approve/order-approve.component';
 import { OrderSeparateComponent } from './features/order/components/order-separate/order-separate.component';
+import { OrderFinalizeComponent } from './features/order/components/order-finalize/order-finalize.component';
 
 export const routes: Routes = [
   {
@@ -96,6 +97,11 @@ export const routes: Routes = [
         path: 'pedido/separar',
         component: OrderSeparateComponent,
         title: 'A2H - Separar Pedidos',
+      },
+      {
+        path: 'pedido/finalizar',
+        component: OrderFinalizeComponent,
+        title: 'A2H - Finalizar Pedidos',
       },
       {
         path: 'produtos',
