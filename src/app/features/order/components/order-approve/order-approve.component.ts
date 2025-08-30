@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -25,15 +25,13 @@ import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order
 import { OrderService } from '../../services/order.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ApiResponse } from '../../../../shared/interfaces/api-response';
-import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
+import { ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
-import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
+import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
-import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
-import { InputMask } from 'primeng/inputmask';
 import { Order } from '../../interfaces/order';
 import { OrderActionModalComponent } from '../order-action-modal/order-action-modal.component';
 import { OrderActionType } from '../../../../shared/enums/order-action-type.enum';
@@ -85,12 +83,15 @@ export class OrderApproveComponent implements OnInit, OnDestroy {
   selectedOrder?: Order;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
 
+  employeeOptions: SelectOptions<number>[] = [];
+
   displayDialog = false;
   formSubmitted = false;
 
   displayActionModal = false;
   selectedOrderForAction!: Order;
-  OrderActionType = OrderActionType;
+  orderActionType = OrderActionType;
+  actionType!: OrderActionType;
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
@@ -111,7 +112,7 @@ export class OrderApproveComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadTableData();
-    this.loadddd()
+    this.loadEmployeesOptions();
     this.orders$ = this.orderService.orders$;
     this.subscriptions.add(
       this.loadLazy
@@ -163,21 +164,16 @@ export class OrderApproveComponent implements OnInit, OnDestroy {
   loadOrders(event: any) {
     this.loadLazy.next(event);
   }
-  employeeOptions: SelectOptions<number>[] = [];
 
-  async loadddd(): Promise<void> {
+  async loadEmployeesOptions(): Promise<void> {
     try {
       this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
-      console.log('this.employeeOptions', this.employeeOptions);
-
-    } catch (error) {
-      console.error('Erro ao carregar opções de funcionário:', error);
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar responsáveis. Por favor, tente novamente.');
-    } finally {
+    } catch (error: any) {
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
+      }
     }
   }
-
-  actionType!: OrderActionType;
 
   onApproveClick(order: Order) {
     this.selectedOrderForAction = order;

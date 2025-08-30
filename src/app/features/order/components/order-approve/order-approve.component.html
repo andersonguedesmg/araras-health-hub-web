@@ -115,7 +115,7 @@
 <app-order-action-modal
   [display]="displayActionModal"
   [order]="selectedOrderForAction!"
-  [actionType]="OrderActionType.Approve"
+  [actionType]="orderActionType.Approve"
   [responsibleEmployeeOptions]="employeeOptions"
   (displayChange)="displayActionModal = $event"
   (onActionComplete)="handleActionComplete($event)"
