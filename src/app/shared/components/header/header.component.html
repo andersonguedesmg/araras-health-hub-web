@@ -1,13 +1,11 @@
-<p-menubar styleClass="bg-zinc-900 text-gray-300 shadow-md border-none p-3">
+<p-menubar
+  [model]="items"
+  styleClass="bg-zinc-900 text-gray-300 shadow-md border-none p-3"
+>
   <ng-template pTemplate="start">
     <div class="flex items-center space-x-2 mr-6">
       <img src="URL_DO_SEU_LOGOTIPO" alt="Logo" class="h-8" />
-      <span class="text-xl font-bold text-white hidden md:block">Araras Health Hub</span>
     </div>
-  </ng-template>
-
-  <ng-template pTemplate="start">
-    <p-menubar [model]="items" styleClass="bg-zinc-900 text-gray-300 border-none"></p-menubar>
   </ng-template>
 
   <ng-template pTemplate="end">

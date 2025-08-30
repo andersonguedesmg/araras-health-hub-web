@@ -41,27 +41,38 @@ export class HeaderComponent implements OnInit {
         items: [
           {
             label: 'Funcionários',
-            icon: PrimeIcons.USER,
+            icon: PrimeIcons.USERS,
             routerLink: '/funcionarios',
           },
           {
             label: 'Unidades',
-            icon: PrimeIcons.ADDRESS_BOOK,
+            icon: PrimeIcons.BUILDING,
             routerLink: '/unidades',
           },
           {
             label: 'Contas',
-            icon: PrimeIcons.USERS,
-            routerLink: '/contas',
+            icon: PrimeIcons.ID_CARD,
+            items: [
+              {
+                label: 'Gerenciar',
+                icon: PrimeIcons.LIST,
+                routerLink: '/contas',
+              },
+              {
+                label: 'Registrar',
+                icon: PrimeIcons.PLUS,
+                routerLink: '/registrar',
+              },
+            ]
           },
           {
             label: 'Fornecedores',
-            icon: PrimeIcons.SHOP,
+            icon: PrimeIcons.TRUCK,
             routerLink: '/fornecedores',
           },
           {
             label: 'Produtos',
-            icon: PrimeIcons.SHOPPING_BAG,
+            icon: PrimeIcons.BOX,
             routerLink: '/produtos',
           },
         ]
@@ -73,17 +84,71 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Estoque',
             icon: PrimeIcons.BOX,
-            routerLink: '/estoque',
+            items: [
+              {
+                label: 'Estoque Geral',
+                icon: PrimeIcons.BOX,
+                routerLink: '/estoque',
+              },
+              {
+                label: 'Estoque Crítico',
+                icon: PrimeIcons.EXCLAMATION_TRIANGLE,
+                routerLink: '/estoque/critico',
+              }
+            ]
           },
           {
-            label: 'Entradas',
-            icon: PrimeIcons.PLUS_CIRCLE,
-            routerLink: '/entradas',
+            label: 'Movimentações',
+            icon: PrimeIcons.HISTORY,
+            items: [
+              {
+                label: 'Nova Entrada',
+                icon: PrimeIcons.PLUS_CIRCLE,
+                routerLink: '/entrada/nova',
+              },
+              {
+                label: 'Ajuste Manual',
+                icon: PrimeIcons.PENCIL,
+                routerLink: '/estoque/ajuste',
+              },
+              {
+                separator: true,
+              },
+              {
+                label: 'Histórico',
+                icon: PrimeIcons.LIST,
+                routerLink: '/movimentacoes',
+              },
+              {
+                separator: true,
+              },
+              {
+                label: 'Entradas',
+                icon: PrimeIcons.FILE_IMPORT,
+                routerLink: '/entradas',
+              },
+              {
+                label: 'Saídas',
+                icon: PrimeIcons.FILE_EXPORT,
+                routerLink: '/saidas',
+              },
+              {
+                label: 'Ajustes',
+                icon: PrimeIcons.TABLE,
+                routerLink: '/estoque/ajustes',
+              },
+            ]
           },
           {
-            label: 'Saídas',
-            icon: PrimeIcons.MINUS_CIRCLE,
-            routerLink: '/saidas',
+            label: 'Configurações',
+            icon: PrimeIcons.COG,
+            items: [
+              {
+                label: 'Estoque Mínimo',
+                icon: PrimeIcons.SLIDERS_H,
+                routerLink: '/configuracao/estoque-minimo',
+              },
+            ]
           },
         ]
       },
@@ -91,6 +156,14 @@ export class HeaderComponent implements OnInit {
         label: 'Pedidos',
         icon: PrimeIcons.SHOPPING_CART,
         items: [
+          {
+            label: 'Novo Pedido',
+            icon: PrimeIcons.PLUS_CIRCLE,
+            routerLink: '/pedido/novo',
+          },
+          {
+            separator: true,
+          },
           {
             label: 'Aguardando Aprovação',
             icon: PrimeIcons.CLOCK,
@@ -103,13 +176,21 @@ export class HeaderComponent implements OnInit {
           },
           {
             label: 'Aguardando Finalização',
-            icon: PrimeIcons.CART_PLUS,
+            icon: PrimeIcons.CHECK_SQUARE,
             routerLink: '/pedido/finalizar',
           },
           {
             label: 'Finalizados',
             icon: PrimeIcons.CHECK_CIRCLE,
             routerLink: '/pedidos/finalizados',
+          },
+          {
+            separator: true,
+          },
+          {
+            label: 'Histórico',
+            icon: PrimeIcons.LIST,
+            routerLink: '/pedidos',
           },
         ]
       },
@@ -137,13 +218,8 @@ export class HeaderComponent implements OnInit {
         routerLink: '/sobre',
       },
       {
-        label: 'Registrar',
-        icon: PrimeIcons.PLUS_CIRCLE,
-        routerLink: '/registrar',
-      },
-      {
-        label: 'Logout',
-        icon: PrimeIcons.SIGN_OUT,
+        label: 'Sair',
+        icon: PrimeIcons.POWER_OFF,
         command: () => this.logout(),
       },
     ];
