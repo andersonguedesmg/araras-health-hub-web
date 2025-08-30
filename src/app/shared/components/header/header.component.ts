@@ -108,25 +108,9 @@ export class HeaderComponent implements OnInit {
           },
           {
             label: 'Finalizados',
-            icon: PrimeIcons.TROPHY,
-            items: [
-              {
-                label: 'Entregue',
-                icon: PrimeIcons.CHECK_CIRCLE,
-                routerLink: '/pedidos',
-              },
-              {
-                label: 'Cancelado',
-                icon: PrimeIcons.TIMES_CIRCLE,
-                routerLink: '/pedidos',
-              },
-              {
-                label: 'Devolvido',
-                icon: PrimeIcons.UNDO,
-                routerLink: '/pedidos',
-              }
-            ]
-          }
+            icon: PrimeIcons.CHECK_CIRCLE,
+            routerLink: '/pedidos/finalizados',
+          },
         ]
       },
       {

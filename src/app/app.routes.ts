@@ -21,6 +21,7 @@ import { UnauthorizedComponent } from './shared/pages/unauthorized/unauthorized.
 import { OrderApproveComponent } from './features/order/components/order-approve/order-approve.component';
 import { OrderSeparateComponent } from './features/order/components/order-separate/order-separate.component';
 import { OrderFinalizeComponent } from './features/order/components/order-finalize/order-finalize.component';
+import { OrderCompletedComponent } from './features/order/components/order-completed/order-completed.component';
 
 export const routes: Routes = [
   {
@@ -102,6 +103,11 @@ export const routes: Routes = [
         path: 'pedido/finalizar',
         component: OrderFinalizeComponent,
         title: 'A2H - Finalizar Pedidos',
+      },
+      {
+        path: 'pedidos/finalizados',
+        component: OrderCompletedComponent,
+        title: 'A2H - Finalizados Pedidos',
       },
       {
         path: 'produtos',
