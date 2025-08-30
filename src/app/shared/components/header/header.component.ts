@@ -97,9 +97,9 @@ export class HeaderComponent implements OnInit {
             routerLink: '/pedido/aprovar',
           },
           {
-            label: 'Aprovado',
+            label: 'Aguardando Separação',
             icon: PrimeIcons.LIST_CHECK,
-            routerLink: '/pedidos',
+            routerLink: '/pedido/separar',
           },
           {
             label: 'Separado',
