@@ -37,6 +37,7 @@ import { OrderActionModalComponent } from '../order-action-modal/order-action-mo
 import { OrderActionType } from '../../../../shared/enums/order-action-type.enum';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
+import { OrderStatusId } from '../../../../shared/enums/order-status-id.enum';
 
 @Component({
   selector: 'app-order-approve',
@@ -122,7 +123,7 @@ export class OrderApproveComponent implements OnInit, OnDestroy {
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.orderService.loadOrders(pageNumber, pageSize);
+            return this.orderService.loadOrders(pageNumber, pageSize, OrderStatusId.Pending);
           })
         )
         .subscribe({
