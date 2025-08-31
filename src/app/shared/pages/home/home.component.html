@@ -13,19 +13,58 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     <div
       class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/pedidos"
+      routerLink="/pedido/aprovar"
     >
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-white">Aprovações Pendentes</h3>
-        <i class="pi pi-exclamation-triangle text-red-400 text-3xl"></i>
+        <h3 class="text-xl font-semibold text-white">Aprovação de Pedidos</h3>
+        <i class="pi pi-list-check text-red-400 text-3xl"></i>
       </div>
       <p class="text-4xl font-bold text-white">3</p>
-      <p class="text-gray-400 mt-1">Novos pedidos de acesso</p>
+      <p class="text-gray-400 mt-1">Pedidos pendentes para aprovação</p>
     </div>
 
     <div
+      class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
+      routerLink="/pedido/separar"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-white">Separação de Itens</h3>
+        <i class="pi pi-inbox text-orange-400 text-3xl"></i>
+      </div>
+      <p class="text-4xl font-bold text-white">2</p>
+      <p class="text-gray-400 mt-1">Pedidos aguardando separação</p>
+    </div>
+
+    <div
+      class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
+      routerLink="/pedido/finalizar"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-white">
+          Finalização de Entregas
+        </h3>
+        <i class="pi pi-truck text-green-400 text-3xl"></i>
+      </div>
+      <p class="text-4xl font-bold text-white">5</p>
+      <p class="text-gray-400 mt-1">Pedidos aguardando registro de entrega</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div
+      class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
+      routerLink="/estoque/critico"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold text-white">Itens em Estoque Crítico</h3>
+        <i class="pi pi-exclamation-triangle text-red-600 text-3xl"></i>
+      </div>
+      <p class="text-4xl font-bold text-white">14</p>
+      <p class="text-gray-400 mt-1">Itens abaixo do estoque mínimo</p>
+    </div>
+    <div
       class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/entrada/nova"
+      routerLink="/entradas/nova"
     >
       <i class="pi pi-plus-circle text-blue-400 text-4xl mb-4"></i>
       <span class="text-xl font-semibold text-white text-center"
@@ -39,7 +78,7 @@
     >
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-xl font-semibold text-white">Itens em Estoque</h3>
-        <i class="pi pi-box text-orange-400 text-3xl"></i>
+        <i class="pi pi-database text-green-400 text-3xl"></i>
       </div>
       <p class="text-4xl font-bold text-white">5.420</p>
       <p class="text-gray-400 mt-1">Produtos ativos</p>
