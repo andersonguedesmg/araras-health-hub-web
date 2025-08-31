@@ -82,7 +82,7 @@
         <ng-template #bodyTemplate let-order>
           <tr>
             <td>{{ order.id }}</td>
-            <td>{{ order.createdAt | date : "dd/MM/yyyy" }}</td>
+            <td>{{ order.createdAt | date : "dd/MM/yyyy - HH:mm" }}</td>
             <td>{{ order.createdByAccount.facility.name }}</td>
             <td>{{ order.createdByAccount.userName }}</td>
             <td>{{ order.createdByEmployee.name }}</td>

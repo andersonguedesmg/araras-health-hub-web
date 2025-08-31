@@ -42,7 +42,7 @@
               <div>
                 <label class="block text-gray-400">Data:</label>
                 <p class="font-light">
-                  {{ order.createdAt | date : "dd/MM/yyyy" }}
+                  {{ order.createdAt | date : "dd/MM/yyyy - HH:mm" }}
                 </p>
               </div>
               <div class="truncate">
@@ -67,7 +67,7 @@
               <div *ngIf="order.approvedAt; else noApprovalDate">
                 <label class="block text-gray-400">Data:</label>
                 <p class="font-light">
-                  {{ order.approvedAt | date : "dd/MM/yyyy" }}
+                  {{ order.approvedAt | date : "dd/MM/yyyy - HH:mm" }}
                 </p>
               </div>
               <div *ngIf="order.approvedByEmployee?.name; else noApproval">
@@ -107,7 +107,7 @@
               <div *ngIf="order.separatedAt; else noSeparationDate">
                 <label class="block text-gray-400">Data:</label>
                 <p class="font-light">
-                  {{ order.separatedAt | date : "dd/MM/yyyy" }}
+                  {{ order.separatedAt | date : "dd/MM/yyyy - HH:mm" }}
                 </p>
               </div>
               <div *ngIf="order.separatedByEmployee?.name; else noSeparation">
@@ -146,7 +146,7 @@
               <div *ngIf="order.finalizedAt; else noFinalizationDate">
                 <label class="block text-gray-400">Data:</label>
                 <p class="font-light">
-                  {{ order.finalizedAt | date : "dd/MM/yyyy" }}
+                  {{ order.finalizedAt | date : "dd/MM/yyyy - HH:mm" }}
                 </p>
               </div>
               <div *ngIf="order.finalizedByEmployee?.name; else noFinalization">
