@@ -1,0 +1,90 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-toast></app-toast>
+<app-spinner [loading]="isLoading"></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <app-table-header [title]="'Movimentação'"></app-table-header>
+
+    <ng-container *ngIf="stockMovements$ | async as stockMovements">
+      <app-table
+        [value]="stockMovements"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [lazy]="true"
+        (onLazyLoad)="loadStocks($event)"
+        [totalRecords]="totalRecords"
+        [globalFilterFields]="[
+          'product.name',
+          'product.description',
+          'product.dosageForm',
+          'product.category',
+          'currentQuantity',
+          'minQuantity'
+        ]"
+        [loading]="isLoading"
+        [colspan]="6"
+      >
+        <ng-template #captionTemplate let-dt>
+          <div class="flex items-center justify-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Pesquisar..."
+              />
+            </p-iconfield>
+            <div>
+              <p-button
+                label="Exportar"
+                icon="pi pi-upload"
+                severity="secondary"
+                (click)="exportCSV(dt)"
+              />
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #headerTemplate>
+          <tr>
+            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
+            <th style="min-width: 12rem" pSortableColumn="type">TIPO</th>
+            <th style="min-width: 20rem" pSortableColumn="productName">
+              PRODUTO
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="quantity">
+              QUANTIDADE
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="createdAt">DATA</th>
+            <th style="min-width: 20rem" pSortableColumn="responsibleName">
+              RESPONSÁVEL
+            </th>
+            <th style="min-width: 15rem" pSortableColumn="sourceDocumentId">
+              NÚMERO DO DOCUMENTO
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="sourceDocumentType">
+              TIPO DO DOCUMENTO
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template #bodyTemplate let-stockMovement>
+          <tr>
+            <td>{{ stockMovement.id }}</td>
+            <td>{{ stockMovement.type | stockMovementType  }}</td>
+            <td>{{ stockMovement.productName }}</td>
+            <td>{{ stockMovement.quantity }}</td>
+            <td>{{ stockMovement.createdOn | date : "dd/MM/yyyy HH:mm" }}</td>
+            <td>{{ stockMovement.responsibleName }}</td>
+            <td>{{ stockMovement.sourceDocumentId }}</td>
+            <td>{{ stockMovement.sourceDocumentType }}</td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </ng-container>
+  </div>
+</div>

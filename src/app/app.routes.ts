@@ -22,6 +22,7 @@ import { OrderApproveComponent } from './features/order/components/order-approve
 import { OrderSeparateComponent } from './features/order/components/order-separate/order-separate.component';
 import { OrderFinalizeComponent } from './features/order/components/order-finalize/order-finalize.component';
 import { OrderCompletedComponent } from './features/order/components/order-completed/order-completed.component';
+import { StockMovementComponent } from './features/stock/components/stock-movement/stock-movement.component';
 
 export const routes: Routes = [
   {
@@ -73,6 +74,11 @@ export const routes: Routes = [
         path: 'estoque',
         component: StockListComponent,
         title: 'A2H - Estoque',
+      },
+      {
+        path: 'movimentacoes',
+        component: StockMovementComponent,
+        title: 'A2H - Movimentações',
       },
       {
         path: 'fornecedores',
