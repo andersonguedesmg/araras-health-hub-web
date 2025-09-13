@@ -199,10 +199,18 @@
         >
           <ng-template pTemplate="header">
             <tr>
-              <th class="w-1/4">Produto</th>
-              <th class="w-1/5">Quantidade Disponível</th>
-              <th class="w-1/5">Quantidade Solicitada</th>
-              <th class="w-1/5">Quantidade Aprovada</th>
+              <th class="w-1/4">PRODUTO</th>
+              <th
+                class="w-1/5"
+                *ngIf="
+                  actionType === OrderActionType.Approve ||
+                  actionType === OrderActionType.Separate
+                "
+              >
+                QUANTIDADE DISPONÍVEL
+              </th>
+              <th class="w-1/5">QUANTIDADE SOLICITADA</th>
+              <th class="w-1/5">QUANTIDADE APROVADA</th>
               <th
                 class="w-1/5"
                 *ngIf="
@@ -210,7 +218,7 @@
                   actionType === OrderActionType.Finalize
                 "
               >
-                Quantidade Real
+                QUANTIDADE REAL
               </th>
             </tr>
           </ng-template>
@@ -218,7 +226,14 @@
           <ng-template pTemplate="body" let-itemFormGroup let-ri="rowIndex">
             <tr [formGroup]="itemFormGroup">
               <td>{{ itemFormGroup.get("productName")?.value }}</td>
-              <td>{{ itemFormGroup.get("availableQuantity")?.value }}</td>
+              <td
+                *ngIf="
+                  actionType === OrderActionType.Approve ||
+                  actionType === OrderActionType.Separate
+                "
+              >
+                {{ itemFormGroup.get("availableQuantity")?.value }}
+              </td>
               <td>{{ itemFormGroup.get("requestedQuantity")?.value }}</td>
 
               <td>
