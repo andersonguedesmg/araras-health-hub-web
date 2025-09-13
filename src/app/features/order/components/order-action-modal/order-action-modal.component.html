@@ -215,7 +215,8 @@
                 class="w-1/5"
                 *ngIf="
                   actionType === OrderActionType.Separate ||
-                  actionType === OrderActionType.Finalize
+                  actionType === OrderActionType.Finalize ||
+                  actionType === OrderActionType.Details
                 "
               >
                 QUANTIDADE SEPARADA
@@ -264,7 +265,8 @@
               <td
                 *ngIf="
                   actionType === OrderActionType.Separate ||
-                  actionType === OrderActionType.Finalize
+                  actionType === OrderActionType.Finalize ||
+                  actionType === OrderActionType.Details
                 "
               >
                 <ng-container
@@ -300,13 +302,14 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-end gap-2">
       <p-button
+        *ngIf="actionType !== OrderActionType.Details"
         [label]="actionType"
         icon="pi pi-check"
         (click)="onActionClick()"
       />
 
       <p-button
-        label="Cancelar"
+        [label]="actionType === OrderActionType.Details ? 'Fechar' : 'Cancelar'"
         icon="pi pi-times"
         severity="info"
         [outlined]="true"
