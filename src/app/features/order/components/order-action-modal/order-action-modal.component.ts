@@ -46,7 +46,7 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
   @Input() display = false;
-  @Input() order!: Order;
+  @Input() order: Order | undefined;
   @Input() actionType!: OrderActionType;
   @Input() responsibleEmployeeOptions: any[] = [];
 
@@ -90,14 +90,12 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('changes', changes);
-    console.log('this.responsibleEmployeeOptions', this.responsibleEmployeeOptions);
-    console.log('this.currentAccountId', this.currentAccountId);
-    console.log('this.order', this.order);
-    console.log('this.actionType', this.actionType);
-    if (changes['order'] && this.order) {
-      this.populateForm();
+    if ((changes['display'] && changes['display'].currentValue) || changes['order']) {
+      if (this.order) {
+        this.populateForm();
+      }
     }
+
     if (changes['actionType']) {
       this.populateForm();
     }
