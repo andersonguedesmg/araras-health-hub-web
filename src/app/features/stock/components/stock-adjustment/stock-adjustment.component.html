@@ -1,0 +1,287 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-toast></app-toast>
+<app-spinner [loading]="isLoading"></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <app-table-header [title]="title"></app-table-header>
+
+    <ng-container *ngIf="stockShippings$ | async as shippings">
+      <app-table
+        [value]="shippings"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [lazy]="true"
+        (onLazyLoad)="loadShippings($event)"
+        [totalRecords]="totalRecords"
+        [globalFilterFields]="[
+          'id',
+          'supplierId',
+          'shippingDate',
+          'invoiceNumber',
+          'supplyAuthorization',
+          'responsibleId',
+          'totalValue',
+          'observation'
+        ]"
+        [loading]="isLoading"
+        [colspan]="9"
+      >
+        <ng-template #captionTemplate let-dt>
+          <div class="flex items-center justify-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Pesquisar..."
+              />
+            </p-iconfield>
+            <div>
+              <p-button
+                label="Exportar"
+                icon="pi pi-upload"
+                severity="secondary"
+                (click)="exportCSV(dt)"
+              />
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #headerTemplate>
+          <tr>
+            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
+            <th style="min-width: 15rem" pSortableColumn="invoiceNumber">
+              NOTA FISCAL
+            </th>
+            <th style="min-width: 19rem" pSortableColumn="supplyAuthorization">
+              AUTORIZAÇÃO DE FORNECIMENTO
+            </th>
+            <th style="min-width: 25rem" pSortableColumn="supplier.name">
+              FORNECEDOR
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="shippingDate">
+              DATA
+            </th>
+            <th style="min-width: 12rem" pSortableColumn="totalValue">
+              VALOR DA NOTA
+            </th>
+            <th style="min-width: 15rem" pSortableColumn="responsible.name">
+              RESPONSÁVEL
+            </th>
+            <th style="min-width: 20rem" pSortableColumn="observation">
+              OBSERVAÇÃO
+            </th>
+            <th style="min-width: 15rem">AÇÕES</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #bodyTemplate let-shipping>
+          <tr>
+            <td>{{ shipping.id }}</td>
+            <td>{{ shipping.invoiceNumber }}</td>
+            <td>{{ shipping.supplyAuthorization }}</td>
+            <td>{{ shipping.supplier.name }}</td>
+            <td>{{ shipping.shippingDate | date : "dd/MM/yyyy" }}</td>
+            <td>{{ shipping.totalValue | currency : "BRL" }}</td>
+            <td>{{ shipping.responsible.name }}</td>
+            <td>{{ shipping.observation }}</td>
+            <td>
+              <p-button
+                icon="pi pi-info-circle"
+                class="mr-2"
+                pTooltip="Detalhar"
+                tooltipPosition="bottom"
+                severity="info"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="openForm(FormMode.Detail, shipping)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </ng-container>
+
+    <app-dialog
+      [(visible)]="displayDialog"
+      [formMode]="formMode"
+      [headerText]="headerText"
+    >
+      <form [formGroup]="shippingForm" class="mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4" *ngIf="formMode !== 'create'">
+            <label for="id" class="block text-sm font-medium text-gray-500"
+              >ID:</label
+            >
+            <input
+              id="id"
+              pInputText
+              type="text"
+              formControlName="id"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="invoiceNumber"
+              class="block text-sm font-medium text-gray-500"
+              >Nota Fiscal:
+            </label>
+            <input
+              id="invoiceNumber"
+              pInputText
+              type="text"
+              formControlName="invoiceNumber"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="supplyAuthorization"
+              class="block text-sm font-medium text-gray-500"
+              >Autorização de Fornecimento:
+            </label>
+            <input
+              id="supplyAuthorization"
+              pInputText
+              type="text"
+              formControlName="supplyAuthorization"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="supplierId"
+              class="block text-sm font-medium text-gray-500"
+              >Fornecedor:</label
+            >
+            <p-select
+              [options]="supplierOptions"
+              formControlName="supplierId"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+            ></p-select>
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="shippingDate"
+              class="block text-sm font-medium text-gray-500"
+              >Data:
+            </label>
+            <input
+              id="shippingDate"
+              pInputText
+              type="text"
+              formControlName="shippingDate"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="totalValue"
+              class="block text-sm font-medium text-gray-500"
+              >Valor da Nota:
+            </label>
+            <input
+              id="totalValue"
+              pInputText
+              type="text"
+              formControlName="totalValue"
+              class="mt-1 p-2 border rounded-md w-full"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="responsibleId"
+              class="block text-sm font-medium text-gray-500"
+              >Responsável:</label
+            >
+            <p-select
+              [options]="employeeOptions"
+              formControlName="responsibleId"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+            ></p-select>
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="observation"
+              class="block text-sm font-medium text-gray-500"
+              >Observação:
+            </label>
+            <textarea
+              rows="5"
+              pTextarea
+              formControlName="observation"
+              class="mt-1 p-2 border rounded-md w-full"
+            ></textarea>
+          </div>
+        </div>
+      </form>
+
+      <div class="bg-zinc-900 border border-zinc-600 rounded-md p-8 mt-4">
+        <h2 class="text-xl font-medium text-gray-500 mb-6">Itens</h2>
+        <hr class="mt-6 mb-2 border-t border-zinc-600" />
+        <!-- <p-table
+          *ngIf="
+            selectedShipping &&
+            selectedShipping.receivedItems &&
+            selectedShipping.receivedItems.length > 0
+          "
+          [value]="selectedShipping.receivedItems"
+          [rows]="10"
+          [paginator]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Itens"
+          [showCurrentPageReport]="true"
+        >
+          <ng-template #header>
+            <tr>
+              <th style="min-width: 25rem" pSortableColumn="product.name">
+                PRODUTO
+              </th>
+              <th style="min-width: 10rem" pSortableColumn="quantity">
+                QUANTIDADE
+              </th>
+              <th style="min-width: 10rem" pSortableColumn="unitValue">
+                VALOR UNITÁRIO
+              </th>
+              <th style="min-width: 10rem" pSortableColumn="totalValue">
+                VALOR TOTAL
+              </th>
+              <th style="min-width: 18rem" pSortableColumn="batch">LOTE</th>
+              <th style="min-width: 10rem" pSortableColumn="expiryDate">
+                VALIDADE
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template #body let-item>
+            <tr>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.unitValue | currency : "BRL" }}</td>
+              <td>{{ item.totalValue | currency : "BRL" }}</td>
+              <td>{{ item.batch }}</td>
+              <td>{{ item.expiryDate | date : "dd/MM/yyyy" }}</td>
+            </tr>
+          </ng-template>
+        </p-table> -->
+      </div>
+    </app-dialog>
+  </div>
+</div>

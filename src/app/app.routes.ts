@@ -25,6 +25,7 @@ import { OrderCompletedComponent } from './features/order/components/order-compl
 import { StockMovementComponent } from './features/stock/components/stock-movement/stock-movement.component';
 import { StockCriticalComponent } from './features/stock/components/stock-critical/stock-critical.component';
 import { StockShippingComponent } from './features/stock/components/stock-shipping/stock-shipping.component';
+import { StockAdjustmentComponent } from './features/stock/components/stock-adjustment/stock-adjustment.component';
 
 export const routes: Routes = [
   {
@@ -130,6 +131,11 @@ export const routes: Routes = [
         path: 'almoxarifado/estoque/critico',
         component: StockCriticalComponent,
         title: 'A2H - Estoque Crítico',
+      },
+      {
+        path: 'almoxarifado/movimentacoes/ajustes',
+        component: StockAdjustmentComponent,
+        title: 'A2H - Ajustes',
       },
       {
         path: 'almoxarifado/movimentacoes/entradas',
