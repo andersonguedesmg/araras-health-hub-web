@@ -23,6 +23,7 @@ import { OrderSeparateComponent } from './features/order/components/order-separa
 import { OrderFinalizeComponent } from './features/order/components/order-finalize/order-finalize.component';
 import { OrderCompletedComponent } from './features/order/components/order-completed/order-completed.component';
 import { StockMovementComponent } from './features/stock/components/stock-movement/stock-movement.component';
+import { StockCriticalComponent } from './features/stock/components/stock-critical/stock-critical.component';
 
 export const routes: Routes = [
   {
@@ -126,7 +127,7 @@ export const routes: Routes = [
       },
       {
         path: 'almoxarifado/estoque/critico',
-        component: StockListComponent,
+        component: StockCriticalComponent,
         title: 'A2H - Estoque Crítico',
       },
       {
