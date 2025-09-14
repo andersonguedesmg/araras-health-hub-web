@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Product } from '../interfaces/product';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
@@ -99,5 +99,16 @@ export class ProductService {
       .catch(error => {
         return [];
       });
+  }
+
+  public exportProducts(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('product', `export`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 }
