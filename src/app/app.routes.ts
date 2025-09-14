@@ -24,6 +24,7 @@ import { OrderFinalizeComponent } from './features/order/components/order-finali
 import { OrderCompletedComponent } from './features/order/components/order-completed/order-completed.component';
 import { StockMovementComponent } from './features/stock/components/stock-movement/stock-movement.component';
 import { StockCriticalComponent } from './features/stock/components/stock-critical/stock-critical.component';
+import { ShippingListComponent } from './features/shipping/components/shipping-list/shipping-list.component';
 
 export const routes: Routes = [
   {
@@ -144,6 +145,11 @@ export const routes: Routes = [
         path: 'almoxarifado/movimentacoes/historico',
         component: StockMovementComponent,
         title: 'A2H - Histórico de Movimentações',
+      },
+      {
+        path: 'almoxarifado/movimentacoes/saidas',
+        component: ShippingListComponent,
+        title: 'A2H - Saídas',
       },
 
       {
