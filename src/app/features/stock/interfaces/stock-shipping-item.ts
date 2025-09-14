@@ -1,6 +1,6 @@
 import { Product } from "../../product/interfaces/product";
 
-export interface shippingItem {
+export interface StockShippingItem {
   id: number;
   quantity: number;
   unitValue: number;

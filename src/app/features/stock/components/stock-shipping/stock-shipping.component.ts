@@ -27,8 +27,8 @@ import { ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { ShippingService } from '../../services/shipping.service';
-import { Shipping } from '../../interfaces/shipping';
+import { StockShipping } from '../../interfaces/stock-shipping';
+import { StockMovementService } from '../../services/stock-movement.service';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
@@ -36,7 +36,7 @@ import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 
 @Component({
-  selector: 'app-shipping-list',
+  selector: 'app-stock-shipping',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -60,10 +60,10 @@ import { DropdownDataService } from '../../../../shared/services/dropdown-data.s
     TableHeaderComponent,
   ],
   providers: [MessageService],
-  templateUrl: './shipping-list.component.html',
-  styleUrl: './shipping-list.component.scss'
+  templateUrl: './stock-shipping.component.html',
+  styleUrl: './stock-shipping.component.scss'
 })
-export class ShippingListComponent implements OnInit, OnDestroy {
+export class StockShippingComponent implements OnInit, OnDestroy {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
@@ -76,8 +76,8 @@ export class ShippingListComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Saídas' }, { label: 'Histórico' }];
   title: string = 'Histórico de Saídas';
 
-  shippings$!: Observable<Shipping[]>;
-  selectedShipping?: Shipping;
+  stockShippings$!: Observable<StockShipping[]>;
+  selectedShipping?: StockShipping;
   shippingForm: FormGroup;
   formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
 
@@ -104,7 +104,7 @@ export class ShippingListComponent implements OnInit, OnDestroy {
 
   constructor(
     private cd: ChangeDetectorRef,
-    private shippingService: ShippingService,
+    private stockMovementService: StockMovementService,
     private dropdownDataService: DropdownDataService,
     private fb: FormBuilder,
   ) {
@@ -124,7 +124,7 @@ export class ShippingListComponent implements OnInit, OnDestroy {
     this.loadTableData();
     this.loadSuppliersOptions();
     this.loadEmployeesOptions();
-    this.shippings$ = this.shippingService.shippings$;
+    this.stockShippings$ = this.stockMovementService.stockShippings$;
     this.subscriptions.add(
       this.loadLazy
         .pipe(
@@ -133,7 +133,7 @@ export class ShippingListComponent implements OnInit, OnDestroy {
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.shippingService.loadShippings(pageNumber, pageSize);
+            return this.stockMovementService.loadStockShippings(pageNumber, pageSize);
           })
         )
         .subscribe({
@@ -197,7 +197,7 @@ export class ShippingListComponent implements OnInit, OnDestroy {
     }
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, shipping?: Shipping): void {
+  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, shipping?: StockShipping): void {
     this.shippingForm.reset();
     this.formSubmitted = false; this.formMode = mode;
     this.selectedShipping = shipping;

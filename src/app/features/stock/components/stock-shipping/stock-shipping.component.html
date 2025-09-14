@@ -8,7 +8,7 @@
   <div class="card mt-10">
     <app-table-header [title]="title"></app-table-header>
 
-    <ng-container *ngIf="shippings$ | async as shippings">
+    <ng-container *ngIf="stockShippings$ | async as shippings">
       <app-table
         [value]="shippings"
         [rows]="5"

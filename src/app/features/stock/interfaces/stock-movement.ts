@@ -1,5 +1,3 @@
-import { Product } from "../../product/interfaces/product";
-
 export interface StockMovement {
   id: number;
   productId: number;
