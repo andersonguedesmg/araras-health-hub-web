@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Product } from '../interfaces/product';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
@@ -16,9 +16,13 @@ export class ProductService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadProducts(pageNumber: number, pageSize: number): Observable<ApiResponse<Product[]>> {
-    const url = this.apiConfig.getUrl('product', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<Product[]>>(url).pipe(
+  public loadProducts(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Product[]>> {
+    const url = this.apiConfig.getUrl('product', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Product[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.productsSubject.next(response.data);
