@@ -70,6 +70,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Produtos' }];
+  title: string = 'Produtos';
 
   isLoading = false;
 

@@ -78,7 +78,8 @@ export class OrderSeparateComponent implements OnInit, OnDestroy {
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedido' }, { label: 'Separar' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Separar' }];
+  title: string = 'Pedidos para Separação';
 
   orders$!: Observable<Order[]>;
   selectedOrder?: Order;

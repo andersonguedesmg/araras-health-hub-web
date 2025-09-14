@@ -39,7 +39,8 @@ export class FacilityProfileComponent implements OnInit {
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidade' }, { label: 'Perfil' },];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidades' }, { label: 'Perfil' }];
+  title: string = 'Perfil da Unidade';
 
   facility!: Facility;
   accountUsers: any;

@@ -77,7 +77,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedido' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Histórico' }];
+  title: string = 'Histórico de Pedidos';
 
   orders$!: Observable<Order[]>;
   selectedOrder?: Order;

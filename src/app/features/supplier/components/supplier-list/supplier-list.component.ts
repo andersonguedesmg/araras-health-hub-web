@@ -78,6 +78,7 @@ export class SupplierListComponent implements OnInit, OnDestroy {
   statusOptions = StatusOptions;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Fornecedores' }];
+  title: string = 'Fornecedores';
 
   suppliers$!: Observable<Supplier[]>;
   selectedSupplier?: Supplier;

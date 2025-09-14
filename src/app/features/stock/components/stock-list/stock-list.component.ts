@@ -63,7 +63,8 @@ export class StockListComponent implements OnInit, OnDestroy {
 
   isLoading = false;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }, { label: 'Geral' }];
+  title: string = 'Estoque Geral';
 
   stocks$!: Observable<Stock[]>;
   selectedStock?: Stock;

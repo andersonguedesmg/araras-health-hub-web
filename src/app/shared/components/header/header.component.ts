@@ -42,12 +42,12 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Funcionários',
             icon: PrimeIcons.USERS,
-            routerLink: '/funcionarios',
+            routerLink: '/administracao/funcionarios',
           },
           {
             label: 'Unidades',
             icon: PrimeIcons.BUILDING,
-            routerLink: '/unidades',
+            routerLink: '/administracao/unidades',
           },
           {
             label: 'Contas',
@@ -56,24 +56,24 @@ export class HeaderComponent implements OnInit {
               {
                 label: 'Gerenciar',
                 icon: PrimeIcons.LIST,
-                routerLink: '/contas',
+                routerLink: '/administracao/contas',
               },
               {
                 label: 'Registrar',
                 icon: PrimeIcons.PLUS,
-                routerLink: '/registrar',
+                routerLink: '/administracao/contas/registrar',
               },
             ]
           },
           {
             label: 'Fornecedores',
             icon: PrimeIcons.TRUCK,
-            routerLink: '/fornecedores',
+            routerLink: '/administracao/fornecedores',
           },
           {
             label: 'Produtos',
             icon: PrimeIcons.BOX,
-            routerLink: '/produtos',
+            routerLink: '/administracao/produtos',
           },
         ]
       },
@@ -88,12 +88,12 @@ export class HeaderComponent implements OnInit {
               {
                 label: 'Estoque Geral',
                 icon: PrimeIcons.BOX,
-                routerLink: '/estoque',
+                routerLink: '/almoxarifado/estoque/geral',
               },
               {
                 label: 'Estoque Crítico',
                 icon: PrimeIcons.EXCLAMATION_TRIANGLE,
-                routerLink: '/estoque/critico',
+                routerLink: '/almoxarifado/estoque/critico',
               }
             ]
           },
@@ -104,12 +104,12 @@ export class HeaderComponent implements OnInit {
               {
                 label: 'Nova Entrada',
                 icon: PrimeIcons.PLUS_CIRCLE,
-                routerLink: '/entrada/nova',
+                routerLink: '/almoxarifado/movimentacoes/entradas/nova',
               },
               {
                 label: 'Ajuste Manual',
                 icon: PrimeIcons.PENCIL,
-                routerLink: '/estoque/ajuste',
+                routerLink: '/almoxarifado/movimentacoes/ajustes/novo',
               },
               {
                 separator: true,
@@ -117,7 +117,7 @@ export class HeaderComponent implements OnInit {
               {
                 label: 'Histórico',
                 icon: PrimeIcons.LIST,
-                routerLink: '/movimentacoes',
+                routerLink: '/almoxarifado/movimentacoes/historico',
               },
               {
                 separator: true,
@@ -125,17 +125,17 @@ export class HeaderComponent implements OnInit {
               {
                 label: 'Entradas',
                 icon: PrimeIcons.FILE_IMPORT,
-                routerLink: '/entradas',
+                routerLink: '/almoxarifado/movimentacoes/entradas',
               },
               {
                 label: 'Saídas',
                 icon: PrimeIcons.FILE_EXPORT,
-                routerLink: '/saidas',
+                routerLink: '/almoxarifado/movimentacoes/saidas',
               },
               {
                 label: 'Ajustes',
                 icon: PrimeIcons.TABLE,
-                routerLink: '/estoque/ajustes',
+                routerLink: '/almoxarifado/movimentacoes/ajustes',
               },
             ]
           },
@@ -146,7 +146,7 @@ export class HeaderComponent implements OnInit {
               {
                 label: 'Estoque Mínimo',
                 icon: PrimeIcons.SLIDERS_H,
-                routerLink: '/configuracao/estoque-minimo',
+                routerLink: '/almoxarifado/configuracoes/estoque-minimo',
               },
             ]
           },
@@ -159,7 +159,7 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Novo Pedido',
             icon: PrimeIcons.PLUS_CIRCLE,
-            routerLink: '/pedido/novo',
+            routerLink: '/pedidos/novo',
           },
           {
             separator: true,
@@ -167,17 +167,17 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Aguardando Aprovação',
             icon: PrimeIcons.CLOCK,
-            routerLink: '/pedido/aprovar',
+            routerLink: '/pedidos/aprovar',
           },
           {
             label: 'Aguardando Separação',
             icon: PrimeIcons.LIST_CHECK,
-            routerLink: '/pedido/separar',
+            routerLink: '/pedidos/separar',
           },
           {
             label: 'Aguardando Finalização',
             icon: PrimeIcons.CHECK_SQUARE,
-            routerLink: '/pedido/finalizar',
+            routerLink: '/pedidos/finalizar',
           },
           {
             label: 'Finalizados',
@@ -190,19 +190,19 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Histórico',
             icon: PrimeIcons.LIST,
-            routerLink: '/pedidos',
+            routerLink: '/pedidos/historico',
           },
         ]
       },
       {
         label: 'Nova Entrada',
         icon: PrimeIcons.PLUS_CIRCLE,
-        routerLink: '/entrada/nova',
+        routerLink: '/almoxarifado/movimentacoes/entradas/nova',
       },
       {
         label: 'Novo Pedido',
         icon: PrimeIcons.PLUS_CIRCLE,
-        routerLink: '/pedido/novo',
+        routerLink: '/pedidos/novo',
       },
     ];
 
@@ -210,7 +210,7 @@ export class HeaderComponent implements OnInit {
       {
         label: 'Perfil',
         icon: PrimeIcons.USER,
-        routerLink: '/perfil',
+        routerLink: '/administracao/unidades/perfil',
       },
       {
         label: 'Sobre',

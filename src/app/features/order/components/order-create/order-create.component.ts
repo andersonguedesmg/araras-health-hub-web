@@ -66,7 +66,8 @@ export class OrderCreateComponent implements OnInit {
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedido' }, { label: 'Novo' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Novo Pedido' }];
+  title: string = 'Novo Pedido';
 
   orderForm: FormGroup;
   employeeOptions: SelectOptions<number>[] = [];

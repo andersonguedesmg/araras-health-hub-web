@@ -36,13 +36,12 @@ export const routes: Routes = [
     title: 'Araras Health Hub',
   },
   {
-    path: 'registrar',
+    path: 'administracao/contas/registrar',
     component: RegisterComponent,
     title: 'A2H - Registro',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['Admin', 'Master'] },
   },
-
   {
     path: '',
     component: HomeComponent,
@@ -55,91 +54,103 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['Admin', 'Master', 'User'] },
     children: [
+      // ADMINISTRAÇÃO
       {
-        path: 'contas',
+        path: 'administracao/contas',
         component: AccountListComponent,
         title: 'A2H - Contas',
       },
       {
-        path: 'unidades',
-        component: FacilityListComponent,
-        title: 'A2H - Unidades',
-      },
-      {
-        path: 'perfil',
-        component: FacilityProfileComponent,
-        title: 'A2H - Perfil',
-      },
-      {
-        path: 'estoque',
-        component: StockListComponent,
-        title: 'A2H - Estoque',
-      },
-      {
-        path: 'movimentacoes',
-        component: StockMovementComponent,
-        title: 'A2H - Movimentações',
-      },
-      {
-        path: 'fornecedores',
+        path: 'administracao/fornecedores',
         component: SupplierListComponent,
         title: 'A2H - Fornecedores',
       },
       {
-        path: 'pedidos',
-        component: OrderListComponent,
-        title: 'A2H - Pedidos',
+        path: 'administracao/funcionarios',
+        component: EmployeeListComponent,
+        title: 'A2H - Funcionário',
       },
       {
-        path: 'pedido/novo',
-        component: OrderCreateComponent,
-        title: 'A2H - Novo Pedido',
-      },
-      {
-        path: 'pedido/aprovar',
-        component: OrderApproveComponent,
-        title: 'A2H - Aprovar Pedidos',
-      },
-      {
-        path: 'pedido/separar',
-        component: OrderSeparateComponent,
-        title: 'A2H - Separar Pedidos',
-      },
-      {
-        path: 'pedido/finalizar',
-        component: OrderFinalizeComponent,
-        title: 'A2H - Finalizar Pedidos',
-      },
-      {
-        path: 'pedidos/finalizados',
-        component: OrderCompletedComponent,
-        title: 'A2H - Finalizados Pedidos',
-      },
-      {
-        path: 'produtos',
+        path: 'administracao/produtos',
         component: ProductListComponent,
         title: 'A2H - Produtos',
       },
       {
-        path: 'entradas',
+        path: 'administracao/unidades',
+        component: FacilityListComponent,
+        title: 'A2H - Unidades',
+      },
+      {
+        path: 'administracao/unidades/perfil',
+        component: FacilityProfileComponent,
+        title: 'A2H - Perfil da Unidade',
+      },
+
+      // PEDIDOS
+      {
+        path: 'pedidos/aprovar',
+        component: OrderApproveComponent,
+        title: 'A2H - Pedidos para Aprovação',
+      },
+      {
+        path: 'pedidos/finalizados',
+        component: OrderCompletedComponent,
+        title: 'A2H - Pedidos Finalizados',
+      },
+      {
+        path: 'pedidos/finalizar',
+        component: OrderFinalizeComponent,
+        title: 'A2H - Pedidos para Finalização',
+      },
+      {
+        path: 'pedidos/historico',
+        component: OrderListComponent,
+        title: 'A2H - Histórico de Pedidos',
+      },
+      {
+        path: 'pedidos/novo',
+        component: OrderCreateComponent,
+        title: 'A2H - Novo Pedido',
+      },
+      {
+        path: 'pedidos/separar',
+        component: OrderSeparateComponent,
+        title: 'A2H - Pedidos para Separação',
+      },
+
+      // ALMOXARIFADO
+      {
+        path: 'almoxarifado/estoque/geral',
+        component: StockListComponent,
+        title: 'A2H - Estoque Geral',
+      },
+      {
+        path: 'almoxarifado/estoque/critico',
+        component: StockListComponent,
+        title: 'A2H - Estoque Crítico',
+      },
+      {
+        path: 'almoxarifado/movimentacoes/entradas',
         component: ReceivingListComponent,
         title: 'A2H - Entradas',
       },
       {
-        path: 'entrada/nova',
+        path: 'almoxarifado/movimentacoes/entradas/nova',
         component: ReceivingCreateComponent,
         title: 'A2H - Nova Entrada',
       },
+      {
+        path: 'almoxarifado/movimentacoes/historico',
+        component: StockMovementComponent,
+        title: 'A2H - Histórico de Movimentações',
+      },
+
       {
         path: 'sobre',
         component: AboutComponent,
         title: 'A2H - Sobre',
       },
-      {
-        path: 'funcionarios',
-        component: EmployeeListComponent,
-        title: 'A2H - Funcionário',
-      },
+
     ],
   },
 

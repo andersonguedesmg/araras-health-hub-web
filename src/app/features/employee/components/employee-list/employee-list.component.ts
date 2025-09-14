@@ -72,6 +72,7 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Funcionários' }];
+  title: string = 'Funcionários';
 
   isLoading = false;
 

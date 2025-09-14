@@ -65,7 +65,8 @@ export class StockMovementComponent implements OnInit, OnDestroy {
 
   isLoading = false;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Movimentações' }, { label: 'Histórico' }];
+  title: string = 'Histórico de Movimentações';
 
   stockMovements$!: Observable<StockMovement[]>;
   selectedStock?: StockMovement;

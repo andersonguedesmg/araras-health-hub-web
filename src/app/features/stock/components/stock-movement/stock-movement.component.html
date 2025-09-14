@@ -6,7 +6,7 @@
 
 <div class="container mx-auto">
   <div class="card mt-10">
-    <app-table-header [title]="'Movimentação'"></app-table-header>
+    <app-table-header [title]="title"></app-table-header>
 
     <ng-container *ngIf="stockMovements$ | async as stockMovements">
       <app-table

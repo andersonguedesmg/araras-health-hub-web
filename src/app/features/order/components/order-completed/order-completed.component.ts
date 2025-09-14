@@ -76,7 +76,8 @@ export class OrderCompletedComponent implements OnInit, OnDestroy {
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedido' }, { label: 'Aprovar' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Finalizados' }];
+  title: string = 'Pedidos Finalizados';
 
   orders$!: Observable<Order[]>;
   selectedOrder?: Order;

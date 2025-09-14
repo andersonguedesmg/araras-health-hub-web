@@ -78,7 +78,8 @@ export class OrderApproveComponent implements OnInit, OnDestroy {
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedido' }, { label: 'Aprovar' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Aprovar' }];
+  title: string = 'Pedidos para Aprovação';
 
   orders$!: Observable<Order[]>;
   selectedOrder?: Order;

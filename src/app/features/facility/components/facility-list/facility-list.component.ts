@@ -72,6 +72,7 @@ export class FacilityListComponent implements OnInit, OnDestroy {
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidades' }];
+  title: string = 'Unidades';
 
   isLoading = false;
 

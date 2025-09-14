@@ -74,7 +74,8 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }, { label: 'Nova' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }, { label: 'Nova Entrada' }];
+  title: string = 'Nova Entrada';
 
   isLoading: boolean = false;
 

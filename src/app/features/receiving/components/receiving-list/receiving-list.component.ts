@@ -75,7 +75,8 @@ export class ReceivingListComponent implements OnInit, OnDestroy {
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }, { label: 'Histórico' }];
+  title: string = 'Histórico de Entradas';
 
   receivings$!: Observable<Receiving[]>;
   selectedReceiving?: Receiving;

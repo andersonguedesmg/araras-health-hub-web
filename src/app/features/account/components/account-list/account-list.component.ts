@@ -81,6 +81,7 @@ export class AccountListComponent implements OnInit, OnDestroy {
   statusOptions = StatusOptions;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Contas' }];
+  title: string = 'Contas';
 
   accounts$!: Observable<Account[]>;
   selectedAccount?: Account;
