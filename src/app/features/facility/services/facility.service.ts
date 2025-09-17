@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
@@ -16,9 +16,13 @@ export class FacilityService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadFacilities(pageNumber: number, pageSize: number): Observable<ApiResponse<Facility[]>> {
-    const url = this.apiConfig.getUrl('facility', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<Facility[]>>(url).pipe(
+  public loadFacilities(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Facility[]>> {
+    const url = this.apiConfig.getUrl('facility', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Facility[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.facilitySubject.next(response.data);
