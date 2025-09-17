@@ -112,6 +112,9 @@ export class SupplierListComponent implements OnInit, OnDestroy {
   getSeverity = getSeverity;
   getStatus = getStatus;
 
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
@@ -144,7 +147,7 @@ export class SupplierListComponent implements OnInit, OnDestroy {
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.supplierService.loadSuppliers(pageNumber, pageSize);
+            return this.supplierService.loadSuppliers(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -160,7 +163,15 @@ export class SupplierListComponent implements OnInit, OnDestroy {
             this.isLoading = false;
             this.handleApiError(error);
           }
-        })
+        }
+        )
+    );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadSuppliers({ first: 0, rows: 5 });
+      })
     );
   }
 
@@ -190,6 +201,10 @@ export class SupplierListComponent implements OnInit, OnDestroy {
 
   loadSuppliers(event: any) {
     this.loadLazy.next(event);
+  }
+
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Supplier): void {

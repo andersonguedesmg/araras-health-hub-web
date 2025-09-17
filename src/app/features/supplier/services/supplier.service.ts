@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
@@ -16,9 +16,13 @@ export class SupplierService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadSuppliers(pageNumber: number, pageSize: number): Observable<ApiResponse<Supplier[]>> {
-    const url = this.apiConfig.getUrl('supplier', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<Supplier[]>>(url).pipe(
+  public loadSuppliers(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Supplier[]>> {
+    const url = this.apiConfig.getUrl('supplier', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Supplier[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.supplierSubject.next(response.data);
