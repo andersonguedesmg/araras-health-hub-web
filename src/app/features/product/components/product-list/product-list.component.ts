@@ -212,11 +212,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
       link.click();
       window.URL.revokeObjectURL(url);
       this.isLoading = false;
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, 'Exportação concluída com sucesso.');
+      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, ToastMessages.SUCCESS_EXPORT);
     } catch (error) {
       this.isLoading = false;
       this.handleApiError(error);
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao exportar os produtos.');
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
     }
   }
 
