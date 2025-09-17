@@ -212,7 +212,7 @@ export class SupplierListComponent implements OnInit, OnDestroy {
     try {
       const response = await firstValueFrom(this.supplierService.exportProducts(this.searchTerm));
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'produtos.csv';
+      let filename = 'fornecedor.csv';
       if (contentDisposition) {
         const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
         if (matches && matches.length > 1) {

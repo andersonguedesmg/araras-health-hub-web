@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 import { Employee } from '../interfaces/employee';
@@ -98,5 +98,16 @@ export class EmployeeService {
       .catch(error => {
         return [];
       });
+  }
+
+  public exportEmployees(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('employee', `export`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 }

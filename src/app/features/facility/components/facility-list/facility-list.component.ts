@@ -209,7 +209,7 @@ export class FacilityListComponent implements OnInit, OnDestroy {
     try {
       const response = await firstValueFrom(this.facilityService.exportFacilities(this.searchTerm));
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'produtos.csv';
+      let filename = 'unidade.csv';
       if (contentDisposition) {
         const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
         if (matches && matches.length > 1) {

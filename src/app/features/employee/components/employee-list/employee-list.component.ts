@@ -189,6 +189,39 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
+  async exportEmployees(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const response = await firstValueFrom(this.employeeService.exportEmployees(this.searchTerm));
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'funcionario.csv';
+      if (contentDisposition) {
+        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
+        if (matches && matches.length > 1) {
+          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
+        }
+      }
+
+      const blob = response.body;
+      if (!blob) {
+        throw new Error('O corpo da resposta está vazio.');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      this.isLoading = false;
+      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, ToastMessages.SUCCESS_EXPORT);
+    } catch (error) {
+      this.isLoading = false;
+      this.handleApiError(error);
+      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, employees?: Employee): void {
     this.employeeForm.reset();
     this.formSubmitted = false; this.formMode = mode;
@@ -381,9 +414,5 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
       objeto.isActive = !objeto.isActive;
     }
     return objeto;
-  }
-
-  exportCSV(dt: Table) {
-    dt.exportCSV();
   }
 }
