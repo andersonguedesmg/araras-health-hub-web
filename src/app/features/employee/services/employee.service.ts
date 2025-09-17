@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
 import { Employee } from '../interfaces/employee';
@@ -16,9 +16,13 @@ export class EmployeeService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadEmployees(pageNumber: number, pageSize: number): Observable<ApiResponse<Employee[]>> {
-    const url = this.apiConfig.getUrl('employee', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<Employee[]>>(url).pipe(
+  public loadEmployees(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Employee[]>> {
+    const url = this.apiConfig.getUrl('employee', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Employee[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.employeesSubject.next(response.data);
