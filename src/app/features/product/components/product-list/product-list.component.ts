@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -25,15 +24,15 @@ import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Product } from '../../interfaces/product';
 import { ProductService } from '../../services/product.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { ApiResponse } from '../../../../shared/interfaces/api-response';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
+import { BaseComponent } from '../../../../core/components/base/base.component';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
 
 @Component({
   selector: 'app-product-list',
@@ -65,14 +64,9 @@ import { TableComponent } from '../../../../shared/components/table/table.compon
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
-export class ProductListComponent implements OnInit, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
-
+export class ProductListComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Produtos' }];
   title: string = 'Produtos';
-
-  isLoading = false;
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
@@ -91,8 +85,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   headerText = '';
 
   cols!: Column[];
-  selectedColumns!: Column[];
-  exportColumns!: ExportColumn[];
 
   private formLabels: { [key: string]: string; } = {
     name: 'Nome do Produto',
@@ -111,7 +103,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(private cd: ChangeDetectorRef, private productService: ProductService, private fb: FormBuilder) {
+  constructor(
+    private cd: ChangeDetectorRef,
+    private productService: ProductService,
+    private fb: FormBuilder,
+    private formHelperService: FormHelperService,
+  ) {
+    super();
     this.productForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
@@ -175,8 +173,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
       { field: 'category', header: 'CATEGORIA' },
       { field: 'isActive', header: 'STATUS' },
     ];
-    this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-    this.selectedColumns = this.cols;
   }
 
   loadProducts(event: any) {
@@ -270,147 +266,29 @@ export class ProductListComponent implements OnInit, OnDestroy {
   async saveProduct(): Promise<void> {
     this.formSubmitted = true;
     if (this.validateForm()) {
-      this.confirmMessage = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_PRODUCT : ConfirmMessages.UPDATE_PRODUCT;
-      this.confirmDialog.message = this.confirmMessage;
-      this.confirmDialog.show();
-
-      try {
-        await firstValueFrom(this.confirmDialog.confirmed);
-        this.isLoading = true;
-        const product: Product = this.productForm.getRawValue();
-
-        const apiCall$ = this.formMode === FormMode.Create
-          ? this.productService.createProduct(product)
-          : this.productService.updateProduct(product, product.id);
-
-        const response = await firstValueFrom(apiCall$);
-
-        this.isLoading = false;
-        this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
-        this.hideDialog();
-
-      } catch (error: any) {
-        this.isLoading = false;
-        if (error.message !== 'cancel') {
-          this.handleApiError(error);
-        }
-      }
+      const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_PRODUCT : ConfirmMessages.UPDATE_PRODUCT;
+      const product = this.productForm.getRawValue();
+      const apiCall = this.formMode === FormMode.Create
+        ? firstValueFrom(this.productService.createProduct(product))
+        : firstValueFrom(this.productService.updateProduct(product, product.id));
+      await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+      this.hideDialog();
     }
   }
 
   async changeStatusProduct(productId: number, product: Product): Promise<void> {
-    this.confirmMessage = product.isActive ? ConfirmMessages.DISABLE_PRODUCT : ConfirmMessages.ACTIVATE_PRODUCT;
-    this.confirmDialog.message = this.confirmMessage;
-    this.confirmDialog.show();
-
-    try {
-      await firstValueFrom(this.confirmDialog.confirmed);
-      this.isLoading = true;
-
-      const changeProductIsActive = this.changeIsActive(product);
-      const response = await firstValueFrom(this.productService.changeStatusProduct(productId, changeProductIsActive));
-
-      this.isLoading = false;
-      this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
-
-    } catch (error: any) {
-      this.isLoading = false;
-      if (error.message !== 'cancel') {
-        this.handleApiError(error);
-      }
-    }
+    const confirmMsg = product.isActive ? ConfirmMessages.DISABLE_PRODUCT : ConfirmMessages.ACTIVATE_PRODUCT;
+    const changeProductIsActive = this.changeIsActive(product);
+    const apiCall = firstValueFrom(this.productService.changeStatusProduct(productId, changeProductIsActive));
+    await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
   }
 
   async deleteProduct(productId: number): Promise<void> {
-    this.confirmDialog.message = ConfirmMessages.DELETE_PRODUCT;
-    this.confirmDialog.show();
-
-    try {
-      await firstValueFrom(this.confirmDialog.confirmed);
-      this.isLoading = true;
-
-      const response = await firstValueFrom(this.productService.deleteProduct(productId));
-
-      this.isLoading = false;
-      this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
-
-    } catch (error: any) {
-      this.isLoading = false;
-      if (error.message !== 'cancel') {
-        this.handleApiError(error);
-      }
-    }
+    const apiCall = firstValueFrom(this.productService.deleteProduct(productId));
+    await this.handleApiCall(apiCall, ConfirmMessages.DELETE_PRODUCT, ToastMessages.SUCCESS_OPERATION);
   }
 
   private validateForm(): boolean {
-    if (this.productForm.valid) {
-      return true;
-    }
-
-    const invalidControls = this.findInvalidControlsRecursive(this.productForm);
-    const invalidFields = invalidControls.map(control => {
-      const controlName = this.getFormControlName(control);
-      return controlName;
-    });
-
-    const invalidFieldsMessage = invalidFields.length > 0
-      ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
-      : ToastMessages.REQUIRED_FIELDS;
-
-    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
-    return false;
-  }
-
-  private findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
-    const invalidControls: AbstractControl[] = [];
-    if (form instanceof FormGroup) {
-      for (const name in form.controls) {
-        const control = form.controls[name];
-        if (control.invalid) {
-          invalidControls.push(control);
-        } else if (control instanceof FormGroup) {
-          invalidControls.push(...this.findInvalidControlsRecursive(control));
-        }
-      }
-    }
-    return invalidControls;
-  }
-
-  private getFormControlName(control: AbstractControl): string {
-    const parent = control.parent;
-    if (parent instanceof FormGroup) {
-      const formGroup = parent as FormGroup;
-      for (const name in formGroup.controls) {
-        if (control === formGroup.controls[name]) {
-          return this.formLabels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-        }
-      }
-    }
-    return '';
-  }
-
-  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any) {
-    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error && error.error.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  changeIsActive(objeto: any) {
-    if (objeto && typeof objeto === 'object' && 'isActive' in objeto) {
-      objeto.isActive = !objeto.isActive;
-    }
-    return objeto;
+    return this.validateFormAndShowErrors(this.productForm, this.formHelperService, this.formLabels);
   }
 }
