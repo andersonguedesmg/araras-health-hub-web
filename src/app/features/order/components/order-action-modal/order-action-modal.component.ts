@@ -21,6 +21,8 @@ import { ApproveOrderCommand, SeparateOrderCommand, FinalizeOrderCommand } from 
 import { OrderItem } from '../../interfaces/orderItem';
 import { TagModule } from 'primeng/tag';
 import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order-status.utils';
+import { BaseComponent } from '../../../../core/components/base/base.component';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
 
 @Component({
   selector: 'app-order-action-modal',
@@ -41,10 +43,7 @@ import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order
   templateUrl: './order-action-modal.component.html',
   styleUrl: './order-action-modal.component.scss'
 })
-export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
-
+export class OrderActionModalComponent extends BaseComponent implements OnInit, OnChanges, OnDestroy {
   @Input() display = false;
   @Input() order: Order | undefined;
   @Input() actionType!: OrderActionType;
@@ -52,8 +51,6 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
 
   @Output() displayChange = new EventEmitter<boolean>();
   @Output() onActionComplete = new EventEmitter<Order>();
-
-  isLoading: boolean = false;
 
   OrderActionType = OrderActionType;
   actionForm!: FormGroup;
@@ -77,7 +74,9 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
     private fb: FormBuilder,
     private orderService: OrderService,
     private authService: AuthService,
+    private formHelperService: FormHelperService,
   ) {
+    super();
     this.currentAccountId = Number(this.authService.getUserId());
   }
 
@@ -336,25 +335,6 @@ export class OrderActionModalComponent implements OnInit, OnChanges, OnDestroy {
       if (error.message !== 'cancel') {
         this.handleApiError(error);
       }
-    }
-  }
-
-
-  private handleApiResponse(response: ApiResponse<any>, successMessage: string): void {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any): void {
-    if (error.error?.statusCode === 404 || error.error?.statusCode === 400) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error?.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
     }
   }
 

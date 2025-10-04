@@ -38,6 +38,8 @@ import { OrderActionType } from '../../../../shared/enums/order-action-type.enum
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { OrderStatusId } from '../../../../shared/enums/order-status-id.enum';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { BaseComponent } from '../../../../core/components/base/base.component';
 
 @Component({
   selector: 'app-order-separate',
@@ -68,12 +70,7 @@ import { OrderStatusId } from '../../../../shared/enums/order-status-id.enum';
   templateUrl: './order-separate.component.html',
   styleUrl: './order-separate.component.scss'
 })
-export class OrderSeparateComponent implements OnInit, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
-
-  isLoading = false;
-
+export class OrderSeparateComponent extends BaseComponent implements OnInit, OnDestroy {
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
@@ -100,8 +97,6 @@ export class OrderSeparateComponent implements OnInit, OnDestroy {
   headerText = '';
 
   cols!: Column[];
-  selectedColumns!: Column[];
-  exportColumns!: ExportColumn[];
 
   getOrderSeverity = getOrderSeverity;
   getOrderStatus = getOrderStatus;
@@ -110,7 +105,15 @@ export class OrderSeparateComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(private cd: ChangeDetectorRef, private orderService: OrderService, private fb: FormBuilder, private dropdownDataService: DropdownDataService,) { }
+  constructor(
+    private cd: ChangeDetectorRef,
+    private orderService: OrderService,
+    private fb: FormBuilder,
+    private dropdownDataService: DropdownDataService,
+    private formHelperService: FormHelperService,
+  ) {
+    super();
+  }
 
   ngOnInit() {
     this.loadTableData();
@@ -159,8 +162,6 @@ export class OrderSeparateComponent implements OnInit, OnDestroy {
       { field: 'orderItems.length', header: 'ITENS' },
       { field: 'orderStatus.description', header: 'STATUS' },
     ];
-    this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-    this.selectedColumns = this.cols;
   }
 
   loadOrders(event: any) {
@@ -185,24 +186,6 @@ export class OrderSeparateComponent implements OnInit, OnDestroy {
   handleActionComplete(updatedOrder: Order) {
     this.displayActionModal = false;
     this.loadLazy.next({});
-  }
-
-  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any) {
-    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error && error.error.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-    }
   }
 
   exportCSV(dt: Table) {

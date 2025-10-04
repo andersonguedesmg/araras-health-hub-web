@@ -23,7 +23,6 @@ import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/mes
 import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { firstValueFrom } from 'rxjs';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
@@ -32,6 +31,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { OrderService } from '../../services/order.service';
 import { Order } from '../../interfaces/order';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
+import { BaseComponent } from '../../../../core/components/base/base.component';
 
 @Component({
   selector: 'app-order-create',
@@ -61,10 +61,8 @@ import { DropdownDataService } from '../../../../shared/services/dropdown-data.s
   templateUrl: './order-create.component.html',
   styleUrl: './order-create.component.scss'
 })
-export class OrderCreateComponent implements OnInit {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
+export class OrderCreateComponent extends BaseComponent implements OnInit {
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Novo Pedido' }];
   title: string = 'Novo Pedido';
@@ -99,6 +97,7 @@ export class OrderCreateComponent implements OnInit {
     private authService: AuthService,
     private dropdownDataService: DropdownDataService,
   ) {
+    super();
     this.orderForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       observation: [''],
@@ -270,23 +269,5 @@ export class OrderCreateComponent implements OnInit {
       }
     }
     return '';
-  }
-
-  private handleApiResponse(response: any, successMessage: string) {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any) {
-    if (error.error?.statusCode === HttpStatus.NotFound || error.error?.statusCode === HttpStatus.BadRequest) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error?.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-    }
   }
 }
