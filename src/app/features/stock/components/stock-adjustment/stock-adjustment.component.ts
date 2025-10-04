@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -19,13 +19,9 @@ import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { Column } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { ApiResponse } from '../../../../shared/interfaces/api-response';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { StockShipping } from '../../interfaces/stock-shipping';
 import { StockMovementService } from '../../services/stock-movement.service';
@@ -34,6 +30,8 @@ import { TableHeaderComponent } from '../../../../shared/components/table-header
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { BaseComponent } from '../../../../core/components/base/base.component';
 
 @Component({
   selector: 'app-stock-adjustment',
@@ -63,18 +61,13 @@ import { DropdownDataService } from '../../../../shared/services/dropdown-data.s
   templateUrl: './stock-adjustment.component.html',
   styleUrl: './stock-adjustment.component.scss'
 })
-export class StockAdjustmentComponent implements OnInit, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
-
-  isLoading = false;
-
+export class StockAdjustmentComponent extends BaseComponent implements OnInit, OnDestroy {
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Ajustes' }, { label: 'Histórico' }];
-  title: string = 'Histórico de Ajustes';
+  title: string = 'Histórico de Ajustes Manuais';
 
   stockShippings$!: Observable<StockShipping[]>;
   selectedShipping?: StockShipping;
@@ -92,8 +85,6 @@ export class StockAdjustmentComponent implements OnInit, OnDestroy {
   headerText = '';
 
   cols!: Column[];
-  selectedColumns!: Column[];
-  exportColumns!: ExportColumn[];
 
   getSeverity = getSeverity;
   getStatus = getStatus;
@@ -107,7 +98,9 @@ export class StockAdjustmentComponent implements OnInit, OnDestroy {
     private stockMovementService: StockMovementService,
     private dropdownDataService: DropdownDataService,
     private fb: FormBuilder,
+    private formHelperService: FormHelperService,
   ) {
+    super();
     this.shippingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       supplierId: ['', Validators.required],
@@ -169,8 +162,6 @@ export class StockAdjustmentComponent implements OnInit, OnDestroy {
       { field: 'responsibleId', header: 'RESPONSÁVEL' },
       { field: 'observation', header: 'OBSERVAÇÃO' },
     ];
-    this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-    this.selectedColumns = this.cols;
   }
 
   loadShippings(event: any) {
@@ -234,31 +225,6 @@ export class StockAdjustmentComponent implements OnInit, OnDestroy {
   hideDialog(): void {
     this.displayDialog = false;
     this.selectedShipping = undefined;
-  }
-
-  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any) {
-    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error && error.error.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  changeIsActive(objeto: any) {
-    if (objeto && typeof objeto === 'object' && 'isActive' in objeto) {
-      objeto.isActive = !objeto.isActive;
-    }
-    return objeto;
   }
 
   exportCSV(dt: Table) {

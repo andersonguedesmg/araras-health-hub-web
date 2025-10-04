@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -18,16 +18,14 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
-import { ApiResponse } from '../../../../shared/interfaces/api-response';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StockService } from '../../services/stock.service';
 import { Stock } from '../../interfaces/stock';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { TagModule } from 'primeng/tag';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { BaseComponent } from '../../../../core/components/base/base.component';
 
 @Component({
   selector: 'app-stock-critical',
@@ -57,12 +55,7 @@ import { TableHeaderComponent } from '../../../../shared/components/table-header
   templateUrl: './stock-critical.component.html',
   styleUrl: './stock-critical.component.scss'
 })
-export class StockCriticalComponent implements OnInit, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
-
-  isLoading = false;
-
+export class StockCriticalComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }, { label: 'Crítico' }];
   title: string = 'Estoque Crítico';
 
@@ -77,7 +70,14 @@ export class StockCriticalComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(private cd: ChangeDetectorRef, private stockService: StockService, private fb: FormBuilder) { }
+  constructor(
+    private cd: ChangeDetectorRef,
+    private stockService: StockService,
+    private fb: FormBuilder,
+    private formHelperService: FormHelperService,
+  ) {
+    super();
+  }
 
   ngOnInit() {
     this.loadTableData();
@@ -130,24 +130,6 @@ export class StockCriticalComponent implements OnInit, OnDestroy {
 
   loadStocks(event: any) {
     this.loadLazy.next(event);
-  }
-
-  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any) {
-    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error && error.error.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-    }
   }
 
   exportCSV(dt: Table) {

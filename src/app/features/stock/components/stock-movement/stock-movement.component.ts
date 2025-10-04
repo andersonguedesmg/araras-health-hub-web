@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -18,18 +18,15 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
-import { ApiResponse } from '../../../../shared/interfaces/api-response';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StockMovementService } from '../../services/stock-movement.service';
-
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { TagModule } from 'primeng/tag';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { StockMovement } from '../../interfaces/stock-movement';
 import { StockMovementTypePipe } from "../../../../shared/pipe/stock-movement-type.pipe";
+import { BaseComponent } from '../../../../core/components/base/base.component';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
 
 @Component({
   selector: 'app-stock-movement',
@@ -55,16 +52,11 @@ import { StockMovementTypePipe } from "../../../../shared/pipe/stock-movement-ty
     TableComponent,
     TableHeaderComponent,
     StockMovementTypePipe
-],
+  ],
   templateUrl: './stock-movement.component.html',
   styleUrl: './stock-movement.component.scss'
 })
-export class StockMovementComponent implements OnInit, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
-
-  isLoading = false;
-
+export class StockMovementComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Movimentações' }, { label: 'Histórico' }];
   title: string = 'Histórico de Movimentações';
 
@@ -79,7 +71,13 @@ export class StockMovementComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(private cd: ChangeDetectorRef, private stockMovementService: StockMovementService, private fb: FormBuilder) { }
+  constructor(
+    private cd: ChangeDetectorRef,
+    private stockMovementService: StockMovementService,
+    private formHelperService: FormHelperService,
+  ) {
+    super();
+  }
 
   ngOnInit() {
     this.loadTableData();
@@ -132,24 +130,6 @@ export class StockMovementComponent implements OnInit, OnDestroy {
 
   loadStocks(event: any) {
     this.loadLazy.next(event);
-  }
-
-  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any) {
-    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error && error.error.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-    }
   }
 
   exportCSV(dt: Table) {

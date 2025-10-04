@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -17,17 +17,15 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
-import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
-import { ApiResponse } from '../../../../shared/interfaces/api-response';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
+import { Column } from '../../../../shared/utils/p-table.utils';
 import { StockService } from '../../services/stock.service';
 import { Stock } from '../../interfaces/stock';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { TagModule } from 'primeng/tag';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { BaseComponent } from '../../../../core/components/base/base.component';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
 
 @Component({
   selector: 'app-stock-list',
@@ -57,12 +55,7 @@ import { TableHeaderComponent } from '../../../../shared/components/table-header
   templateUrl: './stock-list.component.html',
   styleUrl: './stock-list.component.scss'
 })
-export class StockListComponent implements OnInit, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
-
-  isLoading = false;
-
+export class StockListComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }, { label: 'Geral' }];
   title: string = 'Estoque Geral';
 
@@ -70,14 +63,19 @@ export class StockListComponent implements OnInit, OnDestroy {
   selectedStock?: Stock;
 
   cols!: Column[];
-  selectedColumns!: Column[];
-  exportColumns!: ExportColumn[];
 
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(private cd: ChangeDetectorRef, private stockService: StockService, private fb: FormBuilder) { }
+  constructor(
+    private cd: ChangeDetectorRef,
+    private stockService: StockService,
+    private fb: FormBuilder,
+    private formHelperService: FormHelperService,
+  ) {
+    super();
+  }
 
   ngOnInit() {
     this.loadTableData();
@@ -124,30 +122,10 @@ export class StockListComponent implements OnInit, OnDestroy {
       { field: 'currentQuantity', header: 'QUANTIDADE ATUAL' },
       { field: 'minQuantity', header: 'QUANTIDADE MÍNIMA' },
     ];
-    this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-    this.selectedColumns = this.cols;
   }
 
   loadStocks(event: any) {
     this.loadLazy.next(event);
-  }
-
-  private handleApiResponse(response: ApiResponse<any>, successMessage: string) {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any) {
-    if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error && error.error.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-    }
   }
 
   exportCSV(dt: Table) {
