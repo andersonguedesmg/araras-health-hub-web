@@ -53,4 +53,6 @@ export const ToastMessages = {
   SUCCESS_EXPORT: 'Exportação concluída com sucesso.',
   SESSION_WILL_EXPIRE_SOON: 'Sua sessão irá expirar em breve.',
   SUM_TOTAL_VALUES_ITEMS_DIFFERENT_TOTAL_VALUE: 'A soma dos valores totais dos itens não confere com o valor total da entrada.',
+  CEP_NOT_FOUND: 'CEP não encontrado. Por favor, verifique o número digitado.',
+  CEP_CHECK_ERROR: 'Erro ao consultar o CEP. Tente novamente.',
 };

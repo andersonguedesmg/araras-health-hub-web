@@ -202,6 +202,7 @@
               mask="99999-999"
               styleClass="w-full mt-1"
               formControlName="cep"
+              (onBlur)="searchCep()"
               [ngClass]="{
                 'ng-invalid ng-dirty':
                   supplierForm.get('cep')?.invalid &&

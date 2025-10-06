@@ -1,10 +1,18 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
+import { CepService } from './cep.service';
+import { firstValueFrom } from 'rxjs';
+import { ToastSeverities, ToastSummaries } from '../../shared/constants/toast.constants';
+import { ToastMessages } from '../../shared/constants/messages.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FormHelperService {
+
+  constructor(
+    private cepService: CepService,
+  ) { }
 
   findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
     const invalidControls: AbstractControl[] = [];
@@ -33,4 +41,48 @@ export class FormHelperService {
     }
     return '';
   }
+
+  async bindAddressByCep(form: FormGroup, toastComponent: any): Promise<boolean> {
+    const cepControl = form.get('cep');
+    const cepValue = cepControl?.value?.replace(/\D/g, '');
+
+    if (!cepValue || cepControl?.invalid) {
+      return false;
+    }
+
+    form.disable();
+    this.clearAddressFields(form);
+
+    try {
+      const response = await firstValueFrom(this.cepService.getAddressByCep(cepValue));
+      if (response.erro === 'true') {
+        toastComponent.showMessage(ToastSeverities.WARN, ToastSummaries.INFO, ToastMessages.CEP_NOT_FOUND);
+        form.get('cep')?.enable();
+        document.getElementById('cep')?.focus();
+        return false;
+      } else {
+        form.patchValue({
+          address: response.logradouro,
+          neighborhood: response.bairro,
+          city: response.localidade,
+          state: response.uf,
+        });
+        return true;
+      }
+    } catch (error) {
+      toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.CEP_CHECK_ERROR);
+      form.get('cep')?.enable();
+      return false;
+    } finally { }
+  }
+
+  private clearAddressFields(form: FormGroup): void {
+    form.patchValue({
+      address: '',
+      neighborhood: '',
+      city: '',
+      state: '',
+    });
+  }
+
 }

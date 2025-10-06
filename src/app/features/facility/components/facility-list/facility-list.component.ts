@@ -314,4 +314,14 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
   private validateForm(): boolean {
     return this.validateFormAndShowErrors(this.facilityForm, this.formHelperService, this.formLabels);
   }
+
+  async searchCep(): Promise<void> {
+    this.isLoading = true;
+    const success = await this.formHelperService.bindAddressByCep(this.facilityForm, this.toastComponent);
+    this.updateFormState();
+    this.isLoading = false;
+    if (success) {
+      document.getElementById('number')?.focus();
+    }
+  }
 }

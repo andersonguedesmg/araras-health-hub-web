@@ -316,4 +316,14 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   private validateForm(): boolean {
     return this.validateFormAndShowErrors(this.supplierForm, this.formHelperService, this.formLabels);
   }
+
+  async searchCep(): Promise<void> {
+    this.isLoading = true;
+    const success = await this.formHelperService.bindAddressByCep(this.supplierForm, this.toastComponent);
+    this.updateFormState();
+    this.isLoading = false;
+    if (success) {
+      document.getElementById('number')?.focus();
+    }
+  }
 }
