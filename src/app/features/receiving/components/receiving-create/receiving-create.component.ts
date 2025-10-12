@@ -37,6 +37,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableModule } from 'primeng/table';
+import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
 
 @Component({
   selector: 'app-receiving-create',
@@ -156,7 +157,7 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
     this.supplierForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
-      cnpj: ['', Validators.required],
+      cnpj: ['', [Validators.required, cnpjValidator()]],
       address: ['', Validators.required],
       number: ['', Validators.required],
       neighborhood: ['', Validators.required],
@@ -521,6 +522,17 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
       this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
     } else {
       this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
+  async validateCnpj(): Promise<void> {
+    const cnpjControl = this.supplierForm.get('cnpj');
+    if (cnpjControl?.value && cnpjControl.invalid) {
+      cnpjControl.markAsTouched();
+      cnpjControl.updateValueAndValidity();
+      if (cnpjControl.errors?.['invalidCnpj']) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.CNPJ_INVALID);
+      }
     }
   }
 }

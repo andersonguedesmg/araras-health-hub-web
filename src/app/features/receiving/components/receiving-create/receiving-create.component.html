@@ -444,6 +444,7 @@
               mask="99.999.999/9999-99"
               styleClass="w-full"
               formControlName="cnpj"
+              (onBlur)="validateCnpj()"
               [ngClass]="{
                 'ng-invalid ng-dirty':
                   supplierForm.get('cnpj')?.invalid &&
