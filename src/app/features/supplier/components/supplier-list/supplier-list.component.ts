@@ -34,6 +34,7 @@ import { TableComponent } from '../../../../shared/components/table/table.compon
 import { InputMask } from 'primeng/inputmask';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
 
 @Component({
   selector: 'app-supplier-list',
@@ -120,7 +121,7 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
     this.supplierForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
-      cnpj: ['', Validators.required],
+      cnpj: ['', [Validators.required, cnpjValidator()]],
       address: ['', Validators.required],
       number: ['', Validators.required],
       neighborhood: ['', Validators.required],
@@ -324,6 +325,17 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
     this.isLoading = false;
     if (success) {
       document.getElementById('number')?.focus();
+    }
+  }
+
+  async validateCnpj(): Promise<void> {
+    const cnpjControl = this.supplierForm.get('cnpj');
+    if (cnpjControl?.value && cnpjControl.invalid) {
+      cnpjControl.markAsTouched();
+      cnpjControl.updateValueAndValidity();
+      if (cnpjControl.errors?.['invalidCnpj']) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.CNPJ_INVALID);
+      }
     }
   }
 }
