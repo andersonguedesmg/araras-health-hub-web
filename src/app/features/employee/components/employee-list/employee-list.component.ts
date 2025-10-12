@@ -34,6 +34,7 @@ import { TableComponent } from '../../../../shared/components/table/table.compon
 import { InputMask } from 'primeng/inputmask';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { BaseComponent } from '../../../../core/components/base/base.component';
+import { cpfValidator } from '../../../../core/validators/cpf-cnpj.validator';
 
 @Component({
   selector: 'app-employee-list',
@@ -115,7 +116,7 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
     this.employeeForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
-      cpf: ['', Validators.required],
+      cpf: ['', [Validators.required, cpfValidator()]],
       function: ['', Validators.required],
       phone: ['', Validators.required],
       isActive: [{ value: false, disabled: true }],
@@ -292,5 +293,16 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
 
   private validateForm(): boolean {
     return this.validateFormAndShowErrors(this.employeeForm, this.formHelperService, this.formLabels);
+  }
+
+  async validateCpf(): Promise<void> {
+    const cpfControl = this.employeeForm.get('cpf');
+    if (cpfControl?.value && cpfControl.invalid) {
+      cpfControl.markAsTouched();
+      cpfControl.updateValueAndValidity();
+      if (cpfControl.errors?.['invalidCpf']) {
+        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.CPF_INVALID);
+      }
+    }
   }
 }
