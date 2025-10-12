@@ -55,4 +55,6 @@ export const ToastMessages = {
   SUM_TOTAL_VALUES_ITEMS_DIFFERENT_TOTAL_VALUE: 'A soma dos valores totais dos itens não confere com o valor total da entrada.',
   CEP_NOT_FOUND: 'CEP não encontrado. Por favor, verifique o número digitado.',
   CEP_CHECK_ERROR: 'Erro ao consultar o CEP. Tente novamente.',
+  CNPJ_INVALID: 'O CNPJ digitado é inválido. Por favor, verifique.',
+  CPF_INVALID: 'O CPF digitado é inválido. Por favor, verifique.',
 };
