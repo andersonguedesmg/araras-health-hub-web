@@ -26,6 +26,11 @@ import { StockMovementComponent } from './features/stock/components/stock-moveme
 import { StockCriticalComponent } from './features/stock/components/stock-critical/stock-critical.component';
 import { StockShippingComponent } from './features/stock/components/stock-shipping/stock-shipping.component';
 import { StockAdjustmentComponent } from './features/stock/components/stock-adjustment/stock-adjustment.component';
+import { scopeGuard } from './core/guards/scope.guard';
+import { UserRoles, UserScopes } from './core/constants/auth.constants';
+
+const SCOPE_MANAGEMENT = [UserScopes.MANAGEMENT];
+const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];
 
 export const routes: Routes = [
   {
@@ -39,54 +44,71 @@ export const routes: Routes = [
     title: 'Araras Health Hub',
   },
   {
-    path: 'administracao/contas/registrar',
-    component: RegisterComponent,
-    title: 'A2H - Registro',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['Admin', 'Master'] },
-  },
-  {
     path: '',
     component: HomeComponent,
     title: 'Araras Health Hub',
     canActivate: [authGuard],
   },
+  {
+    path: 'sobre',
+    component: AboutComponent,
+    title: 'A2H - Sobre',
+    canActivate: [authGuard],
+  },
 
   {
     path: '',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['Admin', 'Master', 'User'] },
+    canActivate: [authGuard],
     children: [
       // ADMINISTRAÇÃO
       {
         path: 'administracao/contas',
         component: AccountListComponent,
         title: 'A2H - Contas',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
+      },
+      {
+        path: 'administracao/contas/registrar',
+        component: RegisterComponent,
+        title: 'A2H - Registro',
+        canActivate: [scopeGuard, roleGuard],
+        data: { scopes: SCOPE_MANAGEMENT, roles: [UserRoles.ADMIN, UserRoles.MASTER] }
       },
       {
         path: 'administracao/fornecedores',
         component: SupplierListComponent,
         title: 'A2H - Fornecedores',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/funcionarios',
         component: EmployeeListComponent,
         title: 'A2H - Funcionário',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/produtos',
         component: ProductListComponent,
         title: 'A2H - Produtos',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/unidades',
         component: FacilityListComponent,
         title: 'A2H - Unidades',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/unidades/perfil',
         component: FacilityProfileComponent,
         title: 'A2H - Perfil da Unidade',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
 
       // PEDIDOS
@@ -94,31 +116,43 @@ export const routes: Routes = [
         path: 'pedidos/aprovar',
         component: OrderApproveComponent,
         title: 'A2H - Pedidos para Aprovação',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/finalizados',
         component: OrderCompletedComponent,
         title: 'A2H - Pedidos Finalizados',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/finalizar',
         component: OrderFinalizeComponent,
         title: 'A2H - Pedidos para Finalização',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/historico',
         component: OrderListComponent,
         title: 'A2H - Histórico de Pedidos',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/novo',
         component: OrderCreateComponent,
         title: 'A2H - Novo Pedido',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/separar',
         component: OrderSeparateComponent,
         title: 'A2H - Pedidos para Separação',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_ALL_OPS }
       },
 
       // ALMOXARIFADO
@@ -126,44 +160,51 @@ export const routes: Routes = [
         path: 'almoxarifado/estoque/geral',
         component: StockListComponent,
         title: 'A2H - Estoque Geral',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/estoque/critico',
         component: StockCriticalComponent,
         title: 'A2H - Estoque Crítico',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/ajustes',
         component: StockAdjustmentComponent,
         title: 'A2H - Ajustes',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/entradas',
         component: ReceivingListComponent,
         title: 'A2H - Entradas',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/entradas/nova',
         component: ReceivingCreateComponent,
         title: 'A2H - Nova Entrada',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/historico',
         component: StockMovementComponent,
         title: 'A2H - Histórico de Movimentações',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/saidas',
         component: StockShippingComponent,
         title: 'A2H - Saídas',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
       },
-
-      {
-        path: 'sobre',
-        component: AboutComponent,
-        title: 'A2H - Sobre',
-      },
-
     ],
   },
 

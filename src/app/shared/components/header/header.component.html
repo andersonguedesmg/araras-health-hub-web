@@ -10,7 +10,8 @@
 
   <ng-template pTemplate="end">
     <p-avatar
-      icon="pi pi-user"
+      [icon]="currentUser ? undefined : 'pi pi-user'"
+      [label]="currentUser ? currentUser.userName[0].toUpperCase() : undefined"
       shape="circle"
       styleClass="bg-zinc-700 text-white"
       (click)="toggleMenu($event)"

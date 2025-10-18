@@ -7,6 +7,8 @@ import { ApiConfigService } from '../../shared/services/api-config.service';
 import { Account } from '../interfaces/account';
 import { Router } from '@angular/router';
 import { BaseApiResponse } from '../../shared/interfaces/base-api-response';
+import { SCOPE_MAPPING, UserScopes } from '../constants/auth.constants';
+import { AccountInfo } from '../interfaces/account-info';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +16,9 @@ import { BaseApiResponse } from '../../shared/interfaces/base-api-response';
 export class AuthService {
   private loggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn());
   public isLoggedIn$ = this.loggedInSubject.asObservable();
+
+  private userSubject = new BehaviorSubject<AccountInfo | null>(this.loadUserInfo());
+  public currentUser$ = this.userSubject.asObservable();
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService, private router: Router) { }
 
@@ -25,12 +30,14 @@ export class AuthService {
         if (response.success && response.data?.token) {
           this.saveAuthData(response.data);
           this.loggedInSubject.next(true);
+          this.userSubject.next(this.loadUserInfo());
         }
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Erro no login:', error);
         const errorMessage = error.error?.message || 'Erro de autenticação desconhecido. Por favor, verifique suas credenciais.';
         this.loggedInSubject.next(false);
+        this.userSubject.next(null);
         return throwError(() => new Error(errorMessage));
       })
     );
@@ -42,9 +49,36 @@ export class AuthService {
       localStorage.setItem('facilityId', account.facilityId.toString());
       localStorage.setItem('userId', account.userId.toString());
       localStorage.setItem('userName', account.userName);
+
+      const scopeName = SCOPE_MAPPING[account.scope];
+      if (scopeName) {
+        localStorage.setItem('scope', scopeName);
+      }
+
       const roleNames = account.roles.map(role => role.name);
       localStorage.setItem('roles', JSON.stringify(roleNames));
     }
+  }
+
+  private loadUserInfo(): AccountInfo | null {
+    const userName = localStorage.getItem('userName');
+    const scope = localStorage.getItem('scope');
+    const rolesJson = localStorage.getItem('roles');
+
+    if (userName && scope && rolesJson) {
+      try {
+        const roles = JSON.parse(rolesJson);
+        return {
+          userName: userName,
+          scope: scope,
+          roles: Array.isArray(roles) ? roles : [roles]
+        } as AccountInfo;
+      } catch (e) {
+        console.error("Erro ao fazer parse das roles:", e);
+        return null;
+      }
+    }
+    return null;
   }
 
   logout(): void {
@@ -53,12 +87,38 @@ export class AuthService {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     localStorage.removeItem('roles');
+    localStorage.removeItem('scope');
+
     this.loggedInSubject.next(false);
+    this.userSubject.next(null);
     this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  getUserScope(): string | null {
+    return localStorage.getItem('scope');
+  }
+
+  hasScope(requiredScopes: (UserScopes | string)[]): boolean {
+    const userScope = this.getUserScope();
+    if (!userScope) {
+      return false;
+    }
+    return requiredScopes.includes(userScope);
+  }
+
+  hasScope$(requiredScopes: (UserScopes | string)[]): Observable<boolean> {
+    return this.isLoggedIn$.pipe(
+      map(isLoggedIn => {
+        if (!isLoggedIn) {
+          return false;
+        }
+        return this.hasScope(requiredScopes);
+      })
+    );
   }
 
   getUserRoles(): string[] {
@@ -68,6 +128,18 @@ export class AuthService {
 
   hasRole(role: string): boolean {
     return this.getUserRoles().includes(role);
+  }
+
+  hasRole$(requiredRoles: string[]): Observable<boolean> {
+    return this.isLoggedIn$.pipe(
+      map(isLoggedIn => {
+        if (!isLoggedIn) {
+          return false;
+        }
+        const userRoles = this.getUserRoles();
+        return requiredRoles.some(role => userRoles.includes(role));
+      })
+    );
   }
 
   getFacilityId(): string | null {
@@ -86,22 +158,6 @@ export class AuthService {
     return !!this.getToken() && !this.isTokenExpired();
   }
 
-  hasRole$(requiredRoles: string[]): Observable<boolean> {
-    return this.isLoggedIn$.pipe(
-      map(isLoggedIn => {
-        if (!isLoggedIn) {
-          return false;
-        }
-        const userRoles = this.getUserRoles();
-        return requiredRoles.some(role => userRoles.includes(role));
-      })
-    );
-  }
-
-  /**
-   * Verifica se um token expirou.
-   * @returns True se o token expirou ou não existe, false caso contrário.
-   */
   isTokenExpired(): boolean {
     const token = this.getToken();
     if (!token) {
@@ -115,10 +171,6 @@ export class AuthService {
     }
   }
 
-  /**
-   * Verifica se o token irá expirar em breve (em menos de 5 minutos).
-   * @returns True se o token estiver prestes a expirar, false caso contrário.
-   */
   isTokenExpiringSoon(): boolean {
     const token = this.getToken();
     if (!token) {
