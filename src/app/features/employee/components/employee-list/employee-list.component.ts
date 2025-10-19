@@ -16,14 +16,12 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { Column } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../interfaces/employee';
@@ -55,7 +53,6 @@ import { cpfValidator } from '../../../../core/validators/cpf-cnpj.validator';
     SelectModule,
     InputMask,
     BreadcrumbComponent,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
@@ -211,11 +208,11 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
       link.click();
       window.URL.revokeObjectURL(url);
       this.isLoading = false;
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, ToastMessages.SUCCESS_EXPORT);
+      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
     } catch (error) {
       this.isLoading = false;
       this.handleApiError(error);
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
     }
   }
 
@@ -301,7 +298,7 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
       cpfControl.markAsTouched();
       cpfControl.updateValueAndValidity();
       if (cpfControl.errors?.['invalidCpf']) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.CPF_INVALID);
+        this.toastService.showError(ToastMessages.CPF_INVALID);
       }
     }
   }

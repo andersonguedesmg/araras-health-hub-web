@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -16,7 +16,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { Column } from '../../../../shared/utils/p-table.utils';
@@ -25,7 +24,6 @@ import { Supplier } from '../../interfaces/supplier';
 import { SupplierService } from '../../services/supplier.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
@@ -55,7 +53,6 @@ import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
     SelectModule,
     InputMask,
     BreadcrumbComponent,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
@@ -228,11 +225,11 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
       link.click();
       window.URL.revokeObjectURL(url);
       this.isLoading = false;
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, ToastMessages.SUCCESS_EXPORT);
+      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
     } catch (error) {
       this.isLoading = false;
       this.handleApiError(error);
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
     }
   }
 
@@ -320,7 +317,7 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
 
   async searchCep(): Promise<void> {
     this.isLoading = true;
-    const success = await this.formHelperService.bindAddressByCep(this.supplierForm, this.toastComponent);
+    const success = await this.formHelperService.bindAddressByCep(this.supplierForm, this.toastService);
     this.updateFormState();
     this.isLoading = false;
     if (success) {
@@ -334,7 +331,7 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
       cnpjControl.markAsTouched();
       cnpjControl.updateValueAndValidity();
       if (cnpjControl.errors?.['invalidCnpj']) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.CNPJ_INVALID);
+        this.toastService.showError(ToastMessages.CNPJ_INVALID);
       }
     }
   }

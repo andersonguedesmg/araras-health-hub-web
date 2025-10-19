@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 import { CepService } from './cep.service';
 import { firstValueFrom } from 'rxjs';
-import { ToastSeverities, ToastSummaries } from '../../shared/constants/toast.constants';
+import { ToastSummaries } from '../../shared/constants/toast.constants';
 import { ToastMessages } from '../../shared/constants/messages.constants';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,7 @@ export class FormHelperService {
     return '';
   }
 
-  async bindAddressByCep(form: FormGroup, toastComponent: any): Promise<boolean> {
+  async bindAddressByCep(form: FormGroup, toastService: ToastService): Promise<boolean> {
     const cepControl = form.get('cep');
     const cepValue = cepControl?.value?.replace(/\D/g, '');
 
@@ -56,7 +57,7 @@ export class FormHelperService {
     try {
       const response = await firstValueFrom(this.cepService.getAddressByCep(cepValue));
       if (response.erro === 'true') {
-        toastComponent.showMessage(ToastSeverities.WARN, ToastSummaries.INFO, ToastMessages.CEP_NOT_FOUND);
+        toastService.showError(ToastMessages.CEP_NOT_FOUND, ToastSummaries.INFO);
         form.get('cep')?.enable();
         document.getElementById('cep')?.focus();
         return false;
@@ -70,8 +71,7 @@ export class FormHelperService {
         return true;
       }
     } catch (error) {
-      toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.CEP_CHECK_ERROR);
-      form.get('cep')?.enable();
+      toastService.showError(ToastMessages.CEP_CHECK_ERROR, ToastSummaries.ERROR); form.get('cep')?.enable();
       return false;
     } finally { }
   }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -10,11 +10,9 @@ import { OrderActionType } from '../../../../shared/enums/order-action-type.enum
 import { Order } from '../../interfaces/order';
 import { OrderService } from '../../services/order.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { ApiResponse } from '../../../../shared/interfaces/api-response';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { ApproveOrderCommand, SeparateOrderCommand, FinalizeOrderCommand } from '../../interfaces/order-commands';
@@ -36,7 +34,6 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
     ReactiveFormsModule,
     SelectModule,
     TagModule,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
@@ -189,7 +186,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
       ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
       : ToastMessages.REQUIRED_FIELDS;
 
-    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
+    this.toastService.showError(invalidFieldsMessage);
     return false;
   }
 

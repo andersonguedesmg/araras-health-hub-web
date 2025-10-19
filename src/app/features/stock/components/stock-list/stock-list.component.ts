@@ -16,7 +16,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { Column } from '../../../../shared/utils/p-table.utils';
 import { StockService } from '../../services/stock.service';
 import { Stock } from '../../interfaces/stock';
@@ -45,7 +44,6 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
     DialogModule,
     SelectModule,
     BreadcrumbComponent,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,

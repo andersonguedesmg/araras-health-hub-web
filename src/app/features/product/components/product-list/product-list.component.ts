@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -16,16 +16,14 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { Column } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Product } from '../../interfaces/product';
 import { ProductService } from '../../services/product.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
@@ -52,7 +50,6 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
     DialogModule,
     SelectModule,
     BreadcrumbComponent,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
@@ -208,11 +205,11 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
       link.click();
       window.URL.revokeObjectURL(url);
       this.isLoading = false;
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, ToastMessages.SUCCESS_EXPORT);
+      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
     } catch (error) {
       this.isLoading = false;
       this.handleApiError(error);
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
+      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
     }
   }
 

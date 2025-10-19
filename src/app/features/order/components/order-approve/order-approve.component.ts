@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -17,7 +17,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { Column } from '../../../../shared/utils/p-table.utils';
@@ -35,7 +34,6 @@ import { DropdownDataService } from '../../../../shared/services/dropdown-data.s
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { OrderStatusId } from '../../../../shared/enums/order-status-id.enum';
 import { BaseComponent } from '../../../../core/components/base/base.component';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
 
 @Component({
   selector: 'app-order-approve',
@@ -55,7 +53,6 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
     DialogModule,
     SelectModule,
     BreadcrumbComponent,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
@@ -104,9 +101,7 @@ export class OrderApproveComponent extends BaseComponent implements OnInit, OnDe
   constructor(
     private cd: ChangeDetectorRef,
     private orderService: OrderService,
-    private fb: FormBuilder,
     private dropdownDataService: DropdownDataService,
-    private formHelperService: FormHelperService,
   ) {
     super();
   }

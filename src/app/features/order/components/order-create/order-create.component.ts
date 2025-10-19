@@ -16,11 +16,9 @@ import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
@@ -53,7 +51,6 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     DialogModule,
     SelectModule,
     BreadcrumbComponent,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
@@ -192,7 +189,7 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
       ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
       : ToastMessages.REQUIRED_FIELDS;
 
-    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
+    this.toastService.showError(invalidFieldsMessage);
     return false;
   }
 

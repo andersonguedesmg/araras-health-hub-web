@@ -1,37 +1,31 @@
-import { Directive, ViewChild } from '@angular/core';
-import { ToastComponent } from '../../../shared/components/toast/toast.component';
+import { Directive, inject, ViewChild } from '@angular/core';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
-import { ToastSeverities, ToastSummaries } from '../../../shared/constants/toast.constants';
 import { ToastMessages } from '../../../shared/constants/messages.constants';
-import { HttpStatus } from '../../../shared/enums/http-status.enum';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { firstValueFrom } from 'rxjs';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Directive()
 export abstract class BaseComponent {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
+  protected toastService: ToastService;
 
   isLoading = false;
 
+  constructor() {
+    this.toastService = inject(ToastService);
+  }
+
   protected handleApiResponse(response: ApiResponse<any>, successMessage: string) {
     if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
+      this.toastService.showSuccess(response.message || successMessage);
     } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
+      this.toastService.handleApiError(response);
     }
   }
 
   protected handleApiError(error: any) {
-    if (this.toastComponent) {
-      if (error.error && error.error.statusCode === HttpStatus.NotFound) {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-      } else if (error.error && error.error.message) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-      } else {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-      }
-    }
+    this.toastService.handleApiError(error);
   }
 
   protected changeIsActive(objeto: any) {
@@ -50,7 +44,7 @@ export abstract class BaseComponent {
     const invalidFieldsMessage = invalidFields.length > 0
       ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
       : ToastMessages.REQUIRED_FIELDS;
-    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
+    this.toastService.showError(invalidFieldsMessage);
     return false;
   }
 

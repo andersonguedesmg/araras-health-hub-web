@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -17,17 +17,12 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
+import { Column } from '../../../../shared/utils/p-table.utils';
 import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order-status.utils';
 import { OrderService } from '../../services/order.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { ApiResponse } from '../../../../shared/interfaces/api-response';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
@@ -38,7 +33,6 @@ import { OrderActionType } from '../../../../shared/enums/order-action-type.enum
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { OrderStatusId } from '../../../../shared/enums/order-status-id.enum';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 
 @Component({
@@ -59,7 +53,6 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     DialogModule,
     SelectModule,
     BreadcrumbComponent,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
@@ -108,9 +101,7 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
   constructor(
     private cd: ChangeDetectorRef,
     private orderService: OrderService,
-    private fb: FormBuilder,
     private dropdownDataService: DropdownDataService,
-    private formHelperService: FormHelperService,
   ) {
     super();
   }
