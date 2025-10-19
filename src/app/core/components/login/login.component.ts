@@ -5,13 +5,12 @@ import { AuthService } from '../../services/auth.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToastComponent } from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
-import { ToastSeverities, ToastSummaries } from '../../../shared/constants/toast.constants';
 import { Greetings } from '../../../shared/enums/greetings.enum';
 import { Subscription } from 'rxjs';
 import { BaseApiResponse } from '../../../shared/interfaces/base-api-response';
 import { Account } from '../../interfaces/account';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -20,20 +19,22 @@ import { Account } from '../../interfaces/account';
     ButtonModule,
     ReactiveFormsModule,
     InputTextModule,
-    ToastComponent,
     SpinnerComponent
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
   credentials: LoginRequest = { userName: '', password: '' };
 
   private subscription: Subscription = new Subscription();
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toastService: ToastService,
+  ) { }
 
   ngOnInit(): void {
     this.subscription.add(
@@ -57,14 +58,14 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.spinnerComponent.loading = false;
         if (response.success) {
           const greeting = this.getGreeting();
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, greeting);
+          this.toastService.showSuccess(greeting);
         } else {
-          this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message);
+          this.toastService.handleApiError(response);
         }
       },
       error: (error) => {
         this.spinnerComponent.loading = false;
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error?.message);
+        this.toastService.handleApiError(error);
       }
     });
   }

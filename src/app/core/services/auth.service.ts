@@ -34,11 +34,9 @@ export class AuthService {
         }
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('Erro no login:', error);
-        const errorMessage = error.error?.message || 'Erro de autenticação desconhecido. Por favor, verifique suas credenciais.';
         this.loggedInSubject.next(false);
         this.userSubject.next(null);
-        return throwError(() => new Error(errorMessage));
+        return throwError(() => error);
       })
     );
   }
