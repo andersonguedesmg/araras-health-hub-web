@@ -1,1 +1,21 @@
-<p-toast></p-toast>
+<p-toast>
+  <ng-template let-message pTemplate="message">
+    <div class="flex flex-col p-2 w-full text-white">
+      <div class="flex items-center text-base font-semibold">
+        <i
+          [ngClass]="{
+            'pi-check-circle': message.severity === 'success',
+            'pi-times-circle': message.severity === 'error',
+            'pi-exclamation-triangle-circle': message.severity === 'warn',
+            'pi-info-circle': message.severity === 'info',
+          }"
+          class="pi pi-fw text-base mr-2"
+        ></i>
+
+        <span>{{ message.summary }}</span>
+      </div>
+
+      <div [innerHTML]="message.detail" class="mt-1 text-sm pl-6"></div>
+    </div>
+  </ng-template>
+</p-toast>

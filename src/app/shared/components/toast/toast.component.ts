@@ -1,10 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-toast',
-  imports: [ToastModule],
+  imports: [ToastModule, CommonModule],
   templateUrl: './toast.component.html',
   styleUrl: './toast.component.scss'
 })
