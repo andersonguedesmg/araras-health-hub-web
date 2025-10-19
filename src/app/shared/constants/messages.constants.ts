@@ -41,7 +41,8 @@ export const ConfirmMessages = {
 };
 
 export const ToastMessages = {
-  REQUIRED_FIELDS: 'Preencha todos os campos obrigatórios.',
+  FILL_IN_ALL_REQUIRED_FIELDS: 'Preencha todos os campos obrigatórios.',
+  REQUIRED_FIELDS: 'Campos Obrigatórios.',
   SUCCESS_OPERATION: 'Operação concluída com sucesso.',
   CANCELED_DELETION: 'Exclusão cancelada.',
   ACTIVATION_DELETION: 'Ativação cancelada.',

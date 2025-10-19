@@ -424,7 +424,7 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
 
     const invalidFieldsMessage = invalidFields.length > 0
       ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
-      : ToastMessages.REQUIRED_FIELDS;
+      : ToastMessages.FILL_IN_ALL_REQUIRED_FIELDS;
 
     this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
     return false;

@@ -187,7 +187,7 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
 
     const invalidFieldsMessage = invalidFields.length > 0
       ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
-      : ToastMessages.REQUIRED_FIELDS;
+      : ToastMessages.FILL_IN_ALL_REQUIRED_FIELDS;
 
     this.toastService.showError(invalidFieldsMessage);
     return false;

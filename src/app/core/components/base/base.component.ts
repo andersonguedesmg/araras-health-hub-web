@@ -43,8 +43,8 @@ export abstract class BaseComponent {
     const invalidFields = invalidControls.map((control: any) => formHelperService.getFormControlName(control, formLabels));
     const invalidFieldsMessage = invalidFields.length > 0
       ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
-      : ToastMessages.REQUIRED_FIELDS;
-    this.toastService.showError(invalidFieldsMessage);
+      : ToastMessages.FILL_IN_ALL_REQUIRED_FIELDS;
+    this.toastService.showError(invalidFieldsMessage, ToastMessages.REQUIRED_FIELDS);
     return false;
   }
 
