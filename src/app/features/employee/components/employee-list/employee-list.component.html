@@ -150,6 +150,7 @@
               pInputText
               type="text"
               formControlName="name"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500': employeeForm.get('name')?.invalid
@@ -173,6 +174,7 @@
               mask="999.999.999-99"
               styleClass="w-full mt-1"
               formControlName="cpf"
+              maxlength="14"
               (onBlur)="validateCpf()"
               [ngClass]="{
                 'ng-invalid ng-dirty':
@@ -196,6 +198,7 @@
               pInputText
               type="text"
               formControlName="function"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -216,6 +219,7 @@
               mask="(99) 99999-9999"
               styleClass="w-full mt-1"
               formControlName="phone"
+              maxlength="20"
               [ngClass]="{
                 'ng-invalid ng-dirty':
                   employeeForm.get('phone')?.invalid &&

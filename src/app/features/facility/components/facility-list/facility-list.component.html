@@ -167,6 +167,7 @@
               pInputText
               type="text"
               formControlName="name"
+              maxlength="150"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -187,6 +188,7 @@
               mask="99999-999"
               styleClass="w-full mt-1"
               formControlName="cep"
+              maxlength="10"
               (onBlur)="searchCep()"
               [ngClass]="{
                 'ng-invalid ng-dirty':
@@ -208,6 +210,7 @@
               pInputText
               type="text"
               formControlName="address"
+              maxlength="200"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -228,6 +231,7 @@
               pInputText
               type="text"
               formControlName="number"
+              maxlength="20"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -250,6 +254,7 @@
               pInputText
               type="text"
               formControlName="neighborhood"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -270,6 +275,7 @@
               pInputText
               type="text"
               formControlName="city"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -290,6 +296,7 @@
               pInputText
               type="text"
               formControlName="state"
+              maxlength="2"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -310,6 +317,7 @@
               pInputText
               type="text"
               formControlName="email"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -330,6 +338,7 @@
               mask="(99) 9999-9999"
               styleClass="w-full mt-1"
               formControlName="phone"
+              maxlength="20"
               [ngClass]="{
                 'ng-invalid ng-dirty':
                   facilityForm.get('phone')?.invalid &&

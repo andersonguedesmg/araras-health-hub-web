@@ -57,6 +57,7 @@
                 pInputText
                 type="text"
                 formControlName="invoiceNumber"
+                maxlength="50"
                 class="mt-1 p-2 border rounded-md w-full"
                 [ngClass]="{
                   'border-red-500':
@@ -80,6 +81,7 @@
                 pInputText
                 type="text"
                 formControlName="supplyAuthorization"
+                maxlength="50"
                 class="mt-1 p-2 border rounded-md w-full"
                 [ngClass]="{
                   'border-red-500':
@@ -204,6 +206,7 @@
                 rows="3"
                 pInputTextarea
                 formControlName="observation"
+                maxlength="200"
                 class="mt-1 p-2 border rounded-md w-full"
               ></textarea>
             </div>
@@ -328,6 +331,7 @@
                       type="text"
                       pInputText
                       formControlName="batch"
+                      maxlength="50"
                       class="w-full"
                       [ngClass]="{
                         'border-red-500':
@@ -424,6 +428,7 @@
               pInputText
               type="text"
               formControlName="name"
+              maxlength="150"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -444,6 +449,7 @@
               mask="99.999.999/9999-99"
               styleClass="w-full"
               formControlName="cnpj"
+              maxlength="18"
               (onBlur)="validateCnpj()"
               [ngClass]="{
                 'ng-invalid ng-dirty':
@@ -465,6 +471,7 @@
               pInputText
               type="text"
               formControlName="address"
+              maxlength="200"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -485,6 +492,7 @@
               pInputText
               type="text"
               formControlName="number"
+              maxlength="20"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -507,6 +515,7 @@
               pInputText
               type="text"
               formControlName="neighborhood"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -528,6 +537,7 @@
               pInputText
               type="text"
               formControlName="city"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -548,6 +558,7 @@
               pInputText
               type="text"
               formControlName="state"
+              maxlength="2"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -568,6 +579,7 @@
               mask="99999-999"
               styleClass="w-full mt-1"
               formControlName="cep"
+              maxlength="10"
               [ngClass]="{
                 'ng-invalid ng-dirty':
                   supplierForm.get('cep')?.invalid &&
@@ -588,6 +600,7 @@
               pInputText
               type="text"
               formControlName="email"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -608,6 +621,7 @@
               mask="(99) 9999-9999"
               styleClass="w-full"
               formControlName="phone"
+              maxlength="20"
               [ngClass]="{
                 'ng-invalid ng-dirty':
                   supplierForm.get('phone')?.invalid &&
