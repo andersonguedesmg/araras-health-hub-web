@@ -10,7 +10,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -35,6 +34,8 @@ import { TableComponent } from '../../../../shared/components/table/table.compon
 import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.utils';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { getScopeSeverity, getScopeValue } from '../../../../shared/utils/scope.utils';
+import { ScopeOptions } from '../../../../shared/enums/scope.enum';
 
 @Component({
   selector: 'app-account-list',
@@ -76,36 +77,37 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   accounts$!: Observable<Account[]>;
   selectedAccount?: Account;
   accountForm: FormGroup;
-  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+  formMode: FormMode.Update | FormMode.Detail = FormMode.Detail;
 
   displayDialog = false;
   formSubmitted = false;
 
-  confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
+  confirmMode: ConfirmMode.Update | null = null;
   confirmMessage = '';
   headerText = '';
 
   facilityOptions: SelectOptions<number>[] = [];
+  rolesOptions: SelectOptions<string>[] = [];
+  scopeOptions = ScopeOptions;
 
   cols!: Column[];
 
   private formLabels: { [key: string]: string; } = {
-    name: 'Nome do Fornecedor',
-    cnpj: 'CNPJ',
-    cep: 'CEP',
-    address: 'Endereço',
-    number: 'Número',
-    neighborhood: 'Bairro',
-    city: 'Cidade',
-    state: 'Estado',
-    email: 'E-mail',
-    phone: 'Telefone',
+    userName: 'Nome',
+    facilityId: 'Unidade',
+    role: 'Função',
+    scope: 'Escopo',
   };
 
   getSeverity = getSeverity;
   getStatus = getStatus;
   getRoleSeverity = getRoleSeverity;
   getRoleValue = getRoleValue;
+  getScopeSeverity = getScopeSeverity;
+  getScopeValue = getScopeValue;
+
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
@@ -124,7 +126,9 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
       userId: [{ value: null, disabled: true }],
       userName: ['', Validators.required],
       password: [],
-      facilityId: [],
+      facilityId: [null, Validators.required],
+      role: [null, Validators.required],
+      scope: [null, Validators.required],
       isActive: [{ value: false, disabled: true }],
     });
   }
@@ -132,6 +136,11 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   ngOnInit() {
     this.loadTableData();
     this.loadFacilitiesOptions();
+    this.rolesOptions = [
+      { label: 'Usuário', value: 'User' },
+      { label: 'Administrador', value: 'Admin' },
+      { label: 'Master', value: 'Master' },
+    ];
     this.accounts$ = this.accountService.accounts$;
     this.subscriptions.add(
       this.loadLazy
@@ -168,10 +177,8 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   async loadFacilitiesOptions(): Promise<void> {
     try {
       this.facilityOptions = await this.dropdownDataService.getFacilitiesOptions();
-    } catch (error: any) {
-      if (error.message !== 'cancel') {
-        this.handleApiError(error);
-      }
+    } catch (error) {
+      this.handleApiError(error);
     }
   }
 
@@ -181,24 +188,62 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
       { field: 'userId', header: 'ID', customExportHeader: 'CÓDIGO DA CONTA' },
       { field: 'userName', header: 'NOME' },
       { field: 'facilityId', header: 'UNIDADE' },
+      { field: 'role', header: 'FUNÇÃO' },
+      { field: 'scope', header: 'ESCOPO' },
       { field: 'isActive', header: 'STATUS' },
     ];
   }
 
   loadAccounts(event: any) {
-    console.log('loadAccounts', event);
     this.loadLazy.next(event);
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, account?: Account): void {
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  async exportEmployees(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const response = await firstValueFrom(this.accountService.exportAccounts(this.searchTerm));
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'conta.csv';
+      if (contentDisposition) {
+        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
+        if (matches && matches.length > 1) {
+          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
+        }
+      }
+
+      const blob = response.body;
+      if (!blob) {
+        throw new Error('O corpo da resposta está vazio.');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      this.isLoading = false;
+      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
+    } catch (error) {
+      this.isLoading = false;
+      this.handleApiError(error);
+      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
+
+  openForm(mode: FormMode.Update | FormMode.Detail, account?: Account): void {
     this.accountForm.reset();
-    this.formSubmitted = false; this.formMode = mode;
+    this.formSubmitted = false;
+    this.formMode = mode;
     this.selectedAccount = account;
     this.displayDialog = true;
     this.initializeForm();
-    if (mode === FormMode.Create) {
-      this.headerText = 'Nova Conta';
-    } else if (mode === FormMode.Update) {
+
+    if (mode === FormMode.Update) {
       this.headerText = 'Editar Conta';
     } else {
       this.headerText = 'Detalhes do Conta';
@@ -207,27 +252,31 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
 
   initializeForm(): void {
     this.accountForm.reset();
+    console.log('selectedAccount', this.selectedAccount);
+
+
     if (this.selectedAccount) {
-      this.accountForm.patchValue(this.selectedAccount);
+      const formValue = {
+        userId: this.selectedAccount.userId,
+        userName: this.selectedAccount.userName,
+        facilityId: this.selectedAccount.facility?.id,
+        isActive: this.selectedAccount.isActive,
+        role: this.selectedAccount.roles.length > 0 ? this.selectedAccount.roles[0] : null,
+        scope: this.selectedAccount.scope,
+        password: null,
+      };
+
+      this.accountForm.patchValue(formValue);
     }
     this.updateFormState();
   }
 
   updateFormState(): void {
     this.accountForm.disable();
-
-    const isCreate = this.formMode === FormMode.Create;
     const isUpdate = this.formMode === FormMode.Update;
 
-    if (isCreate || isUpdate) {
+    if (isUpdate) {
       this.accountForm.get('userName')?.enable();
-      this.accountForm.get('facilityId')?.enable();
-      this.accountForm.get('password')?.enable();
-    }
-
-    if (isCreate) {
-      this.accountForm.get('isActive')?.setValue(true);
-      this.accountForm.get('isActive')?.disable();
     }
   }
 
@@ -238,12 +287,11 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
 
   async saveAccount(): Promise<void> {
     this.formSubmitted = true;
-    if (this.validateForm()) {
-      const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_ACCOUNT : ConfirmMessages.UPDATE_ACCOUNT;
+    if (this.formMode === FormMode.Update && this.validateForm()) {
+      const confirmMsg = ConfirmMessages.UPDATE_ACCOUNT;
       const account = this.accountForm.getRawValue();
-      const apiCall = this.formMode === FormMode.Create
-        ? firstValueFrom(this.accountService.registerAccount(account))
-        : firstValueFrom(this.accountService.updateAccount(account, account.id));
+      delete account.password;
+      const apiCall = firstValueFrom(this.accountService.updateAccount(account, account.userId));
       await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
       this.hideDialog();
     }
@@ -265,11 +313,7 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
     return this.validateFormAndShowErrors(this.accountForm, this.formHelperService, this.formLabels);
   }
 
-  exportCSV(dt: Table) {
-    dt.exportCSV();
-  }
-
   navigateToRegister(): void {
-    this.router.navigate(['/registrar']);
+    this.router.navigate(['/administracao/contas/registrar']);
   }
 }

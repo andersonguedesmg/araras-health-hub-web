@@ -15,9 +15,16 @@
         [lazy]="true"
         (onLazyLoad)="loadAccounts($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="['userId', 'userName', 'facilityId', 'isActive']"
+        [globalFilterFields]="[
+          'userId',
+          'userName',
+          'facility.name',
+          'roles',
+          'scope',
+          'isActive'
+        ]"
         [loading]="isLoading"
-        [colspan]="5"
+        [colspan]="7"
       >
         <ng-template #captionTemplate let-dt>
           <div class="flex items-center justify-between">
@@ -26,7 +33,7 @@
               <input
                 pInputText
                 type="text"
-                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                (input)="onSearchInput($any($event.target).value)"
                 placeholder="Pesquisar..."
               />
             </p-iconfield>
@@ -42,7 +49,7 @@
                 label="Exportar"
                 icon="pi pi-upload"
                 severity="secondary"
-                (onClick)="exportCSV(dt)"
+                (click)="exportEmployees()"
               />
             </div>
           </div>
@@ -52,10 +59,11 @@
           <tr>
             <th style="min-width: 5rem" pSortableColumn="userId">ID</th>
             <th style="min-width: 20rem" pSortableColumn="userName">NOME</th>
-            <th style="min-width: 20rem" pSortableColumn="facilityId">
+            <th style="min-width: 20rem" pSortableColumn="facility.name">
               UNIDADE
             </th>
-            <th style="min-width: 15rem" pSortableColumn="role">FUNÇÃO</th>
+            <th style="min-width: 10rem" pSortableColumn="role">FUNÇÃO</th>
+            <th style="min-width: 8rem" pSortableColumn="scope">ESCOPO</th>
             <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
           </tr>
@@ -70,6 +78,12 @@
               <p-tag
                 [value]="getRoleValue(account.roles[0])"
                 [severity]="getRoleSeverity(account.roles[0])"
+              />
+            </td>
+            <td>
+              <p-tag
+                [value]="getScopeValue(account.scope)"
+                [severity]="getScopeSeverity(account.scope)"
               />
             </td>
             <td>
@@ -123,8 +137,8 @@
     >
       <form [formGroup]="accountForm" class="mt-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="mb-4" *ngIf="formMode !== 'create'">
-            <label for="id" class="block text-sm font-medium text-gray-500"
+          <div class="mb-4">
+            <label for="userId" class="block text-sm font-medium text-gray-500"
               >ID:</label
             >
             <input
@@ -141,7 +155,7 @@
               for="userName"
               class="block text-sm font-medium text-gray-500"
               >Nome:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+              <span class="text-red-500" *ngIf="formMode === FormMode.Update"
                 >*</span
               ></label
             >
@@ -150,10 +164,8 @@
               pInputText
               type="text"
               formControlName="userName"
+              maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500': accountForm.get('userName')?.invalid
-              }"
               [ngClass]="{
                 'border-red-500':
                   formSubmitted && accountForm.get('userName')?.invalid
@@ -163,7 +175,10 @@
 
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-500"
-              >Unidade:</label
+              >Unidade:
+              <span class="text-red-500" *ngIf="formMode === FormMode.Update"
+                >*</span
+              ></label
             >
             <p-select
               [options]="facilityOptions"
@@ -176,30 +191,58 @@
               [filter]="true"
               filterBy="label"
               [ngClass]="{
-                'border-red-500': accountForm.get('facilityId')?.invalid
-              }"
-              [ngClass]="{
                 'border-red-500':
                   formSubmitted && accountForm.get('facilityId')?.invalid
               }"
             ></p-select>
           </div>
 
-          <div class="mb-4" *ngIf="formMode === 'create'">
-            <label
-              for="password"
-              class="block text-sm font-medium text-gray-500"
-              >Senha: <span class="text-red-500">*</span></label
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Função:
+              <span class="text-red-500" *ngIf="formMode === FormMode.Update"
+                >*</span
+              ></label
             >
-            <input
-              type="password"
-              formControlName="password"
-              class="mt-1 p-2 border rounded-md w-full"
+            <p-select
+              [options]="rolesOptions"
+              formControlName="role"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+              [showClear]="true"
+              [filter]="true"
+              filterBy="label"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && accountForm.get('password')?.invalid
+                  formSubmitted && accountForm.get('role')?.invalid
               }"
-            />
+            ></p-select>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Escopo:
+              <span class="text-red-500" *ngIf="formMode === FormMode.Update"
+                >*</span
+              ></label
+            >
+            <p-select
+              [options]="scopeOptions"
+              formControlName="scope"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+              [showClear]="true"
+              [filter]="true"
+              filterBy="label"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && accountForm.get('scope')?.invalid
+              }"
+            ></p-select>
           </div>
 
           <div class="mb-4">

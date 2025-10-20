@@ -1,3 +1,4 @@
+import { Scope } from "../../../shared/enums/scope.enum";
 import { Facility } from "../../facility/interfaces/facility";
 
 export interface Account {
@@ -7,5 +8,7 @@ export interface Account {
   facility?: Facility;
   createdOn: string;
   updatedOn: string;
+  roles: string[];
+  scope: Scope;
   isActive: boolean;
 }

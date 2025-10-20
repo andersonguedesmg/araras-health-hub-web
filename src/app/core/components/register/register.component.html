@@ -1,80 +1,136 @@
-<app-toast></app-toast>
-<app-spinner></app-spinner>
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-spinner [loading]="isLoading"></app-spinner>
 <app-confirm-dialog></app-confirm-dialog>
 
-<div class="flex items-center justify-center h-screen p-4">
-  <div class="bg-zinc-800 rounded-lg shadow-xl p-8 w-full max-w-md">
-    <h2 class="text-3xl font-bold text-white text-center mb-6">
-      Cadastro de Conta
-    </h2>
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <p-toolbar>
+      <ng-template #start>
+        <span class="text-xl font-bold mt-2 mb-2">{{ title }}</span>
+      </ng-template>
 
-    <form [formGroup]="registerForm">
-      <div class="mb-4">
-        <label class="block text-gray-300 font-medium mb-2">Nome</label>
-        <input
-          type="text"
-          formControlName="userName"
-          pInputText
-          class="w-full p-2 border-none bg-zinc-700 rounded text-white placeholder-gray-400"
-          [ngClass]="{
-            'p-invalid': formSubmitted && registerForm.get('userName')?.invalid
-          }"
-        />
-      </div>
+      <ng-template #end> </ng-template>
+    </p-toolbar>
+    <div class="bg-surface-900 rounded-md shadow-md p-6">
+      <form [formGroup]="registerForm" class="mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4">
+            <label
+              for="userName"
+              class="block text-sm font-medium text-gray-500"
+              >Nome: <span class="text-red-500">*</span></label
+            >
+            <input
+              id="userName"
+              pInputText
+              type="text"
+              formControlName="userName"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && registerForm.get('userName')?.invalid
+              }"
+            />
+          </div>
 
-      <div class="mb-4">
-        <label class="block text-gray-300 font-medium mb-2">Senha</label>
-        <input
-          type="password"
-          formControlName="password"
-          pInputText
-          class="w-full p-2 border-none bg-zinc-700 rounded text-white placeholder-gray-400"
-          [ngClass]="{
-            'p-invalid': formSubmitted && registerForm.get('password')?.invalid
-          }"
-        />
-      </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Unidade:</label
+            >
+            <p-select
+              [options]="facilityOptions"
+              formControlName="facilityId"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+              [showClear]="true"
+              [filter]="true"
+              filterBy="label"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && registerForm.get('facilityId')?.invalid
+              }"
+            ></p-select>
+          </div>
 
-      <div class="mb-4">
-        <label class="block text-gray-300 font-medium mb-2">Unidade</label>
-        <p-select
-          [options]="facilityOptions"
-          formControlName="facilityId"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full mt-1"
-          placeholder="Selecione"
-          [ngClass]="{
-            'border-red-500':
-              formSubmitted && registerForm.get('facilityId')?.invalid
-          }"
-        ></p-select>
-      </div>
+          <div class="mb-4">
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-500"
+              >Senha: <span class="text-red-500">*</span></label
+            >
+            <input
+              type="password"
+              formControlName="password"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && registerForm.get('password')?.invalid
+              }"
+            />
+          </div>
 
-      <div class="mb-4">
-        <label class="block text-gray-300 font-medium mb-2">Função</label>
-        <p-select
-          [options]="rolesOptions"
-          formControlName="role"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full mt-1"
-          placeholder="Selecione"
-          [ngClass]="{
-            'border-red-500': formSubmitted && registerForm.get('role')?.invalid
-          }"
-        ></p-select>
-      </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Função:</label
+            >
+            <p-select
+              [options]="rolesOptions"
+              formControlName="role"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+              [showClear]="true"
+              [filter]="true"
+              filterBy="label"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && registerForm.get('role')?.invalid
+              }"
+            ></p-select>
+          </div>
 
-      <div class="flex items-center justify-center mt-6">
-        <button
-          pButton
-          label="Cadastrar"
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500"
+              >Escopo:</label
+            >
+            <p-select
+              [options]="scopeOptions"
+              formControlName="scope"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full mt-1"
+              placeholder="Selecione"
+              [showClear]="true"
+              [filter]="true"
+              filterBy="label"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && registerForm.get('scope')?.invalid
+              }"
+            ></p-select>
+          </div>
+        </div>
+      </form>
+
+      <div class="flex justify-end pt-4 mt-4">
+        <p-button
+          label="Salvar"
           icon="pi pi-check"
-          class="w-full p-button-sm"
+          class="mr-2"
           (click)="register()"
-        ></button>
+        ></p-button>
+        <p-button
+          label="Limpar"
+          icon="pi pi-eraser"
+          severity="info"
+          [outlined]="true"
+          (click)="resetRegisterForm()"
+        ></p-button>
       </div>
-    </form>
+    </div>
   </div>
 </div>

@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { Account } from '../interfaces/account';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
@@ -18,8 +18,6 @@ export class AccountService {
     const url = this.apiConfig.getUrl('account', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
     return this.http.get<ApiResponse<Account[]>>(url).pipe(
       tap(response => {
-        console.log('response', response);
-
         if (response.success && response.data) {
           this.accountSubject.next(response.data);
         }
@@ -86,5 +84,16 @@ export class AccountService {
   public getByFacilityId(facilityId: number): Observable<ApiResponse<Account>> {
     const url = this.apiConfig.getUrl('account', `getByFacilityId/${facilityId}`);
     return this.http.get<ApiResponse<Account>>(url);
+  }
+
+  public exportAccounts(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('account', `export`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 }
