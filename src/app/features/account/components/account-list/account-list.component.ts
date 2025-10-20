@@ -90,6 +90,10 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   rolesOptions: SelectOptions<string>[] = [];
   scopeOptions = ScopeOptions;
 
+  displayPasswordDialog = false;
+  passwordResetForm: FormGroup;
+  selectedAccountForPasswordReset?: Account;
+
   cols!: Column[];
 
   private formLabels: { [key: string]: string; } = {
@@ -131,6 +135,12 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
       scope: [null, Validators.required],
       isActive: [{ value: false, disabled: true }],
     });
+
+    this.passwordResetForm = this.fb.group({
+      userName: [{ value: '', disabled: true }],
+      newPassword: ['', [Validators.required]],
+      confirmPassword: ['', [Validators.required]]
+    }, { validator: this.passwordMatchValidator });
   }
 
   ngOnInit() {
@@ -252,9 +262,6 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
 
   initializeForm(): void {
     this.accountForm.reset();
-    console.log('selectedAccount', this.selectedAccount);
-
-
     if (this.selectedAccount) {
       const formValue = {
         userId: this.selectedAccount.userId,
@@ -311,6 +318,54 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
 
   private validateForm(): boolean {
     return this.validateFormAndShowErrors(this.accountForm, this.formHelperService, this.formLabels);
+  }
+
+  private passwordMatchValidator(g: FormGroup): { [key: string]: any; } | null {
+    return g.get('newPassword')?.value === g.get('confirmPassword')?.value ? null : { mismatch: true };
+  }
+
+  openPasswordResetDialog(account: Account): void {
+    this.selectedAccountForPasswordReset = account;
+    this.passwordResetForm.reset();
+    this.passwordResetForm.patchValue({
+      userName: account.userName
+    });
+    this.displayPasswordDialog = true;
+    this.formSubmitted = false;
+  }
+
+  hidePasswordResetDialog(): void {
+    this.displayPasswordDialog = false;
+    this.passwordResetForm.reset();
+    this.selectedAccountForPasswordReset = undefined;
+  }
+
+  async resetPassword(): Promise<void> {
+    this.formSubmitted = true;
+    if (this.passwordResetForm.invalid) {
+      if (this.passwordResetForm.hasError('mismatch')) {
+        this.toastService.showError(ToastMessages.PASSWORD_AND_CONFIRMATION_DO_NOT_MATCH);
+      } else {
+        const labels = { newPassword: 'Nova Senha', confirmPassword: 'Confirmação de Senha' };
+        this.validateFormAndShowErrors(this.passwordResetForm, this.formHelperService, labels);
+      }
+      return;
+    }
+
+    this.isLoading = true;
+    const { newPassword } = this.passwordResetForm.getRawValue();
+    const userName = this.selectedAccountForPasswordReset?.userName;
+
+    if (!userName) {
+      this.toastService.showError(ToastMessages.UNABLE_TO_IDENTIFY_ACCOUNT);
+      this.isLoading = false;
+      return;
+    }
+
+    const requestBody = { userName: userName, newPassword: newPassword };
+    const apiCall = firstValueFrom(this.accountService.resetPassword(requestBody));
+    await this.handleApiCall(apiCall, ConfirmMessages.RESET_PASSWORD, ToastMessages.PASSWORD_CHANGED_SUCCESSFULLY);
+    this.hidePasswordResetDialog();
   }
 
   navigateToRegister(): void {

@@ -115,6 +115,17 @@
               />
               <p-button
                 *appHasRole="['Master', 'Admin']"
+                icon="pi pi-key"
+                class="mr-2"
+                pTooltip="Resetar Senha"
+                tooltipPosition="bottom"
+                severity="warn"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="openPasswordResetDialog(account)"
+              />
+              <p-button
+                *appHasRole="['Master', 'Admin']"
                 icon="pi pi-trash"
                 severity="danger"
                 [pTooltip]="account.isActive ? 'Desativar' : 'Ativar'"
@@ -257,6 +268,64 @@
               class="w-full mt-1"
               placeholder="Selecione"
             ></p-select>
+          </div>
+        </div>
+      </form>
+    </app-dialog>
+
+    <app-dialog
+      [(visible)]="displayPasswordDialog"
+      [formMode]="FormMode.Update"
+      headerText="Redefinir Senha"
+      (onSave)="resetPassword()"
+    >
+      <form [formGroup]="passwordResetForm" class="mt-4">
+        <div class="grid grid-cols-1 gap-4">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500">
+              Conta:
+            </label>
+            <input
+              pInputText
+              type="text"
+              formControlName="userName"
+              class="mt-1 p-2 border rounded-md w-full"
+              readonly
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500">
+              Nova Senha: <span class="text-red-500">*</span>
+            </label>
+            <input
+              pInputText
+              type="password"
+              formControlName="newPassword"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && passwordResetForm.get('newPassword')?.invalid
+              }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-500">
+              Confirmar Senha: <span class="text-red-500">*</span>
+            </label>
+            <input
+              pInputText
+              type="password"
+              formControlName="confirmPassword"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  (formSubmitted &&
+                    passwordResetForm.get('confirmPassword')?.invalid) ||
+                  (formSubmitted && passwordResetForm.hasError('mismatch'))
+              }"
+            />
           </div>
         </div>
       </form>

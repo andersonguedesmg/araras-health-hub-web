@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { Account } from '../interfaces/account';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
+import { ResetPassword } from '../../../core/interfaces/account-reset-password';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +85,11 @@ export class AccountService {
   public getByFacilityId(facilityId: number): Observable<ApiResponse<Account>> {
     const url = this.apiConfig.getUrl('account', `getByFacilityId/${facilityId}`);
     return this.http.get<ApiResponse<Account>>(url);
+  }
+
+  public resetPassword(request: ResetPassword): Observable<ApiResponse<any>> {
+    const url = this.apiConfig.getUrl('account', 'resetPassword');
+    return this.http.post<ApiResponse<any>>(url, request);
   }
 
   public exportAccounts(searchTerm: string = ''): Observable<HttpResponse<Blob>> {

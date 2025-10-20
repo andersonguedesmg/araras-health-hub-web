@@ -22,6 +22,7 @@ export const ConfirmMessages = {
   DELETE_ACCOUNT: 'Tem certeza que deseja excluir esta conta?',
   ACTIVATE_ACCOUNT: 'Tem certeza que deseja ativar esta conta?',
   DISABLE_ACCOUNT: 'Tem certeza que deseja desativar esta conta?',
+  RESET_PASSWORD: 'Tem certeza que deseja redefinir a senha para esta conta?',
 
   CREATE_PRODUCT: 'Tem certeza que deseja cadastrar este produto?',
   UPDATE_PRODUCT: 'Tem certeza que deseja atualizar este produto?',
@@ -58,4 +59,7 @@ export const ToastMessages = {
   CEP_CHECK_ERROR: 'Erro ao consultar o CEP. Tente novamente.',
   CNPJ_INVALID: 'O CNPJ digitado é inválido. Por favor, verifique.',
   CPF_INVALID: 'O CPF digitado é inválido. Por favor, verifique.',
+  UNABLE_TO_IDENTIFY_ACCOUNT: 'Não foi possível identificar a conta.',
+  PASSWORD_AND_CONFIRMATION_DO_NOT_MATCH: 'A senha e a confirmação não coincidem.',
+  PASSWORD_CHANGED_SUCCESSFULLY: 'Senha alterada com sucesso.',
 };
