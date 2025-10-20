@@ -15,9 +15,13 @@ export class AccountService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadAccounts(pageNumber: number, pageSize: number): Observable<ApiResponse<Account[]>> {
-    const url = this.apiConfig.getUrl('account', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<Account[]>>(url).pipe(
+  public loadAccounts(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Account[]>> {
+    const url = this.apiConfig.getUrl('account', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Account[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.accountSubject.next(response.data);

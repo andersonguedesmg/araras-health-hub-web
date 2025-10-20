@@ -160,7 +160,7 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.accountService.loadAccounts(pageNumber, pageSize);
+            return this.accountService.loadAccounts(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -177,6 +177,13 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
             this.handleApiError(error);
           }
         })
+    );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadAccounts({ first: 0, rows: 5 });
+      })
     );
   }
 
