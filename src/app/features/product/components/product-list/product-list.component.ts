@@ -86,8 +86,9 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
   private formLabels: { [key: string]: string; } = {
     name: 'Nome do Produto',
     description: 'Descrição',
-    dosageForm: 'Unidade de Medida',
-    category: 'Categoria'
+    mainCategory: 'Categoria Principal',
+    subCategory: 'Subcategoria',
+    presentationForm: 'Forma de Apresentação',
   };
 
   getSeverity = getSeverity;
@@ -111,8 +112,9 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
       description: ['', Validators.required],
-      dosageForm: ['', Validators.required],
-      category: ['', Validators.required],
+      mainCategory: ['', Validators.required],
+      subCategory: ['', Validators.required],
+      presentationForm: ['', Validators.required],
       isActive: [{ value: false, disabled: true }],
     });
   }
@@ -166,8 +168,9 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
       { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO PRODUTO' },
       { field: 'name', header: 'NOME' },
       { field: 'description', header: 'DESCRIÇÃO' },
-      { field: 'dosageForm', header: 'UNIDADE DE MEDIDA' },
-      { field: 'category', header: 'CATEGORIA' },
+      { field: 'mainCategory', header: 'CATEGORIA PRINCIPAL' },
+      { field: 'subCategory', header: 'SUBCATEGORIA' },
+      { field: 'presentationForm', header: 'FORMA DE APRESENTAÇÃO' },
       { field: 'isActive', header: 'STATUS' },
     ];
   }
@@ -245,8 +248,9 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
     if (isCreate || isUpdate) {
       this.productForm.get('name')?.enable();
       this.productForm.get('description')?.enable();
-      this.productForm.get('dosageForm')?.enable();
-      this.productForm.get('category')?.enable();
+      this.productForm.get('mainCategory')?.enable();
+      this.productForm.get('subCategory')?.enable();
+      this.productForm.get('presentationForm')?.enable();
     }
 
     if (isCreate) {

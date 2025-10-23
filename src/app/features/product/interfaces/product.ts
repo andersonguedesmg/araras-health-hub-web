@@ -2,8 +2,9 @@ export interface Product {
   id: number;
   name: string;
   description: string;
-  dosageForm: string;
-  category: string;
+  mainCategory: string;
+  subCategory: string;
+  presentationForm: string;
   createdOn: string;
   updatedOn: string;
   isActive: boolean;

@@ -19,8 +19,9 @@
           'id',
           'name',
           'description',
-          'dosageForm',
-          'category',
+          'mainCategory',
+          'subCategory',
+          'presentationForm',
           'isActive'
         ]"
         [loading]="isLoading"
@@ -62,11 +63,14 @@
             <th style="min-width: 25rem" pSortableColumn="description">
               DESCRIÇÃO
             </th>
-            <th style="min-width: 12rem" pSortableColumn="dosageForm">
-              UNIDADE DE MEDIDA
+            <th style="min-width: 12rem" pSortableColumn="mainCategory">
+              CATEGORIA PRINCIPAL
             </th>
-            <th style="min-width: 15rem" pSortableColumn="category">
-              CATEGORIA
+            <th style="min-width: 15rem" pSortableColumn="subCategory">
+              SUBCATEGORIA
+            </th>
+            <th style="min-width: 15rem" pSortableColumn="presentationForm">
+              FORMA DE APRESENTAÇÃO
             </th>
             <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
@@ -78,8 +82,9 @@
             <td>{{ product.id }}</td>
             <td>{{ product.name }}</td>
             <td>{{ product.description }}</td>
-            <td>{{ product.dosageForm }}</td>
-            <td>{{ product.category }}</td>
+            <td>{{ product.mainCategory }}</td>
+            <td>{{ product.subCategory }}</td>
+            <td>{{ product.presentationForm }}</td>
             <td>
               <p-tag
                 [value]="getStatus(product.isActive)"
@@ -155,7 +160,7 @@
               pInputText
               type="text"
               formControlName="name"
-              maxlength="100"
+              maxlength="150"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -177,7 +182,7 @@
               pInputText
               type="text"
               formControlName="description"
-              maxlength="100"
+              maxlength="200"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
@@ -187,7 +192,7 @@
           </div>
           <div class="mb-4">
             <label
-              for="dosageForm"
+              for="mainCategory"
               class="block text-sm font-medium text-gray-500"
               >Unidade de Medida:
               <span class="text-red-500" *ngIf="formMode !== 'detail'"
@@ -195,21 +200,21 @@
               ></label
             >
             <input
-              id="dosageForm"
+              id="mainCategory"
               pInputText
               type="text"
-              formControlName="dosageForm"
+              formControlName="mainCategory"
               maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && productForm.get('dosageForm')?.invalid
+                  formSubmitted && productForm.get('mainCategory')?.invalid
               }"
             />
           </div>
           <div class="mb-4">
             <label
-              for="category"
+              for="subCategory"
               class="block text-sm font-medium text-gray-500"
               >Categoria:
               <span class="text-red-500" *ngIf="formMode !== 'detail'"
@@ -217,15 +222,37 @@
               ></label
             >
             <input
-              id="category"
+              id="subCategory"
               pInputText
               type="text"
-              formControlName="category"
+              formControlName="subCategory"
               maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && productForm.get('category')?.invalid
+                  formSubmitted && productForm.get('subCategory')?.invalid
+              }"
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="presentationForm"
+              class="block text-sm font-medium text-gray-500"
+              >Categoria:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="presentationForm"
+              pInputText
+              type="text"
+              formControlName="presentationForm"
+              maxlength="100"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && productForm.get('presentationForm')?.invalid
               }"
             />
           </div>
