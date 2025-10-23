@@ -26,6 +26,7 @@ import { StockMovementComponent } from './features/stock/components/stock-moveme
 import { StockCriticalComponent } from './features/stock/components/stock-critical/stock-critical.component';
 import { StockShippingComponent } from './features/stock/components/stock-shipping/stock-shipping.component';
 import { StockAdjustmentComponent } from './features/stock/components/stock-adjustment/stock-adjustment.component';
+import { StockMinimumQuantityComponent } from './features/stock/components/stock-minimum-quantity/stock-minimum-quantity.component';
 import { scopeGuard } from './core/guards/scope.guard';
 import { UserRoles, UserScopes } from './core/constants/auth.constants';
 
@@ -169,6 +170,13 @@ export const routes: Routes = [
         title: 'A2H - Estoque Crítico',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
+      },
+      {
+        path: 'almoxarifado/configuracoes/estoque-minimo',
+        component: StockMinimumQuantityComponent,
+        title: 'A2H - Estoque Mínimo',
+        canActivate: [scopeGuard, roleGuard],
+        data: { scopes: SCOPE_MANAGEMENT, roles: [UserRoles.ADMIN, UserRoles.MASTER] }
       },
       {
         path: 'almoxarifado/movimentacoes/ajustes',
