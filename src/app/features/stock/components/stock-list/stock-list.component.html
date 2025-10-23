@@ -18,13 +18,14 @@
         [globalFilterFields]="[
           'product.name',
           'product.description',
-          'product.dosageForm',
-          'product.category',
+          'product.mainCategory',
+          'product.subCategory',
+          'product.presentationForm',
           'currentQuantity',
           'minQuantity'
         ]"
         [loading]="isLoading"
-        [colspan]="6"
+        [colspan]="7"
       >
         <ng-template #captionTemplate let-dt>
           <div class="flex items-center justify-between">
@@ -33,7 +34,7 @@
               <input
                 pInputText
                 type="text"
-                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                (input)="onSearchInput($any($event.target).value)"
                 placeholder="Pesquisar..."
               />
             </p-iconfield>
@@ -42,7 +43,7 @@
                 label="Exportar"
                 icon="pi pi-upload"
                 severity="secondary"
-                (click)="exportCSV(dt)"
+                (click)="exportStocks()"
               />
             </div>
           </div>
@@ -56,11 +57,17 @@
             <th style="min-width: 25rem" pSortableColumn="product.description">
               DESCRIÇÃO
             </th>
-            <th style="min-width: 12rem" pSortableColumn="product.dosageForm">
-              UNIDADE DE MEDIDA
+            <th style="min-width: 12rem" pSortableColumn="product.mainCategory">
+              CATEGORIA PRINCIPAL
             </th>
-            <th style="min-width: 15rem" pSortableColumn="product.category">
-              CATEGORIA
+            <th style="min-width: 15rem" pSortableColumn="product.subCategory">
+              SUBCATEGORIA
+            </th>
+            <th
+              style="min-width: 15rem"
+              pSortableColumn="product.presentationForm"
+            >
+              FORMA DE APRESENTAÇÃO
             </th>
             <th style="min-width: 12rem" pSortableColumn="currentQuantity">
               QUANTIDADE ATUAL
@@ -75,8 +82,9 @@
           <tr>
             <td>{{ stock.product.name }}</td>
             <td>{{ stock.product.description }}</td>
-            <td>{{ stock.product.dosageForm }}</td>
-            <td>{{ stock.product.category }}</td>
+            <td>{{ stock.product.mainCategory }}</td>
+            <td>{{ stock.product.subCategory }}</td>
+            <td>{{ stock.product.presentationForm }}</td>
             <td>{{ stock.currentQuantity }}</td>
             <td>{{ stock.minQuantity }}</td>
           </tr>

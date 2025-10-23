@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Stock } from '../interfaces/stock';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
@@ -18,9 +18,17 @@ export class StockService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadStocks(pageNumber: number, pageSize: number): Observable<ApiResponse<Stock[]>> {
-    const url = this.apiConfig.getUrl('stock', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<Stock[]>>(url).pipe(
+  public get stockMinQuantitySubjectGetter(): BehaviorSubject<StockMinQuantity[]> {
+    return this.stockMinQuantitySubject;
+  }
+
+  public loadStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
+    const url = this.apiConfig.getUrl('stock', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Stock[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.stockSubject.next(response.data);
@@ -48,5 +56,16 @@ export class StockService {
     const url = this.apiConfig.getUrl('stock', `${productId}/min-quantity`);
     const body = { newMinQuantity: newMinQuantity };
     return this.http.patch<ApiResponse<any>>(url, body);
+  }
+
+  public exportStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('stock', `export`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 }

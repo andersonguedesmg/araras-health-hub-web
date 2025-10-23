@@ -19,12 +19,13 @@ import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.
 import { Column } from '../../../../shared/utils/p-table.utils';
 import { StockService } from '../../services/stock.service';
 import { Stock } from '../../interfaces/stock';
-import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
+import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { TagModule } from 'primeng/tag';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { ToastMessages } from '../../../../shared/constants/messages.constants';
 
 @Component({
   selector: 'app-stock-list',
@@ -62,6 +63,9 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
 
   cols!: Column[];
 
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
@@ -86,7 +90,7 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockService.loadStocks(pageNumber, pageSize);
+            return this.stockService.loadStocks(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -102,7 +106,15 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
             this.isLoading = false;
             this.handleApiError(error);
           }
-        })
+        }
+        )
+    );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadStocks({ first: 0, rows: 5 });
+      })
     );
   }
 
@@ -115,8 +127,9 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
     this.cols = [
       { field: 'product.name', header: 'PRODUTO', customExportHeader: 'PRODUTO' },
       { field: 'product.description', header: 'DESCRIÇÃO' },
-      { field: 'product.dosageForm', header: 'UNIDADE DE MEDIDA' },
-      { field: 'roduct.category', header: 'CATEGORIA' },
+      { field: 'product.mainCategory', header: 'CATEGORIA PRINCIPAL' },
+      { field: 'product.subCategory', header: 'SUBCATEGORIA' },
+      { field: 'product.presentationForm', header: 'FORMA DE APRESENTAÇÃO' },
       { field: 'currentQuantity', header: 'QUANTIDADE ATUAL' },
       { field: 'minQuantity', header: 'QUANTIDADE MÍNIMA' },
     ];
@@ -126,7 +139,40 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
     this.loadLazy.next(event);
   }
 
-  exportCSV(dt: Table) {
-    dt.exportCSV();
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  async exportStocks(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const response = await firstValueFrom(this.stockService.exportStocks(this.searchTerm));
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'estoque.csv';
+      if (contentDisposition) {
+        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
+        if (matches && matches.length > 1) {
+          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
+        }
+      }
+
+      const blob = response.body;
+      if (!blob) {
+        throw new Error('O corpo da resposta está vazio.');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      this.isLoading = false;
+      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
+    } catch (error) {
+      this.isLoading = false;
+      this.handleApiError(error);
+      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
+    }
   }
 }
