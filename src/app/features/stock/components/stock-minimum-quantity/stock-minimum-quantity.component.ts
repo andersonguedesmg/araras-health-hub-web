@@ -17,12 +17,13 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastMessages } from '../../../../shared/constants/messages.constants';
-import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap, tap } from 'rxjs';
+import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap, take, tap } from 'rxjs';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { StockMinQuantity } from '../../interfaces/stock-minimum-quantity';
 import { StockService } from '../../services/stock.service';
 import { TableModule } from 'primeng/table';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-stock-minimum-quantity',
@@ -46,6 +47,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
     BreadcrumbComponent,
     TableHeaderComponent,
     SpinnerComponent,
+    ConfirmDialogComponent,
   ],
   providers: [MessageService],
   templateUrl: './stock-minimum-quantity.component.html',
@@ -144,36 +146,59 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
 
   async onEditComplete(event: any): Promise<void> {
     const stock = event.data;
-    const oldQuantity = this.clonedQuantities[stock.productId];
+    const originalQuantity = this.clonedQuantities[stock.productId];
 
-    this.clonedQuantities[stock.productId] = oldQuantity !== undefined ? oldQuantity : stock.minQuantity;
-    if (event.field !== 'minQuantity') return;
-
-    if (stock.minQuantity < 0 || isNaN(stock.minQuantity)) {
-      this.toastService.showError(ToastMessages.MINIMUM_QUANTITY_MUST_BE_POSITIVE);
-      this.revertQuantity(stock, event.index, oldQuantity);
-      return;
-    }
-
-    if (oldQuantity === stock.minQuantity) {
+    if (event.field !== 'minQuantity') {
       delete this.clonedQuantities[stock.productId];
       return;
     }
 
-    this.isLoading = true;
+    if (originalQuantity === stock.minQuantity) {
+      delete this.clonedQuantities[stock.productId];
+      return;
+    }
+
+    if (stock.minQuantity < 0 || isNaN(stock.minQuantity) || originalQuantity === stock.minQuantity || event.field !== 'minQuantity') {
+      if (originalQuantity === stock.minQuantity || event.field !== 'minQuantity') {
+        delete this.clonedQuantities[stock.productId];
+        return;
+      }
+      this.toastService.showError(ToastMessages.MINIMUM_QUANTITY_MUST_BE_POSITIVE);
+      this.revertQuantity(stock, event.index, originalQuantity);
+      return;
+    }
+
+    const confirmMessage = `Tem certeza que deseja atualizar a Quantidade Mínima de ${stock.productName}?`;
+    const successMessage = `Estoque mínimo de ${stock.productName} atualizado com sucesso!`;
+
+    if (this.confirmDialog) {
+      this.confirmDialog.message = confirmMessage;
+    }
+
     try {
-      const apiCall = firstValueFrom(this.stockService.updateMinQuantity(stock.productId, stock.minQuantity));
+      await this.getDialogConfirmation();
+      this.isLoading = true;
+      const apiCall = firstValueFrom(
+        this.stockService.updateMinQuantity(stock.productId, stock.minQuantity)
+      );
       const response = await apiCall;
 
       if (response.success) {
-        this.toastService.showSuccess(`Estoque mínimo de ${stock.productName} atualizado com sucesso!`, ToastMessages.SUCCESS_OPERATION);
+        this.toastService.showSuccess(successMessage, ToastMessages.SUCCESS_OPERATION);
       } else {
         this.handleApiResponse(response, 'Falha ao salvar. Revertendo valor.');
-        this.revertQuantity(stock, event.index, oldQuantity);
+        this.revertQuantity(stock, event.index, originalQuantity);
       }
-    } catch (error) {
-      this.handleApiError(error);
-      this.revertQuantity(stock, event.index, oldQuantity);
+
+    } catch (error: any) {
+      this.isLoading = false;
+
+      if (error.message !== 'cancel') {
+        this.handleApiError(error);
+      }
+
+      this.revertQuantity(stock, event.index, originalQuantity);
+
     } finally {
       this.isLoading = false;
       delete this.clonedQuantities[stock.productId];
@@ -181,12 +206,37 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
     }
   }
 
+
   private revertQuantity(stock: StockMinQuantity, index: number, originalQuantity: number | undefined): void {
     if (originalQuantity === undefined) return;
+    stock.minQuantity = originalQuantity;
     const stockMinQuantitySubject = this.stockService.stockMinQuantitySubjectGetter;
     const currentList = stockMinQuantitySubject.getValue();
-    currentList[index].minQuantity = originalQuantity;
     stockMinQuantitySubject.next([...currentList]);
     this.cd.markForCheck();
+  }
+
+  private getDialogConfirmation(): Promise<void> {
+    if (!this.confirmDialog) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+      const confirmedSubscription = this.confirmDialog.confirmed
+        .pipe(take(1))
+        .subscribe(() => {
+          rejectedSubscription.unsubscribe();
+          resolve();
+        });
+
+      const rejectedSubscription = this.confirmDialog.rejected
+        .pipe(take(1))
+        .subscribe(() => {
+          confirmedSubscription.unsubscribe();
+          reject({ message: 'cancel' });
+        });
+
+      this.confirmDialog.show();
+    });
   }
 }
