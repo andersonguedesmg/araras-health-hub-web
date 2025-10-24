@@ -62,4 +62,5 @@ export const ToastMessages = {
   UNABLE_TO_IDENTIFY_ACCOUNT: 'Não foi possível identificar a conta.',
   PASSWORD_AND_CONFIRMATION_DO_NOT_MATCH: 'A senha e a confirmação não coincidem.',
   PASSWORD_CHANGED_SUCCESSFULLY: 'Senha alterada com sucesso.',
+  MINIMUM_QUANTITY_MUST_BE_POSITIVE: 'A Quantidade Mínima deve ser um número positivo.',
 };

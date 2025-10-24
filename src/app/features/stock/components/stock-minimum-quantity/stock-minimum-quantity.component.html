@@ -8,12 +8,12 @@
 
     <ng-container *ngIf="stockMinQuantities$ | async as stocks">
       <p-table
+        #dt
         [value]="stocks"
         [rows]="lastLazyEvent.rows"
         [paginator]="true"
         [rowHover]="true"
-        [responsive]="true"
-        [rowsPerPageOptions]="[10, 25, 50]"
+        [rowsPerPageOptions]="[5, 10, 25]"
         [lazy]="true"
         [showCurrentPageReport]="true"
         currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"
@@ -30,6 +30,9 @@
         [loading]="isLoading"
         editMode="cell"
         dataKey="id"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [style]="{ 'font-size': '14px' }"
+        (onEditInit)="onEditInit($event)"
         (onEditComplete)="onEditComplete($event)"
       >
         <ng-template pTemplate="caption" let-dt>
@@ -69,26 +72,28 @@
           </tr>
         </ng-template>
 
-        <ng-template pTemplate="body" let-stock let-editing="editing">
+        <ng-template
+          pTemplate="body"
+          let-stock
+          let-editing="editing"
+          let-ri="rowIndex"
+        >
           <tr>
             <td>{{ stock.productName }}</td>
             <td>{{ stock.productMainCategory }}</td>
             <td>{{ stock.productSubCategory }}</td>
             <td>{{ stock.productPresentationForm }}</td>
 
-            <td
-              [pEditableColumn]="stock.minQuantity"
-              pEditableColumnField="minQuantity"
-            >
+            <td [pEditableColumn]="stock" pEditableColumnField="minQuantity">
               <p-cellEditor>
                 <ng-template #input>
-                  <input
-                    pInputText
-                    type="text"
+                  <p-inputNumber
                     [(ngModel)]="stock.minQuantity"
+                    mode="decimal"
+                    [min]="0"
                     required
+                    class="w-full"
                     fluid
-                    input
                   />
                 </ng-template>
                 <ng-template pTemplate="output">

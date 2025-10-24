@@ -22,6 +22,7 @@ import { TableHeaderComponent } from '../../../../shared/components/table-header
 import { StockMinQuantity } from '../../interfaces/stock-minimum-quantity';
 import { StockService } from '../../services/stock.service';
 import { TableModule } from 'primeng/table';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-stock-minimum-quantity',
@@ -35,6 +36,7 @@ import { TableModule } from 'primeng/table';
     ButtonModule,
     InputTextModule,
     InputIconModule,
+    InputNumberModule,
     IconFieldModule,
     TooltipModule,
     TagModule,
@@ -44,7 +46,6 @@ import { TableModule } from 'primeng/table';
     BreadcrumbComponent,
     TableHeaderComponent,
     SpinnerComponent,
-    // HasRoleDirective,
   ],
   providers: [MessageService],
   templateUrl: './stock-minimum-quantity.component.html',
@@ -62,7 +63,7 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
   private searchTerm: string = '';
   private searchSubject = new Subject<string>();
 
-  public lastLazyEvent: any = { first: 0, rows: 10, sortField: 'ProductName', sortOrder: 1 };
+  public lastLazyEvent: any = { first: 0, rows: 5 };
 
   clonedQuantities: { [productId: number]: number; } = {};
 
@@ -136,8 +137,12 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
     this.searchSubject.next(value);
   }
 
+  onEditInit(event: any): void {
+    const stock = event.data;
+    this.clonedQuantities[stock.productId] = stock.minQuantity;
+  }
+
   async onEditComplete(event: any): Promise<void> {
-    console.log('onEditComplete event:', event);
     const stock = event.data;
     const oldQuantity = this.clonedQuantities[stock.productId];
 
@@ -145,7 +150,7 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
     if (event.field !== 'minQuantity') return;
 
     if (stock.minQuantity < 0 || isNaN(stock.minQuantity)) {
-      this.toastService.showError('A Quantidade Mínima deve ser um número não negativo.', 'Erro de Validação');
+      this.toastService.showError(ToastMessages.MINIMUM_QUANTITY_MUST_BE_POSITIVE);
       this.revertQuantity(stock, event.index, oldQuantity);
       return;
     }
@@ -161,7 +166,7 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
       const response = await apiCall;
 
       if (response.success) {
-        this.toastService.showSuccess(`Estoque mínimo do produto ${stock.productName} atualizado com sucesso!`, ToastMessages.SUCCESS_OPERATION);
+        this.toastService.showSuccess(`Estoque mínimo de ${stock.productName} atualizado com sucesso!`, ToastMessages.SUCCESS_OPERATION);
       } else {
         this.handleApiResponse(response, 'Falha ao salvar. Revertendo valor.');
         this.revertQuantity(stock, event.index, oldQuantity);
@@ -177,9 +182,6 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
   }
 
   private revertQuantity(stock: StockMinQuantity, index: number, originalQuantity: number | undefined): void {
-    console.log('revertQuantity stock:', stock);
-    console.log('revertQuantity index:', index);
-    console.log('revertQuantity originalQuantity:', originalQuantity);
     if (originalQuantity === undefined) return;
     const stockMinQuantitySubject = this.stockService.stockMinQuantitySubjectGetter;
     const currentList = stockMinQuantitySubject.getValue();
