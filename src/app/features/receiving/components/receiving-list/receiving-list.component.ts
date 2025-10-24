@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -19,10 +18,8 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column } from '../../../../shared/utils/p-table.utils';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
+import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
@@ -31,7 +28,7 @@ import { TableComponent } from '../../../../shared/components/table/table.compon
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { BaseComponent } from '../../../../core/components/base/base.component';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { ToastMessages } from '../../../../shared/constants/messages.constants';
 
 @Component({
   selector: 'app-receiving-list',
@@ -84,22 +81,18 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
   confirmMessage = '';
   headerText = '';
 
-  cols!: Column[];
-
-  getSeverity = getSeverity;
-  getStatus = getStatus;
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private receivingService: ReceivingService,
     private dropdownDataService: DropdownDataService,
     private fb: FormBuilder,
     private router: Router,
-    private formHelperService: FormHelperService,
   ) {
     super();
     this.receivingForm = this.fb.group({
@@ -115,7 +108,6 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.loadSuppliersOptions();
     this.loadEmployeesOptions();
     this.receivings$ = this.receivingService.receivings$;
@@ -127,7 +119,7 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.receivingService.loadReceivings(pageNumber, pageSize);
+            return this.receivingService.loadReceivings(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -143,7 +135,15 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
             this.isLoading = false;
             this.handleApiError(error);
           }
-        })
+        }
+        )
+    );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadReceivings({ first: 0, rows: 5 });
+      })
     );
   }
 
@@ -151,22 +151,12 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
     this.subscriptions.unsubscribe();
   }
 
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DA ENTRADA' },
-      { field: 'invoiceNumber', header: 'NOTA FISCAL' },
-      { field: 'supplyAuthorization', header: 'AUTORIZAÇÃO DE FORNECIMENTO' },
-      { field: 'supplierId', header: 'FORNECEDOR' },
-      { field: 'receivingDate', header: 'DATA' },
-      { field: 'totalValue', header: 'VALOR DA NOTA' },
-      { field: 'responsibleId', header: 'RESPONSÁVEL' },
-      { field: 'observation', header: 'OBSERVAÇÃO' },
-    ];
-  }
-
   loadReceivings(event: any) {
     this.loadLazy.next(event);
+  }
+
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
   }
 
   async loadSuppliersOptions(): Promise<void> {
@@ -229,11 +219,39 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
   }
 
   navigateToCreateReceiving(): void {
-    this.router.navigate(['/entrada/nova']);
+    this.router.navigate(['/almoxarifado/movimentacoes/entradas/nova']);
   }
 
-  exportCSV(dt: Table) {
-    dt.exportCSV();
-  }
+  async exportReceivings(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const response = await firstValueFrom(this.receivingService.exportReceivings(this.searchTerm));
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'entrada.csv';
+      if (contentDisposition) {
+        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
+        if (matches && matches.length > 1) {
+          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
+        }
+      }
 
+      const blob = response.body;
+      if (!blob) {
+        throw new Error('O corpo da resposta está vazio.');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      this.isLoading = false;
+      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
+    } catch (error) {
+      this.isLoading = false;
+      this.handleApiError(error);
+      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
+    }
+  }
 }

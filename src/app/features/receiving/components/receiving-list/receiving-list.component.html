@@ -35,13 +35,13 @@
               <input
                 pInputText
                 type="text"
-                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                (input)="onSearchInput($any($event.target).value)"
                 placeholder="Pesquisar..."
               />
             </p-iconfield>
             <div>
               <p-button
-                label="Novo"
+                label="Nova"
                 icon="pi pi-plus"
                 class="mr-2"
                 (click)="navigateToCreateReceiving()"
@@ -50,7 +50,7 @@
                 label="Exportar"
                 icon="pi pi-upload"
                 severity="secondary"
-                (click)="exportCSV(dt)"
+                (click)="exportReceivings()"
               />
             </div>
           </div>
@@ -59,11 +59,21 @@
         <ng-template #headerTemplate>
           <tr>
             <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-            <th style="min-width: 15rem" pSortableColumn="invoiceNumber">
-              NOTA FISCAL
+            <th
+              style="min-width: 12rem"
+              pSortableColumn="invoiceNumber"
+              pTooltip="NOTA FISCAL"
+              tooltipPosition="top"
+            >
+              NF
             </th>
-            <th style="min-width: 19rem" pSortableColumn="supplyAuthorization">
-              AUTORIZAÇÃO DE FORNECIMENTO
+            <th
+              style="min-width: 12rem"
+              pSortableColumn="supplyAuthorization"
+              pTooltip="AUTORIZAÇÃO DE FORNECIMENTO"
+              tooltipPosition="top"
+            >
+              AF
             </th>
             <th style="min-width: 25rem" pSortableColumn="supplier.name">
               FORNECEDOR
@@ -90,7 +100,9 @@
             <td>{{ receiving.invoiceNumber }}</td>
             <td>{{ receiving.supplyAuthorization }}</td>
             <td>{{ receiving.supplier.name }}</td>
-            <td>{{ receiving.receivingDate | date : "dd/MM/yyyy" }}</td>
+            <td>
+              {{ receiving.receivingDate | date : "dd/MM/yyyy HH:mm:ss" }}
+            </td>
             <td>{{ receiving.totalValue | currency : "BRL" }}</td>
             <td>{{ receiving.responsible.name }}</td>
             <td>{{ receiving.observation }}</td>

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
@@ -14,11 +14,15 @@ export class ReceivingService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadReceivings(pageNumber: number, pageSize: number): Observable<ApiResponse<Receiving[]>> {
-    const url = this.apiConfig.getUrl('receiving', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<Receiving[]>>(url).pipe(
+  public loadReceivings(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Receiving[]>> {
+    const url = this.apiConfig.getUrl('receiving', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Receiving[]>>(url, { params }).pipe(
       tap(response => {
-        console.log('response', response);
+        console.log('loadReceivings response:', response);
         if (response.success && response.data) {
           this.receivingsSubject.next(response.data);
         }
@@ -54,5 +58,16 @@ export class ReceivingService {
   public getReceivingById(id: number): Observable<ApiResponse<Receiving>> {
     const url = this.apiConfig.getUrl('receiving', `getById/${id}`);
     return this.http.get<ApiResponse<Receiving>>(url);
+  }
+
+  public exportReceivings(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('receiving', `export`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 }
