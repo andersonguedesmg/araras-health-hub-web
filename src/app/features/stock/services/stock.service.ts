@@ -16,6 +16,9 @@ export class StockService {
   private stockMinQuantitySubject = new BehaviorSubject<StockMinQuantity[]>([]);
   public stockMinQuantities$ = this.stockMinQuantitySubject.asObservable();
 
+  private criticalStocksSubject = new BehaviorSubject<Stock[]>([]);
+  public criticalStocks$ = this.criticalStocksSubject.asObservable();
+
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public get stockMinQuantitySubjectGetter(): BehaviorSubject<StockMinQuantity[]> {
@@ -47,6 +50,21 @@ export class StockService {
       tap(response => {
         if (response.success && response.data) {
           this.stockMinQuantitySubject.next(response.data);
+        }
+      })
+    );
+  }
+
+  public loadCriticalStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
+    const url = this.apiConfig.getUrl('stock', `low-stock`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Stock[]>>(url, { params }).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.criticalStocksSubject.next(response.data);
         }
       })
     );

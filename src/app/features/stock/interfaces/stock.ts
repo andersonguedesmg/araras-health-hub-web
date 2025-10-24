@@ -4,6 +4,6 @@ export interface Stock {
   id: number;
   productId: number;
   product: Product,
-  quantity: number;
-  batch: string;
+  CurrentQuantity: number;
+  MinQuantity: number;
 }

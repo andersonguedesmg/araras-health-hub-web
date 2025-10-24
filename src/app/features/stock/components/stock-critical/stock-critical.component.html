@@ -7,19 +7,19 @@
   <div class="card mt-10">
     <app-table-header [title]="title"></app-table-header>
 
-    <ng-container *ngIf="stocks$ | async as stocks">
+    <ng-container *ngIf="criticalStocks$ | async as stocks">
       <app-table
         [value]="stocks"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 25]"
         [lazy]="true"
-        (onLazyLoad)="loadStocks($event)"
+        (onLazyLoad)="loadCriticalStocks($event)"
         [totalRecords]="totalRecords"
         [globalFilterFields]="[
           'product.name',
-          'product.description',
-          'product.dosageForm',
-          'product.category',
+          'product.mainCategory',
+          'product.subCategory',
+          'product.presentationForm',
           'currentQuantity',
           'minQuantity'
         ]"
@@ -33,7 +33,7 @@
               <input
                 pInputText
                 type="text"
-                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                (input)="onSearchInput($any($event.target).value)"
                 placeholder="Pesquisar..."
               />
             </p-iconfield>
@@ -42,7 +42,7 @@
                 label="Exportar"
                 icon="pi pi-upload"
                 severity="secondary"
-                (click)="exportCSV(dt)"
+                (click)="exportCriticalStocks()"
               />
             </div>
           </div>
@@ -53,14 +53,17 @@
             <th style="min-width: 20rem" pSortableColumn="product.name">
               PRODUTO
             </th>
-            <th style="min-width: 25rem" pSortableColumn="product.description">
-              DESCRIÇÃO
+            <th style="min-width: 12rem" pSortableColumn="product.mainCategory">
+              CATEGORIA PRINCIPAL
             </th>
-            <th style="min-width: 12rem" pSortableColumn="product.dosageForm">
-              UNIDADE DE MEDIDA
+            <th style="min-width: 15rem" pSortableColumn="product.subCategory">
+              SUBCATEGORIA
             </th>
-            <th style="min-width: 15rem" pSortableColumn="product.category">
-              CATEGORIA
+            <th
+              style="min-width: 15rem"
+              pSortableColumn="product.presentationForm"
+            >
+              FORMA DE APRESENTAÇÃO
             </th>
             <th style="min-width: 12rem" pSortableColumn="currentQuantity">
               QUANTIDADE ATUAL
@@ -74,9 +77,9 @@
         <ng-template #bodyTemplate let-stock>
           <tr>
             <td>{{ stock.product.name }}</td>
-            <td>{{ stock.product.description }}</td>
-            <td>{{ stock.product.dosageForm }}</td>
-            <td>{{ stock.product.category }}</td>
+            <td>{{ stock.product.mainCategory }}</td>
+            <td>{{ stock.product.subCategory }}</td>
+            <td>{{ stock.product.presentationForm }}</td>
             <td>{{ stock.currentQuantity }}</td>
             <td>{{ stock.minQuantity }}</td>
           </tr>
