@@ -54,9 +54,6 @@
             <th style="min-width: 20rem" pSortableColumn="product.name">
               PRODUTO
             </th>
-            <th style="min-width: 25rem" pSortableColumn="product.description">
-              DESCRIÇÃO
-            </th>
             <th style="min-width: 12rem" pSortableColumn="product.mainCategory">
               CATEGORIA PRINCIPAL
             </th>
@@ -81,7 +78,6 @@
         <ng-template #bodyTemplate let-stock>
           <tr>
             <td>{{ stock.product.name }}</td>
-            <td>{{ stock.product.description }}</td>
             <td>{{ stock.product.mainCategory }}</td>
             <td>{{ stock.product.subCategory }}</td>
             <td>{{ stock.product.presentationForm }}</td>
