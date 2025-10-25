@@ -16,5 +16,5 @@ export interface Receiving {
   accountId: number;
   totalValue: number;
   account: Account;
-  receivedItems: ReceivingItem[];
+  receivedItem: ReceivingItem[];
 }

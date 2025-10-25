@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -17,8 +17,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
@@ -29,6 +27,7 @@ import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 import { ToastMessages } from '../../../../shared/constants/messages.constants';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-receiving-list',
@@ -47,6 +46,7 @@ import { ToastMessages } from '../../../../shared/constants/messages.constants';
     TagModule,
     DialogModule,
     SelectModule,
+    TableModule,
     BreadcrumbComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
@@ -54,14 +54,12 @@ import { ToastMessages } from '../../../../shared/constants/messages.constants';
     DialogComponent,
     TableHeaderComponent,
   ],
-  providers: [MessageService],
+  providers: [MessageService, DatePipe, CurrencyPipe],
   templateUrl: './receiving-list.component.html',
   styleUrl: './receiving-list.component.scss'
 })
 export class ReceivingListComponent extends BaseComponent implements OnInit, OnDestroy {
   FormMode = FormMode;
-  ConfirmMode = ConfirmMode;
-  statusOptions = StatusOptions;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }, { label: 'Histórico' }];
   title: string = 'Histórico de Entradas';
@@ -69,15 +67,12 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
   receivings$!: Observable<Receiving[]>;
   selectedReceiving?: Receiving;
   receivingForm: FormGroup;
-  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+  formMode: FormMode.Detail = FormMode.Detail;
 
   supplierOptions: SelectOptions<number>[] = [];
   employeeOptions: SelectOptions<number>[] = [];
 
   displayDialog = false;
-  formSubmitted = false;
-
-  confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
   headerText = '';
 
@@ -93,17 +88,19 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
     private dropdownDataService: DropdownDataService,
     private fb: FormBuilder,
     private router: Router,
+    private datePipe: DatePipe,
+    private currencyPipe: CurrencyPipe,
   ) {
     super();
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
-      supplierId: ['', Validators.required],
-      supplyAuthorization: ['', Validators.required],
-      receivingDate: ['', Validators.required],
-      invoiceNumber: ['', Validators.required],
-      totalValue: ['', Validators.required],
-      responsibleId: ['', Validators.required],
-      observation: [''],
+      supplierId: [{ value: null, disabled: true }],
+      supplyAuthorization: [{ value: '', disabled: true }],
+      receivingDate: [{ value: '', disabled: true }],
+      invoiceNumber: [{ value: '', disabled: true }],
+      totalValue: [{ value: '', disabled: true }],
+      responsibleId: [{ value: null, disabled: true }],
+      observation: [{ value: '', disabled: true }],
     });
   }
 
@@ -179,43 +176,39 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
     }
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Receiving): void {
+  openForm(receiving?: Receiving): void {
     this.receivingForm.reset();
-    this.formSubmitted = false; this.formMode = mode;
-    this.selectedReceiving = supplier;
+    this.selectedReceiving = receiving;
     this.displayDialog = true;
     this.initializeForm();
-    if (mode === FormMode.Create) {
-      this.headerText = 'Nova Entrada';
-    } else if (mode === FormMode.Update) {
-      this.headerText = 'Editar Entrada';
-    } else {
-      this.headerText = 'Detalhes da Entrada';
-    }
+    this.headerText = 'Detalhes da Entrada';
   }
 
   initializeForm(): void {
     this.receivingForm.reset();
     if (this.selectedReceiving) {
-      this.receivingForm.patchValue(this.selectedReceiving);
-    }
-    this.updateFormState();
-  }
+      const formattedReceiving: any = { ...this.selectedReceiving };
+      if (this.formMode === FormMode.Detail) {
+        formattedReceiving.receivingDate = this.datePipe.transform(
+          this.selectedReceiving.receivingDate,
+          'dd/MM/yyyy HH:mm:ss'
+        );
 
-  updateFormState(): void {
-    this.receivingForm.disable();
-    this.receivingForm.get('supplierId')?.disable();
-    this.receivingForm.get('receivingDate')?.disable();
-    this.receivingForm.get('invoiceNumber')?.disable();
-    this.receivingForm.get('totalValue')?.disable();
-    this.receivingForm.get('supplyAuthorization')?.disable();
-    this.receivingForm.get('responsibleId')?.disable();
-    this.receivingForm.get('observation')?.disable();
+        formattedReceiving.totalValue = this.currencyPipe.transform(
+          this.selectedReceiving.totalValue,
+          'BRL',
+          'symbol',
+          '1.2-2'
+        );
+      }
+      this.receivingForm.patchValue(formattedReceiving);
+    }
   }
 
   hideDialog(): void {
     this.displayDialog = false;
     this.selectedReceiving = undefined;
+    this.receivingForm.reset();
   }
 
   navigateToCreateReceiving(): void {

@@ -58,10 +58,9 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
+            <th style="min-width: 5rem">ID</th>
             <th
               style="min-width: 12rem"
-              pSortableColumn="invoiceNumber"
               pTooltip="NOTA FISCAL"
               tooltipPosition="top"
             >
@@ -69,27 +68,16 @@
             </th>
             <th
               style="min-width: 12rem"
-              pSortableColumn="supplyAuthorization"
               pTooltip="AUTORIZAÇÃO DE FORNECIMENTO"
               tooltipPosition="top"
             >
               AF
             </th>
-            <th style="min-width: 25rem" pSortableColumn="supplier.name">
-              FORNECEDOR
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="receivingDate">
-              DATA
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="totalValue">
-              VALOR DA NOTA
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="responsible.name">
-              RESPONSÁVEL
-            </th>
-            <th style="min-width: 20rem" pSortableColumn="observation">
-              OBSERVAÇÃO
-            </th>
+            <th style="min-width: 25rem">FORNECEDOR</th>
+            <th style="min-width: 12rem">DATA</th>
+            <th style="min-width: 12rem">VALOR DA NOTA</th>
+            <th style="min-width: 15rem">RESPONSÁVEL</th>
+            <th style="min-width: 20rem">OBSERVAÇÃO</th>
             <th style="min-width: 15rem">AÇÕES</th>
           </tr>
         </ng-template>
@@ -115,7 +103,7 @@
                 severity="info"
                 [rounded]="true"
                 [outlined]="true"
-                (click)="openForm(FormMode.Detail, receiving)"
+                (click)="openForm(receiving)"
               />
             </td>
           </tr>
@@ -130,7 +118,7 @@
     >
       <form [formGroup]="receivingForm" class="mt-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="mb-4" *ngIf="formMode !== 'create'">
+          <div class="mb-4">
             <label for="id" class="block text-sm font-medium text-gray-500"
               >ID:</label
             >
@@ -254,36 +242,27 @@
       <div class="bg-zinc-900 border border-zinc-600 rounded-md p-8 mt-4">
         <h2 class="text-xl font-medium text-gray-500 mb-6">Itens</h2>
         <hr class="mt-6 mb-2 border-t border-zinc-600" />
-        <!-- <p-table
+        <p-table
           *ngIf="
             selectedReceiving &&
-            selectedReceiving.receivedItems &&
-            selectedReceiving.receivedItems.length > 0
+            selectedReceiving.receivedItem &&
+            selectedReceiving.receivedItem.length > 0
           "
-          [value]="selectedReceiving.receivedItems"
+          [value]="selectedReceiving.receivedItem"
           [rows]="10"
           [paginator]="true"
           currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Itens"
           [showCurrentPageReport]="true"
+          [style]="{ width: '100%' }"
         >
           <ng-template #header>
             <tr>
-              <th style="min-width: 25rem" pSortableColumn="product.name">
-                PRODUTO
-              </th>
-              <th style="min-width: 10rem" pSortableColumn="quantity">
-                QUANTIDADE
-              </th>
-              <th style="min-width: 10rem" pSortableColumn="unitValue">
-                VALOR UNITÁRIO
-              </th>
-              <th style="min-width: 10rem" pSortableColumn="totalValue">
-                VALOR TOTAL
-              </th>
-              <th style="min-width: 18rem" pSortableColumn="batch">LOTE</th>
-              <th style="min-width: 10rem" pSortableColumn="expiryDate">
-                VALIDADE
-              </th>
+              <th style="min-width: 25rem">PRODUTO</th>
+              <th style="min-width: 10rem">QUANTIDADE</th>
+              <th style="min-width: 10rem">VALOR UNITÁRIO</th>
+              <th style="min-width: 10rem">VALOR TOTAL</th>
+              <th style="min-width: 12rem">LOTE</th>
+              <th style="min-width: 10rem">VALIDADE</th>
             </tr>
           </ng-template>
 
@@ -297,7 +276,17 @@
               <td>{{ item.expiryDate | date : "dd/MM/yyyy" }}</td>
             </tr>
           </ng-template>
-        </p-table> -->
+        </p-table>
+        <div
+          *ngIf="
+            !selectedReceiving ||
+            !selectedReceiving.receivedItem ||
+            selectedReceiving.receivedItem.length === 0
+          "
+          class="text-center text-gray-400 py-4"
+        >
+          Nenhum item de recebimento encontrado.
+        </div>
       </div>
     </app-dialog>
   </div>
