@@ -29,6 +29,7 @@ import { StockAdjustmentComponent } from './features/stock/components/stock-adju
 import { StockMinimumQuantityComponent } from './features/stock/components/stock-minimum-quantity/stock-minimum-quantity.component';
 import { scopeGuard } from './core/guards/scope.guard';
 import { UserRoles, UserScopes } from './core/constants/auth.constants';
+import { StockAdjustmentCreateComponent } from './features/stock/components/stock-adjustment-create/stock-adjustment-create.component';
 
 const SCOPE_MANAGEMENT = [UserScopes.MANAGEMENT];
 const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];
@@ -182,6 +183,13 @@ export const routes: Routes = [
         path: 'almoxarifado/movimentacoes/ajustes',
         component: StockAdjustmentComponent,
         title: 'A2H - Ajustes',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
+      },
+      {
+        path: 'almoxarifado/movimentacoes/ajustes/novo',
+        component: StockAdjustmentCreateComponent,
+        title: 'A2H - Novo Ajuste Manual',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },

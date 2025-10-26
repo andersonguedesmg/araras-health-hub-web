@@ -1,0 +1,334 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-spinner [loading]="isLoading"></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <p-toolbar>
+      <ng-template #start>
+        <span class="text-xl font-bold mt-2 mb-2">{{ title }}</span>
+      </ng-template>
+
+      <ng-template #end></ng-template>
+    </p-toolbar>
+
+    <div class="bg-surface-900 rounded-md shadow-md p-6">
+      <form [formGroup]="stockAdjustmentForm" class="mt-4">
+        <div class="bg-surface-800 p-6 rounded-md shadow-inner">
+          <h2 class="text-xl font-semibold text-white mb-4">
+            Detalhes do Ajuste Manual
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="mb-4" *ngIf="formMode !== 'create'">
+              <label for="id" class="block text-sm font-medium text-gray-500"
+                >ID:</label
+              >
+              <input
+                id="id"
+                pInputText
+                type="text"
+                formControlName="id"
+                class="mt-1 p-2 border rounded-md w-full"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label for="type" class="block text-sm font-medium text-gray-500">
+                Tipo:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                >
+              </label>
+              <p-select
+                [options]="typeStockAdjustmentOptions"
+                formControlName="type"
+                optionLabel="label"
+                optionValue="value"
+                class="w-full mt-1"
+                placeholder="Selecione"
+                [showClear]="true"
+                [filter]="true"
+                filterBy="label"
+                [ngClass]="{
+                  'ng-invalid ng-dirty':
+                    stockAdjustmentForm.get('type')?.invalid &&
+                    (stockAdjustmentFormSubmitted ||
+                      stockAdjustmentForm.get('type')?.touched)
+                }"
+              ></p-select>
+            </div>
+
+            <div class="mb-4">
+              <label
+                for="reason"
+                class="block text-sm font-medium text-gray-500"
+                >Motivo:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="reason"
+                pInputText
+                type="text"
+                formControlName="reason"
+                maxlength="50"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    stockAdjustmentFormSubmitted &&
+                    stockAdjustmentForm.get('reason')?.invalid
+                }"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label
+                for="responsibleId"
+                class="block text-sm font-medium text-gray-500"
+              >
+                Responsável:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                >
+              </label>
+              <p-select
+                [options]="employeeOptions"
+                formControlName="responsibleId"
+                optionLabel="label"
+                optionValue="value"
+                class="w-full mt-1"
+                placeholder="Selecione"
+                [showClear]="true"
+                [filter]="true"
+                filterBy="label"
+                [ngClass]="{
+                  'ng-invalid ng-dirty':
+                    stockAdjustmentForm.get('responsibleId')?.invalid &&
+                    (stockAdjustmentFormSubmitted ||
+                      stockAdjustmentForm.get('responsibleId')?.touched)
+                }"
+              ></p-select>
+            </div>
+
+            <div class="mb-4" *ngIf="formMode !== FormMode.Create">
+              <label
+                for="adjustmentDate"
+                class="block text-sm font-medium text-gray-500 mb-1"
+                >Data:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <p-datepicker
+                id="adjustmentDate"
+                formControlName="adjustmentDate"
+                dateFormat="dd/mm/yy"
+                [showButtonBar]="true"
+                class="w-full mt-1"
+                [ngClass]="{
+                  'ng-invalid ng-dirty':
+                    stockAdjustmentForm.get('adjustmentDate')?.invalid &&
+                    (stockAdjustmentFormSubmitted ||
+                      stockAdjustmentForm.get('adjustmentDate')?.touched)
+                }"
+              ></p-datepicker>
+            </div>
+
+            <div class="mb-4">
+              <label
+                for="observation"
+                class="block text-sm font-medium text-gray-500"
+                >Observação:
+              </label>
+              <textarea
+                rows="3"
+                pInputTextarea
+                formControlName="observation"
+                maxlength="200"
+                class="mt-1 p-2 border rounded-md w-full"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-800 p-6 rounded-md shadow-inner mt-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-white">
+              Itens
+              <span class="text-red-500" *ngIf="formMode !== 'detail'">*</span>
+            </h2>
+            <p-button
+              label="Adicionar"
+              icon="pi pi-plus"
+              (click)="addAdjustmentItem()"
+              class="p-button-sm"
+            ></p-button>
+          </div>
+
+          <div class="border border-surface-700 rounded-lg overflow-hidden">
+            <p-table
+              [value]="adjustmentItems.controls"
+              formArrayName="adjustmentItems"
+              [responsive]="true"
+              [responsiveLayout]="'scroll'"
+              [scrollable]="true"
+              scrollHeight="flex"
+              dataKey="id"
+              styleClass="p-datatable-gridlines p-datatable-sm"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th [style]="{ width: '25%' }">Produto</th>
+                  <th [style]="{ width: '10%' }">Quantidade</th>
+                  <th [style]="{ width: '15%' }">Valor Unitário</th>
+                  <th [style]="{ width: '15%' }">Valor Total</th>
+                  <th [style]="{ width: '15%' }">Lote</th>
+                  <th [style]="{ width: '15%' }">Validade</th>
+                  <th [style]="{ width: '5%', 'text-align': 'center' }">
+                    Ações
+                  </th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+                <tr
+                  [formGroup]="item"
+                  [ngClass]="{
+                    'border-red-500':
+                      stockAdjustmentFormSubmitted && item.invalid
+                  }"
+                >
+                  <td>
+                    <p-select
+                      [options]="productOptions"
+                      formControlName="productId"
+                      placeholder="Selecione"
+                      class="w-full"
+                      [showClear]="true"
+                      [filter]="true"
+                      filterBy="label"
+                      appendTo="body"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          item.get('productId')?.invalid &&
+                          (stockAdjustmentFormSubmitted ||
+                            item.get('productId')?.touched)
+                      }"
+                    ></p-select>
+                  </td>
+                  <td>
+                    <p-inputNumber
+                      formControlName="quantity"
+                      mode="decimal"
+                      [minFractionDigits]="0"
+                      [maxFractionDigits]="2"
+                      locale="pt-BR"
+                      class="w-full"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          item.get('quantity')?.invalid &&
+                          (stockAdjustmentFormSubmitted ||
+                            item.get('quantity')?.touched)
+                      }"
+                    ></p-inputNumber>
+                  </td>
+                  <td>
+                    <p-inputNumber
+                      formControlName="unitValue"
+                      mode="decimal"
+                      [minFractionDigits]="2"
+                      [maxFractionDigits]="2"
+                      locale="pt-BR"
+                      class="w-full"
+                    ></p-inputNumber>
+                  </td>
+                  <td>
+                    <p-inputNumber
+                      formControlName="totalValue"
+                      mode="decimal"
+                      [minFractionDigits]="2"
+                      [maxFractionDigits]="2"
+                      locale="pt-BR"
+                      class="w-full"
+                      [readonly]="true"
+                    ></p-inputNumber>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      pInputText
+                      formControlName="batch"
+                      maxlength="50"
+                      class="w-full"
+                      [ngClass]="{
+                        'border-red-500':
+                          stockAdjustmentFormSubmitted &&
+                          item.get('batch')?.invalid
+                      }"
+                    />
+                  </td>
+                  <td>
+                    <p-datepicker
+                      formControlName="expiryDate"
+                      dateFormat="dd/mm/yy"
+                      [showButtonBar]="true"
+                      class="w-full"
+                      appendTo="body"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          item.get('expiryDate')?.invalid &&
+                          (stockAdjustmentFormSubmitted ||
+                            item.get('expiryDate')?.touched)
+                      }"
+                    ></p-datepicker>
+                  </td>
+                  <td style="text-align: center">
+                    <button
+                      pButton
+                      pTooltip="Excluir"
+                      tooltipPosition="top"
+                      icon="pi pi-trash"
+                      (click)="removeStockAdjustmentItem(rowIndex)"
+                      severity="danger"
+                      type="button"
+                      [rounded]="true"
+                      [outlined]="true"
+                      [disabled]="adjustmentItems.length <= 1"
+                      class="p-button-sm"
+                    ></button>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td [attr.colspan]="7" class="text-center text-gray-500 p-4">
+                    Nenhum item adicionado.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-4 mt-4">
+          <p-button
+            label="Salvar"
+            icon="pi pi-check"
+            class="mr-2"
+            (click)="saveStockAdjustment()"
+          ></p-button>
+          <p-button
+            label="Limpar"
+            icon="pi pi-eraser"
+            severity="info"
+            [outlined]="true"
+            (click)="resetStockAdjustmentForm()"
+          ></p-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

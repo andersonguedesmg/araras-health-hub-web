@@ -5,6 +5,7 @@ import { Stock } from '../interfaces/stock';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { StockMinQuantity } from '../interfaces/stock-minimum-quantity';
+import { StockAdjustment } from '../interfaces/stock-adjustment';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,9 @@ export class StockService {
 
   private criticalStocksSubject = new BehaviorSubject<Stock[]>([]);
   public criticalStocks$ = this.criticalStocksSubject.asObservable();
+
+  private stockAdjustmentsSubject = new BehaviorSubject<StockAdjustment[]>([]);
+  public stockAdjustments$ = this.stockAdjustmentsSubject.asObservable();
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
@@ -65,6 +69,18 @@ export class StockService {
       tap(response => {
         if (response.success && response.data) {
           this.criticalStocksSubject.next(response.data);
+        }
+      })
+    );
+  }
+
+  public createStockAdjustment(stockAdjustment: StockAdjustment): Observable<ApiResponse<StockAdjustment>> {
+    const url = this.apiConfig.getUrl('stock', 'create-adjustment');
+    return this.http.post<ApiResponse<StockAdjustment>>(url, stockAdjustment).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentStockAdjustments = this.stockAdjustmentsSubject.getValue();
+          this.stockAdjustmentsSubject.next([...currentStockAdjustments, response.data]);
         }
       })
     );

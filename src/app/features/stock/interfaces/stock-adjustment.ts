@@ -6,5 +6,7 @@ export interface StockAdjustment {
   adjustmentDate: string;
   reason: string;
   observation: string;
+  responsibleId: number;
+  accountId: number;
   adjustmentItems: StockAdjustmentItem[];
 }
