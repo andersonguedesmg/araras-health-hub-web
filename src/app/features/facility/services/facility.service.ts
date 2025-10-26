@@ -6,6 +6,7 @@ import { Facility } from '../interfaces/facility';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
 import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
+import { FacilityProfile } from '../interfaces/facility-profile';
 
 @Injectable({
   providedIn: 'root'
@@ -85,6 +86,11 @@ export class FacilityService {
         }
       })
     );
+  }
+
+  public getFacilityProfile(): Observable<ApiResponse<FacilityProfile>> {
+    const url = this.apiConfig.getUrl('facility', `profile`);
+    return this.http.get<ApiResponse<FacilityProfile>>(url);
   }
 
   public getFacilityOptions(): Promise<SelectOptions<number>[]> {
