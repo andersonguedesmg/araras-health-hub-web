@@ -1,15 +1,14 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -17,20 +16,17 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column } from '../../../../shared/utils/p-table.utils';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { StockShipping } from '../../interfaces/stock-shipping';
+import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { StockMovementService } from '../../services/stock-movement.service';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { BaseComponent } from '../../../../core/components/base/base.component';
+import { StockAdjustment } from '../../interfaces/stock-adjustment';
+import { ToastMessages } from '../../../../shared/constants/messages.constants';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-stock-adjustment',
@@ -48,6 +44,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     TagModule,
     DialogModule,
     SelectModule,
+    TableModule,
     BreadcrumbComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
@@ -55,67 +52,56 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     DialogComponent,
     TableHeaderComponent,
   ],
-  providers: [MessageService],
+  providers: [MessageService, DatePipe],
   templateUrl: './stock-adjustment.component.html',
   styleUrl: './stock-adjustment.component.scss'
 })
 export class StockAdjustmentComponent extends BaseComponent implements OnInit, OnDestroy {
   FormMode = FormMode;
-  ConfirmMode = ConfirmMode;
-  statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Ajustes' }, { label: 'Histórico' }];
+  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Movimentações' }, { label: 'Ajustes' }];
   title: string = 'Histórico de Ajustes Manuais';
 
-  stockShippings$!: Observable<StockShipping[]>;
-  selectedShipping?: StockShipping;
-  shippingForm: FormGroup;
-  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+  stockAdjustments$!: Observable<StockAdjustment[]>;
+  selectedAdjustments?: StockAdjustment;
+  adjustmentForm: FormGroup;
+  formMode: FormMode.Detail = FormMode.Detail;
 
   supplierOptions: SelectOptions<number>[] = [];
   employeeOptions: SelectOptions<number>[] = [];
 
   displayDialog = false;
-  formSubmitted = false;
-
-  confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
   headerText = '';
 
-  cols!: Column[];
-
-  getSeverity = getSeverity;
-  getStatus = getStatus;
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private stockMovementService: StockMovementService,
     private dropdownDataService: DropdownDataService,
     private fb: FormBuilder,
-    private formHelperService: FormHelperService,
+    private datePipe: DatePipe,
   ) {
     super();
-    this.shippingForm = this.fb.group({
+    this.adjustmentForm = this.fb.group({
       id: [{ value: null, disabled: true }],
-      supplierId: ['', Validators.required],
-      supplyAuthorization: ['', Validators.required],
-      receivingDate: ['', Validators.required],
-      invoiceNumber: ['', Validators.required],
-      totalValue: ['', Validators.required],
-      responsibleId: ['', Validators.required],
-      observation: [''],
+      type: [{ value: null, disabled: true }],
+      adjustmentDate: [{ value: '', disabled: true }],
+      reason: [{ value: '', disabled: true }],
+      responsibleName: [{ value: '', disabled: true }],
+      observation: [{ value: '', disabled: true }],
     });
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.loadSuppliersOptions();
     this.loadEmployeesOptions();
-    this.stockShippings$ = this.stockMovementService.stockShippings$;
+    this.stockAdjustments$ = this.stockMovementService.stockAdjustments$;
     this.subscriptions.add(
       this.loadLazy
         .pipe(
@@ -124,7 +110,7 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockMovementService.loadStockShippings(pageNumber, pageSize);
+            return this.stockMovementService.loadStockAdjustments(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -140,7 +126,15 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
             this.isLoading = false;
             this.handleApiError(error);
           }
-        })
+        }
+        )
+    );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadStockAdjustments({ first: 0, rows: 5 });
+      })
     );
   }
 
@@ -148,22 +142,12 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
     this.subscriptions.unsubscribe();
   }
 
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DA ENTRADA' },
-      { field: 'invoiceNumber', header: 'NOTA FISCAL' },
-      { field: 'supplyAuthorization', header: 'AUTORIZAÇÃO DE FORNECIMENTO' },
-      { field: 'supplierId', header: 'FORNECEDOR' },
-      { field: 'receivingDate', header: 'DATA' },
-      { field: 'totalValue', header: 'VALOR DA NOTA' },
-      { field: 'responsibleId', header: 'RESPONSÁVEL' },
-      { field: 'observation', header: 'OBSERVAÇÃO' },
-    ];
+  loadStockAdjustments(event: any) {
+    this.loadLazy.next(event);
   }
 
-  loadShippings(event: any) {
-    this.loadLazy.next(event);
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
   }
 
   async loadSuppliersOptions(): Promise<void> {
@@ -186,47 +170,65 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
     }
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, shipping?: StockShipping): void {
-    this.shippingForm.reset();
-    this.formSubmitted = false; this.formMode = mode;
-    this.selectedShipping = shipping;
+  openForm(adjustment?: StockAdjustment): void {
+    this.adjustmentForm.reset();
+    this.selectedAdjustments = adjustment;
     this.displayDialog = true;
     this.initializeForm();
-    if (mode === FormMode.Create) {
-      this.headerText = 'Nova Saída';
-    } else if (mode === FormMode.Update) {
-      this.headerText = 'Editar Saída';
-    } else {
-      this.headerText = 'Detalhes da Saída';
-    }
+    this.headerText = 'Detalhes do Ajuste Manual';
   }
 
   initializeForm(): void {
-    this.shippingForm.reset();
-    if (this.selectedShipping) {
-      this.shippingForm.patchValue(this.selectedShipping);
+    this.adjustmentForm.reset();
+    if (this.selectedAdjustments) {
+      const formattedAdjustment: any = { ...this.selectedAdjustments };
+      if (this.formMode === FormMode.Detail) {
+        formattedAdjustment.adjustmentDate = this.datePipe.transform(
+          this.selectedAdjustments.adjustmentDate,
+          'dd/MM/yyyy HH:mm:ss'
+        );
+      }
+      this.adjustmentForm.patchValue(formattedAdjustment);
     }
-    this.updateFormState();
-  }
-
-  updateFormState(): void {
-    this.shippingForm.disable();
-    this.shippingForm.get('supplierId')?.disable();
-    this.shippingForm.get('receivingDate')?.disable();
-    this.shippingForm.get('invoiceNumber')?.disable();
-    this.shippingForm.get('totalValue')?.disable();
-    this.shippingForm.get('supplyAuthorization')?.disable();
-    this.shippingForm.get('responsibleId')?.disable();
-    this.shippingForm.get('observation')?.disable();
   }
 
   hideDialog(): void {
     this.displayDialog = false;
-    this.selectedShipping = undefined;
+    this.selectedAdjustments = undefined;
+    this.adjustmentForm.reset();
   }
 
-  exportCSV(dt: Table) {
-    dt.exportCSV();
-  }
+  async exportAdjustments(): Promise<void> {
+    this.isLoading = true;
+    try {
+      const response = await firstValueFrom(this.stockMovementService.exportAdjustments(this.searchTerm));
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'ajustes-manuais.csv';
+      if (contentDisposition) {
+        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
+        if (matches && matches.length > 1) {
+          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
+        }
+      }
+
+      const blob = response.body;
+      if (!blob) {
+        throw new Error('O corpo da resposta está vazio.');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      this.isLoading = false;
+      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
+    } catch (error) {
+      this.isLoading = false;
+      this.handleApiError(error);
+      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
+    }
+  };
 
 }
