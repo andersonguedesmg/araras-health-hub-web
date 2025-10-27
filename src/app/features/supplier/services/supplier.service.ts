@@ -101,7 +101,7 @@ export class SupplierService {
       });
   }
 
-  public exportProducts(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+  public exportSuppliers(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
     const url = this.apiConfig.getUrl('supplier', `export`);
     const params = new HttpParams().set('searchTerm', searchTerm);
     return this.http.get(url, {

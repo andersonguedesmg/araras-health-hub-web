@@ -4,6 +4,7 @@ import { ToastMessages } from '../../../shared/constants/messages.constants';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ExportApiFunction } from '../../interfaces/export-api-function';
 
 @Directive()
 export abstract class BaseComponent {
@@ -72,6 +73,57 @@ export abstract class BaseComponent {
       if (error.message !== 'cancel') {
         this.handleApiError(error);
       }
+    }
+  }
+
+  protected async exportData(
+    exportFn: ExportApiFunction,
+    defaultFilename: string,
+    searchTerm: string = ''
+  ): Promise<void> {
+    this.isLoading = true;
+    try {
+      const response = await firstValueFrom(exportFn(searchTerm));
+      const contentDisposition = response.headers.get('Content-Disposition');
+
+      const now = new Date();
+      const timestamp =
+        now.getFullYear().toString() +
+        (now.getMonth() + 1).toString().padStart(2, '0') +
+        now.getDate().toString().padStart(2, '0') +
+        now.getHours().toString().padStart(2, '0') +
+        now.getMinutes().toString().padStart(2, '0') +
+        now.getSeconds().toString().padStart(2, '0');
+      let filename = `${defaultFilename}_${timestamp}.csv`;
+
+      if (contentDisposition) {
+        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
+        if (matches && matches.length > 1) {
+          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
+        }
+      }
+
+      const blob = response.body;
+      if (!blob) {
+        throw new Error('O corpo da resposta está vazio.');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
+
+    } catch (error: any) {
+      this.handleApiError(error);
+      if (!error?.error?.message && error?.message !== 'cancel') {
+        this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
+      }
+    } finally {
+      this.isLoading = false;
     }
   }
 }

@@ -17,7 +17,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
+import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
@@ -26,7 +26,6 @@ import { TableComponent } from '../../../../shared/components/table/table.compon
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { BaseComponent } from '../../../../core/components/base/base.component';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
 import { TableModule } from 'primeng/table';
 
 @Component({
@@ -156,6 +155,14 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
     this.searchSubject.next(value);
   }
 
+  async exportReceivings(): Promise<void> {
+    await this.exportData(
+      (searchTerm) => this.receivingService.exportReceivings(searchTerm),
+      'entradas.csv',
+      this.searchTerm
+    );
+  }
+
   async loadSuppliersOptions(): Promise<void> {
     try {
       this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
@@ -213,38 +220,5 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
 
   navigateToCreateReceiving(): void {
     this.router.navigate(['/almoxarifado/movimentacoes/entradas/nova']);
-  }
-
-  async exportReceivings(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const response = await firstValueFrom(this.receivingService.exportReceivings(this.searchTerm));
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'entrada.csv';
-      if (contentDisposition) {
-        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
-        if (matches && matches.length > 1) {
-          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
-        }
-      }
-
-      const blob = response.body;
-      if (!blob) {
-        throw new Error('O corpo da resposta está vazio.');
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(url);
-      this.isLoading = false;
-      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
-    } catch (error) {
-      this.isLoading = false;
-      this.handleApiError(error);
-      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
-    }
   }
 }

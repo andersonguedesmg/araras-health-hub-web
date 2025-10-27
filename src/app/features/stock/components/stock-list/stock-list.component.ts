@@ -17,12 +17,11 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { StockService } from '../../services/stock.service';
 import { Stock } from '../../interfaces/stock';
-import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
+import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { TagModule } from 'primeng/tag';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { BaseComponent } from '../../../../core/components/base/base.component';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
 
 @Component({
   selector: 'app-stock-list',
@@ -121,35 +120,10 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
   }
 
   async exportStocks(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const response = await firstValueFrom(this.stockService.exportStocks(this.searchTerm));
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'estoque-geral.csv';
-      if (contentDisposition) {
-        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
-        if (matches && matches.length > 1) {
-          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
-        }
-      }
-
-      const blob = response.body;
-      if (!blob) {
-        throw new Error('O corpo da resposta está vazio.');
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(url);
-      this.isLoading = false;
-      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
-    } catch (error) {
-      this.isLoading = false;
-      this.handleApiError(error);
-      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
-    }
+    await this.exportData(
+      (searchTerm) => this.stockService.exportStocks(searchTerm),
+      'estoque-geral.csv',
+      this.searchTerm
+    );
   }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -18,7 +18,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Product } from '../../interfaces/product';
 import { ProductService } from '../../services/product.service';
@@ -167,36 +166,11 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
   }
 
   async exportProducts(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const response = await firstValueFrom(this.productService.exportProducts(this.searchTerm));
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'produtos.csv';
-      if (contentDisposition) {
-        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
-        if (matches && matches.length > 1) {
-          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
-        }
-      }
-
-      const blob = response.body;
-      if (!blob) {
-        throw new Error('O corpo da resposta está vazio.');
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(url);
-      this.isLoading = false;
-      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
-    } catch (error) {
-      this.isLoading = false;
-      this.handleApiError(error);
-      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
-    }
+    await this.exportData(
+      (searchTerm) => this.productService.exportProducts(searchTerm),
+      'produtos.csv',
+      this.searchTerm
+    );
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, product?: Product): void {

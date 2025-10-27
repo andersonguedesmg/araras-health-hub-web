@@ -167,36 +167,11 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
   }
 
   async exportEmployees(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const response = await firstValueFrom(this.employeeService.exportEmployees(this.searchTerm));
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'funcionario.csv';
-      if (contentDisposition) {
-        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
-        if (matches && matches.length > 1) {
-          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
-        }
-      }
-
-      const blob = response.body;
-      if (!blob) {
-        throw new Error('O corpo da resposta está vazio.');
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(url);
-      this.isLoading = false;
-      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
-    } catch (error) {
-      this.isLoading = false;
-      this.handleApiError(error);
-      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
-    }
+    await this.exportData(
+      (searchTerm) => this.employeeService.exportEmployees(searchTerm),
+      'funcionarios.csv',
+      this.searchTerm
+    );
   }
 
   openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, employees?: Employee): void {

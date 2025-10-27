@@ -22,9 +22,13 @@ export class StockMovementService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadStockMovements(pageNumber: number, pageSize: number): Observable<ApiResponse<StockMovement[]>> {
-    const url = this.apiConfig.getUrl('stock-movement', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<StockMovement[]>>(url).pipe(
+  public loadStockMovements(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<StockMovement[]>> {
+    const url = this.apiConfig.getUrl('stock-movement', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<StockMovement[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.stockMovementSubject.next(response.data);
@@ -33,9 +37,13 @@ export class StockMovementService {
     );
   }
 
-  public loadStockShippings(pageNumber: number, pageSize: number): Observable<ApiResponse<StockShipping[]>> {
-    const url = this.apiConfig.getUrl('stock-movement', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    return this.http.get<ApiResponse<StockShipping[]>>(url).pipe(
+  public loadStockShippings(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<StockShipping[]>> {
+    const url = this.apiConfig.getUrl('stock-movement', `getAll`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<StockShipping[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.stockShippingSubject.next(response.data);

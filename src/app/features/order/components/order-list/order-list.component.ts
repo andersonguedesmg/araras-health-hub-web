@@ -10,7 +10,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -90,6 +89,9 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
   getOrderSeverity = getOrderSeverity;
   getOrderStatus = getOrderStatus;
 
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
@@ -140,6 +142,14 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
     this.loadLazy.next(event);
   }
 
+  async exportOrders(): Promise<void> {
+    await this.exportData(
+      (searchTerm) => this.orderService.exportOrders(searchTerm),
+      'pedidos.csv',
+      this.searchTerm
+    );
+  }
+
   async loadEmployeesOptions(): Promise<void> {
     try {
       this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
@@ -158,9 +168,5 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
   handleActionComplete(updatedOrder: Order) {
     this.displayActionModal = false;
     this.loadLazy.next({});
-  }
-
-  exportCSV(dt: Table) {
-    dt.exportCSV();
   }
 }

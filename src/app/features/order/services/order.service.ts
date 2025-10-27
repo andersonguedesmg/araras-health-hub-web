@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
@@ -94,5 +94,15 @@ export class OrderService {
         }
       })
     );
+  }
+
+  public exportOrders(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('order', `export`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 }

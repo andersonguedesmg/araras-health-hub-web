@@ -9,7 +9,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -83,6 +82,9 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
   getSeverity = getSeverity;
   getStatus = getStatus;
 
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
@@ -117,7 +119,7 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockMovementService.loadStockShippings(pageNumber, pageSize);
+            return this.stockMovementService.loadStockShippings(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -133,7 +135,15 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
             this.isLoading = false;
             this.handleApiError(error);
           }
-        })
+        }
+        )
+    );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadShippings({ first: 0, rows: 5 });
+      })
     );
   }
 
@@ -143,6 +153,18 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
 
   loadShippings(event: any) {
     this.loadLazy.next(event);
+  }
+
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  async exportAdjustments(): Promise<void> {
+    await this.exportData(
+      (searchTerm) => this.stockMovementService.exportAdjustments(searchTerm),
+      'saidas.csv',
+      this.searchTerm
+    );
   }
 
   async loadSuppliersOptions(): Promise<void> {
@@ -202,9 +224,5 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
   hideDialog(): void {
     this.displayDialog = false;
     this.selectedShipping = undefined;
-  }
-
-  exportCSV(dt: Table) {
-    dt.exportCSV();
   }
 }

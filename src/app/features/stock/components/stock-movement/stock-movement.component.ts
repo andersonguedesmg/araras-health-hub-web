@@ -59,6 +59,9 @@ export class StockMovementComponent extends BaseComponent implements OnInit, OnD
   stockMovements$!: Observable<StockMovement[]>;
   selectedStock?: StockMovement;
 
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
@@ -79,7 +82,7 @@ export class StockMovementComponent extends BaseComponent implements OnInit, OnD
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockMovementService.loadStockMovements(pageNumber, pageSize);
+            return this.stockMovementService.loadStockMovements(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -95,7 +98,15 @@ export class StockMovementComponent extends BaseComponent implements OnInit, OnD
             this.isLoading = false;
             this.handleApiError(error);
           }
-        })
+        }
+        )
+    );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadStocks({ first: 0, rows: 5 });
+      })
     );
   }
 
@@ -107,7 +118,15 @@ export class StockMovementComponent extends BaseComponent implements OnInit, OnD
     this.loadLazy.next(event);
   }
 
-  exportCSV(dt: Table) {
-    dt.exportCSV();
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
+  }
+
+  async exportAdjustments(): Promise<void> {
+    await this.exportData(
+      (searchTerm) => this.stockMovementService.exportAdjustments(searchTerm),
+      'ajustes-manuais.csv',
+      this.searchTerm
+    );
   }
 }

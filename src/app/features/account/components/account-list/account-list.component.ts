@@ -202,37 +202,12 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
     this.searchSubject.next(value);
   }
 
-  async exportEmployees(): Promise<void> {
-    this.isLoading = true;
-    try {
-      const response = await firstValueFrom(this.accountService.exportAccounts(this.searchTerm));
-      const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'conta.csv';
-      if (contentDisposition) {
-        const matches = /filename\*?="?([^;"]+)"?/.exec(contentDisposition);
-        if (matches && matches.length > 1) {
-          filename = decodeURIComponent(matches[1].replace(/\+/g, ' '));
-        }
-      }
-
-      const blob = response.body;
-      if (!blob) {
-        throw new Error('O corpo da resposta está vazio.');
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
-      window.URL.revokeObjectURL(url);
-      this.isLoading = false;
-      this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
-    } catch (error) {
-      this.isLoading = false;
-      this.handleApiError(error);
-      this.toastService.showError(ToastMessages.UNEXPECTED_ERROR);
-    }
+  async exportAccounts(): Promise<void> {
+    await this.exportData(
+      (searchTerm) => this.accountService.exportAccounts(searchTerm),
+      'contas.csv',
+      this.searchTerm
+    );
   }
 
   openForm(mode: FormMode.Update | FormMode.Detail, account?: Account): void {
