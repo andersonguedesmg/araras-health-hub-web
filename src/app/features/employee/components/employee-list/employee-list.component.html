@@ -15,14 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadEmployees($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'id',
-          'name',
-          'cpf',
-          'function',
-          'phone',
-          'isActive'
-        ]"
         [loading]="isLoading"
         [colspan]="7"
       >
@@ -57,12 +49,12 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-            <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
-            <th style="min-width: 12rem" pSortableColumn="cpf">CPF</th>
-            <th style="min-width: 20rem" pSortableColumn="function">FUNÇÃO</th>
-            <th style="min-width: 12rem" pSortableColumn="phone">TELEFONE</th>
-            <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
+            <th style="min-width: 5rem">ID</th>
+            <th style="min-width: 20rem">NOME</th>
+            <th style="min-width: 12rem">CPF</th>
+            <th style="min-width: 20rem">FUNÇÃO</th>
+            <th style="min-width: 12rem">TELEFONE</th>
+            <th style="min-width: 8rem">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
           </tr>
         </ng-template>

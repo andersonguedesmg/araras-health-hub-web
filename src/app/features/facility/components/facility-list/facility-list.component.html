@@ -15,19 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadFacilities($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'id',
-          'name',
-          'address',
-          'number',
-          'neighborhood',
-          'city',
-          'state',
-          'cep',
-          'email',
-          'phone',
-          'isActive'
-        ]"
         [loading]="isLoading"
         [colspan]="12"
       >
@@ -62,19 +49,17 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-            <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
-            <th style="min-width: 20rem" pSortableColumn="address">ENDEREÇO</th>
-            <th style="min-width: 10rem" pSortableColumn="number">NÚMERO</th>
-            <th style="min-width: 20rem" pSortableColumn="neighborhood">
-              BAIRRO
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="city">CIDADE</th>
-            <th style="min-width: 10rem" pSortableColumn="state">ESTADO</th>
-            <th style="min-width: 10rem" pSortableColumn="cep">CEP</th>
-            <th style="min-width: 20rem" pSortableColumn="email">E-MAIL</th>
-            <th style="min-width: 12rem" pSortableColumn="phone">TELEFONE</th>
-            <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
+            <th style="min-width: 5rem">ID</th>
+            <th style="min-width: 20rem">NOME</th>
+            <th style="min-width: 20rem">ENDEREÇO</th>
+            <th style="min-width: 10rem">NÚMERO</th>
+            <th style="min-width: 20rem">BAIRRO</th>
+            <th style="min-width: 12rem">CIDADE</th>
+            <th style="min-width: 10rem">ESTADO</th>
+            <th style="min-width: 10rem">CEP</th>
+            <th style="min-width: 20rem">E-MAIL</th>
+            <th style="min-width: 12rem">TELEFONE</th>
+            <th style="min-width: 8rem">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
           </tr>
         </ng-template>

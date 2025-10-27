@@ -20,14 +20,6 @@
         currentPageReportTemplate="Mostrando {first} a {last} dos {totalRecords} Registros"
         (onLazyLoad)="loadMinQuantities($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'productId',
-          'productName',
-          'productMainCategory',
-          'productSubCategory',
-          'productPresentationForm',
-          'minQuantity'
-        ]"
         [loading]="isLoading"
         editMode="cell"
         dataKey="id"
@@ -52,24 +44,11 @@
 
         <ng-template pTemplate="header">
           <tr>
-            <th style="min-width: 20rem" pSortableColumn="productName">
-              PRODUTO
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="productMainCategory">
-              CATEGORIA PRINCIPAL
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="productSubCategory">
-              SUBCATEGORIA
-            </th>
-            <th
-              style="min-width: 15rem"
-              pSortableColumn="productPresentationForm"
-            >
-              FORMA DE APRESENTAÇÃO
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="minQuantity">
-              QUANTIDADE MÍNIMA
-            </th>
+            <th style="min-width: 20rem">PRODUTO</th>
+            <th style="min-width: 15rem">CATEGORIA PRINCIPAL</th>
+            <th style="min-width: 15rem">SUBCATEGORIA</th>
+            <th style="min-width: 15rem">FORMA DE APRESENTAÇÃO</th>
+            <th style="min-width: 15rem">QUANTIDADE MÍNIMA</th>
           </tr>
         </ng-template>
 

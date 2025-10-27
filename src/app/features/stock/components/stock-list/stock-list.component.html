@@ -15,15 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadStocks($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'product.name',
-          'product.description',
-          'product.mainCategory',
-          'product.subCategory',
-          'product.presentationForm',
-          'currentQuantity',
-          'minQuantity'
-        ]"
         [loading]="isLoading"
         [colspan]="7"
       >
@@ -51,27 +42,12 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 20rem" pSortableColumn="product.name">
-              PRODUTO
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="product.mainCategory">
-              CATEGORIA PRINCIPAL
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="product.subCategory">
-              SUBCATEGORIA
-            </th>
-            <th
-              style="min-width: 15rem"
-              pSortableColumn="product.presentationForm"
-            >
-              FORMA DE APRESENTAÇÃO
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="currentQuantity">
-              QUANTIDADE ATUAL
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="minQuantity">
-              QUANTIDADE MÍNIMA
-            </th>
+            <th style="min-width: 20rem">PRODUTO</th>
+            <th style="min-width: 12rem">CATEGORIA PRINCIPAL</th>
+            <th style="min-width: 15rem">SUBCATEGORIA</th>
+            <th style="min-width: 15rem">FORMA DE APRESENTAÇÃO</th>
+            <th style="min-width: 12rem">QUANTIDADE ATUAL</th>
+            <th style="min-width: 12rem">QUANTIDADE MÍNIMA</th>
           </tr>
         </ng-template>
 

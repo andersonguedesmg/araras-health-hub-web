@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -16,7 +16,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { Column, ExportColumn } from '../../../../shared/utils/p-table.utils';
 import { StockMovementService } from '../../services/stock-movement.service';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
@@ -25,7 +24,6 @@ import { TableHeaderComponent } from '../../../../shared/components/table-header
 import { StockMovement } from '../../interfaces/stock-movement';
 import { StockMovementTypePipe } from "../../../../shared/pipe/stock-movement-type.pipe";
 import { BaseComponent } from '../../../../core/components/base/base.component';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
 
 @Component({
   selector: 'app-stock-movement',
@@ -61,24 +59,17 @@ export class StockMovementComponent extends BaseComponent implements OnInit, OnD
   stockMovements$!: Observable<StockMovement[]>;
   selectedStock?: StockMovement;
 
-  cols!: Column[];
-  selectedColumns!: Column[];
-  exportColumns!: ExportColumn[];
-
   private loadLazy = new Subject<any>();
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private stockMovementService: StockMovementService,
-    private formHelperService: FormHelperService,
   ) {
     super();
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.stockMovements$ = this.stockMovementService.stockMovements$;
     this.subscriptions.add(
       this.loadLazy
@@ -110,20 +101,6 @@ export class StockMovementComponent extends BaseComponent implements OnInit, OnD
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'productName', header: 'PRODUTO', customExportHeader: 'PRODUTO' },
-      { field: 'product.description', header: 'DESCRIÇÃO' },
-      { field: 'product.dosageForm', header: 'UNIDADE DE MEDIDA' },
-      { field: 'roduct.category', header: 'CATEGORIA' },
-      { field: 'currentQuantity', header: 'QUANTIDADE ATUAL' },
-      { field: 'minQuantity', header: 'QUANTIDADE MÍNIMA' },
-    ];
-    this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
-    this.selectedColumns = this.cols;
   }
 
   loadStocks(event: any) {

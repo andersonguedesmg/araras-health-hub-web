@@ -15,14 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadStocks($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'product.name',
-          'product.description',
-          'product.dosageForm',
-          'product.category',
-          'currentQuantity',
-          'minQuantity'
-        ]"
         [loading]="isLoading"
         [colspan]="6"
       >
@@ -50,31 +42,21 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-            <th style="min-width: 12rem" pSortableColumn="type">TIPO</th>
-            <th style="min-width: 20rem" pSortableColumn="productName">
-              PRODUTO
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="quantity">
-              QUANTIDADE
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="createdAt">DATA</th>
-            <th style="min-width: 20rem" pSortableColumn="responsibleName">
-              RESPONSÁVEL
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="sourceDocumentId">
-              NÚMERO DO DOCUMENTO
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="sourceDocumentType">
-              TIPO DO DOCUMENTO
-            </th>
+            <th style="min-width: 5rem">ID</th>
+            <th style="min-width: 12rem">TIPO</th>
+            <th style="min-width: 20rem">PRODUTO</th>
+            <th style="min-width: 12rem">QUANTIDADE</th>
+            <th style="min-width: 12rem">DATA</th>
+            <th style="min-width: 20rem">RESPONSÁVEL</th>
+            <th style="min-width: 15rem">NÚMERO DO DOCUMENTO</th>
+            <th style="min-width: 12rem">TIPO DO DOCUMENTO</th>
           </tr>
         </ng-template>
 
         <ng-template #bodyTemplate let-stockMovement>
           <tr>
             <td>{{ stockMovement.id }}</td>
-            <td>{{ stockMovement.type | stockMovementType  }}</td>
+            <td>{{ stockMovement.type | stockMovementType }}</td>
             <td>{{ stockMovement.productName }}</td>
             <td>{{ stockMovement.quantity }}</td>
             <td>{{ stockMovement.createdOn | date : "dd/MM/yyyy HH:mm" }}</td>

@@ -15,15 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadProducts($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'id',
-          'name',
-          'description',
-          'mainCategory',
-          'subCategory',
-          'presentationForm',
-          'isActive'
-        ]"
         [loading]="isLoading"
         [colspan]="7"
       >
@@ -58,21 +49,13 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-            <th style="min-width: 20rem" pSortableColumn="name">NOME</th>
-            <th style="min-width: 25rem" pSortableColumn="description">
-              DESCRIÇÃO
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="mainCategory">
-              CATEGORIA PRINCIPAL
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="subCategory">
-              SUBCATEGORIA
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="presentationForm">
-              FORMA DE APRESENTAÇÃO
-            </th>
-            <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
+            <th style="min-width: 5rem">ID</th>
+            <th style="min-width: 20rem">NOME</th>
+            <th style="min-width: 25rem">DESCRIÇÃO</th>
+            <th style="min-width: 12rem">CATEGORIA PRINCIPAL</th>
+            <th style="min-width: 15rem">SUBCATEGORIA</th>
+            <th style="min-width: 15rem">FORMA DE APRESENTAÇÃO</th>
+            <th style="min-width: 8rem">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
           </tr>
         </ng-template>

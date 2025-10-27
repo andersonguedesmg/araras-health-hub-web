@@ -15,15 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadOrders($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'id',
-          'createdAt',
-          'createdByAccount.facility.name',
-          'createdByAccount.userName',
-          'createdByEmployee.name',
-          'orderItems.length',
-          'orderStatus.description'
-        ]"
         [loading]="isLoading"
         [colspan]="8"
       >
@@ -51,29 +42,13 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-            <th style="min-width: 12rem" pSortableColumn="createdAt">
-              DATA DE PEDIDO
-            </th>
-            <th style="min-width: 20rem" pSortableColumn="facility.name">
-              UNIDADE
-            </th>
-            <th style="min-width: 10rem" pSortableColumn="userName">CONTA</th>
-            <th
-              style="min-width: 12rem"
-              pSortableColumn="createdByEmployee.name"
-            >
-              RESPONSÁVEL
-            </th>
-            <th style="min-width: 8rem" pSortableColumn="orderItems.length">
-              ITENS
-            </th>
-            <th
-              style="min-width: 12rem"
-              pSortableColumn="orderStatus.description"
-            >
-              STATUS
-            </th>
+            <th style="min-width: 5rem">ID</th>
+            <th style="min-width: 12rem">DATA DE PEDIDO</th>
+            <th style="min-width: 20rem">UNIDADE</th>
+            <th style="min-width: 10rem">CONTA</th>
+            <th style="min-width: 12rem">RESPONSÁVEL</th>
+            <th style="min-width: 8rem">ITENS</th>
+            <th style="min-width: 12rem">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
           </tr>
         </ng-template>

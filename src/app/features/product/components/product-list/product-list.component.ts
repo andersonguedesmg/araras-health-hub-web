@@ -81,8 +81,6 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
   confirmMessage = '';
   headerText = '';
 
-  cols!: Column[];
-
   private formLabels: { [key: string]: string; } = {
     name: 'Nome do Produto',
     description: 'Descrição',
@@ -102,7 +100,6 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
   totalRecords = 0;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private productService: ProductService,
     private fb: FormBuilder,
     private formHelperService: FormHelperService,
@@ -120,7 +117,6 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.products$ = this.productService.products$;
     this.subscriptions.add(
       this.loadLazy
@@ -160,19 +156,6 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO PRODUTO' },
-      { field: 'name', header: 'NOME' },
-      { field: 'description', header: 'DESCRIÇÃO' },
-      { field: 'mainCategory', header: 'CATEGORIA PRINCIPAL' },
-      { field: 'subCategory', header: 'SUBCATEGORIA' },
-      { field: 'presentationForm', header: 'FORMA DE APRESENTAÇÃO' },
-      { field: 'isActive', header: 'STATUS' },
-    ];
   }
 
   loadProducts(event: any) {

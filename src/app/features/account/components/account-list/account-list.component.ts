@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -20,7 +20,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
@@ -94,8 +93,6 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   passwordResetForm: FormGroup;
   selectedAccountForPasswordReset?: Account;
 
-  cols!: Column[];
-
   private formLabels: { [key: string]: string; } = {
     userName: 'Nome',
     facilityId: 'Unidade',
@@ -118,7 +115,6 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   totalRecords = 0;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private accountService: AccountService,
     private fb: FormBuilder,
     private dropdownDataService: DropdownDataService,
@@ -144,7 +140,6 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.loadFacilitiesOptions();
     this.rolesOptions = [
       { label: 'Usuário', value: 'User' },
@@ -197,18 +192,6 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
     } catch (error) {
       this.handleApiError(error);
     }
-  }
-
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'userId', header: 'ID', customExportHeader: 'CÓDIGO DA CONTA' },
-      { field: 'userName', header: 'NOME' },
-      { field: 'facilityId', header: 'UNIDADE' },
-      { field: 'role', header: 'FUNÇÃO' },
-      { field: 'scope', header: 'ESCOPO' },
-      { field: 'isActive', header: 'STATUS' },
-    ];
   }
 
   loadAccounts(event: any) {

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -20,7 +20,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
@@ -83,8 +82,6 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
   confirmMessage = '';
   headerText = '';
 
-  cols!: Column[];
-
   private formLabels: { [key: string]: string; } = {
     name: 'Nome da Unidade',
     cep: 'CEP',
@@ -108,7 +105,6 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
   totalRecords = 0;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private facilityService: FacilityService,
     private fb: FormBuilder,
     private formHelperService: FormHelperService,
@@ -130,7 +126,6 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.facilities$ = this.facilityService.facilities$;
     this.subscriptions.add(
       this.loadLazy
@@ -170,23 +165,6 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DA UNIDADE' },
-      { field: 'name', header: 'NOME' },
-      { field: 'address', header: 'ENDEREÇO' },
-      { field: 'number', header: 'NÚMERO' },
-      { field: 'neighborhood', header: 'BAIRRO' },
-      { field: 'city', header: 'CIDADE' },
-      { field: 'state', header: 'ESTADO' },
-      { field: 'cep', header: 'CEP' },
-      { field: 'email', header: 'E-MAIL' },
-      { field: 'phone', header: 'TELEFONE' },
-      { field: 'isActive', header: 'STATUS' },
-    ];
   }
 
   loadFacilities(event: any) {

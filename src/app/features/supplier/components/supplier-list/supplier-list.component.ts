@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -18,7 +18,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column } from '../../../../shared/utils/p-table.utils';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { Supplier } from '../../interfaces/supplier';
 import { SupplierService } from '../../services/supplier.service';
@@ -84,8 +83,6 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   confirmMessage = '';
   headerText = '';
 
-  cols!: Column[];
-
   private formLabels: { [key: string]: string; } = {
     name: 'Nome do Fornecedor',
     cnpj: 'CNPJ',
@@ -110,7 +107,6 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   totalRecords = 0;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private supplierService: SupplierService,
     private fb: FormBuilder,
     private formHelperService: FormHelperService) {
@@ -132,7 +128,6 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.suppliers$ = this.supplierService.suppliers$;
     this.subscriptions.add(
       this.loadLazy
@@ -172,24 +167,6 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO FORNECEDOR' },
-      { field: 'name', header: 'NOME' },
-      { field: 'cnpj', header: 'CNPJ' },
-      { field: 'address', header: 'ENDEREÇO' },
-      { field: 'number', header: 'NÚMERO' },
-      { field: 'neighborhood', header: 'BAIRRO' },
-      { field: 'city', header: 'CIDADE' },
-      { field: 'state', header: 'ESTADO' },
-      { field: 'cep', header: 'CEP' },
-      { field: 'email', header: 'E-MAIL' },
-      { field: 'phone', header: 'TELEFONE' },
-      { field: 'isActive', header: 'STATUS' },
-    ];
   }
 
   loadSuppliers(event: any) {

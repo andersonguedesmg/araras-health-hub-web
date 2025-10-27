@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -19,7 +19,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column } from '../../../../shared/utils/p-table.utils';
 import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order-status.utils';
 import { OrderService } from '../../services/order.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
@@ -33,7 +32,6 @@ import { OrderActionType } from '../../../../shared/enums/order-action-type.enum
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { BaseComponent } from '../../../../core/components/base/base.component';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
 
 @Component({
   selector: 'app-order-list',
@@ -89,8 +87,6 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
   confirmMessage = '';
   headerText = '';
 
-  cols!: Column[];
-
   getOrderSeverity = getOrderSeverity;
   getOrderStatus = getOrderStatus;
 
@@ -98,17 +94,14 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(private cd: ChangeDetectorRef,
+  constructor(
     private orderService: OrderService,
-    private fb: FormBuilder,
     private dropdownDataService: DropdownDataService,
-    private formHelperService: FormHelperService,
   ) {
     super();
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.loadEmployeesOptions();
     this.orders$ = this.orderService.orders$;
     this.subscriptions.add(
@@ -141,19 +134,6 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO PEDIDO' },
-      { field: 'createdAt', header: 'DATA DE PEDIDO' },
-      { field: 'createdByAccount.facility.namee', header: 'UNIDADE' },
-      { field: 'createdByAccount.userName', header: 'CONTA' },
-      { field: 'createdByEmployee.name', header: 'RESPONSÁVEL' },
-      { field: 'orderItems.length', header: 'ITENS' },
-      { field: 'orderStatus.description', header: 'STATUS' },
-    ];
   }
 
   loadOrders(event: any) {

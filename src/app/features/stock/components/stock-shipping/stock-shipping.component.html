@@ -15,16 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadShippings($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'id',
-          'supplierId',
-          'shippingDate',
-          'invoiceNumber',
-          'supplyAuthorization',
-          'responsibleId',
-          'totalValue',
-          'observation'
-        ]"
         [loading]="isLoading"
         [colspan]="9"
       >
@@ -52,28 +42,14 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem" pSortableColumn="id">ID</th>
-            <th style="min-width: 15rem" pSortableColumn="invoiceNumber">
-              NOTA FISCAL
-            </th>
-            <th style="min-width: 19rem" pSortableColumn="supplyAuthorization">
-              AUTORIZAÇÃO DE FORNECIMENTO
-            </th>
-            <th style="min-width: 25rem" pSortableColumn="supplier.name">
-              FORNECEDOR
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="shippingDate">
-              DATA
-            </th>
-            <th style="min-width: 12rem" pSortableColumn="totalValue">
-              VALOR DA NOTA
-            </th>
-            <th style="min-width: 15rem" pSortableColumn="responsible.name">
-              RESPONSÁVEL
-            </th>
-            <th style="min-width: 20rem" pSortableColumn="observation">
-              OBSERVAÇÃO
-            </th>
+            <th style="min-width: 5rem">ID</th>
+            <th style="min-width: 15rem">NOTA FISCAL</th>
+            <th style="min-width: 19rem">AUTORIZAÇÃO DE FORNECIMENTO</th>
+            <th style="min-width: 25rem">FORNECEDOR</th>
+            <th style="min-width: 12rem">DATA</th>
+            <th style="min-width: 12rem">VALOR DA NOTA</th>
+            <th style="min-width: 15rem">RESPONSÁVEL</th>
+            <th style="min-width: 20rem">OBSERVAÇÃO</th>
             <th style="min-width: 15rem">AÇÕES</th>
           </tr>
         </ng-template>
@@ -250,22 +226,12 @@
         >
           <ng-template #header>
             <tr>
-              <th style="min-width: 25rem" pSortableColumn="product.name">
-                PRODUTO
-              </th>
-              <th style="min-width: 10rem" pSortableColumn="quantity">
-                QUANTIDADE
-              </th>
-              <th style="min-width: 10rem" pSortableColumn="unitValue">
-                VALOR UNITÁRIO
-              </th>
-              <th style="min-width: 10rem" pSortableColumn="totalValue">
-                VALOR TOTAL
-              </th>
-              <th style="min-width: 18rem" pSortableColumn="batch">LOTE</th>
-              <th style="min-width: 10rem" pSortableColumn="expiryDate">
-                VALIDADE
-              </th>
+              <th style="min-width: 25rem">PRODUTO</th>
+              <th style="min-width: 10rem">QUANTIDADE</th>
+              <th style="min-width: 10rem">VALOR UNITÁRIO</th>
+              <th style="min-width: 10rem">VALOR TOTAL</th>
+              <th style="min-width: 18rem">LOTE</th>
+              <th style="min-width: 10rem">VALIDADE</th>
             </tr>
           </ng-template>
 

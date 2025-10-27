@@ -15,16 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadReceivings($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'id',
-          'supplierId',
-          'receivingDate',
-          'invoiceNumber',
-          'supplyAuthorization',
-          'responsibleId',
-          'totalValue',
-          'observation'
-        ]"
         [loading]="isLoading"
         [colspan]="9"
       >

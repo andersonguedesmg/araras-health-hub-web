@@ -110,7 +110,6 @@ export const routes: Routes = [
         component: FacilityProfileComponent,
         title: 'A2H - Perfil da Unidade',
         canActivate: [scopeGuard],
-        data: { scopes: SCOPE_MANAGEMENT }
       },
 
       // PEDIDOS

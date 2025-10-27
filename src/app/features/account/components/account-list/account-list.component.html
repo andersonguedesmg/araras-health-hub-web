@@ -15,14 +15,6 @@
         [lazy]="true"
         (onLazyLoad)="loadAccounts($event)"
         [totalRecords]="totalRecords"
-        [globalFilterFields]="[
-          'userId',
-          'userName',
-          'facility.name',
-          'roles',
-          'scope',
-          'isActive'
-        ]"
         [loading]="isLoading"
         [colspan]="7"
       >
@@ -57,14 +49,12 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem" pSortableColumn="userId">ID</th>
-            <th style="min-width: 20rem" pSortableColumn="userName">NOME</th>
-            <th style="min-width: 20rem" pSortableColumn="facility.name">
-              UNIDADE
-            </th>
-            <th style="min-width: 10rem" pSortableColumn="role">FUNÇÃO</th>
-            <th style="min-width: 8rem" pSortableColumn="scope">ESCOPO</th>
-            <th style="min-width: 8rem" pSortableColumn="isActive">STATUS</th>
+            <th style="min-width: 5rem">ID</th>
+            <th style="min-width: 20rem">NOME</th>
+            <th style="min-width: 20rem">UNIDADE</th>
+            <th style="min-width: 10rem">FUNÇÃO</th>
+            <th style="min-width: 8rem">ESCOPO</th>
+            <th style="min-width: 8rem">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
           </tr>
         </ng-template>

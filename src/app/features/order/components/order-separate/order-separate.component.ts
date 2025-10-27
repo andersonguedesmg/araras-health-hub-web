@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -19,7 +19,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { Column } from '../../../../shared/utils/p-table.utils';
 import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order-status.utils';
 import { OrderService } from '../../services/order.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
@@ -89,8 +88,6 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
   confirmMessage = '';
   headerText = '';
 
-  cols!: Column[];
-
   getOrderSeverity = getOrderSeverity;
   getOrderStatus = getOrderStatus;
 
@@ -99,7 +96,6 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
   totalRecords = 0;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private orderService: OrderService,
     private dropdownDataService: DropdownDataService,
   ) {
@@ -107,7 +103,6 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
   }
 
   ngOnInit() {
-    this.loadTableData();
     this.loadEmployeesOptions();
     this.orders$ = this.orderService.orders$;
     this.subscriptions.add(
@@ -140,19 +135,6 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  loadTableData() {
-    this.cd.markForCheck();
-    this.cols = [
-      { field: 'id', header: 'ID', customExportHeader: 'CÓDIGO DO PEDIDO' },
-      { field: 'createdAt', header: 'DATA DE PEDIDO' },
-      { field: 'createdByAccount.facility.namee', header: 'UNIDADE' },
-      { field: 'createdByAccount.userName', header: 'CONTA' },
-      { field: 'createdByEmployee.name', header: 'RESPONSÁVEL' },
-      { field: 'orderItems.length', header: 'ITENS' },
-      { field: 'orderStatus.description', header: 'STATUS' },
-    ];
   }
 
   loadOrders(event: any) {
