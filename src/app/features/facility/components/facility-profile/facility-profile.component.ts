@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
@@ -13,6 +13,8 @@ import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.ut
 import { firstValueFrom } from 'rxjs';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 import { FacilityProfile } from '../../interfaces/facility-profile';
+import { TableModule } from 'primeng/table';
+import { getScopeSeverity, getScopeValue } from '../../../../shared/utils/scope.utils';
 
 @Component({
   selector: 'app-facility-profile',
@@ -21,6 +23,7 @@ import { FacilityProfile } from '../../interfaces/facility-profile';
     RouterModule,
     ToolbarModule,
     TagModule,
+    TableModule,
     BreadcrumbComponent,
     SpinnerComponent,
   ],
@@ -28,7 +31,7 @@ import { FacilityProfile } from '../../interfaces/facility-profile';
   templateUrl: './facility-profile.component.html',
   styleUrl: './facility-profile.component.scss'
 })
-export class FacilityProfileComponent extends BaseComponent implements OnInit, AfterViewInit {
+export class FacilityProfileComponent extends BaseComponent implements OnInit {
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidades' }, { label: 'Perfil' }];
@@ -40,14 +43,14 @@ export class FacilityProfileComponent extends BaseComponent implements OnInit, A
   getStatus = getStatus;
   getRoleSeverity = getRoleSeverity;
   getRoleValue = getRoleValue;
+  getScopeSeverity = getScopeSeverity;
+  getScopeValue = getScopeValue;
 
   constructor(private facilityService: FacilityService) {
     super();
   }
 
-  ngOnInit(): void { }
-
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     this.loadFacilityProfile();
   }
 
@@ -55,10 +58,10 @@ export class FacilityProfileComponent extends BaseComponent implements OnInit, A
     this.isLoading = true;
     try {
       const response = await firstValueFrom(this.facilityService.getFacilityProfile());
-      console.log('loadFacilityProfile response:', response);
       if (response.success && response.data) {
         this.facilityProfile = response.data;
       }
+      this.isLoading = false;
     } catch (error: any) {
       this.handleApiError(error);
     } finally {

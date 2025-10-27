@@ -14,9 +14,5 @@ export interface FacilityProfile {
   createdOn: string;
   updatedOn: string;
   isActive: boolean;
-  facilityAccounts?: AccountDetailsUi[];
-}
-
-export interface AccountDetailsUi extends AccountDetails {
-  expanded?: boolean;
+  facilityAccounts: AccountDetails[];
 }
