@@ -25,6 +25,7 @@ export class FacilityService {
       .set('searchTerm', searchTerm);
     return this.http.get<ApiResponse<Facility[]>>(url, { params }).pipe(
       tap(response => {
+        console.log('loadFacilities response:', response);
         if (response.success && response.data) {
           this.facilitySubject.next(response.data);
         }

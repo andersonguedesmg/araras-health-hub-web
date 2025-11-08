@@ -28,7 +28,7 @@ import { HasRoleDirective } from '../../../../core/directives/has-role.directive
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
-import { InputMask } from 'primeng/inputmask';
+import { InputMaskModule } from 'primeng/inputmask';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 
@@ -49,7 +49,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     TagModule,
     DialogModule,
     SelectModule,
-    InputMask,
+    InputMaskModule,
     BreadcrumbComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
@@ -84,14 +84,15 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
 
   private formLabels: { [key: string]: string; } = {
     name: 'Nome da Unidade',
-    cep: 'CEP',
-    address: 'Endereço',
-    number: 'Número',
-    neighborhood: 'Bairro',
-    city: 'Cidade',
-    state: 'Estado',
-    email: 'E-mail',
-    phone: 'Telefone',
+    'address.cep': 'CEP',
+    'address.street': 'Endereço',
+    'address.number': 'Número',
+    'address.complement': 'Complemento',
+    'address.neighborhood': 'Bairro',
+    'address.city': 'Cidade',
+    'address.state': 'Estado',
+    'contact.email': 'E-mail',
+    'contact.phone': 'Telefone',
   };
 
   getSeverity = getSeverity;
@@ -113,14 +114,19 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
     this.facilityForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
-      address: ['', Validators.required],
-      number: ['', Validators.required],
-      neighborhood: ['', Validators.required],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      cep: ['', Validators.required],
-      email: ['', Validators.required],
-      phone: ['', Validators.required],
+      address: this.fb.group({
+        street: ['', Validators.required],
+        number: ['', Validators.required],
+        complement: [''],
+        neighborhood: ['', Validators.required],
+        city: ['', Validators.required],
+        state: ['', Validators.required],
+        cep: ['', Validators.required],
+      }),
+      contact: this.fb.group({
+        email: ['', [Validators.required, Validators.email]],
+        phone: ['', Validators.required],
+      }),
       isActive: [{ value: false, disabled: true }],
     });
   }
@@ -214,15 +220,15 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
 
     if (isCreate || isUpdate) {
       this.facilityForm.get('name')?.enable();
-      this.facilityForm.get('cnpj')?.enable();
-      this.facilityForm.get('address')?.enable();
-      this.facilityForm.get('number')?.enable();
-      this.facilityForm.get('neighborhood')?.enable();
-      this.facilityForm.get('city')?.enable();
-      this.facilityForm.get('state')?.enable();
-      this.facilityForm.get('cep')?.enable();
-      this.facilityForm.get('email')?.enable();
-      this.facilityForm.get('phone')?.enable();
+      this.facilityForm.get('address.street')?.enable();
+      this.facilityForm.get('address.number')?.enable();
+      this.facilityForm.get('address.complement')?.enable();
+      this.facilityForm.get('address.neighborhood')?.enable();
+      this.facilityForm.get('address.city')?.enable();
+      this.facilityForm.get('address.state')?.enable();
+      this.facilityForm.get('address.cep')?.enable();
+      this.facilityForm.get('contact.email')?.enable();
+      this.facilityForm.get('contact.phone')?.enable();
     }
 
     if (isCreate) {
@@ -266,10 +272,18 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
   }
 
   async searchCep(): Promise<void> {
+    const addressGroup = this.facilityForm.get('address') as FormGroup;
+    const cepControl = addressGroup.get('cep');
+    if (!cepControl?.value || cepControl.invalid) {
+      return;
+    }
+
     this.isLoading = true;
-    const success = await this.formHelperService.bindAddressByCep(this.facilityForm, this.toastService);
+    const success = await this.formHelperService.bindAddressByCep(addressGroup, this.toastService);
+
     this.updateFormState();
     this.isLoading = false;
+
     if (success) {
       document.getElementById('number')?.focus();
     }

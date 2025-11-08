@@ -16,7 +16,7 @@
         (onLazyLoad)="loadFacilities($event)"
         [totalRecords]="totalRecords"
         [loading]="isLoading"
-        [colspan]="12"
+        [colspan]="13"
       >
         <ng-template #captionTemplate let-dt>
           <div class="flex items-center justify-between">
@@ -53,6 +53,7 @@
             <th style="min-width: 20rem">NOME</th>
             <th style="min-width: 20rem">ENDEREÇO</th>
             <th style="min-width: 10rem">NÚMERO</th>
+            <th style="min-width: 15rem">COMPLEMENTO</th>
             <th style="min-width: 20rem">BAIRRO</th>
             <th style="min-width: 12rem">CIDADE</th>
             <th style="min-width: 10rem">ESTADO</th>
@@ -68,14 +69,15 @@
           <tr>
             <td>{{ facility.id }}</td>
             <td>{{ facility.name }}</td>
-            <td>{{ facility.address }}</td>
-            <td>{{ facility.number }}</td>
-            <td>{{ facility.neighborhood }}</td>
-            <td>{{ facility.city }}</td>
-            <td>{{ facility.state }}</td>
-            <td>{{ facility.cep }}</td>
-            <td>{{ facility.email }}</td>
-            <td>{{ facility.phone }}</td>
+            <td>{{ facility.address.street }}</td>
+            <td>{{ facility.address.number }}</td>
+            <td>{{ facility.address.complement || "-" }}</td>
+            <td>{{ facility.address.neighborhood }}</td>
+            <td>{{ facility.address.city }}</td>
+            <td>{{ facility.address.state }}</td>
+            <td>{{ facility.address.cep }}</td>
+            <td>{{ facility.contact.email }}</td>
+            <td>{{ facility.contact.phone }}</td>
             <td>
               <p-tag
                 [value]="getStatus(facility.isActive)"
@@ -161,176 +163,202 @@
             />
           </div>
 
-          <div class="mb-4">
-            <label for="cep" class="block text-sm font-medium text-gray-500"
-              >CEP:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <p-inputmask
-              id="cep"
-              mask="99999-999"
-              styleClass="w-full mt-1"
-              formControlName="cep"
-              maxlength="10"
-              (onBlur)="searchCep()"
-              [ngClass]="{
-                'ng-invalid ng-dirty':
-                  facilityForm.get('cep')?.invalid &&
-                  (formSubmitted || facilityForm.get('cep')?.touched)
-              }"
-            />
-          </div>
+          <ng-container formGroupName="address">
+            <div class="mb-4">
+              <label for="cep" class="block text-sm font-medium text-gray-500"
+                >CEP:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <p-inputmask
+                id="cep"
+                mask="99999-999"
+                styleClass="w-full mt-1"
+                formControlName="cep"
+                maxlength="10"
+                (onBlur)="searchCep()"
+                [ngClass]="{
+                  'ng-invalid ng-dirty':
+                    facilityForm.get('address.cep')?.invalid &&
+                    (formSubmitted || facilityForm.get('address.cep')?.touched)
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="address" class="block text-sm font-medium text-gray-500"
-              >Endereço:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="address"
-              pInputText
-              type="text"
-              formControlName="address"
-              maxlength="200"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && facilityForm.get('address')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label
+                for="street"
+                class="block text-sm font-medium text-gray-500"
+                >Endereço:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="street"
+                pInputText
+                type="text"
+                formControlName="street"
+                maxlength="200"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && facilityForm.get('address.street')?.invalid
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="number" class="block text-sm font-medium text-gray-500"
-              >Número:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="number"
-              pInputText
-              type="text"
-              formControlName="number"
-              maxlength="20"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && facilityForm.get('number')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label
+                for="number"
+                class="block text-sm font-medium text-gray-500"
+                >Número:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="number"
+                pInputText
+                type="text"
+                formControlName="number"
+                maxlength="20"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && facilityForm.get('address.number')?.invalid
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label
-              for="neighborhood"
-              class="block text-sm font-medium text-gray-500"
-              >Bairro:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="neighborhood"
-              pInputText
-              type="text"
-              formControlName="neighborhood"
-              maxlength="100"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && facilityForm.get('neighborhood')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label
+                for="complement"
+                class="block text-sm font-medium text-gray-500"
+                >Complemento:</label
+              >
+              <input
+                id="complement"
+                pInputText
+                type="text"
+                formControlName="complement"
+                maxlength="50"
+                class="mt-1 p-2 border rounded-md w-full"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="city" class="block text-sm font-medium text-gray-500"
-              >Cidade:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="city"
-              pInputText
-              type="text"
-              formControlName="city"
-              maxlength="100"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && facilityForm.get('city')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label
+                for="neighborhood"
+                class="block text-sm font-medium text-gray-500"
+                >Bairro:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="neighborhood"
+                pInputText
+                type="text"
+                formControlName="neighborhood"
+                maxlength="100"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted &&
+                    facilityForm.get('address.neighborhood')?.invalid
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="state" class="block text-sm font-medium text-gray-500"
-              >Estado:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="state"
-              pInputText
-              type="text"
-              formControlName="state"
-              maxlength="2"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && facilityForm.get('state')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label for="city" class="block text-sm font-medium text-gray-500"
+                >Cidade:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="city"
+                pInputText
+                type="text"
+                formControlName="city"
+                maxlength="100"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && facilityForm.get('address.city')?.invalid
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="email" class="block text-sm font-medium text-gray-500"
-              >E-mail:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="email"
-              pInputText
-              type="text"
-              formControlName="email"
-              maxlength="100"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && facilityForm.get('email')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label for="state" class="block text-sm font-medium text-gray-500"
+                >Estado:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="state"
+                pInputText
+                type="text"
+                formControlName="state"
+                maxlength="2"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && facilityForm.get('address.state')?.invalid
+                }"
+              />
+            </div>
+          </ng-container>
 
-          <div class="mb-4">
-            <label for="phone" class="block text-sm font-medium text-gray-500"
-              >Telefone:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <p-inputmask
-              id="phone"
-              mask="(99) 9999-9999"
-              styleClass="w-full mt-1"
-              formControlName="phone"
-              maxlength="20"
-              [ngClass]="{
-                'ng-invalid ng-dirty':
-                  facilityForm.get('phone')?.invalid &&
-                  (formSubmitted || facilityForm.get('phone')?.touched)
-              }"
-            />
-          </div>
+          <ng-container formGroupName="contact">
+            <div class="mb-4">
+              <label for="email" class="block text-sm font-medium text-gray-500"
+                >E-mail:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="email"
+                pInputText
+                type="text"
+                formControlName="email"
+                maxlength="100"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && facilityForm.get('contact.email')?.invalid
+                }"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label for="phone" class="block text-sm font-medium text-gray-500"
+                >Telefone:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <p-inputmask
+                id="phone"
+                mask="(99) 9999-9999"
+                styleClass="w-full mt-1"
+                formControlName="phone"
+                maxlength="20"
+                [ngClass]="{
+                  'ng-invalid ng-dirty':
+                    facilityForm.get('contact.phone')?.invalid &&
+                    (formSubmitted ||
+                      facilityForm.get('contact.phone')?.touched)
+                }"
+              />
+            </div>
+          </ng-container>
 
           <div class="mb-4" *ngIf="formMode !== 'create'">
             <label class="block text-sm font-medium text-gray-500"

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AbstractControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
 import { CepService } from './cep.service';
 import { firstValueFrom } from 'rxjs';
 import { ToastSummaries } from '../../shared/constants/toast.constants';
@@ -20,27 +20,61 @@ export class FormHelperService {
     if (form instanceof FormGroup) {
       for (const name in form.controls) {
         const control = form.controls[name];
-        if (control.invalid) {
-          invalidControls.push(control);
-        } else if (control instanceof FormGroup) {
+
+        if (control instanceof FormGroup || control instanceof FormArray) {
           invalidControls.push(...this.findInvalidControlsRecursive(control));
+        } else if (control.invalid) {
+          invalidControls.push(control);
         }
       }
+    } else if (form instanceof FormArray) {
+      form.controls.forEach(control => {
+        invalidControls.push(...this.findInvalidControlsRecursive(control));
+      });
     }
     return invalidControls;
   }
 
   getFormControlName(control: AbstractControl, formLabels: { [key: string]: string; }): string {
-    const parent = control.parent;
-    if (parent instanceof FormGroup) {
-      const formGroup = parent as FormGroup;
-      for (const name in formGroup.controls) {
-        if (control === formGroup.controls[name]) {
-          return formLabels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-        }
+    const controlPath = this.getFormControlPath(control);
+
+    if (controlPath) {
+      if (formLabels[controlPath]) {
+        return formLabels[controlPath];
       }
+
+      const parts = controlPath.split('.');
+      const name = parts[parts.length - 1];
+
+      return name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
     }
+
     return '';
+  }
+
+  private getFormControlPath(control: AbstractControl): string | null {
+    if (!control.parent) {
+      return null;
+    }
+
+    const parent = control.parent as FormGroup | FormArray;
+    let controlName: string | null = null;
+
+    if (parent instanceof FormGroup) {
+      controlName = Object.keys(parent.controls).find(name => control === parent.controls[name]) || null;
+    }
+
+    if (!controlName) {
+      return null;
+    }
+
+    const parentPath = this.getFormControlPath(parent);
+
+    if (parentPath) {
+      return `${parentPath}.${controlName}`;
+    }
+
+    return controlName;
   }
 
   async bindAddressByCep(form: FormGroup, toastService: ToastService): Promise<boolean> {
@@ -63,7 +97,8 @@ export class FormHelperService {
         return false;
       } else {
         form.patchValue({
-          address: response.logradouro,
+          street: response.logradouro,
+          complement: response.complemento || '',
           neighborhood: response.bairro,
           city: response.localidade,
           state: response.uf,
@@ -71,18 +106,22 @@ export class FormHelperService {
         return true;
       }
     } catch (error) {
-      toastService.showError(ToastMessages.CEP_CHECK_ERROR, ToastSummaries.ERROR); form.get('cep')?.enable();
+      toastService.showError(ToastMessages.CEP_CHECK_ERROR, ToastSummaries.ERROR);
+      form.get('cep')?.enable();
       return false;
-    } finally { }
+    } finally {
+      form.enable();
+    }
   }
 
   private clearAddressFields(form: FormGroup): void {
     form.patchValue({
-      address: '',
+      street: '',
+      number: '',
+      complement: '',
       neighborhood: '',
       city: '',
       state: '',
     });
   }
-
 }
