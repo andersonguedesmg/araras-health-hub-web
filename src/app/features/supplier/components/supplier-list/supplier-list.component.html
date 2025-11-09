@@ -64,10 +64,10 @@
           <tr>
             <td>{{ supplier.id }}</td>
             <td>{{ supplier.name }}</td>
-            <td>{{ supplier.city }}</td>
-            <td>{{ supplier.state }}</td>
-            <td>{{ supplier.email }}</td>
-            <td>{{ supplier.phone }}</td>
+            <td>{{ supplier.address.city }}</td>
+            <td>{{ supplier.address.state }}</td>
+            <td>{{ supplier.contact.email }}</td>
+            <td>{{ supplier.contact.phone }}</td>
             <td>
               <p-tag
                 [value]="getStatus(supplier.isActive)"
@@ -178,176 +178,202 @@
             />
           </div>
 
-          <div class="mb-4">
-            <label for="cep" class="block text-sm font-medium text-gray-500"
-              >CEP:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <p-inputmask
-              id="cep"
-              mask="99999-999"
-              styleClass="w-full mt-1"
-              formControlName="cep"
-              maxlength="10"
-              (onBlur)="searchCep()"
-              [ngClass]="{
-                'ng-invalid ng-dirty':
-                  supplierForm.get('cep')?.invalid &&
-                  (formSubmitted || supplierForm.get('cep')?.touched)
-              }"
-            />
-          </div>
+          <ng-container formGroupName="address">
+            <div class="mb-4">
+              <label for="cep" class="block text-sm font-medium text-gray-500"
+                >CEP:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <p-inputmask
+                id="cep"
+                mask="99999-999"
+                styleClass="w-full mt-1"
+                formControlName="cep"
+                maxlength="10"
+                (onBlur)="searchCep()"
+                [ngClass]="{
+                  'ng-invalid ng-dirty':
+                    supplierForm.get('address.cep')?.invalid &&
+                    (formSubmitted || supplierForm.get('address.cep')?.touched)
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="address" class="block text-sm font-medium text-gray-500"
-              >Endereço:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="address"
-              pInputText
-              type="text"
-              formControlName="address"
-              maxlength="200"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && supplierForm.get('address')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label
+                for="street"
+                class="block text-sm font-medium text-gray-500"
+                >Endereço:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="street"
+                pInputText
+                type="text"
+                formControlName="street"
+                maxlength="200"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && supplierForm.get('address.street')?.invalid
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="number" class="block text-sm font-medium text-gray-500"
-              >Número:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="number"
-              pInputText
-              type="text"
-              formControlName="number"
-              maxlength="20"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && supplierForm.get('number')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label
+                for="number"
+                class="block text-sm font-medium text-gray-500"
+                >Número:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="number"
+                pInputText
+                type="text"
+                formControlName="number"
+                maxlength="20"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && supplierForm.get('address.number')?.invalid
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label
-              for="neighborhood"
-              class="block text-sm font-medium text-gray-500"
-              >Bairro:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="neighborhood"
-              pInputText
-              type="text"
-              formControlName="neighborhood"
-              maxlength="100"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && supplierForm.get('neighborhood')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label
+                for="complement"
+                class="block text-sm font-medium text-gray-500"
+                >Complemento:</label
+              >
+              <input
+                id="complement"
+                pInputText
+                type="text"
+                formControlName="complement"
+                maxlength="50"
+                class="mt-1 p-2 border rounded-md w-full"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="city" class="block text-sm font-medium text-gray-500"
-              >Cidade:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="city"
-              pInputText
-              type="text"
-              formControlName="city"
-              maxlength="100"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && supplierForm.get('city')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label
+                for="neighborhood"
+                class="block text-sm font-medium text-gray-500"
+                >Bairro:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="neighborhood"
+                pInputText
+                type="text"
+                formControlName="neighborhood"
+                maxlength="100"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted &&
+                    supplierForm.get('address.neighborhood')?.invalid
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="state" class="block text-sm font-medium text-gray-500"
-              >Estado:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="state"
-              pInputText
-              type="text"
-              formControlName="state"
-              maxlength="2"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && supplierForm.get('state')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label for="city" class="block text-sm font-medium text-gray-500"
+                >Cidade:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="city"
+                pInputText
+                type="text"
+                formControlName="city"
+                maxlength="100"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && supplierForm.get('address.city')?.invalid
+                }"
+              />
+            </div>
 
-          <div class="mb-4">
-            <label for="email" class="block text-sm font-medium text-gray-500"
-              >E-mail:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <input
-              id="email"
-              pInputText
-              type="text"
-              formControlName="email"
-              maxlength="100"
-              class="mt-1 p-2 border rounded-md w-full"
-              [ngClass]="{
-                'border-red-500':
-                  formSubmitted && supplierForm.get('email')?.invalid
-              }"
-            />
-          </div>
+            <div class="mb-4">
+              <label for="state" class="block text-sm font-medium text-gray-500"
+                >Estado:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="state"
+                pInputText
+                type="text"
+                formControlName="state"
+                maxlength="2"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && supplierForm.get('address.state')?.invalid
+                }"
+              />
+            </div>
+          </ng-container>
 
-          <div class="mb-4">
-            <label for="phone" class="block text-sm font-medium text-gray-500"
-              >Telefone:
-              <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                >*</span
-              ></label
-            >
-            <p-inputmask
-              id="phone"
-              mask="(99) 9999-9999"
-              styleClass="w-full mt-1"
-              formControlName="phone"
-              maxlength="20"
-              [ngClass]="{
-                'ng-invalid ng-dirty':
-                  supplierForm.get('phone')?.invalid &&
-                  (formSubmitted || supplierForm.get('phone')?.touched)
-              }"
-            />
-          </div>
+          <ng-container formGroupName="contact">
+            <div class="mb-4">
+              <label for="email" class="block text-sm font-medium text-gray-500"
+                >E-mail:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <input
+                id="email"
+                pInputText
+                type="text"
+                formControlName="email"
+                maxlength="100"
+                class="mt-1 p-2 border rounded-md w-full"
+                [ngClass]="{
+                  'border-red-500':
+                    formSubmitted && supplierForm.get('contact.email')?.invalid
+                }"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label for="phone" class="block text-sm font-medium text-gray-500"
+                >Telefone:
+                <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                  >*</span
+                ></label
+              >
+              <p-inputmask
+                id="phone"
+                mask="(99) 9999-9999"
+                styleClass="w-full mt-1"
+                formControlName="phone"
+                maxlength="20"
+                [ngClass]="{
+                  'ng-invalid ng-dirty':
+                    supplierForm.get('contact.phone')?.invalid &&
+                    (formSubmitted ||
+                      supplierForm.get('contact.phone')?.touched)
+                }"
+              />
+            </div>
+          </ng-container>
 
           <div class="mb-4" *ngIf="formMode !== 'create'">
             <label class="block text-sm font-medium text-gray-500"

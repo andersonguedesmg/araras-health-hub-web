@@ -24,6 +24,7 @@ export class SupplierService {
       .set('searchTerm', searchTerm);
     return this.http.get<ApiResponse<Supplier[]>>(url, { params }).pipe(
       tap(response => {
+        console.log('loadSuppliers response:', response);
         if (response.success && response.data) {
           this.supplierSubject.next(response.data);
         }

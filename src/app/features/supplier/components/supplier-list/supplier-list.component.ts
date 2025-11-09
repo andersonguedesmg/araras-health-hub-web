@@ -28,7 +28,7 @@ import { HasRoleDirective } from '../../../../core/directives/has-role.directive
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
-import { InputMask } from 'primeng/inputmask';
+import { InputMaskModule } from 'primeng/inputmask';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
@@ -50,7 +50,7 @@ import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
     TagModule,
     DialogModule,
     SelectModule,
-    InputMask,
+    InputMaskModule,
     BreadcrumbComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
@@ -86,14 +86,15 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   private formLabels: { [key: string]: string; } = {
     name: 'Nome do Fornecedor',
     cnpj: 'CNPJ',
-    cep: 'CEP',
-    address: 'Endereço',
-    number: 'Número',
-    neighborhood: 'Bairro',
-    city: 'Cidade',
-    state: 'Estado',
-    email: 'E-mail',
-    phone: 'Telefone',
+    'address.cep': 'CEP',
+    'address.street': 'Endereço',
+    'address.number': 'Número',
+    'address.complement': 'Complemento',
+    'address.neighborhood': 'Bairro',
+    'address.city': 'Cidade',
+    'address.state': 'Estado',
+    'contact.email': 'E-mail',
+    'contact.phone': 'Telefone',
   };
 
   getSeverity = getSeverity;
@@ -115,14 +116,19 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
       cnpj: ['', [Validators.required, cnpjValidator()]],
-      address: ['', Validators.required],
-      number: ['', Validators.required],
-      neighborhood: ['', Validators.required],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      cep: ['', Validators.required],
-      email: ['', Validators.required],
-      phone: ['', Validators.required],
+      address: this.fb.group({
+        cep: ['', Validators.required],
+        street: ['', Validators.required],
+        number: ['', Validators.required],
+        complement: [''],
+        neighborhood: ['', Validators.required],
+        city: ['', Validators.required],
+        state: ['', Validators.required],
+      }),
+      contact: this.fb.group({
+        email: ['', [Validators.required, Validators.email]],
+        phone: ['', Validators.required],
+      }),
       isActive: [{ value: false, disabled: true }],
     });
   }
@@ -217,14 +223,15 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
     if (isCreate || isUpdate) {
       this.supplierForm.get('name')?.enable();
       this.supplierForm.get('cnpj')?.enable();
-      this.supplierForm.get('address')?.enable();
-      this.supplierForm.get('number')?.enable();
-      this.supplierForm.get('neighborhood')?.enable();
-      this.supplierForm.get('city')?.enable();
-      this.supplierForm.get('state')?.enable();
-      this.supplierForm.get('cep')?.enable();
-      this.supplierForm.get('email')?.enable();
-      this.supplierForm.get('phone')?.enable();
+      this.supplierForm.get('address.street')?.enable();
+      this.supplierForm.get('address.number')?.enable();
+      this.supplierForm.get('address.complement')?.enable();
+      this.supplierForm.get('address.neighborhood')?.enable();
+      this.supplierForm.get('address.city')?.enable();
+      this.supplierForm.get('address.state')?.enable();
+      this.supplierForm.get('address.cep')?.enable();
+      this.supplierForm.get('contact.email')?.enable();
+      this.supplierForm.get('contact.phone')?.enable();
     }
 
     if (isCreate) {
@@ -268,10 +275,18 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   }
 
   async searchCep(): Promise<void> {
+    const addressGroup = this.supplierForm.get('address') as FormGroup;
+    const cepControl = addressGroup.get('cep');
+    if (!cepControl?.value || cepControl.invalid) {
+      return;
+    }
+
     this.isLoading = true;
-    const success = await this.formHelperService.bindAddressByCep(this.supplierForm, this.toastService);
+    const success = await this.formHelperService.bindAddressByCep(addressGroup, this.toastService);
+
     this.updateFormState();
     this.isLoading = false;
+
     if (success) {
       document.getElementById('number')?.focus();
     }
