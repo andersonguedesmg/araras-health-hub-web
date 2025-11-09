@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { MenuItem } from 'primeng/api';
@@ -16,14 +16,12 @@ import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { ToastSummaries } from '../../../../shared/constants/toast.constants';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { HttpStatus } from '../../../../shared/enums/http-status.enum';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
@@ -32,12 +30,14 @@ import { SupplierService } from '../../../supplier/services/supplier.service';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Supplier } from '../../../supplier/interfaces/supplier';
-import { InputMask } from 'primeng/inputmask';
+import { InputMaskModule } from 'primeng/inputmask';
 import { TextareaModule } from 'primeng/textarea';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableModule } from 'primeng/table';
 import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { BaseComponent } from '../../../../core/components/base/base.component';
 
 @Component({
   selector: 'app-receiving-create',
@@ -54,14 +54,13 @@ import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
     InputIconModule,
     IconFieldModule,
     InputNumberModule,
-    InputMask,
+    InputMaskModule,
     TextareaModule,
     TooltipModule,
     DatePickerModule,
     DialogModule,
     SelectModule,
     BreadcrumbComponent,
-    ToastComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
     DialogComponent,
@@ -70,15 +69,9 @@ import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
   templateUrl: './receiving-create.component.html',
   styleUrl: './receiving-create.component.scss'
 })
-export class ReceivingCreateComponent implements OnInit, OnDestroy {
-  @ViewChild(ToastComponent) toastComponent!: ToastComponent;
-  @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
-  @ViewChild(ConfirmDialogComponent) confirmDialog!: ConfirmDialogComponent;
-
+export class ReceivingCreateComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }, { label: 'Nova Entrada' }];
   title: string = 'Nova Entrada';
-
-  isLoading: boolean = false;
 
   receivingForm: FormGroup;
   supplierOptions: SelectOptions<number>[] = [];
@@ -139,8 +132,9 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private dropdownDataService: DropdownDataService,
     private supplierService: SupplierService,
-    private cdr: ChangeDetectorRef
+    private formHelperService: FormHelperService,
   ) {
+    super();
     this.receivingForm = this.fb.group({
       id: [{ value: null, disabled: true }],
       invoiceNumber: ['', Validators.required],
@@ -158,14 +152,19 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
       id: [{ value: null, disabled: true }],
       name: ['', Validators.required],
       cnpj: ['', [Validators.required, cnpjValidator()]],
-      address: ['', Validators.required],
-      number: ['', Validators.required],
-      neighborhood: ['', Validators.required],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      cep: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
+      address: this.fb.group({
+        cep: ['', Validators.required],
+        street: ['', Validators.required],
+        number: ['', Validators.required],
+        complement: [''],
+        neighborhood: ['', Validators.required],
+        city: ['', Validators.required],
+        state: ['', Validators.required],
+      }),
+      contact: this.fb.group({
+        email: ['', [Validators.required, Validators.email]],
+        phone: ['', Validators.required],
+      }),
       isActive: [{ value: false, disabled: true }],
     });
   }
@@ -185,8 +184,7 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
       this.addReceivedItem();
 
     } catch (error) {
-      console.error('Erro ao carregar opções de dropdown:', error);
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar dados iniciais. Por favor, tente novamente.');
+      this.toastService.showError('Erro ao carregar dados iniciais. Por favor, tente novamente.', ToastSummaries.ERROR);
     } finally {
       this.isLoading = false;
     }
@@ -234,11 +232,11 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
       .then(() => {
         if (this.receivedItems.length > 1) {
           this.receivedItems.removeAt(index);
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Item ${index + 1} removido com sucesso.`);
+          this.toastService.showSuccess(`Item ${index + 1} removido com sucesso.`, ToastSummaries.SUCCESS);
         }
       })
       .catch(() => {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, 'Remoção cancelada.');
+        this.toastService.showInfo('Remoção cancelada.', ToastSummaries.INFO);
       });
   }
 
@@ -265,36 +263,24 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
     this.receivingFormSubmitted = true;
     this.supplierFormSubmitted = false;
 
-    if (this.validateForm(this.receivingForm, this.receivingFormLabels)) {
+    if (this.validateFormAndShowErrors(this.receivingForm, this.formHelperService, this.receivingFormLabels)) {
       if (!this.isTotalValueValid()) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.SUM_TOTAL_VALUES_ITEMS_DIFFERENT_TOTAL_VALUE);
+        this.toastService.showError(ToastMessages.SUM_TOTAL_VALUES_ITEMS_DIFFERENT_TOTAL_VALUE, ToastSummaries.ERROR);
         return;
       }
 
-      this.confirmMessage = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_RECEIVING : ConfirmMessages.UPDATE_RECEIVING;
-      this.confirmDialog.message = this.confirmMessage;
-      this.confirmDialog.show();
+      const receiving: Receiving = this.receivingForm.getRawValue();
+      const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_RECEIVING : ConfirmMessages.UPDATE_RECEIVING;
+      const successMsg = ToastMessages.SUCCESS_OPERATION;
 
-      try {
-        await firstValueFrom(this.confirmDialog.confirmed);
-        this.isLoading = true;
-        const receiving: Receiving = this.receivingForm.getRawValue();
+      const apiCall = this.formMode === FormMode.Create
+        ? firstValueFrom(this.receivingService.createReceiving(receiving))
+        : firstValueFrom(this.receivingService.updateReceiving(receiving, receiving.id));
 
-        const apiCall$ = this.formMode === FormMode.Create
-          ? this.receivingService.createReceiving(receiving)
-          : this.receivingService.updateReceiving(receiving, receiving.id);
+      await this.handleApiCall(apiCall, confirmMsg, successMsg);
 
-        const response = await firstValueFrom(apiCall$);
-
-        this.isLoading = false;
-        this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+      if (!this.isLoading) {
         this.resetReceivingForm();
-
-      } catch (error: any) {
-        this.isLoading = false;
-        if (error.message !== 'cancel') {
-          this.handleApiError(error);
-        }
       }
     }
   }
@@ -350,14 +336,15 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
     if (!isDetail) {
       this.supplierForm.get('name')?.enable();
       this.supplierForm.get('cnpj')?.enable();
-      this.supplierForm.get('address')?.enable();
-      this.supplierForm.get('number')?.enable();
-      this.supplierForm.get('neighborhood')?.enable();
-      this.supplierForm.get('city')?.enable();
-      this.supplierForm.get('state')?.enable();
-      this.supplierForm.get('cep')?.enable();
-      this.supplierForm.get('email')?.enable();
-      this.supplierForm.get('phone')?.enable();
+      this.supplierForm.get('address.street')?.enable();
+      this.supplierForm.get('address.number')?.enable();
+      this.supplierForm.get('address.complement')?.enable();
+      this.supplierForm.get('address.neighborhood')?.enable();
+      this.supplierForm.get('address.city')?.enable();
+      this.supplierForm.get('address.state')?.enable();
+      this.supplierForm.get('address.cep')?.enable();
+      this.supplierForm.get('contact.email')?.enable();
+      this.supplierForm.get('contact.phone')?.enable();
     }
 
     if (isCreate) {
@@ -376,15 +363,23 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
     this.supplierFormSubmitted = true;
     this.receivingFormSubmitted = false;
 
-    if (this.validateForm(this.supplierForm, this.supplierFormLabels)) {
-      this.confirmMessage = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_SUPPLIER : ConfirmMessages.UPDATE_SUPPLIER;
-      this.confirmDialog.message = this.confirmMessage;
+    if (this.validateFormAndShowErrors(this.supplierForm, this.formHelperService, this.supplierFormLabels)) {
+      const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_SUPPLIER : ConfirmMessages.UPDATE_SUPPLIER;
+      const successMsg = ToastMessages.SUCCESS_OPERATION;
+
+      const supplier: Supplier = this.supplierForm.getRawValue();
+      const apiCall = this.formMode === FormMode.Create
+        ? firstValueFrom(this.supplierService.createSupplier(supplier))
+        : firstValueFrom(this.supplierService.updateSupplier(supplier, supplier.id));
+
+      await this.handleApiCall(apiCall, confirmMsg, successMsg);
+
+      this.confirmDialog.message = confirmMsg;
       this.confirmDialog.show();
 
       try {
         await firstValueFrom(this.confirmDialog.confirmed);
         this.isLoading = true;
-        const supplier: Supplier = this.supplierForm.getRawValue();
 
         const apiCall$ = this.formMode === FormMode.Create
           ? this.supplierService.createSupplier(supplier)
@@ -393,7 +388,8 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
         const response = await firstValueFrom(apiCall$);
 
         this.isLoading = false;
-        this.handleApiResponse(response, ToastMessages.SUCCESS_OPERATION);
+        this.handleApiResponse(response, successMsg);
+
         if (response.success && response.data) {
           this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
           this.receivingForm.get('supplierId')?.setValue(response.data.id);
@@ -409,130 +405,32 @@ export class ReceivingCreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  private validateForm(formGroup: FormGroup, labels: { [key: string]: string; }): boolean {
-    this.markAllControlsAsTouched(formGroup);
-
-    if (formGroup.valid) {
-      return true;
-    }
-
-    const invalidControls = this.findInvalidControlsRecursive(formGroup);
-    const invalidFields = invalidControls.map(control => {
-      const controlName = this.getFormControlName(control, labels);
-      return controlName;
-    }).filter(name => name !== '');
-
-    const invalidFieldsMessage = invalidFields.length > 0
-      ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
-      : ToastMessages.FILL_IN_ALL_REQUIRED_FIELDS;
-
-    this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, invalidFieldsMessage);
-    return false;
-  }
-
-  private markAllControlsAsTouched(abstractControl: AbstractControl): void {
-    if (abstractControl instanceof FormGroup) {
-      Object.values(abstractControl.controls).forEach(control => {
-        control.markAsTouched();
-        if (control instanceof FormGroup || control instanceof FormArray) {
-          this.markAllControlsAsTouched(control);
-        }
-      });
-    } else if (abstractControl instanceof FormArray) {
-      abstractControl.controls.forEach(control => {
-        control.markAsTouched();
-        if (control instanceof FormGroup || control instanceof FormArray) {
-          this.markAllControlsAsTouched(control);
-        }
-      });
-    }
-  }
-
-  private findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
-    const invalidControls: AbstractControl[] = [];
-
-    if (form instanceof FormGroup || form instanceof FormArray) {
-      Object.values(form.controls).forEach(control => {
-        if (control.invalid) {
-          if (control instanceof FormArray && control.errors?.['minlength']) {
-            invalidControls.push(control);
-          }
-          else if (!(control instanceof FormGroup) && !(control instanceof FormArray)) {
-            invalidControls.push(control);
-          }
-          else {
-            invalidControls.push(...this.findInvalidControlsRecursive(control));
-          }
-        }
-      });
-    }
-    return invalidControls;
-  }
-
-  private getFormControlName(control: AbstractControl, labels: { [key: string]: string; }): string {
-    const parent = control.parent;
-
-    if (control instanceof FormArray && control.errors?.['minlength']) {
-      const parentFormGroup = control.parent as FormGroup;
-      if (parentFormGroup) {
-        for (const name in parentFormGroup.controls) {
-          if (control === parentFormGroup.controls[name]) {
-            return labels[name] || `Pelo menos um item em '${name.replace(/([A-Z])/g, ' $1').toLowerCase()}' é obrigatório`;
-          }
-        }
-      }
-    }
-
-    if (parent instanceof FormGroup) {
-      for (const name in parent.controls) {
-        if (control === parent.controls[name]) {
-          return labels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-        }
-      }
-    }
-
-    if (parent instanceof FormGroup && parent.parent instanceof FormArray) {
-      const itemFormArray = parent.parent as FormArray;
-      const itemIndex = itemFormArray.controls.indexOf(parent);
-
-      for (const subControlName in parent.controls) {
-        if (control === parent.controls[subControlName]) {
-          const label = (subControlName === 'totalValue' ? labels['itemTotalValue'] : labels[subControlName])
-            || labels[subControlName]
-            || subControlName.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-          return `Item ${itemIndex + 1} - ${label}`;
-        }
-      }
-    }
-    return '';
-  }
-
-  private handleApiResponse(response: any, successMessage: string) {
-    if (response.success) {
-      this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, response.message || successMessage);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, response.message || ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
-  private handleApiError(error: any) {
-    if (error.error?.statusCode === HttpStatus.NotFound || error.error?.statusCode === HttpStatus.BadRequest) {
-      this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, error.error.message);
-    } else if (error.error?.message) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, error.error.message);
-    } else {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.UNEXPECTED_ERROR);
-    }
-  }
-
   async validateCnpj(): Promise<void> {
     const cnpjControl = this.supplierForm.get('cnpj');
     if (cnpjControl?.value && cnpjControl.invalid) {
       cnpjControl.markAsTouched();
       cnpjControl.updateValueAndValidity();
       if (cnpjControl.errors?.['invalidCnpj']) {
-        this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, ToastMessages.CNPJ_INVALID);
+        this.toastService.showError(ToastMessages.CNPJ_INVALID);
       }
+    }
+  }
+
+  async searchCep(): Promise<void> {
+    const addressGroup = this.supplierForm.get('address') as FormGroup;
+    const cepControl = addressGroup.get('cep');
+    if (!cepControl?.value || cepControl.invalid) {
+      return;
+    }
+
+    this.isLoading = true;
+    const success = await this.formHelperService.bindAddressByCep(addressGroup, this.toastService);
+
+    this.updateSupplierFormState();
+    this.isLoading = false;
+
+    if (success) {
+      document.getElementById('number')?.focus();
     }
   }
 }

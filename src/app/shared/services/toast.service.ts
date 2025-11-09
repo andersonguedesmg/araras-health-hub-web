@@ -31,6 +31,14 @@ export class ToastService {
     });
   }
 
+  showInfo(message: string, summary: string = ToastSummaries.INFO): void {
+    this.messageService.add({
+      severity: ToastSeverities.INFO,
+      summary: summary,
+      detail: message,
+    });
+  }
+
   handleApiError(error: any): void {
     let detailMessage = 'Ocorreu um erro desconhecido.';
     let summary = ToastSummaries.ERROR;
