@@ -6,4 +6,8 @@ export interface Stock {
   product: Product,
   CurrentQuantity: number;
   MinQuantity: number;
+  ReservedQuantity: number;
+  AvailableQuantity: number;
+  AverageCost: number;
+  IsCritical: boolean;
 }

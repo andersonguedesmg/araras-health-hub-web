@@ -29,8 +29,8 @@ export class StockService {
     return this.stockMinQuantitySubject;
   }
 
-  public loadStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
-    const url = this.apiConfig.getUrl('stock', `getAll`);
+  public loadGeneralStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
+    const url = this.apiConfig.getUrl('stock', `general`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -60,7 +60,7 @@ export class StockService {
   }
 
   public loadCriticalStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
-    const url = this.apiConfig.getUrl('stock', `low-stock`);
+    const url = this.apiConfig.getUrl('stock', `critical`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -92,8 +92,19 @@ export class StockService {
     return this.http.patch<ApiResponse<any>>(url, body);
   }
 
-  public exportStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('stock', `export`);
+  public exportGeneralStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('stock', `export-general`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
+  }
+
+  public exportCriticalStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('stock', `export-critical`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {

@@ -79,7 +79,7 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockService.loadStocks(pageNumber, pageSize, this.searchTerm);
+            return this.stockService.loadGeneralStocks(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -102,7 +102,7 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
     this.subscriptions.add(
       this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
         this.searchTerm = searchTerm;
-        this.loadStocks({ first: 0, rows: 5 });
+        this.loadGeneralStocks({ first: 0, rows: 5 });
       })
     );
   }
@@ -111,7 +111,7 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
     this.subscriptions.unsubscribe();
   }
 
-  loadStocks(event: any) {
+  loadGeneralStocks(event: any) {
     this.loadLazy.next(event);
   }
 
@@ -119,9 +119,9 @@ export class StockListComponent extends BaseComponent implements OnInit, OnDestr
     this.searchSubject.next(value);
   }
 
-  async exportStocks(): Promise<void> {
+  async exportGeneralStocks(): Promise<void> {
     await this.exportData(
-      (searchTerm) => this.stockService.exportStocks(searchTerm),
+      (searchTerm) => this.stockService.exportGeneralStocks(searchTerm),
       'estoque-geral.csv',
       this.searchTerm
     );

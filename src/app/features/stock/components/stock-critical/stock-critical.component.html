@@ -47,7 +47,9 @@
             <th style="min-width: 15rem">SUBCATEGORIA</th>
             <th style="min-width: 15rem">FORMA DE APRESENTAÇÃO</th>
             <th style="min-width: 12rem">QUANTIDADE ATUAL</th>
+            <th style="min-width: 12rem">CUSTO MÉDIO</th>
             <th style="min-width: 12rem">QUANTIDADE MÍNIMA</th>
+            <th style="min-width: 15rem">QUANTIDADE RESERVADA</th>
           </tr>
         </ng-template>
 
@@ -58,7 +60,9 @@
             <td>{{ stock.product.subCategory }}</td>
             <td>{{ stock.product.presentationForm }}</td>
             <td>{{ stock.currentQuantity }}</td>
+            <td>{{ stock.averageCost | currency : "BRL" }}</td>
             <td>{{ stock.minQuantity }}</td>
+            <td>{{ stock.reservedQuantity }}</td>
           </tr>
         </ng-template>
       </app-table>

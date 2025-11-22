@@ -121,7 +121,7 @@ export class StockCriticalComponent extends BaseComponent implements OnInit, OnD
 
   async exportCriticalStocks(): Promise<void> {
     await this.exportData(
-      (searchTerm) => this.stockService.exportStocks(searchTerm),
+      (searchTerm) => this.stockService.exportCriticalStocks(searchTerm),
       'estoque-critico.csv',
       this.searchTerm
     );

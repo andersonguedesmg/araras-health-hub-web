@@ -13,7 +13,7 @@
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 25]"
         [lazy]="true"
-        (onLazyLoad)="loadStocks($event)"
+        (onLazyLoad)="loadGeneralStocks($event)"
         [totalRecords]="totalRecords"
         [loading]="isLoading"
         [colspan]="7"
@@ -34,7 +34,7 @@
                 label="Exportar"
                 icon="pi pi-upload"
                 severity="secondary"
-                (click)="exportStocks()"
+                (click)="exportGeneralStocks()"
               />
             </div>
           </div>
