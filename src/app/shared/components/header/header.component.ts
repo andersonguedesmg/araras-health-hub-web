@@ -130,6 +130,11 @@ export class HeaderComponent implements OnInit {
                 routerLink: '/almoxarifado/estoque/critico',
               },
               {
+                label: 'Lotes Ativos',
+                icon: PrimeIcons.CLOCK,
+                routerLink: '/almoxarifado/estoque/lotes-ativos',
+              },
+              {
                 label: 'Vencimento Próximo',
                 icon: PrimeIcons.CLOCK,
                 routerLink: '/almoxarifado/estoque/proximo-vencimento',

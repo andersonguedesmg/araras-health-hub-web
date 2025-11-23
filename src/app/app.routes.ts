@@ -31,6 +31,7 @@ import { scopeGuard } from './core/guards/scope.guard';
 import { UserRoles, UserScopes } from './core/constants/auth.constants';
 import { StockAdjustmentCreateComponent } from './features/stock/components/stock-adjustment-create/stock-adjustment-create.component';
 import { StockNearExpiryLotsComponent } from './features/stock/components/stock-near-expiry-lots/stock-near-expiry-lots.component';
+import { StockActiveLotsComponent } from './features/stock/components/stock-active-lots/stock-active-lots.component';
 
 const SCOPE_MANAGEMENT = [UserScopes.MANAGEMENT];
 const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];
@@ -173,9 +174,16 @@ export const routes: Routes = [
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
+        path: 'almoxarifado/estoque/lotes-ativos',
+        component: StockActiveLotsComponent,
+        title: 'A2H - Lotes Ativos',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
+      },
+      {
         path: 'almoxarifado/estoque/proximo-vencimento',
         component: StockNearExpiryLotsComponent,
-        title: 'A2H - Estoque Vencimento Próximo',
+        title: 'A2H - Vencimento Próximo',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },

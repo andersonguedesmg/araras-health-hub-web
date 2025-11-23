@@ -1,0 +1,67 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-spinner [loading]="isLoading"></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <app-table-header [title]="title"></app-table-header>
+
+    <ng-container *ngIf="activeLotStocks$ | async as stocks">
+      <app-table
+        [value]="stocks"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [lazy]="true"
+        (onLazyLoad)="loadActiveLotStocks($event)"
+        [totalRecords]="totalRecords"
+        [loading]="isLoading"
+        [colspan]="6"
+      >
+        <ng-template #captionTemplate let-dt>
+          <div class="flex items-center justify-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                (input)="onSearchInput($any($event.target).value)"
+                placeholder="Pesquisar..."
+              />
+            </p-iconfield>
+            <div>
+              <p-button
+                label="Exportar"
+                icon="pi pi-upload"
+                severity="secondary"
+                (click)="exportActiveLotsStocks()"
+              />
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #headerTemplate>
+          <tr>
+            <th style="min-width: 5rem">ID</th>
+            <th style="min-width: 15rem">LOTE</th>
+            <th style="min-width: 20rem">PRODUTO</th>
+            <th style="min-width: 15rem">MARCA</th>
+            <th style="min-width: 12rem">QUANTIDADE DISPONÍVEL</th>
+            <th style="min-width: 12rem">DATA VENCIMENTO</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #bodyTemplate let-stock>
+          <tr>
+            <td>{{ stock.stockLotId }}</td>
+            <td>{{ stock.batch }}</td>
+            <td>{{ stock.product.name }}</td>
+            <td>{{ stock.brand }}</td>
+            <td>{{ stock.availableQuantity }}</td>
+            <td>{{ stock.expiryDate | date : "dd/MM/yyyy" }}</td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </ng-container>
+  </div>
+</div>

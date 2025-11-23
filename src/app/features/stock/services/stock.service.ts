@@ -26,6 +26,9 @@ export class StockService {
   private nearExpiryLotStocksSubject = new BehaviorSubject<Stock[]>([]);
   public nearExpiryLotStocks$ = this.nearExpiryLotStocksSubject.asObservable();
 
+  private activeLotStocksSubject = new BehaviorSubject<Stock[]>([]);
+  public activeLotStocks$ = this.activeLotStocksSubject.asObservable();
+
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public get stockMinQuantitySubjectGetter(): BehaviorSubject<StockMinQuantity[]> {
@@ -92,6 +95,21 @@ export class StockService {
     );
   }
 
+  public loadActiveLotStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
+    const url = this.apiConfig.getUrl('stock', `active-lots`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Stock[]>>(url, { params }).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.activeLotStocksSubject.next(response.data);
+        }
+      })
+    );
+  }
+
   public createStockAdjustment(stockAdjustment: StockAdjustment): Observable<ApiResponse<StockAdjustment>> {
     const url = this.apiConfig.getUrl('stock', 'create-adjustment');
     return this.http.post<ApiResponse<StockAdjustment>>(url, stockAdjustment).pipe(
@@ -141,5 +159,16 @@ export class StockService {
       responseType: 'blob',
       observe: 'response'
     });
-  };
+  }
+
+  public exportActiveLotsStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('stock', `export-active-lots`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
+  }
 }
