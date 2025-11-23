@@ -30,6 +30,7 @@ import { StockMinimumQuantityComponent } from './features/stock/components/stock
 import { scopeGuard } from './core/guards/scope.guard';
 import { UserRoles, UserScopes } from './core/constants/auth.constants';
 import { StockAdjustmentCreateComponent } from './features/stock/components/stock-adjustment-create/stock-adjustment-create.component';
+import { StockNearExpiryLotsComponent } from './features/stock/components/stock-near-expiry-lots/stock-near-expiry-lots.component';
 
 const SCOPE_MANAGEMENT = [UserScopes.MANAGEMENT];
 const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];
@@ -168,6 +169,13 @@ export const routes: Routes = [
         path: 'almoxarifado/estoque/critico',
         component: StockCriticalComponent,
         title: 'A2H - Estoque Crítico',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT }
+      },
+      {
+        path: 'almoxarifado/estoque/proximo-vencimento',
+        component: StockNearExpiryLotsComponent,
+        title: 'A2H - Estoque Vencimento Próximo',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },

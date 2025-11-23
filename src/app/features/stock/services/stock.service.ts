@@ -74,6 +74,21 @@ export class StockService {
     );
   }
 
+  public loadNearExpiryLotsStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
+    const url = this.apiConfig.getUrl('stock', `near-expiry`);
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+    return this.http.get<ApiResponse<Stock[]>>(url, { params }).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.criticalStocksSubject.next(response.data);
+        }
+      })
+    );
+  }
+
   public createStockAdjustment(stockAdjustment: StockAdjustment): Observable<ApiResponse<StockAdjustment>> {
     const url = this.apiConfig.getUrl('stock', 'create-adjustment');
     return this.http.post<ApiResponse<StockAdjustment>>(url, stockAdjustment).pipe(
@@ -113,4 +128,15 @@ export class StockService {
       observe: 'response'
     });
   }
+
+  public exportNearExpiryLotsStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('stock', `export-near-expiry`);
+    const params = new HttpParams().set('searchTerm', searchTerm);
+
+    return this.http.get(url, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
+  };
 }

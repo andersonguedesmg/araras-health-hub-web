@@ -128,7 +128,12 @@ export class HeaderComponent implements OnInit {
                 label: 'Estoque Crítico',
                 icon: PrimeIcons.EXCLAMATION_TRIANGLE,
                 routerLink: '/almoxarifado/estoque/critico',
-              }
+              },
+              {
+                label: 'Vencimento Próximo',
+                icon: PrimeIcons.CLOCK,
+                routerLink: '/almoxarifado/estoque/proximo-vencimento',
+              },
             ]
           },
           {
