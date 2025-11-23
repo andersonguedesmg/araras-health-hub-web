@@ -23,6 +23,9 @@ export class StockService {
   private stockAdjustmentsSubject = new BehaviorSubject<StockAdjustment[]>([]);
   public stockAdjustments$ = this.stockAdjustmentsSubject.asObservable();
 
+  private nearExpiryLotStocksSubject = new BehaviorSubject<Stock[]>([]);
+  public nearExpiryLotStocks$ = this.nearExpiryLotStocksSubject.asObservable();
+
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public get stockMinQuantitySubjectGetter(): BehaviorSubject<StockMinQuantity[]> {
@@ -83,7 +86,7 @@ export class StockService {
     return this.http.get<ApiResponse<Stock[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
-          this.criticalStocksSubject.next(response.data);
+          this.nearExpiryLotStocksSubject.next(response.data);
         }
       })
     );

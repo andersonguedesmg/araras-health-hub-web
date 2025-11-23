@@ -54,7 +54,7 @@ export class StockNearExpiryLotsComponent extends BaseComponent implements OnIni
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }, { label: 'Vencimento Próximo' }];
   title: string = 'Vencimento Próximo';
 
-  criticalStocks$!: Observable<Stock[]>;
+  nearExpiryLotStocks$!: Observable<Stock[]>;
 
   private searchTerm: string = '';
   private searchSubject = new Subject<string>();
@@ -70,7 +70,7 @@ export class StockNearExpiryLotsComponent extends BaseComponent implements OnIni
   }
 
   ngOnInit() {
-    this.criticalStocks$ = this.stockService.criticalStocks$;
+    this.nearExpiryLotStocks$ = this.stockService.nearExpiryLotStocks$;
     this.subscriptions.add(
       this.loadLazy
         .pipe(
@@ -85,7 +85,6 @@ export class StockNearExpiryLotsComponent extends BaseComponent implements OnIni
         .subscribe({
           next: response => {
             this.isLoading = false;
-            console.log('loadNearExpiryLotsStocks response:', response);
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
             } else {

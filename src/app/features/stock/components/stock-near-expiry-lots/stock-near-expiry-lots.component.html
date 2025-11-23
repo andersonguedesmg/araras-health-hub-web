@@ -7,7 +7,7 @@
   <div class="card mt-10">
     <app-table-header [title]="title"></app-table-header>
 
-    <ng-container *ngIf="criticalStocks$ | async as stocks">
+    <ng-container *ngIf="nearExpiryLotStocks$ | async as stocks">
       <app-table
         [value]="stocks"
         [rows]="5"
