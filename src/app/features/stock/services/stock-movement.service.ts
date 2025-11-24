@@ -38,7 +38,7 @@ export class StockMovementService {
   }
 
   public loadStockShippings(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<StockShipping[]>> {
-    const url = this.apiConfig.getUrl('stock-movement', `getAll`);
+    const url = this.apiConfig.getUrl('movement', `getAll`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -68,7 +68,7 @@ export class StockMovementService {
   }
 
   public exportAdjustments(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('stock', `export`);
+    const url = this.apiConfig.getUrl('stock', `export-adjustment`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {

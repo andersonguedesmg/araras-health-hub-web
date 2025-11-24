@@ -95,6 +95,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
     productId: 'Produto',
     quantity: 'Quantidade',
     batch: 'Lote',
+    brand: 'Marca',
     expiryDate: 'Data de Validade',
   };
 
@@ -138,7 +139,6 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
       this.addAdjustmentItem();
 
     } catch (error) {
-      console.error('Erro ao carregar opções de dropdown:', error);
       this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar dados iniciais. Por favor, tente novamente.');
     } finally {
       this.isLoading = false;
@@ -160,6 +160,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
       unitValue: [null,],
       totalValue: [{ value: null, disabled: true }],
       batch: ['', Validators.required],
+      brand: ['', Validators.required],
       expiryDate: [null, Validators.required],
     });
 

@@ -200,7 +200,7 @@
 
           <ng-template #body let-item>
             <tr>
-              <td>{{ item.productName }}</td>
+              <td>{{ item.product.name }}</td>
               <td>{{ item.quantity }}</td>
               <td>{{ item.unitValue | currency : "BRL" }}</td>
               <td>{{ item.totalValue | currency : "BRL" }}</td>

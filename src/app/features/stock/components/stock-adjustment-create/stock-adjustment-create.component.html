@@ -184,6 +184,7 @@
                   <th [style]="{ width: '10%' }">Quantidade</th>
                   <th [style]="{ width: '15%' }">Valor Unitário</th>
                   <th [style]="{ width: '15%' }">Valor Total</th>
+                  <th [style]="{ width: '15%' }">Marca</th>
                   <th [style]="{ width: '15%' }">Lote</th>
                   <th [style]="{ width: '15%' }">Validade</th>
                   <th [style]="{ width: '5%', 'text-align': 'center' }">
@@ -254,6 +255,20 @@
                       class="w-full"
                       [readonly]="true"
                     ></p-inputNumber>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      pInputText
+                      formControlName="brand"
+                      maxlength="50"
+                      class="w-full"
+                      [ngClass]="{
+                        'border-red-500':
+                          stockAdjustmentFormSubmitted &&
+                          item.get('brand')?.invalid
+                      }"
+                    />
                   </td>
                   <td>
                     <input
