@@ -1,59 +1,57 @@
-# ArarasHealthHubWeb
+# Araras Health Hub
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
+### Descrição
 
-## Development server
+O **Araras Health Hub Web** é a interface do usuário (UI) da plataforma de gestão da cadeia de suprimentos municipais. Desenvolvido como uma Single Page Application (SPA), ele se comunica com a API Araras Health Hub para gerenciar o fluxo completo de estoque, pedidos, recebimento e dispensação de medicamentos e insumos nas unidades de saúde.
+O foco principal é oferecer uma experiência de usuário eficiente, responsiva e acessível, utilizando componentes de alta qualidade e um design moderno.
 
-To start a local development server, run:
+### Arquitetura
+
+O projeto adota uma Arquitetura Orientada a Componentes (Component-Based Architecture), onde cada funcionalidade é construída a partir de componentes encapsulados e reutilizáveis.
+A responsabilidade de acesso a dados e regras de negócio é estritamente delegada a Services dedicados, seguindo a separação de Smart (Container) e Dumb (Presentation) Components. O fluxo de dados assíncrono é gerenciado de forma reativa, utilizando o poder do RxJS, garantindo um estado de aplicação previsível e uma alta performance na interface.
+
+### Tecnologias
+
+- [Angular v19.0.0](https://v19.angular.dev/overview)
+- [TypeScript v5.6](https://www.typescriptlang.org/)
+- [PrimeNG v19](https://primeng.org/)
+- [PrimeIcons](https://primeng.org/icons)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [jwt-decode](https://www.jwt.io/introduction)
+
+### Pré-requisitos
+
+Antes de começar, certifique-se de ter o ambiente de desenvolvimento configurado:
+
+- [Node.js v22.12.0](https://nodejs.org/pt)
+- [npm 10.9.0](https://www.npmjs.com/)
+- [Angular CLI 20.0.0](https://git-scm.com/)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [API Araras Health Hub deve estar rodando e acessível](https://github.com/andersonguedesmg/araras-health-hub-api)
+
+### Rodando localmente
+
+Clone o repositório
 
 ```bash
+git clone https://github.com/andersonguedesmg/araras-health-hub-web
+```
+
+Instale as dependências
+
+```bash
+npm install
+```
+
+Inicie o servidor de desenvolvimento
+
+```bash
+npm run start
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Acesse a plataforma
 
 ```bash
-ng generate component component-name
+http://localhost:4200/
 ```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
