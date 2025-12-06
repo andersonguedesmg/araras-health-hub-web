@@ -1,6 +1,6 @@
 <app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
 
-<app-spinner></app-spinner>
+<app-spinner [loading]="isLoading"></app-spinner>
 <app-confirm-dialog></app-confirm-dialog>
 
 <div class="container mx-auto">
@@ -20,18 +20,6 @@
             <h2 class="text-xl font-semibold text-white mb-4">
               Detalhes do Pedido
             </h2>
-            <div class="mb-4" *ngIf="formMode !== 'create'">
-              <label for="id" class="block text-sm font-medium text-gray-500"
-                >ID:</label
-              >
-              <input
-                id="id"
-                pInputText
-                type="text"
-                formControlName="id"
-                class="mt-1 p-2 border rounded-md w-full"
-              />
-            </div>
 
             <div class="mb-4">
               <label
@@ -39,9 +27,7 @@
                 class="block text-sm font-medium text-gray-500"
               >
                 Responsável:
-                <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                  >*</span
-                >
+                <span class="text-red-500">*</span>
               </label>
               <p-select
                 [options]="employeeOptions"
@@ -59,28 +45,6 @@
                     orderForm.get('createdByEmployeeId')?.invalid
                 }"
               ></p-select>
-            </div>
-
-            <div class="mb-4" *ngIf="formMode !== 'create'">
-              <label
-                for="createdAt"
-                class="block text-sm font-medium text-gray-500 mb-1"
-                >Data:
-                <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                  >*</span
-                ></label
-              >
-              <p-datepicker
-                id="createdAt"
-                formControlName="createdAt"
-                dateFormat="dd/mm/yy"
-                [showButtonBar]="true"
-                class="w-full mt-1"
-                [ngClass]="{
-                  'border-red-500':
-                    formSubmitted && orderForm.get('createdAt')?.invalid
-                }"
-              />
             </div>
 
             <div class="mb-4">
@@ -103,9 +67,7 @@
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-xl font-semibold text-white">
                 Itens
-                <span class="text-red-500" *ngIf="formMode !== 'detail'"
-                  >*</span
-                >
+                <span class="text-red-500">*</span>
               </h2>
               <p-button
                 label="Adicionar"
