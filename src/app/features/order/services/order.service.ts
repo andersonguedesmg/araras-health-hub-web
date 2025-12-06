@@ -62,7 +62,7 @@ export class OrderService {
 
   public approveOrder(order: ApproveOrderCommand): Observable<ApiResponse<Order>> {
     const url = this.apiConfig.getUrl('order', 'approve');
-    return this.http.post<ApiResponse<Order>>(url, order).pipe(
+    return this.http.put<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
           const currentOrders = this.ordersSubject.getValue();

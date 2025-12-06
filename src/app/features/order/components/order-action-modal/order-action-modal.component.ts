@@ -74,7 +74,8 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     private formHelperService: FormHelperService,
   ) {
     super();
-    this.currentAccountId = Number(this.authService.getUserId());
+    const userId = this.authService.getUserId();
+    this.currentAccountId = userId ? Number(userId) : 0;
   }
 
   ngOnInit(): void {
@@ -116,6 +117,19 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
       accountId: this.currentAccountId,
     });
 
+    if (this.actionType === OrderActionType.Approve && !this.order.approvedByEmployee?.id) {
+      this.actionForm.get('responsibleEmployeeId')?.setValue(null);
+    } else if (this.actionType === OrderActionType.Separate && !this.order.separatedByEmployee?.id) {
+      this.actionForm.get('responsibleEmployeeId')?.setValue(null);
+    } else if (this.actionType === OrderActionType.Finalize && !this.order.finalizedByEmployee?.id) {
+      this.actionForm.get('responsibleEmployeeId')?.setValue(null);
+    } else {
+      if (this.actionType === OrderActionType.Details) {
+        this.actionForm.get('responsibleEmployeeId')?.clearValidators();
+        this.actionForm.get('responsibleEmployeeId')?.updateValueAndValidity();
+      }
+    }
+
     const orderItemsFormArray = this.actionForm.get('orderItems') as FormArray;
     orderItemsFormArray.clear();
 
@@ -147,6 +161,9 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
           Validators.min(0),
           Validators.max(item.requestedQuantity || 0)
         ]);
+        if (approvedQuantityControl.value === null) {
+          approvedQuantityControl.setValue(item.requestedQuantity);
+        }
       }
       approvedQuantityControl.updateValueAndValidity();
     }
@@ -160,6 +177,9 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
           Validators.min(0),
           Validators.max(item.approvedQuantity || 0)
         ]);
+        if (actualQuantityControl.value === null) {
+          actualQuantityControl.setValue(item.approvedQuantity);
+        }
       }
       actualQuantityControl.updateValueAndValidity();
     }
@@ -254,6 +274,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
 
   async onActionClick(): Promise<void> {
     this.formSubmitted = true;
+    this.cleanNumericFormValues();
 
     if (!this.validateForm(this.actionForm, this.orderFormLabels)) {
       return;
@@ -291,7 +312,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
             approvedByAccountId: formValue.accountId,
             orderItems: formValue.orderItems.map((item: any) => ({
               orderItemId: item.id,
-              approvedQuantity: item.approvedQuantity
+              approvedQuantity: item.approvedQuantity ?? 0
             }))
           };
           response = await firstValueFrom(this.orderService.approveOrder(approveCommand));
@@ -303,7 +324,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
             separatedByAccountId: formValue.accountId,
             orderItems: formValue.orderItems.map((item: any) => ({
               orderItemId: item.id,
-              actualQuantity: item.actualQuantity
+              actualQuantity: item.actualQuantity ?? 0
             }))
           };
           response = await firstValueFrom(this.orderService.separateOrder(separateCommand));
@@ -333,6 +354,21 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
         this.handleApiError(error);
       }
     }
+  }
+
+  private cleanNumericFormValues(): void {
+    const orderItems = this.actionForm.get('orderItems') as FormArray;
+    orderItems.controls.forEach(control => {
+      const approvedQuantity = control.get('approvedQuantity');
+      const actualQuantity = control.get('actualQuantity');
+
+      if (approvedQuantity && approvedQuantity.value === null) {
+        approvedQuantity.setValue(0);
+      }
+      if (actualQuantity && actualQuantity.value === null) {
+        actualQuantity.setValue(0);
+      }
+    });
   }
 
   closeModal() {

@@ -83,6 +83,9 @@
                   optionValue="value"
                   placeholder="Selecione"
                   class="w-full"
+                  [showClear]="true"
+                  [filter]="true"
+                  filterBy="label"
                   [ngClass]="{
                     'ng-invalid ng-dirty':
                       actionForm.get('responsibleEmployeeId')?.invalid &&

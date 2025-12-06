@@ -1,7 +1,9 @@
 export enum OrderStatusId {
-  Pending = 1,
-  Approved = 2,
-  Separated = 3,
-  Finalized = 4,
+  PendingApproval = 1,
+  ReadyForPicking = 2,
+  PickingInProgress = 3,
+  ReadyForFinalization = 4,
+  Completed = 5,
+  Cancelled = 6,
   Unknown = 99,
 }

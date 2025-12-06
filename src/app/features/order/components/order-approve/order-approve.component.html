@@ -45,7 +45,6 @@
             <th style="min-width: 5rem">ID</th>
             <th style="min-width: 12rem">DATA DE PEDIDO</th>
             <th style="min-width: 20rem">UNIDADE</th>
-            <th style="min-width: 10rem">CONTA</th>
             <th style="min-width: 12rem">RESPONSÁVEL</th>
             <th style="min-width: 8rem">ITENS</th>
             <th style="min-width: 12rem">STATUS</th>
@@ -57,8 +56,7 @@
           <tr>
             <td>{{ order.id }}</td>
             <td>{{ order.createdAt | date : "dd/MM/yyyy - HH:mm" }}</td>
-            <td>{{ order.createdByAccount.facility.name }}</td>
-            <td>{{ order.createdByAccount.userName }}</td>
+            <td>{{ order.orderFacility.name }}</td>
             <td>{{ order.createdByEmployee.name }}</td>
             <td>{{ order.orderItems.length }}</td>
             <td>

@@ -92,6 +92,7 @@ export class OrderApproveComponent extends BaseComponent implements OnInit, OnDe
   getOrderStatus = getOrderStatus;
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -111,14 +112,15 @@ export class OrderApproveComponent extends BaseComponent implements OnInit, OnDe
           debounceTime(300),
           switchMap(event => {
             this.isLoading = true;
-            const pageNumber = event.first / event.rows + 1;
+            const pageNumber = (event.first / event.rows) + 1;
             const pageSize = event.rows;
-            return this.orderService.loadOrders(pageNumber, pageSize, OrderStatusId.Pending);
+            return this.orderService.loadOrders(pageNumber, pageSize, OrderStatusId.PendingApproval);
           })
         )
         .subscribe({
           next: response => {
             this.isLoading = false;
+            console.log('loadOrders response', response);
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
             } else {
@@ -131,6 +133,7 @@ export class OrderApproveComponent extends BaseComponent implements OnInit, OnDe
           }
         })
     );
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -138,6 +141,7 @@ export class OrderApproveComponent extends BaseComponent implements OnInit, OnDe
   }
 
   loadOrders(event: any) {
+    this.lastLazyEvent = event;
     this.loadLazy.next(event);
   }
 
@@ -158,7 +162,7 @@ export class OrderApproveComponent extends BaseComponent implements OnInit, OnDe
 
   handleActionComplete(updatedOrder: Order) {
     this.displayActionModal = false;
-    this.loadLazy.next({});
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   exportCSV(dt: Table) {
