@@ -92,6 +92,7 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
   getOrderStatus = getOrderStatus;
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -111,9 +112,9 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
           debounceTime(300),
           switchMap(event => {
             this.isLoading = true;
-            const pageNumber = event.first / event.rows + 1;
+            const pageNumber = (event.first / event.rows) + 1;
             const pageSize = event.rows;
-            return this.orderService.loadOrders(pageNumber, pageSize, OrderStatusId.Approved);
+            return this.orderService.loadOrders(pageNumber, pageSize, OrderStatusId.ReadyForPicking);
           })
         )
         .subscribe({
@@ -131,6 +132,7 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
           }
         })
     );
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -138,6 +140,7 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
   }
 
   loadOrders(event: any) {
+    this.lastLazyEvent = event;
     this.loadLazy.next(event);
   }
 
@@ -158,7 +161,7 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
 
   handleActionComplete(updatedOrder: Order) {
     this.displayActionModal = false;
-    this.loadLazy.next({});
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   exportCSV(dt: Table) {

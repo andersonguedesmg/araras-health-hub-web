@@ -120,7 +120,6 @@ export class OrderApproveComponent extends BaseComponent implements OnInit, OnDe
         .subscribe({
           next: response => {
             this.isLoading = false;
-            console.log('loadOrders response', response);
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
             } else {

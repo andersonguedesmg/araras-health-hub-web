@@ -90,6 +90,7 @@ export class OrderCompletedComponent extends BaseComponent implements OnInit, On
   getOrderStatus = getOrderStatus;
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -109,9 +110,9 @@ export class OrderCompletedComponent extends BaseComponent implements OnInit, On
           debounceTime(300),
           switchMap(event => {
             this.isLoading = true;
-            const pageNumber = event.first / event.rows + 1;
+            const pageNumber = (event.first / event.rows) + 1;
             const pageSize = event.rows;
-            return this.orderService.loadOrders(pageNumber, pageSize, OrderStatusId.Finalized);
+            return this.orderService.loadOrders(pageNumber, pageSize, OrderStatusId.Completed);
           })
         )
         .subscribe({
@@ -129,6 +130,7 @@ export class OrderCompletedComponent extends BaseComponent implements OnInit, On
           }
         })
     );
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -136,6 +138,7 @@ export class OrderCompletedComponent extends BaseComponent implements OnInit, On
   }
 
   loadOrders(event: any) {
+    this.lastLazyEvent = event;
     this.loadLazy.next(event);
   }
 
@@ -156,7 +159,7 @@ export class OrderCompletedComponent extends BaseComponent implements OnInit, On
 
   handleActionComplete(updatedOrder: Order) {
     this.displayActionModal = false;
-    this.loadLazy.next({});
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   exportCSV(dt: Table) {
