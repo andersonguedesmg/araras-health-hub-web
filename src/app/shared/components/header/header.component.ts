@@ -221,6 +221,11 @@ export class HeaderComponent implements OnInit {
             routerLink: '/pedidos/finalizar',
           },
           {
+            label: 'Cancelados',
+            icon: PrimeIcons.BAN,
+            routerLink: '/pedidos/cancelados',
+          },
+          {
             label: 'Finalizados',
             icon: PrimeIcons.CHECK_CIRCLE,
             routerLink: '/pedidos/finalizados',

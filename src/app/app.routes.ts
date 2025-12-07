@@ -32,6 +32,7 @@ import { UserRoles, UserScopes } from './core/constants/auth.constants';
 import { StockAdjustmentCreateComponent } from './features/stock/components/stock-adjustment-create/stock-adjustment-create.component';
 import { StockNearExpiryLotsComponent } from './features/stock/components/stock-near-expiry-lots/stock-near-expiry-lots.component';
 import { StockActiveLotsComponent } from './features/stock/components/stock-active-lots/stock-active-lots.component';
+import { OrderCancelComponent } from './features/order/components/order-cancel/order-cancel.component';
 
 const SCOPE_MANAGEMENT = [UserScopes.MANAGEMENT];
 const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];
@@ -119,6 +120,13 @@ export const routes: Routes = [
         path: 'pedidos/aprovar',
         component: OrderApproveComponent,
         title: 'A2H - Pedidos para Aprovação',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_ALL_OPS }
+      },
+      {
+        path: 'pedidos/cancelados',
+        component: OrderCancelComponent,
+        title: 'A2H - Pedidos Cancelados',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_ALL_OPS }
       },

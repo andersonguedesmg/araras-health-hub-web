@@ -1,0 +1,95 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+
+<app-spinner [loading]="isLoading"></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<div class="container mx-auto">
+  <div class="card mt-10">
+    <app-table-header [title]="title"></app-table-header>
+
+    <ng-container *ngIf="orders$ | async as orders">
+      <app-table
+        [value]="orders"
+        [rows]="5"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        [lazy]="true"
+        (onLazyLoad)="loadOrders($event)"
+        [totalRecords]="totalRecords"
+        [loading]="isLoading"
+        [colspan]="8"
+      >
+        <ng-template #captionTemplate let-dt>
+          <div class="flex items-center justify-between">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Pesquisar..."
+              />
+            </p-iconfield>
+            <div>
+              <p-button
+                label="Exportar"
+                icon="pi pi-upload"
+                severity="secondary"
+                (click)="exportCSV(dt)"
+              />
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #headerTemplate>
+          <tr>
+            <th style="min-width: 8rem">Nº DO PEDIDO</th>
+            <th style="min-width: 12rem">DATA</th>
+            <th style="min-width: 20rem">UNIDADE</th>
+            <th style="min-width: 12rem">RESPONSÁVEL</th>
+            <th style="min-width: 5rem">QTD. DE ITENS</th>
+            <th style="min-width: 12rem">STATUS</th>
+            <th style="min-width: 15rem">AÇÕES</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #bodyTemplate let-order>
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.createdAt | date : "dd/MM/yyyy - HH:mm" }}</td>
+            <td>{{ order.orderFacility.name }}</td>
+            <td>{{ order.createdByEmployee.name }}</td>
+            <td>{{ order.orderItems.length }}</td>
+            <td>
+              <p-tag
+                [value]="getOrderStatus(order.orderStatus.description)"
+                [severity]="getOrderSeverity(order.orderStatus.description)"
+              />
+            </td>
+            <td>
+              <p-button
+                *appHasRole="['Master', 'Admin']"
+                icon="pi pi-check"
+                class="mr-2"
+                pTooltip="Detalhar"
+                tooltipPosition="bottom"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="onDetailClick(order)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </app-table>
+    </ng-container>
+  </div>
+</div>
+
+<app-order-action-modal
+  [display]="displayActionModal"
+  [order]="selectedOrderForAction!"
+  [actionType]="orderActionType.Cancel"
+  [responsibleEmployeeOptions]="employeeOptions"
+  (displayChange)="displayActionModal = $event"
+  (onActionComplete)="handleActionComplete($event)"
+>
+</app-order-action-modal>
