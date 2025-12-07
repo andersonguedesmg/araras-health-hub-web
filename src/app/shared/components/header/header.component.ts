@@ -196,15 +196,9 @@ export class HeaderComponent implements OnInit {
 
     if (canAccessOrders) {
       baseItems.push({
-        label: 'Pedidos',
+        label: 'Pedido',
         icon: PrimeIcons.SHOPPING_CART,
         items: [
-          {
-            label: 'Novo Pedido',
-            icon: PrimeIcons.PLUS_CIRCLE,
-            routerLink: '/pedidos/novo',
-          },
-          { separator: true },
           {
             label: 'Aguardando Aprovação',
             icon: PrimeIcons.CLOCK,
@@ -221,12 +215,12 @@ export class HeaderComponent implements OnInit {
             routerLink: '/pedidos/finalizar',
           },
           {
-            label: 'Cancelados',
+            label: 'Cancelado',
             icon: PrimeIcons.BAN,
             routerLink: '/pedidos/cancelados',
           },
           {
-            label: 'Finalizados',
+            label: 'Finalizado',
             icon: PrimeIcons.CHECK_CIRCLE,
             routerLink: '/pedidos/finalizados',
           },
@@ -235,6 +229,12 @@ export class HeaderComponent implements OnInit {
             label: 'Histórico',
             icon: PrimeIcons.LIST,
             routerLink: '/pedidos/historico',
+          },
+          { separator: true },
+          {
+            label: 'Novo',
+            icon: PrimeIcons.PLUS_CIRCLE,
+            routerLink: '/pedidos/novo',
           },
         ]
       });
