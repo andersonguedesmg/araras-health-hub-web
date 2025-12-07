@@ -1,4 +1,5 @@
 import { Product } from "../../product/interfaces/product";
+import { LotToSeparate } from "./lotToSeparate";
 
 export interface OrderItem {
   id: number;
@@ -12,4 +13,5 @@ export interface OrderItem {
   productId: number;
   productName: string;
   product: Product;
+  lotsToSeparate?: LotToSeparate[];
 }

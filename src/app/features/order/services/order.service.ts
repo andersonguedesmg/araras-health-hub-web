@@ -72,9 +72,14 @@ export class OrderService {
     );
   }
 
+  public getPickingDetails(id: number): Observable<ApiResponse<Order>> {
+    const url = this.apiConfig.getUrl('order', `picking-details/${id}`);
+    return this.http.get<ApiResponse<Order>>(url);
+  }
+
   public separateOrder(order: SeparateOrderCommand): Observable<ApiResponse<Order>> {
     const url = this.apiConfig.getUrl('order', 'separate');
-    return this.http.post<ApiResponse<Order>>(url, order).pipe(
+    return this.http.put<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
           const currentOrders = this.ordersSubject.getValue();

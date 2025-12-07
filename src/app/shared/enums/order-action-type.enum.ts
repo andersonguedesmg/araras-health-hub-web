@@ -1,7 +1,7 @@
 export enum OrderActionType {
-  Details = 'Detalhes',
+  Detail = 'Detalhar',
   Approve = 'Aprovar',
   Separate = 'Separar',
   Finalize = 'Finalizar',
-  Cancel = 'Cancel',
+  Cancel = 'Cancelar',
 }

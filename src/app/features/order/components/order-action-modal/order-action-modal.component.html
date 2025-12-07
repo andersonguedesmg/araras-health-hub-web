@@ -217,12 +217,18 @@
               </th>
               <th class="w-1/5">QTD. SOLICITADA</th>
               <th class="w-1/5">QTD. APROVADA</th>
+
+              <ng-container *ngIf="actionType === OrderActionType.Separate">
+                <th class="w-1/6">LOTE / VALIDADE</th>
+                <th class="w-1/6">QTD. LOTE DISPONÍVEL</th>
+              </ng-container>
+
               <th
                 class="w-1/5"
                 *ngIf="
                   actionType === OrderActionType.Separate ||
                   actionType === OrderActionType.Finalize ||
-                  actionType === OrderActionType.Details
+                  actionType === OrderActionType.Detail
                 "
               >
                 QTD. SEPARADA
@@ -230,70 +236,193 @@
             </tr>
           </ng-template>
 
-          <ng-template pTemplate="body" let-itemFormGroup let-ri="rowIndex">
-            <tr [formGroup]="itemFormGroup">
-              <td>{{ itemFormGroup.get("productName")?.value }}</td>
-              <td *ngIf="actionType === OrderActionType.Approve">
-                {{ itemFormGroup.get("availableQuantity")?.value }}
-              </td>
-              <td>{{ itemFormGroup.get("requestedQuantity")?.value }}</td>
-
-              <td>
-                <ng-container
-                  *ngIf="
-                    actionType === OrderActionType.Approve;
-                    else approvedQuantityReadonly
-                  "
-                >
-                  <p-inputNumber
-                    formControlName="approvedQuantity"
-                    mode="decimal"
-                    [min]="0"
-                    [max]="itemFormGroup.get('requestedQuantity')?.value"
-                    class="w-full"
-                    [ngClass]="{
-                      'ng-invalid ng-dirty':
-                        itemFormGroup.get('approvedQuantity')?.invalid &&
-                        formSubmitted
-                    }"
-                  />
-                </ng-container>
-                <ng-template #approvedQuantityReadonly>
-                  {{ itemFormGroup.get("approvedQuantity")?.value }}
-                </ng-template>
-              </td>
-
-              <td
-                *ngIf="
-                  actionType === OrderActionType.Separate ||
-                  actionType === OrderActionType.Finalize ||
-                  actionType === OrderActionType.Details
+          <ng-template pTemplate="body" let-productFormGroup let-ri="rowIndex">
+            <ng-container
+              *ngIf="
+                actionType === OrderActionType.Separate &&
+                  getFormGroup(productFormGroup).get('lotsToSeparate')?.value
+                    ?.length;
+                else simpleProductRow
+              "
+            >
+              <ng-container
+                *ngFor="
+                  let lotGroup of getLotsFormArray(productFormGroup).controls;
+                  let lotIndex = index;
+                  let isFirstLot = first
                 "
               >
-                <ng-container
+                <tr [formGroup]="getFormGroup(lotGroup)">
+                  <td
+                    *ngIf="isFirstLot"
+                    [attr.rowspan]="
+                      getLotsFormArray(productFormGroup).controls.length
+                    "
+                  >
+                    {{
+                      getFormGroup(productFormGroup).get("productName")?.value
+                    }}
+                  </td>
+
+                  <td
+                    *ngIf="isFirstLot"
+                    [attr.rowspan]="
+                      getLotsFormArray(productFormGroup).controls.length
+                    "
+                  >
+                    {{
+                      getFormGroup(productFormGroup).get("requestedQuantity")
+                        ?.value
+                    }}
+                  </td>
+
+                  <td
+                    *ngIf="isFirstLot"
+                    [attr.rowspan]="
+                      getLotsFormArray(productFormGroup).controls.length
+                    "
+                  >
+                    {{
+                      getFormGroup(productFormGroup).get("approvedQuantity")
+                        ?.value
+                    }}
+                  </td>
+
+                  <td>
+                    <div class="flex flex-col">
+                      <span>{{
+                        getFormGroup(lotGroup).get("batch")?.value
+                      }}</span>
+                      <span class="text-xs text-gray-400"
+                        >Val.:
+                        {{
+                          getFormGroup(lotGroup).get("expiryDate")?.value
+                            | date : "dd/MM/yyyy"
+                        }}</span
+                      >
+                    </div>
+                  </td>
+
+                  <td>
+                    {{
+                      getFormGroup(lotGroup).get("initialLotQuantity")?.value
+                    }}
+                  </td>
+
+                  <td>
+                    <p-inputNumber
+                      formControlName="quantityToSeparate"
+                      mode="decimal"
+                      [min]="0"
+                      [max]="
+                        getFormGroup(lotGroup).get('initialLotQuantity')?.value
+                      "
+                      class="w-full"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          getFormGroup(lotGroup).get('quantityToSeparate')
+                            ?.invalid && formSubmitted
+                      }"
+                    />
+                  </td>
+                </tr>
+              </ng-container>
+            </ng-container>
+
+            <ng-template #simpleProductRow>
+              <tr [formGroup]="getFormGroup(productFormGroup)">
+                <td>
+                  {{ getFormGroup(productFormGroup).get("productName")?.value }}
+                </td>
+
+                <td *ngIf="actionType === OrderActionType.Approve">
+                  {{
+                    getFormGroup(productFormGroup).get("availableQuantity")
+                      ?.value
+                  }}
+                </td>
+
+                <td>
+                  {{
+                    getFormGroup(productFormGroup).get("requestedQuantity")
+                      ?.value
+                  }}
+                </td>
+
+                <td>
+                  <ng-container
+                    *ngIf="
+                      actionType === OrderActionType.Approve;
+                      else approvedQuantityReadonly
+                    "
+                  >
+                    <p-inputNumber
+                      formControlName="approvedQuantity"
+                      mode="decimal"
+                      [min]="0"
+                      [max]="
+                        getFormGroup(productFormGroup).get('requestedQuantity')
+                          ?.value
+                      "
+                      class="w-full"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          getFormGroup(productFormGroup).get('approvedQuantity')
+                            ?.invalid && formSubmitted
+                      }"
+                    />
+                  </ng-container>
+                  <ng-template #approvedQuantityReadonly>
+                    {{
+                      getFormGroup(productFormGroup).get("approvedQuantity")
+                        ?.value
+                    }}
+                  </ng-template>
+                </td>
+
+                <ng-container *ngIf="actionType === OrderActionType.Separate">
+                  <td>N/A</td>
+                  <td>N/A</td>
+                </ng-container>
+
+                <td
                   *ngIf="
-                    actionType === OrderActionType.Separate;
-                    else actualQuantityReadonly
+                    actionType === OrderActionType.Separate ||
+                    actionType === OrderActionType.Finalize ||
+                    actionType === OrderActionType.Detail
                   "
                 >
-                  <p-inputNumber
-                    formControlName="actualQuantity"
-                    mode="decimal"
-                    [min]="0"
-                    [max]="itemFormGroup.get('approvedQuantity')?.value"
-                    class="w-full"
-                    [ngClass]="{
-                      'ng-invalid ng-dirty':
-                        itemFormGroup.get('actualQuantity')?.invalid &&
-                        formSubmitted
-                    }"
-                  />
-                </ng-container>
-                <ng-template #actualQuantityReadonly>
-                  {{ itemFormGroup.get("actualQuantity")?.value }}
-                </ng-template>
-              </td>
-            </tr>
+                  <ng-container
+                    *ngIf="
+                      actionType === OrderActionType.Separate;
+                      else actualQuantityReadonly
+                    "
+                  >
+                    <p-inputNumber
+                      formControlName="actualQuantity"
+                      mode="decimal"
+                      [min]="0"
+                      [max]="
+                        getFormGroup(productFormGroup).get('approvedQuantity')
+                          ?.value
+                      "
+                      class="w-full"
+                      [ngClass]="{
+                        'ng-invalid ng-dirty':
+                          getFormGroup(productFormGroup).get('actualQuantity')
+                            ?.invalid && formSubmitted
+                      }"
+                    />
+                  </ng-container>
+                  <ng-template #actualQuantityReadonly>
+                    {{
+                      getFormGroup(productFormGroup).get("actualQuantity")
+                        ?.value
+                    }}
+                  </ng-template>
+                </td>
+              </tr>
+            </ng-template>
           </ng-template>
         </p-table>
       </form>
@@ -303,14 +432,14 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-content-end gap-2">
       <p-button
-        *ngIf="actionType !== OrderActionType.Details"
+        *ngIf="actionType !== OrderActionType.Detail"
         [label]="actionType"
         icon="pi pi-check"
         (click)="onActionClick()"
       />
 
       <p-button
-        [label]="actionType === OrderActionType.Details ? 'Fechar' : 'Cancelar'"
+        [label]="actionType === OrderActionType.Detail ? 'Fechar' : 'Cancelar'"
         icon="pi pi-times"
         severity="info"
         [outlined]="true"

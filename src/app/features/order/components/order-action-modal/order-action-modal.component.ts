@@ -21,6 +21,7 @@ import { TagModule } from 'primeng/tag';
 import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order-status.utils';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { LotToSeparate } from '../../interfaces/lotToSeparate';
 
 @Component({
   selector: 'app-order-action-modal',
@@ -55,11 +56,13 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
   confirmMessage = '';
 
   currentAccountId: number;
+  pickingDetails: Order | undefined;
 
   private orderFormLabels: { [key: string]: string; } = {
     responsibleEmployeeId: 'Responsável',
     approvedQuantity: 'Quantidade Aprovada',
-    actualQuantity: 'Quantidade Real'
+    actualQuantity: 'Quantidade Real',
+    quantityToSeparate: 'Qtd. a Separar',
   };
 
   getOrderSeverity = getOrderSeverity;
@@ -89,12 +92,44 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['display'] && changes['display'].currentValue) || changes['order']) {
       if (this.order) {
-        this.populateForm();
+        this.pickingDetails = undefined;
+        if (this.actionType === OrderActionType.Separate) {
+          this.loadPickingDetails(this.order.id);
+        } else {
+          this.populateForm(this.order);
+        }
       }
     }
 
-    if (changes['actionType']) {
-      this.populateForm();
+    if (changes['actionType'] && this.order) {
+      if (changes['actionType'].currentValue === OrderActionType.Separate) {
+        this.loadPickingDetails(this.order.id);
+      } else {
+        this.populateForm(this.order);
+      }
+    }
+  }
+
+  public getFormGroup(control: AbstractControl): FormGroup {
+    return control as FormGroup;
+  }
+
+  private async loadPickingDetails(orderId: number): Promise<void> {
+    this.isLoading = true;
+    try {
+      const response = await firstValueFrom(this.orderService.getPickingDetails(orderId));
+      this.isLoading = false;
+      if (response.success && response.data) {
+        this.pickingDetails = response.data;
+        this.populateForm(this.pickingDetails);
+      } else {
+        this.toastService.showError('Erro ao carregar detalhes da separação.');
+        this.closeModal();
+      }
+    } catch (error) {
+      this.isLoading = false;
+      this.handleApiError(error);
+      this.closeModal();
     }
   }
 
@@ -107,24 +142,27 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     });
   }
 
-  private populateForm(): void {
-    if (!this.order || !this.actionForm) {
+  private populateForm(orderData: Order): void {
+    if (!orderData || !this.actionForm) {
       return;
     }
 
     this.actionForm.patchValue({
-      id: this.order.id,
+      id: orderData.id,
       accountId: this.currentAccountId,
+      responsibleEmployeeId: this.actionType === OrderActionType.Separate
+        ? orderData.separatedByEmployee?.id || null
+        : null
     });
 
-    if (this.actionType === OrderActionType.Approve && !this.order.approvedByEmployee?.id) {
+    if (this.actionType === OrderActionType.Approve && !orderData.approvedByEmployee?.id) {
       this.actionForm.get('responsibleEmployeeId')?.setValue(null);
-    } else if (this.actionType === OrderActionType.Separate && !this.order.separatedByEmployee?.id) {
+    } else if (this.actionType === OrderActionType.Separate && !orderData.separatedByEmployee?.id) {
       this.actionForm.get('responsibleEmployeeId')?.setValue(null);
-    } else if (this.actionType === OrderActionType.Finalize && !this.order.finalizedByEmployee?.id) {
+    } else if (this.actionType === OrderActionType.Finalize && !orderData.finalizedByEmployee?.id) {
       this.actionForm.get('responsibleEmployeeId')?.setValue(null);
     } else {
-      if (this.actionType === OrderActionType.Details) {
+      if (this.actionType === OrderActionType.Detail) {
         this.actionForm.get('responsibleEmployeeId')?.clearValidators();
         this.actionForm.get('responsibleEmployeeId')?.updateValueAndValidity();
       }
@@ -133,22 +171,53 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     const orderItemsFormArray = this.actionForm.get('orderItems') as FormArray;
     orderItemsFormArray.clear();
 
-    this.order.orderItems.forEach(item => {
-      const itemGroup = this.fb.group({
-        id: [item.id],
-        productId: [item.productId],
-        productName: [item.productName],
-        requestedQuantity: [item.requestedQuantity],
-        availableQuantity: [item.availableQuantity],
-        approvedQuantity: [item.approvedQuantity === 0 ? null : item.approvedQuantity],
-        actualQuantity: [item.actualQuantity === 0 ? null : item.actualQuantity],
-      });
+    orderData.orderItems.forEach(item => {
+      if (this.actionType === OrderActionType.Separate && item.lotsToSeparate && item.lotsToSeparate.length > 0) {
+        const lotsFormArray = this.fb.array(
+          item.lotsToSeparate.map(lot => this.createLotFormGroup(lot))
+        );
 
-      this.applyConditionalValidators(itemGroup, item);
-
-      orderItemsFormArray.push(itemGroup);
+        const itemGroup = this.fb.group({
+          id: [item.id],
+          productId: [item.productId],
+          productName: [item.productName],
+          requestedQuantity: [item.requestedQuantity],
+          availableQuantity: [item.availableQuantity],
+          approvedQuantity: [item.approvedQuantity],
+          actualQuantity: [item.actualQuantity],
+          lotsToSeparate: lotsFormArray
+        });
+        orderItemsFormArray.push(itemGroup);
+      } else {
+        const itemGroup = this.fb.group({
+          id: [item.id],
+          productId: [item.productId],
+          productName: [item.productName],
+          requestedQuantity: [item.requestedQuantity],
+          availableQuantity: [item.availableQuantity],
+          approvedQuantity: [item.approvedQuantity === 0 ? null : item.approvedQuantity],
+          actualQuantity: [item.actualQuantity === 0 ? null : item.actualQuantity],
+        });
+        this.applyConditionalValidators(itemGroup, item);
+        orderItemsFormArray.push(itemGroup);
+      }
     });
     this.actionForm.get('responsibleEmployeeId')?.updateValueAndValidity();
+  }
+
+  private createLotFormGroup(lot: LotToSeparate): FormGroup {
+    return this.fb.group({
+      stockLotId: [lot.stockLotId],
+      batch: [lot.batch],
+      expiryDate: [lot.expiryDate],
+      initialLotQuantity: [lot.quantityToSeparate],
+      quantityToSeparate: [lot.quantityToSeparate || 0, [Validators.required, Validators.min(0)]],
+      unitValue: [lot.unitValue],
+    });
+  }
+
+  getLotsFormArray(itemGroup: AbstractControl): FormArray {
+    return itemGroup.get('lotsToSeparate') as FormArray;
   }
 
   private applyConditionalValidators(itemGroup: FormGroup, item: OrderItem): void {
@@ -171,7 +240,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     const actualQuantityControl = itemGroup.get('actualQuantity');
     if (actualQuantityControl) {
       actualQuantityControl.clearValidators();
-      if (this.actionType === OrderActionType.Separate) {
+      if (this.actionType === OrderActionType.Separate && !(itemGroup.get('lotsToSeparate') instanceof FormArray)) {
         actualQuantityControl.setValidators([
           Validators.required,
           Validators.min(0),
@@ -190,13 +259,13 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
   }
 
   private validateForm(formGroup: FormGroup, labels: { [key: string]: string; }): boolean {
-    this.markAllControlsAsTouched(formGroup);
+    this.formHelperService.markAllControlsAsTouched(formGroup);
 
     if (formGroup.valid) {
       return true;
     }
 
-    const invalidControls = this.findInvalidControlsRecursive(formGroup);
+    const invalidControls = this.formHelperService.findInvalidControlsRecursive(formGroup);
     const invalidFields = invalidControls.map(control => {
       const controlName = this.getFormControlName(control, labels);
       return controlName;
@@ -210,62 +279,29 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     return false;
   }
 
-  private markAllControlsAsTouched(abstractControl: AbstractControl): void {
-    if (abstractControl instanceof FormGroup) {
-      Object.values(abstractControl.controls).forEach(control => {
-        control.markAsTouched();
-        if (control instanceof FormGroup || control instanceof FormArray) {
-          this.markAllControlsAsTouched(control);
-        }
-      });
-    } else if (abstractControl instanceof FormArray) {
-      abstractControl.controls.forEach(control => {
-        control.markAsTouched();
-        if (control instanceof FormGroup || control instanceof FormArray) {
-          this.markAllControlsAsTouched(control);
-        }
-      });
-    }
-  }
-
-  private findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
-    const invalidControls: AbstractControl[] = [];
-
-    if (form instanceof FormGroup || form instanceof FormArray) {
-      Object.values(form.controls).forEach(control => {
-        if (control.invalid) {
-          if (control instanceof FormArray && control.errors?.['minlength']) {
-            invalidControls.push(control);
-          } else if (!(control instanceof FormGroup) && !(control instanceof FormArray)) {
-            invalidControls.push(control);
-          } else {
-            invalidControls.push(...this.findInvalidControlsRecursive(control));
-          }
-        }
-      });
-    }
-    return invalidControls;
-  }
-
   private getFormControlName(control: AbstractControl, labels: { [key: string]: string; }): string {
     const parent = control.parent;
 
     if (parent instanceof FormGroup) {
       for (const name in parent.controls) {
         if (control === parent.controls[name]) {
-          return labels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-        }
-      }
-    }
+          const defaultLabel = labels[name] || name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+          if (parent.parent instanceof FormArray) {
+            const itemFormArray = parent.parent as FormArray;
+            if (name === 'quantityToSeparate') {
+              const itemGroup = itemFormArray.parent as FormGroup;
+              const itemName = itemGroup.get('productName')?.value || 'Produto Desconhecido';
+              const batch = parent.get('batch')?.value || 'Lote Desconhecido';
+              return `${itemName} - ${batch} - ${defaultLabel}`;
+            }
 
-    if (parent instanceof FormGroup && parent.parent instanceof FormArray) {
-      const itemFormArray = parent.parent as FormArray;
-      const itemIndex = itemFormArray.controls.indexOf(parent);
+            if (itemFormArray.parent?.get('orderItems') === itemFormArray) {
+              const itemName = parent.get('productName')?.value || 'Item de Pedido';
+              return `${itemName} - ${defaultLabel}`;
+            }
+          }
 
-      for (const subControlName in parent.controls) {
-        if (control === parent.controls[subControlName]) {
-          const label = labels[subControlName] || subControlName.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
-          return `Item ${itemIndex + 1} - ${label}`;
+          return defaultLabel;
         }
       }
     }
@@ -318,16 +354,18 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
           response = await firstValueFrom(this.orderService.approveOrder(approveCommand));
           break;
         case OrderActionType.Separate:
-          const separateCommand: SeparateOrderCommand = {
+          const totalActualQuantityCommand: SeparateOrderCommand = {
             orderId: formValue.id,
             separatedByEmployeeId: formValue.responsibleEmployeeId,
             separatedByAccountId: formValue.accountId,
             orderItems: formValue.orderItems.map((item: any) => ({
               orderItemId: item.id,
-              actualQuantity: item.actualQuantity ?? 0
+              actualQuantity: item.lotsToSeparate && item.lotsToSeparate.length > 0
+                ? item.lotsToSeparate.reduce((sum: number, lot: any) => sum + (lot.quantityToSeparate ?? 0), 0)
+                : item.actualQuantity ?? 0
             }))
           };
-          response = await firstValueFrom(this.orderService.separateOrder(separateCommand));
+          response = await firstValueFrom(this.orderService.separateOrder(totalActualQuantityCommand));
           break;
         case OrderActionType.Finalize:
           const finalizeCommand: FinalizeOrderCommand = {
@@ -365,8 +403,21 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
       if (approvedQuantity && approvedQuantity.value === null) {
         approvedQuantity.setValue(0);
       }
-      if (actualQuantity && actualQuantity.value === null) {
-        actualQuantity.setValue(0);
+
+      if (this.actionType === OrderActionType.Separate) {
+        const lots = control.get('lotsToSeparate') as FormArray;
+        if (lots) {
+          lots.controls.forEach(lotControl => {
+            const quantityToSeparate = lotControl.get('quantityToSeparate');
+            if (quantityToSeparate && quantityToSeparate.value === null) {
+              quantityToSeparate.setValue(0);
+            }
+          });
+        }
+      } else {
+        if (actualQuantity && actualQuantity.value === null) {
+          actualQuantity.setValue(0);
+        }
       }
     });
   }
@@ -377,5 +428,6 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     this.actionForm.reset();
     this.orderItemsFormArray.clear();
     this.initForm();
+    this.pickingDetails = undefined;
   }
 }

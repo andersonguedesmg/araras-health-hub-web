@@ -35,6 +35,24 @@ export class FormHelperService {
     return invalidControls;
   }
 
+  markAllControlsAsTouched(abstractControl: AbstractControl): void {
+    if (abstractControl instanceof FormGroup) {
+      Object.values(abstractControl.controls).forEach(control => {
+        control.markAsTouched();
+        if (control instanceof FormGroup || control instanceof FormArray) {
+          this.markAllControlsAsTouched(control);
+        }
+      });
+    } else if (abstractControl instanceof FormArray) {
+      abstractControl.controls.forEach(control => {
+        control.markAsTouched();
+        if (control instanceof FormGroup || control instanceof FormArray) {
+          this.markAllControlsAsTouched(control);
+        }
+      });
+    }
+  }
+
   getFormControlName(control: AbstractControl, formLabels: { [key: string]: string; }): string {
     const controlPath = this.getFormControlPath(control);
 
