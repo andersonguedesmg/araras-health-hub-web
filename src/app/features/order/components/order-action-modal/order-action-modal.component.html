@@ -8,16 +8,10 @@
   [style]="{ width: '70vw' }"
   [draggable]="false"
   [resizable]="false"
-  [header]="
-    'Pedido #' +
-    (order?.id || '') +
-    (order?.createdByAccount?.facility?.name
-      ? ' - ' + order?.createdByAccount?.facility?.name
-      : '')
-  "
+  [header]="'Pedido #' + (order?.id || '')"
 >
   <ng-container *ngIf="order">
-    <div class="p-4">
+    <div class="p-4 bg-zinc-900 rounded-b-xl">
       <form [formGroup]="actionForm">
         <div
           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8"
@@ -33,20 +27,20 @@
               <p-tag
                 [value]="getOrderStatus(order.orderStatus.description)"
                 [severity]="getOrderSeverity(order.orderStatus.description)"
-                class="text-sm font-light w-fit"
+                class="text-sm font-medium w-fit"
               />
             </div>
 
             <div class="space-y-3 text-gray-300 text-sm">
               <div>
                 <label class="block text-gray-400">Data:</label>
-                <p class="font-light">
+                <p class="font-semibold">
                   {{ order.createdAt | date : "dd/MM/yyyy - HH:mm" }}
                 </p>
               </div>
               <div class="truncate">
                 <label class="block text-gray-400">Responsável:</label>
-                <p class="font-light">
+                <p class="font-semibold">
                   {{ order.createdByEmployee.name || "N/A" }}
                 </p>
               </div>
@@ -65,13 +59,13 @@
             <div class="space-y-3 text-gray-300 text-sm">
               <div *ngIf="order.approvedAt; else noApprovalDate">
                 <label class="block text-gray-400">Data:</label>
-                <p class="font-light">
+                <p class="font-semibold">
                   {{ order.approvedAt | date : "dd/MM/yyyy - HH:mm" }}
                 </p>
               </div>
               <div *ngIf="order.approvedByEmployee?.name; else noApproval">
                 <label class="block text-gray-400">Responsável:</label>
-                <p class="font-light">{{ order.approvedByEmployee.name }}</p>
+                <p class="font-semibold">{{ order.approvedByEmployee.name }}</p>
               </div>
 
               <div *ngIf="actionType === OrderActionType.Approve">
@@ -108,13 +102,15 @@
             <div class="space-y-3 text-gray-300 text-sm">
               <div *ngIf="order.separatedAt; else noSeparationDate">
                 <label class="block text-gray-400">Data:</label>
-                <p class="font-light">
+                <p class="font-semibold">
                   {{ order.separatedAt | date : "dd/MM/yyyy - HH:mm" }}
                 </p>
               </div>
               <div *ngIf="order.separatedByEmployee?.name; else noSeparation">
                 <label class="block text-gray-400">Responsável:</label>
-                <p class="font-light">{{ order.separatedByEmployee.name }}</p>
+                <p class="font-semibold">
+                  {{ order.separatedByEmployee.name }}
+                </p>
               </div>
               <div *ngIf="actionType === OrderActionType.Separate">
                 <label class="block text-gray-400 mt-4">Responsável:</label>
@@ -125,6 +121,9 @@
                   optionValue="value"
                   placeholder="Selecione"
                   class="w-full"
+                  [showClear]="true"
+                  [filter]="true"
+                  filterBy="label"
                   [ngClass]="{
                     'ng-invalid ng-dirty':
                       actionForm.get('responsibleEmployeeId')?.invalid &&
@@ -147,13 +146,15 @@
             <div class="space-y-3 text-gray-300 text-sm">
               <div *ngIf="order.finalizedAt; else noFinalizationDate">
                 <label class="block text-gray-400">Data:</label>
-                <p class="font-light">
+                <p class="font-semibold">
                   {{ order.finalizedAt | date : "dd/MM/yyyy - HH:mm" }}
                 </p>
               </div>
               <div *ngIf="order.finalizedByEmployee?.name; else noFinalization">
                 <label class="block text-gray-400">Responsável:</label>
-                <p class="font-light">{{ order.finalizedByEmployee.name }}</p>
+                <p class="font-semibold">
+                  {{ order.finalizedByEmployee.name }}
+                </p>
               </div>
               <div *ngIf="actionType === OrderActionType.Finalize">
                 <label class="block text-gray-400 mt-4">Responsável:</label>
@@ -164,6 +165,9 @@
                   optionValue="value"
                   placeholder="Selecione"
                   class="w-full"
+                  [showClear]="true"
+                  [filter]="true"
+                  filterBy="label"
                   [ngClass]="{
                     'ng-invalid ng-dirty':
                       actionForm.get('responsibleEmployeeId')?.invalid &&
@@ -194,6 +198,12 @@
           ><p class="font-light text-gray-500">N/A</p></ng-template
         >
 
+        <h2
+          class="text-xl font-semibold text-white mb-4 mt-8 flex items-center"
+        >
+          <i class="pi pi-box mr-2 text-yellow-400"></i> Itens do Pedido
+        </h2>
+
         <p-table
           [value]="orderItemsFormArray.controls"
           dataKey="id"
@@ -202,17 +212,11 @@
           <ng-template pTemplate="header">
             <tr>
               <th class="w-1/4">PRODUTO</th>
-              <th
-                class="w-1/5"
-                *ngIf="
-                  actionType === OrderActionType.Approve ||
-                  actionType === OrderActionType.Separate
-                "
-              >
-                QUANTIDADE DISPONÍVEL
+              <th class="w-1/5" *ngIf="actionType === OrderActionType.Approve">
+                QTD. DISPONÍVEL
               </th>
-              <th class="w-1/5">QUANTIDADE SOLICITADA</th>
-              <th class="w-1/5">QUANTIDADE APROVADA</th>
+              <th class="w-1/5">QTD. SOLICITADA</th>
+              <th class="w-1/5">QTD. APROVADA</th>
               <th
                 class="w-1/5"
                 *ngIf="
@@ -221,7 +225,7 @@
                   actionType === OrderActionType.Details
                 "
               >
-                QUANTIDADE SEPARADA
+                QTD. SEPARADA
               </th>
             </tr>
           </ng-template>
@@ -229,12 +233,7 @@
           <ng-template pTemplate="body" let-itemFormGroup let-ri="rowIndex">
             <tr [formGroup]="itemFormGroup">
               <td>{{ itemFormGroup.get("productName")?.value }}</td>
-              <td
-                *ngIf="
-                  actionType === OrderActionType.Approve ||
-                  actionType === OrderActionType.Separate
-                "
-              >
+              <td *ngIf="actionType === OrderActionType.Approve">
                 {{ itemFormGroup.get("availableQuantity")?.value }}
               </td>
               <td>{{ itemFormGroup.get("requestedQuantity")?.value }}</td>
