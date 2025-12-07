@@ -108,6 +108,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
     unitValue: 'Valor Unitário',
     itemTotalValue: 'Valor Total do Item',
     batch: 'Lote',
+    brand: 'Marca',
     expiryDate: 'Data de Validade'
   };
 
@@ -206,6 +207,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
       totalValue: [{ value: null, disabled: true }],
       batch: ['', Validators.required],
       expiryDate: [null, Validators.required],
+      brand: [null, Validators.required],
     });
 
     this.receivedItems.push(itemGroup);

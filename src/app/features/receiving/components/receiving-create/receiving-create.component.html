@@ -244,6 +244,7 @@
                   <th [style]="{ width: '15%' }">Valor Unitário</th>
                   <th [style]="{ width: '15%' }">Valor Total</th>
                   <th [style]="{ width: '15%' }">Lote</th>
+                  <th [style]="{ width: '15%' }">Marca</th>
                   <th [style]="{ width: '15%' }">Validade</th>
                   <th [style]="{ width: '5%', 'text-align': 'center' }">
                     Ações
@@ -335,6 +336,19 @@
                       [ngClass]="{
                         'border-red-500':
                           receivingFormSubmitted && item.get('batch')?.invalid
+                      }"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      pInputText
+                      formControlName="brand"
+                      maxlength="100"
+                      class="w-full"
+                      [ngClass]="{
+                        'border-red-500':
+                          receivingFormSubmitted && item.get('brand')?.invalid
                       }"
                     />
                   </td>
