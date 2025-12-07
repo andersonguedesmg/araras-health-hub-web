@@ -93,6 +93,7 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
   private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -112,7 +113,7 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
           debounceTime(300),
           switchMap(event => {
             this.isLoading = true;
-            const pageNumber = event.first / event.rows + 1;
+            const pageNumber = (event.first / event.rows) + 1;
             const pageSize = event.rows;
             return this.orderService.loadOrders(pageNumber, pageSize);
           })
@@ -132,6 +133,7 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
           }
         })
     );
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -139,6 +141,7 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
   }
 
   loadOrders(event: any) {
+    this.lastLazyEvent = event;
     this.loadLazy.next(event);
   }
 
@@ -167,6 +170,6 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
 
   handleActionComplete(updatedOrder: Order) {
     this.displayActionModal = false;
-    this.loadLazy.next({});
+    this.loadLazy.next(this.lastLazyEvent);
   }
 }
