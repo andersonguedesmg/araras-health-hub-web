@@ -12,7 +12,9 @@ export interface ApproveOrderCommand {
 
 export interface SeparateOrderItem {
   orderItemId: number;
+  productId: number;
   actualQuantity: number;
+  separatedLots: SeparatedLot[];
 }
 
 export interface SeparateOrderCommand {
@@ -20,6 +22,12 @@ export interface SeparateOrderCommand {
   separatedByEmployeeId: number;
   separatedByAccountId: number;
   orderItems: SeparateOrderItem[];
+}
+
+export interface SeparatedLot {
+  batch: string;
+  brand: string;
+  quantity: number;
 }
 
 export interface FinalizeOrderCommand {

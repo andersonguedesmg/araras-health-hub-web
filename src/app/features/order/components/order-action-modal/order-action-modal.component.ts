@@ -15,7 +15,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { ApiResponse } from '../../../../shared/interfaces/api-response';
 import { firstValueFrom, Subscription } from 'rxjs';
-import { ApproveOrderCommand, SeparateOrderCommand, FinalizeOrderCommand } from '../../interfaces/order-commands';
+import { ApproveOrderCommand, SeparateOrderCommand, FinalizeOrderCommand, SeparateOrderItem, SeparatedLot } from '../../interfaces/order-commands';
 import { OrderItem } from '../../interfaces/orderItem';
 import { TagModule } from 'primeng/tag';
 import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order-status.utils';
@@ -58,7 +58,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
   currentAccountId: number;
   pickingDetails: Order | undefined;
 
-  private orderFormLabels: { [key: string]: string; } = {
+  private orderFormLabels: { [key: string]: string } = {
     responsibleEmployeeId: 'Responsável',
     approvedQuantity: 'Quantidade Aprovada',
     actualQuantity: 'Quantidade Real',
@@ -174,7 +174,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     orderData.orderItems.forEach(item => {
       if (this.actionType === OrderActionType.Separate && item.lotsToSeparate && item.lotsToSeparate.length > 0) {
         const lotsFormArray = this.fb.array(
-          item.lotsToSeparate.map(lot => this.createLotFormGroup(lot))
+          item.lotsToSeparate.map(lot => this.createLotFormGroup(lot as LotToSeparate))
         );
 
         const itemGroup = this.fb.group({
@@ -209,6 +209,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     return this.fb.group({
       stockLotId: [lot.stockLotId],
       batch: [lot.batch],
+      brand: [lot.brand || ''],
       expiryDate: [lot.expiryDate],
       initialLotQuantity: [lot.quantityToSeparate],
       quantityToSeparate: [lot.quantityToSeparate || 0, [Validators.required, Validators.min(0)]],
@@ -258,7 +259,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     return this.actionForm.get('orderItems') as FormArray;
   }
 
-  private validateForm(formGroup: FormGroup, labels: { [key: string]: string; }): boolean {
+  private validateForm(formGroup: FormGroup, labels: { [key: string]: string }): boolean {
     this.formHelperService.markAllControlsAsTouched(formGroup);
 
     if (formGroup.valid) {
@@ -279,7 +280,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     return false;
   }
 
-  private getFormControlName(control: AbstractControl, labels: { [key: string]: string; }): string {
+  private getFormControlName(control: AbstractControl, labels: { [key: string]: string }): string {
     const parent = control.parent;
 
     if (parent instanceof FormGroup) {
@@ -354,18 +355,39 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
           response = await firstValueFrom(this.orderService.approveOrder(approveCommand));
           break;
         case OrderActionType.Separate:
-          const totalActualQuantityCommand: SeparateOrderCommand = {
+          const separateOrderItems: SeparateOrderItem[] = formValue.orderItems.map((item: any) => {
+            let separatedLots: SeparatedLot[] = [];
+            let totalActualQuantity = 0;
+
+            if (item.lotsToSeparate && Array.isArray(item.lotsToSeparate) && item.lotsToSeparate.length > 0) {
+              separatedLots = item.lotsToSeparate.filter((lot: any) => (lot.quantityToSeparate ?? 0) > 0).map((lot: any) => {
+                const quantity = lot.quantityToSeparate ?? 0;
+                return {
+                  batch: lot.batch,
+                  brand: lot.brand || '',
+                  quantity: quantity,
+                } as SeparatedLot;
+              });
+              totalActualQuantity = separatedLots.reduce((sum, lot) => sum + lot.quantity, 0);
+            } else {
+              totalActualQuantity = item.actualQuantity ?? 0;
+            }
+
+            return {
+              orderItemId: item.id,
+              productId: item.productId,
+              actualQuantity: totalActualQuantity,
+              separatedLots: separatedLots,
+            } as SeparateOrderItem;
+          });
+
+          const separateCommand: SeparateOrderCommand = {
             orderId: formValue.id,
             separatedByEmployeeId: formValue.responsibleEmployeeId,
             separatedByAccountId: formValue.accountId,
-            orderItems: formValue.orderItems.map((item: any) => ({
-              orderItemId: item.id,
-              actualQuantity: item.lotsToSeparate && item.lotsToSeparate.length > 0
-                ? item.lotsToSeparate.reduce((sum: number, lot: any) => sum + (lot.quantityToSeparate ?? 0), 0)
-                : item.actualQuantity ?? 0
-            }))
+            orderItems: separateOrderItems,
           };
-          response = await firstValueFrom(this.orderService.separateOrder(totalActualQuantityCommand));
+          response = await firstValueFrom(this.orderService.separateOrder(separateCommand));
           break;
         case OrderActionType.Finalize:
           const finalizeCommand: FinalizeOrderCommand = {
