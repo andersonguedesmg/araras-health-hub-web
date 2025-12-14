@@ -33,6 +33,7 @@ import { DropdownDataService } from '../../../../shared/services/dropdown-data.s
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { OrderStatusId } from '../../../../shared/enums/order-status-id.enum';
 import { BaseComponent } from '../../../../core/components/base/base.component';
+import { OrderCancelModalComponent } from '../order-cancel-modal/order-cancel-modal.component';
 
 @Component({
   selector: 'app-order-separate',
@@ -57,6 +58,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     TableComponent,
     TableHeaderComponent,
     OrderActionModalComponent,
+    OrderCancelModalComponent,
     HasRoleDirective,
   ],
   templateUrl: './order-separate.component.html',
@@ -83,6 +85,9 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
   selectedOrderForAction!: Order;
   orderActionType = OrderActionType;
   actionType!: OrderActionType;
+
+  displayCancelModal = false;
+  selectedOrderForCancel!: Order;
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
@@ -159,8 +164,14 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
     this.displayActionModal = true;
   }
 
-  handleActionComplete(updatedOrder: Order) {
+  onCancelClick(order: Order) {
+    this.selectedOrderForCancel = order;
+    this.displayCancelModal = true;
+  }
+
+  handleActionComplete(updatedOrder: Order | undefined) {
     this.displayActionModal = false;
+    this.displayCancelModal = false;
     this.loadLazy.next(this.lastLazyEvent);
   }
 

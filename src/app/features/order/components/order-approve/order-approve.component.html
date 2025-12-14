@@ -67,7 +67,6 @@
             </td>
             <td>
               <p-button
-                *appHasRole="['Master', 'Admin']"
                 icon="pi pi-check"
                 class="mr-2"
                 pTooltip="Aprovar"
@@ -75,6 +74,17 @@
                 [rounded]="true"
                 [outlined]="true"
                 (click)="onApproveClick(order)"
+              />
+              <p-button
+                *appHasRole="['Master', 'Admin']"
+                icon="pi pi-times"
+                class="mr-2"
+                severity="danger"
+                pTooltip="Cancelar"
+                tooltipPosition="bottom"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="onCancelClick(order)"
               />
             </td>
           </tr>
@@ -93,3 +103,12 @@
   (onActionComplete)="handleActionComplete($event)"
 >
 </app-order-action-modal>
+
+<app-order-cancel-modal
+  [display]="displayCancelModal"
+  [order]="selectedOrderForCancel!"
+  [responsibleEmployeeOptions]="employeeOptions"
+  (displayChange)="displayCancelModal = $event"
+  (onCancelComplete)="handleActionComplete($event)"
+>
+</app-order-cancel-modal>
