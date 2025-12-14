@@ -35,3 +35,10 @@ export interface FinalizeOrderCommand {
   finalizedByEmployeeId: number;
   finalizedByAccountId: number;
 }
+
+export interface CancelOrderCommand {
+  orderId: number;
+  canceledByAccountId: number;
+  canceledByEmployeeId: number;
+  cancellationReason: string;
+}

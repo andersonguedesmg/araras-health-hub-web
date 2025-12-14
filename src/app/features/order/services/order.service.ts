@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
 import { Order } from '../interfaces/order';
-import { ApproveOrderCommand, FinalizeOrderCommand, SeparateOrderCommand } from '../interfaces/order-commands';
+import { ApproveOrderCommand, CancelOrderCommand, FinalizeOrderCommand, SeparateOrderCommand } from '../interfaces/order-commands';
 
 @Injectable({
   providedIn: 'root'
@@ -91,7 +91,19 @@ export class OrderService {
 
   public finalizeOrder(order: FinalizeOrderCommand): Observable<ApiResponse<Order>> {
     const url = this.apiConfig.getUrl('order', 'finalize');
-    return this.http.post<ApiResponse<Order>>(url, order).pipe(
+    return this.http.put<ApiResponse<Order>>(url, order).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          const currentOrders = this.ordersSubject.getValue();
+          this.ordersSubject.next([...currentOrders, response.data]);
+        }
+      })
+    );
+  }
+
+  public cancelOrder(order: CancelOrderCommand): Observable<ApiResponse<Order>> {
+    const url = this.apiConfig.getUrl('order', 'cancel');
+    return this.http.put<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
           const currentOrders = this.ordersSubject.getValue();

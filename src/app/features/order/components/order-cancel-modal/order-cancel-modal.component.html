@@ -1,0 +1,90 @@
+<app-spinner [loading]="isLoading"></app-spinner>
+<app-confirm-dialog></app-confirm-dialog>
+
+<p-dialog
+  [(visible)]="display"
+  (onHide)="closeModal()"
+  [modal]="true"
+  [style]="{ width: '50vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  header="Cancelar Pedido #{{ order?.id }}"
+>
+  <div class="p-4">
+    <p class="text-lg font-semibold text-red-500 mb-3">
+      <i class="pi pi-exclamation-triangle mr-2"></i>
+      Atenção: O cancelamento é irreversível.
+    </p>
+
+    <p *ngIf="order?.orderStatus?.id === 2" class="text-gray-300 mb-4">
+      Os itens reservados neste pedido serão liberados para o estoque
+    </p>
+
+    <form [formGroup]="cancelForm">
+      <div class="mb-4">
+        <label
+          for="canceledByEmployeeId"
+          class="block text-sm font-medium text-gray-500"
+        >
+          Responsável:
+          <span class="text-red-500">*</span>
+        </label>
+        <p-select
+          [options]="responsibleEmployeeOptions"
+          formControlName="canceledByEmployeeId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full mt-1"
+          placeholder="Selecione"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="label"
+          [ngClass]="{
+            'border-red-500':
+              formSubmitted && cancelForm.get('canceledByEmployeeId')?.invalid
+          }"
+        ></p-select>
+      </div>
+
+      <div class="mb-4">
+        <label
+          for="cancellationReason"
+          class="block text-sm font-medium text-gray-500"
+          >Motivo:
+          <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          rows="3"
+          pTextarea
+          formControlName="cancellationReason"
+          minlength="10"
+          maxlength="500"
+          class="mt-1 p-2 border rounded-md w-full"
+          [ngClass]="{
+            'border-red-500':
+              formSubmitted && cancelForm.get('cancellationReason')?.invalid
+          }"
+        ></textarea>
+      </div>
+    </form>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Confirmar Cancelamento"
+      icon="pi pi-times"
+      severity="danger"
+      (click)="onCancelClick()"
+      [loading]="isLoading"
+    ></p-button>
+
+    <p-button
+      label="Voltar"
+      icon="pi pi-undo"
+      severity="info"
+      [outlined]="true"
+      [disabled]="isLoading"
+      (click)="closeModal()"
+    ></p-button>
+  </ng-template>
+</p-dialog>
