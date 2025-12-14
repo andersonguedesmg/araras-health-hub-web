@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PrimeIcons, MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
 import { AvatarModule } from 'primeng/avatar';
@@ -21,7 +21,7 @@ import { UserScopes } from '../../../core/constants/auth.constants';
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   @ViewChild('menu') menu!: Menu;
 
   items: MenuItem[] | undefined;
@@ -108,9 +108,7 @@ export class HeaderComponent implements OnInit {
           },
         ]
       });
-    }
 
-    if (canAccessManagement) {
       baseItems.push({
         label: 'Almoxarifado',
         icon: PrimeIcons.WAREHOUSE,
@@ -195,48 +193,50 @@ export class HeaderComponent implements OnInit {
     }
 
     if (canAccessOrders) {
+      const orderItems: MenuItem[] = [
+        {
+          label: 'Aguardando Aprovação',
+          icon: PrimeIcons.CLOCK,
+          routerLink: '/pedidos/aprovar',
+        },
+        ...(this.isManagementScope ? [{
+          label: 'Aguardando Separação',
+          icon: PrimeIcons.LIST_CHECK,
+          routerLink: '/pedidos/separar',
+        } as MenuItem] : []),
+        {
+          label: 'Aguardando Finalização',
+          icon: PrimeIcons.CHECK_SQUARE,
+          routerLink: '/pedidos/finalizar',
+        },
+        { separator: true },
+        {
+          label: 'Cancelado',
+          icon: PrimeIcons.BAN,
+          routerLink: '/pedidos/cancelados',
+        },
+        {
+          label: 'Finalizado',
+          icon: PrimeIcons.CHECK_CIRCLE,
+          routerLink: '/pedidos/finalizados',
+        },
+        {
+          label: 'Histórico',
+          icon: PrimeIcons.LIST,
+          routerLink: '/pedidos/historico',
+        },
+        { separator: true },
+        {
+          label: 'Novo',
+          icon: PrimeIcons.PLUS_CIRCLE,
+          routerLink: '/pedidos/novo',
+        },
+      ];
+
       baseItems.push({
         label: 'Pedido',
         icon: PrimeIcons.SHOPPING_CART,
-        items: [
-          {
-            label: 'Aguardando Aprovação',
-            icon: PrimeIcons.CLOCK,
-            routerLink: '/pedidos/aprovar',
-          },
-          {
-            label: 'Aguardando Separação',
-            icon: PrimeIcons.LIST_CHECK,
-            routerLink: '/pedidos/separar',
-          },
-          {
-            label: 'Aguardando Finalização',
-            icon: PrimeIcons.CHECK_SQUARE,
-            routerLink: '/pedidos/finalizar',
-          },
-          {
-            label: 'Cancelado',
-            icon: PrimeIcons.BAN,
-            routerLink: '/pedidos/cancelados',
-          },
-          {
-            label: 'Finalizado',
-            icon: PrimeIcons.CHECK_CIRCLE,
-            routerLink: '/pedidos/finalizados',
-          },
-          { separator: true },
-          {
-            label: 'Histórico',
-            icon: PrimeIcons.LIST,
-            routerLink: '/pedidos/historico',
-          },
-          { separator: true },
-          {
-            label: 'Novo',
-            icon: PrimeIcons.PLUS_CIRCLE,
-            routerLink: '/pedidos/novo',
-          },
-        ]
+        items: orderItems
       });
     }
 
