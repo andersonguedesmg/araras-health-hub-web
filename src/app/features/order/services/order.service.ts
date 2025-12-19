@@ -118,9 +118,14 @@ export class OrderService {
     );
   }
 
-  public exportOrders(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('order', `export`);
-    const params = new HttpParams().set('searchTerm', searchTerm);
+  public exportOrders(searchTerm: string = '', orderStatusId?: number): Observable<HttpResponse<Blob>> {
+    const url = this.apiConfig.getUrl('order', 'export');
+    let params = new HttpParams().set('searchTerm', searchTerm);
+
+    if (orderStatusId !== undefined && orderStatusId !== null) {
+      params = params.set('orderStatusId', orderStatusId.toString());
+    }
+
     return this.http.get(url, {
       params,
       responseType: 'blob',

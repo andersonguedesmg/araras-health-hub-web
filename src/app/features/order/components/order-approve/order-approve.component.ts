@@ -10,7 +10,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -190,7 +189,11 @@ export class OrderApproveComponent extends BaseComponent implements OnInit, OnDe
     this.searchSubject.next(value);
   }
 
-  exportCSV(dt: Table) {
-    dt.exportCSV();
+  async exportOrders(): Promise<void> {
+    await this.exportData(
+      (searchTerm) => this.orderService.exportOrders(searchTerm, OrderStatusId.PendingApproval),
+      'pedido-pendente-aprovacao.csv',
+      this.searchTerm
+    );
   }
 }
