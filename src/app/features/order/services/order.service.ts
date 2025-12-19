@@ -15,13 +15,18 @@ export class OrderService {
 
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
-  public loadOrders(pageNumber: number, pageSize: number, orderStatusId?: number): Observable<ApiResponse<Order[]>> {
-    let url = this.apiConfig.getUrl('order', `getAll?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  public loadOrders(pageNumber: number, pageSize: number, searchTerm: string = '', orderStatusId?: number): Observable<ApiResponse<Order[]>> {
+    const url = this.apiConfig.getUrl('order', `getAll`);
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+
     if (orderStatusId !== undefined && orderStatusId !== null) {
-      url += `&OrderStatusId=${orderStatusId}`;
+      params = params.set('OrderStatusId', orderStatusId.toString());
     }
 
-    return this.http.get<ApiResponse<Order[]>>(url).pipe(
+    return this.http.get<ApiResponse<Order[]>>(url, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.ordersSubject.next(response.data);

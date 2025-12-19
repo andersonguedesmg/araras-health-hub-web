@@ -91,6 +91,9 @@ export class OrderFinalizeComponent extends BaseComponent implements OnInit, OnD
   getOrderSeverity = getOrderSeverity;
   getOrderStatus = getOrderStatus;
 
+  private searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+
   private loadLazy = new Subject<any>();
   private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
@@ -114,7 +117,7 @@ export class OrderFinalizeComponent extends BaseComponent implements OnInit, OnD
             this.isLoading = true;
             const pageNumber = (event.first / event.rows) + 1;
             const pageSize = event.rows;
-            return this.orderService.loadOrders(pageNumber, pageSize, OrderStatusId.ReadyForFinalization);
+            return this.orderService.loadOrders(pageNumber, pageSize, this.searchTerm, OrderStatusId.ReadyForFinalization);
           })
         )
         .subscribe({
@@ -132,6 +135,14 @@ export class OrderFinalizeComponent extends BaseComponent implements OnInit, OnD
           }
         })
     );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(400)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadOrders({ first: 0, rows: this.lastLazyEvent.rows });
+      })
+    );
+
     this.loadLazy.next(this.lastLazyEvent);
   }
 
@@ -162,6 +173,10 @@ export class OrderFinalizeComponent extends BaseComponent implements OnInit, OnD
   handleActionComplete(updatedOrder: Order) {
     this.displayActionModal = false;
     this.loadLazy.next(this.lastLazyEvent);
+  }
+
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
   }
 
   exportCSV(dt: Table) {

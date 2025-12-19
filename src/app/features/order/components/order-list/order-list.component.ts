@@ -115,7 +115,7 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
             this.isLoading = true;
             const pageNumber = (event.first / event.rows) + 1;
             const pageSize = event.rows;
-            return this.orderService.loadOrders(pageNumber, pageSize);
+            return this.orderService.loadOrders(pageNumber, pageSize, this.searchTerm);
           })
         )
         .subscribe({
@@ -133,6 +133,14 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
           }
         })
     );
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(debounceTime(400)).subscribe(searchTerm => {
+        this.searchTerm = searchTerm;
+        this.loadOrders({ first: 0, rows: this.lastLazyEvent.rows });
+      })
+    );
+
     this.loadLazy.next(this.lastLazyEvent);
   }
 
@@ -171,5 +179,9 @@ export class OrderListComponent extends BaseComponent implements OnInit, OnDestr
   handleActionComplete(updatedOrder: Order) {
     this.displayActionModal = false;
     this.loadLazy.next(this.lastLazyEvent);
+  }
+
+  onSearchInput(value: string): void {
+    this.searchSubject.next(value);
   }
 }
