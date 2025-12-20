@@ -67,6 +67,10 @@
             </td>
             <td>
               <p-button
+                *appHasPermission="
+                  ['Master', 'Admin', 'User'];
+                  scope: 'Management'
+                "
                 icon="pi pi-check"
                 class="mr-2"
                 pTooltip="Separar"
@@ -75,9 +79,8 @@
                 [outlined]="true"
                 (click)="onSeparateClick(order)"
               />
-
               <p-button
-                *appHasRole="['Master', 'Admin']"
+                *appHasPermission="['Master', 'Admin']"
                 icon="pi pi-times"
                 class="mr-2"
                 severity="danger"

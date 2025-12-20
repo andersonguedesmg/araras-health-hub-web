@@ -67,10 +67,12 @@
             </td>
             <td>
               <p-button
-                icon="pi pi-check"
+                *appHasPermission="['Master', 'Admin', 'User']"
+                icon="pi pi-info-circle"
                 class="mr-2"
                 pTooltip="Detalhar"
                 tooltipPosition="bottom"
+                severity="info"
                 [rounded]="true"
                 [outlined]="true"
                 (click)="onDetailClick(order)"

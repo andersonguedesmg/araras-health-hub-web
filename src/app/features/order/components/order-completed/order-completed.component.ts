@@ -31,6 +31,7 @@ import { DropdownDataService } from '../../../../shared/services/dropdown-data.s
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { OrderStatusId } from '../../../../shared/enums/order-status-id.enum';
 import { BaseComponent } from '../../../../core/components/base/base.component';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 
 @Component({
   selector: 'app-order-completed',
@@ -55,6 +56,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     TableComponent,
     TableHeaderComponent,
     OrderActionModalComponent,
+    HasPermissionDirective,
   ],
   templateUrl: './order-completed.component.html',
   styleUrl: './order-completed.component.scss'

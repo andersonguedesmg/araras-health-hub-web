@@ -67,6 +67,7 @@
             </td>
             <td>
               <p-button
+                *appHasPermission="['Master', 'Admin']; scope: 'Management'"
                 icon="pi pi-check"
                 class="mr-2"
                 pTooltip="Aprovar"
@@ -76,7 +77,7 @@
                 (click)="onApproveClick(order)"
               />
               <p-button
-                *appHasRole="['Master', 'Admin']"
+                *appHasPermission="['Master', 'Admin']"
                 icon="pi pi-times"
                 class="mr-2"
                 severity="danger"
