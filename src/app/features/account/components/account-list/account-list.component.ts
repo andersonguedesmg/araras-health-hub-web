@@ -26,7 +26,7 @@ import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/mes
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
-import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
@@ -59,7 +59,7 @@ import { ScopeOptions } from '../../../../shared/enums/scope.enum';
     TableComponent,
     DialogComponent,
     TableHeaderComponent,
-    HasRoleDirective,
+    HasPermissionDirective,
   ],
   providers: [MessageService],
   templateUrl: './account-list.component.html',

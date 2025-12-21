@@ -24,7 +24,7 @@ import { SupplierService } from '../../services/supplier.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
@@ -57,7 +57,7 @@ import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
     TableComponent,
     DialogComponent,
     TableHeaderComponent,
-    HasRoleDirective,
+    HasPermissionDirective,
   ],
   providers: [MessageService],
   templateUrl: './supplier-list.component.html',

@@ -31,7 +31,7 @@
             </p-iconfield>
             <div>
               <p-button
-                *appHasRole="['Master', 'Admin']"
+                *appHasPermission="['Master', 'Admin']; scope: 'Management'"
                 label="Novo"
                 icon="pi pi-plus"
                 class="mr-2"
@@ -76,7 +76,7 @@
             </td>
             <td>
               <p-button
-                *appHasRole="['Master', 'Admin']"
+                *appHasPermission="['Master', 'Admin']; scope: 'Management'"
                 icon="pi pi-pencil"
                 class="mr-2"
                 pTooltip="Editar"
@@ -96,7 +96,7 @@
                 (click)="openForm(FormMode.Detail, product)"
               />
               <p-button
-                *appHasRole="['Master', 'Admin']"
+                *appHasPermission="['Master', 'Admin']; scope: 'Management'"
                 icon="pi pi-trash"
                 severity="danger"
                 [pTooltip]="product.isActive ? 'Desativar' : 'Ativar'"

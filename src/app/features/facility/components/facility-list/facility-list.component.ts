@@ -24,7 +24,7 @@ import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
@@ -56,7 +56,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     TableComponent,
     DialogComponent,
     TableHeaderComponent,
-    HasRoleDirective,
+    HasPermissionDirective,
   ],
   providers: [MessageService],
   templateUrl: './facility-list.component.html',

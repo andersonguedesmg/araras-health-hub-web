@@ -24,7 +24,7 @@ import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/mes
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../interfaces/employee';
-import { HasRoleDirective } from '../../../../core/directives/has-role.directive';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
 import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
@@ -57,7 +57,7 @@ import { cpfValidator } from '../../../../core/validators/cpf-cnpj.validator';
     TableComponent,
     DialogComponent,
     TableHeaderComponent,
-    HasRoleDirective,
+    HasPermissionDirective,
   ],
   providers: [MessageService],
   templateUrl: './employee-list.component.html',
