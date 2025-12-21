@@ -1,119 +1,159 @@
 <div class="container mx-auto p-6">
-  <p-toolbar styleClass="bg-zinc-800 p-5 rounded-lg shadow-xl mb-8">
+  <p-toolbar styleClass="bg-zinc-800 p-5 rounded-lg shadow-xl mb-8 border-none">
     <div class="p-toolbar-group-start flex flex-col">
-      <h1 class="text-lg md:text-xl text-gray-300 font-semibold mb-2">
-        Dashboard
-      </h1>
-      <h2 class="text-2xl md:text-3xl font-bold text-white">
-        Araras Health Hub
-      </h2>
+      <h1 class="text-lg text-gray-400 font-medium">Bem-vindo ao Dashboard</h1>
+      <h2 class="text-3xl font-bold text-white">Araras Health Hub</h2>
     </div>
   </p-toolbar>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/pedido/aprovar"
+      class="bg-zinc-800 p-5 rounded-xl border-b-4 border-red-500 shadow-lg cursor-pointer hover:bg-zinc-700"
+      routerLink="/pedidos/aprovar"
     >
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-white">Aprovação de Pedidos</h3>
-        <i class="pi pi-list-check text-red-400 text-3xl"></i>
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-gray-400 text-sm font-medium uppercase">
+            Pendentes Aprovação
+          </p>
+          <h3 class="text-3xl font-bold text-white">
+            {{ summary?.pendingApprovalCount || 0 }}
+          </h3>
+        </div>
+        <i class="pi pi-bell text-red-500 text-2xl"></i>
       </div>
-      <p class="text-4xl font-bold text-white">3</p>
-      <p class="text-gray-400 mt-1">Pedidos pendentes para aprovação</p>
     </div>
 
     <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/pedido/separar"
+      class="bg-zinc-800 p-5 rounded-xl border-b-4 border-orange-500 shadow-lg cursor-pointer hover:bg-zinc-700"
+      routerLink="/pedidos/separar"
     >
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-white">Separação de Itens</h3>
-        <i class="pi pi-inbox text-orange-400 text-3xl"></i>
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-gray-400 text-sm font-medium uppercase">
+            Aguardando Separação
+          </p>
+          <h3 class="text-3xl font-bold text-white">
+            {{ summary?.pendingSeparationCount || 0 }}
+          </h3>
+        </div>
+        <i class="pi pi-box text-orange-500 text-2xl"></i>
       </div>
-      <p class="text-4xl font-bold text-white">2</p>
-      <p class="text-gray-400 mt-1">Pedidos aguardando separação</p>
     </div>
 
     <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/pedido/finalizar"
+      class="bg-zinc-800 p-5 rounded-xl border-b-4 border-red-600 shadow-lg cursor-pointer hover:bg-zinc-700"
+      routerLink="/almoxarifado/estoque/critico"
     >
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-white">
-          Finalização de Entregas
-        </h3>
-        <i class="pi pi-truck text-green-400 text-3xl"></i>
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-gray-400 text-sm font-medium uppercase">
+            Estoque Crítico
+          </p>
+          <h3 class="text-3xl font-bold text-white">
+            {{ summary?.criticalStockCount || 0 }}
+          </h3>
+        </div>
+        <i class="pi pi-exclamation-circle text-red-600 text-2xl"></i>
       </div>
-      <p class="text-4xl font-bold text-white">5</p>
-      <p class="text-gray-400 mt-1">Pedidos aguardando registro de entrega</p>
+    </div>
+
+    <div
+      class="bg-zinc-800 p-5 rounded-xl border-b-4 border-blue-500 shadow-lg cursor-pointer hover:bg-zinc-700"
+      routerLink="/almoxarifado/estoque/geral"
+    >
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-gray-400 text-sm font-medium uppercase">
+            Itens Ativos
+          </p>
+          <h3 class="text-3xl font-bold text-white">
+            {{ summary?.totalActiveProducts || 0 }}
+          </h3>
+        </div>
+        <i class="pi pi-database text-blue-500 text-2xl"></i>
+      </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/estoque/critico"
-    >
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-white">Itens em Estoque Crítico</h3>
-        <i class="pi pi-exclamation-triangle text-red-600 text-3xl"></i>
-      </div>
-      <p class="text-4xl font-bold text-white">14</p>
-      <p class="text-gray-400 mt-1">Itens abaixo do estoque mínimo</p>
-    </div>
-    <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/entradas/nova"
-    >
-      <i class="pi pi-plus-circle text-blue-400 text-4xl mb-4"></i>
-      <span class="text-xl font-semibold text-white text-center"
-        >Registrar Nova Entrada</span
-      >
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="bg-zinc-800 p-6 rounded-xl shadow-lg">
+      <h3 class="text-white font-semibold mb-4 text-xl">
+        Evolução Mensal de Pedidos
+      </h3>
+      <p-chart
+        type="line"
+        [data]="lineData"
+        [options]="chartOptions"
+        height="300px"
+      ></p-chart>
     </div>
 
-    <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/estoque"
-    >
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-white">Itens em Estoque</h3>
-        <i class="pi pi-database text-green-400 text-3xl"></i>
+    <div class="bg-zinc-800 p-6 rounded-xl shadow-lg">
+      <h3 class="text-white font-semibold mb-4 text-xl">
+        Distribuição por Categoria
+      </h3>
+      <div class="flex justify-center">
+        <p-chart
+          type="doughnut"
+          [data]="pieData"
+          [options]="chartOptions"
+          height="300px"
+        ></p-chart>
       </div>
-      <p class="text-4xl font-bold text-white">5.420</p>
-      <p class="text-gray-400 mt-1">Produtos ativos</p>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/unidades"
+  <h3 class="text-white font-semibold mb-4 text-xl">Acesso Rápido</h3>
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <button
+      routerLink="/almoxarifado/movimentacoes/entradas/nova"
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-blue-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
     >
-      <i class="pi pi-building text-blue-400 text-4xl mb-4"></i>
-      <span class="text-xl font-semibold text-white text-center"
-        >Gerenciar Unidades</span
-      >
-    </div>
+      <i class="pi pi-plus-circle text-2xl"></i>
+      <span class="text-xs font-medium text-white">Nova Entrada</span>
+    </button>
 
-    <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
-      routerLink="/contas"
+    <button
+      routerLink="/almoxarifado/configuracoes/estoque-minimo"
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-purple-500 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
     >
-      <i class="pi pi-users text-teal-400 text-4xl mb-4"></i>
-      <span class="text-xl font-semibold text-white text-center"
-        >Gerenciar Contas</span
+      <i class="pi pi-sliders-h text-2xl"></i>
+      <span class="text-xs font-medium text-white"
+        >Configurar Estoque Mínimo</span
       >
-    </div>
+    </button>
 
-    <div
-      class="bg-zinc-800 p-6 rounded-lg shadow-md flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-700 transition-colors duration-300"
+    <button
+      routerLink="/administracao/produtos"
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-green-500 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
+    >
+      <i class="pi pi-box text-2xl"></i>
+      <span class="text-xs font-medium text-white">Gerenciar Produtos</span>
+    </button>
+
+    <button
+      routerLink="/almoxarifado/estoque/proximo-vencimento"
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-red-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
+    >
+      <i class="pi pi-clock text-2xl"></i>
+      <span class="text-xs font-medium text-white">Vencimento Próximo</span>
+    </button>
+
+    <button
+      routerLink="/administracao/fornecedores"
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-teal-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
+    >
+      <i class="pi pi-truck text-2xl"></i>
+      <span class="text-xs font-medium text-white">Gerenciar Fornecedores</span>
+    </button>
+
+    <button
       routerLink="/relatorios"
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-orange-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
     >
-      <i class="pi pi-chart-bar text-orange-400 text-4xl mb-4"></i>
-      <span class="text-xl font-semibold text-white text-center"
-        >Visualizar Relatórios</span
-      >
-    </div>
+      <i class="pi pi-chart-bar text-2xl"></i>
+      <span class="text-xs font-medium text-white">Visualizar Relatórios</span>
+    </button>
   </div>
 </div>
