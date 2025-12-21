@@ -82,6 +82,11 @@ export class OrderService {
     return this.http.get<ApiResponse<Order>>(url);
   }
 
+  public getPickingReport(id: number): Observable<Blob> {
+    const url = this.apiConfig.getUrl('order', `picking-report/${id}`);
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
   public separateOrder(order: SeparateOrderCommand): Observable<ApiResponse<Order>> {
     const url = this.apiConfig.getUrl('order', 'separate');
     return this.http.put<ApiResponse<Order>>(url, order).pipe(

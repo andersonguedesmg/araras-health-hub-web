@@ -71,6 +71,22 @@
                   ['Master', 'Admin', 'User'];
                   scope: 'Management'
                 "
+                icon="pi pi-print"
+                class="mr-2"
+                severity="info"
+                pTooltip="Imprimir"
+                tooltipPosition="bottom"
+                [rounded]="true"
+                [outlined]="true"
+                [loading]="isLoading"
+                (click)="onPrintClick(order)"
+              />
+
+              <p-button
+                *appHasPermission="
+                  ['Master', 'Admin', 'User'];
+                  scope: 'Management'
+                "
                 icon="pi pi-check"
                 class="mr-2"
                 pTooltip="Separar"
@@ -79,6 +95,7 @@
                 [outlined]="true"
                 (click)="onSeparateClick(order)"
               />
+
               <p-button
                 *appHasPermission="['Master', 'Admin']"
                 icon="pi pi-times"

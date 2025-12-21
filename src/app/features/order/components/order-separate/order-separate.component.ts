@@ -189,6 +189,27 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
     this.searchSubject.next(value);
   }
 
+  onPrintClick(order: any) {
+    this.isLoading = true;
+    this.orderService.getPickingReport(order.id).subscribe({
+      next: (blob: Blob) => {
+        this.isLoading = false;
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Lista_Separacao_Pedido_${order.id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.handleApiError(error);
+      }
+    });
+  }
+
   async exportOrders(): Promise<void> {
     await this.exportData(
       (searchTerm) => this.orderService.exportOrders(searchTerm, OrderStatusId.ReadyForPicking),
