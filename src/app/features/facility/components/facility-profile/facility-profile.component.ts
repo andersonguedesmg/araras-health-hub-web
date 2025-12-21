@@ -15,6 +15,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
 import { FacilityProfile } from '../../interfaces/facility-profile';
 import { TableModule } from 'primeng/table';
 import { getScopeSeverity, getScopeValue } from '../../../../shared/utils/scope.utils';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 
 @Component({
   selector: 'app-facility-profile',
@@ -26,6 +27,7 @@ import { getScopeSeverity, getScopeValue } from '../../../../shared/utils/scope.
     TableModule,
     BreadcrumbComponent,
     SpinnerComponent,
+    HasPermissionDirective,
   ],
   providers: [MessageService],
   templateUrl: './facility-profile.component.html',
@@ -58,6 +60,7 @@ export class FacilityProfileComponent extends BaseComponent implements OnInit {
     this.isLoading = true;
     try {
       const response = await firstValueFrom(this.facilityService.getFacilityProfile());
+      console.log('loadFacilityProfile response:', response);
       if (response.success && response.data) {
         this.facilityProfile = response.data;
       }

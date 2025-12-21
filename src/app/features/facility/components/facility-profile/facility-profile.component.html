@@ -30,11 +30,11 @@
       <div class="space-y-3 text-gray-300">
         <div>
           <label class="block text-sm text-gray-400">Telefone:</label>
-          <p class="font-light">{{ facilityProfile.phone }}</p>
+          <p class="font-light">{{ facilityProfile.contact.phone }}</p>
         </div>
         <div>
           <label class="block text-sm text-gray-400">Email:</label>
-          <p class="font-light">{{ facilityProfile.email }}</p>
+          <p class="font-light">{{ facilityProfile.contact.email }}</p>
         </div>
       </div>
     </div>
@@ -50,16 +50,18 @@
         <div>
           <label class="block text-sm text-gray-400">Endereço:</label>
           <p class="font-light">
-            {{ facilityProfile.address }}, {{ facilityProfile.number }}
+            {{ facilityProfile.address.street }},
+            {{ facilityProfile.address.number }}
           </p>
           <p class="font-light text-sm text-gray-400">
-            {{ facilityProfile.neighborhood }}, {{ facilityProfile.city }} -
-            {{ facilityProfile.state }}
+            {{ facilityProfile.address.neighborhood }},
+            {{ facilityProfile.address.city }} -
+            {{ facilityProfile.address.state }}
           </p>
         </div>
         <div>
           <label class="block text-sm text-gray-400">CEP:</label>
-          <p class="font-light">{{ facilityProfile.cep }}</p>
+          <p class="font-light">{{ facilityProfile.address.cep }}</p>
         </div>
       </div>
     </div>
@@ -95,12 +97,15 @@
     </div>
   </div>
 
-  <div class="bg-zinc-800 p-6 rounded-lg shadow-md">
+  <div
+    class="bg-zinc-800 p-6 rounded-lg shadow-md"
+    *appHasPermission="['Master', 'Admin', 'User']; scope: 'Management'"
+  >
     <h3 class="text-xl font-semibold text-white mb-4">Contas Associadas</h3>
     <div class="bg-zinc-900 border border-zinc-600 rounded-md p-8 mt-4">
       <p-table
         *ngIf="
-          facilityProfile?.facilityAccounts &&
+          facilityProfile.facilityAccounts &&
           facilityProfile.facilityAccounts.length > 0
         "
         [value]="facilityProfile.facilityAccounts"

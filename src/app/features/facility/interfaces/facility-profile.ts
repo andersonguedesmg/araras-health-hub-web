@@ -1,16 +1,12 @@
+import { Address } from "../../../shared/interfaces/address";
+import { Contact } from "../../../shared/interfaces/contact";
 import { AccountDetails } from "../../account/interfaces/account-details";
 
 export interface FacilityProfile {
   id: number;
   name: string;
-  cep: string;
-  address: string;
-  number: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  email: string;
-  phone: string;
+  address: Address;
+  contact: Contact;
   createdOn: string;
   updatedOn: string;
   isActive: boolean;
