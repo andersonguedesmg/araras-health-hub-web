@@ -1,38 +1,8 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
-import { NotFoundComponent } from './shared/pages/not-found/not-found.component';
-import { AboutComponent } from './shared/pages/about/about.component';
-import { HomeComponent } from './shared/pages/home/home.component';
-import { FacilityListComponent } from './features/facility/components/facility-list/facility-list.component';
-import { EmployeeListComponent } from './features/employee/components/employee-list/employee-list.component';
-import { SupplierListComponent } from './features/supplier/components/supplier-list/supplier-list.component';
-import { ProductListComponent } from './features/product/components/product-list/product-list.component';
-import { StockListComponent } from './features/stock/components/stock-list/stock-list.component';
-import { OrderListComponent } from './features/order/components/order-list/order-list.component';
-import { AccountListComponent } from './features/account/components/account-list/account-list.component';
-import { LoginComponent } from './core/components/login/login.component';
-import { FacilityProfileComponent } from './features/facility/components/facility-profile/facility-profile.component';
-import { RegisterComponent } from './core/components/register/register.component';
-import { ReceivingListComponent } from './features/receiving/components/receiving-list/receiving-list.component';
-import { ReceivingCreateComponent } from './features/receiving/components/receiving-create/receiving-create.component';
-import { OrderCreateComponent } from './features/order/components/order-create/order-create.component';
-import { UnauthorizedComponent } from './shared/pages/unauthorized/unauthorized.component';
-import { OrderApproveComponent } from './features/order/components/order-approve/order-approve.component';
-import { OrderSeparateComponent } from './features/order/components/order-separate/order-separate.component';
-import { OrderFinalizeComponent } from './features/order/components/order-finalize/order-finalize.component';
-import { OrderCompletedComponent } from './features/order/components/order-completed/order-completed.component';
-import { StockMovementComponent } from './features/stock/components/stock-movement/stock-movement.component';
-import { StockCriticalComponent } from './features/stock/components/stock-critical/stock-critical.component';
-import { StockShippingComponent } from './features/stock/components/stock-shipping/stock-shipping.component';
-import { StockAdjustmentComponent } from './features/stock/components/stock-adjustment/stock-adjustment.component';
-import { StockMinimumQuantityComponent } from './features/stock/components/stock-minimum-quantity/stock-minimum-quantity.component';
 import { scopeGuard } from './core/guards/scope.guard';
 import { UserRoles, UserScopes } from './core/constants/auth.constants';
-import { StockAdjustmentCreateComponent } from './features/stock/components/stock-adjustment-create/stock-adjustment-create.component';
-import { StockNearExpiryLotsComponent } from './features/stock/components/stock-near-expiry-lots/stock-near-expiry-lots.component';
-import { StockActiveLotsComponent } from './features/stock/components/stock-active-lots/stock-active-lots.component';
-import { OrderCancelComponent } from './features/order/components/order-cancel/order-cancel.component';
 
 const SCOPE_MANAGEMENT = [UserScopes.MANAGEMENT];
 const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];
@@ -40,23 +10,23 @@ const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];
 export const routes: Routes = [
   {
     path: 'login',
-    component: LoginComponent,
+    loadComponent: () => import('./core/components/login/login.component').then(m => m.LoginComponent),
     title: 'A2H - Login',
   },
   {
     path: 'unauthorized',
-    component: UnauthorizedComponent,
+    loadComponent: () => import('./shared/pages/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent),
     title: 'Araras Health Hub',
   },
   {
     path: '',
-    component: HomeComponent,
+    loadComponent: () => import('./shared/pages/home/home.component').then(m => m.HomeComponent),
     title: 'Araras Health Hub',
     canActivate: [authGuard],
   },
   {
     path: 'sobre',
-    component: AboutComponent,
+    loadComponent: () => import('./shared/pages/about/about.component').then(m => m.AboutComponent),
     title: 'A2H - Sobre',
     canActivate: [authGuard],
   },
@@ -68,49 +38,49 @@ export const routes: Routes = [
       // ADMINISTRAÇÃO
       {
         path: 'administracao/contas',
-        component: AccountListComponent,
+        loadComponent: () => import('./features/account/components/account-list/account-list.component').then(m => m.AccountListComponent),
         title: 'A2H - Contas',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/contas/registrar',
-        component: RegisterComponent,
+        loadComponent: () => import('./core/components/register/register.component').then(m => m.RegisterComponent),
         title: 'A2H - Registro',
         canActivate: [scopeGuard, roleGuard],
         data: { scopes: SCOPE_MANAGEMENT, roles: [UserRoles.ADMIN, UserRoles.MASTER] }
       },
       {
         path: 'administracao/fornecedores',
-        component: SupplierListComponent,
+        loadComponent: () => import('./features/supplier/components/supplier-list/supplier-list.component').then(m => m.SupplierListComponent),
         title: 'A2H - Fornecedores',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/funcionarios',
-        component: EmployeeListComponent,
+        loadComponent: () => import('./features/employee/components/employee-list/employee-list.component').then(m => m.EmployeeListComponent),
         title: 'A2H - Funcionário',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/produtos',
-        component: ProductListComponent,
+        loadComponent: () => import('./features/product/components/product-list/product-list.component').then(m => m.ProductListComponent),
         title: 'A2H - Produtos',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/unidades',
-        component: FacilityListComponent,
+        loadComponent: () => import('./features/facility/components/facility-list/facility-list.component').then(m => m.FacilityListComponent),
         title: 'A2H - Unidades',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'administracao/unidades/perfil',
-        component: FacilityProfileComponent,
+        loadComponent: () => import('./features/facility/components/facility-profile/facility-profile.component').then(m => m.FacilityProfileComponent),
         title: 'A2H - Perfil da Unidade',
         canActivate: [scopeGuard],
       },
@@ -118,49 +88,49 @@ export const routes: Routes = [
       // PEDIDOS
       {
         path: 'pedidos/aprovar',
-        component: OrderApproveComponent,
+        loadComponent: () => import('./features/order/components/order-approve/order-approve.component').then(m => m.OrderApproveComponent),
         title: 'A2H - Pedidos para Aprovação',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/cancelados',
-        component: OrderCancelComponent,
+        loadComponent: () => import('./features/order/components/order-cancel/order-cancel.component').then(m => m.OrderCancelComponent),
         title: 'A2H - Pedidos Cancelados',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/finalizados',
-        component: OrderCompletedComponent,
+        loadComponent: () => import('./features/order/components/order-completed/order-completed.component').then(m => m.OrderCompletedComponent),
         title: 'A2H - Pedidos Finalizados',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/finalizar',
-        component: OrderFinalizeComponent,
+        loadComponent: () => import('./features/order/components/order-finalize/order-finalize.component').then(m => m.OrderFinalizeComponent),
         title: 'A2H - Pedidos para Finalização',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/historico',
-        component: OrderListComponent,
+        loadComponent: () => import('./features/order/components/order-list/order-list.component').then(m => m.OrderListComponent),
         title: 'A2H - Histórico de Pedidos',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/novo',
-        component: OrderCreateComponent,
+        loadComponent: () => import('./features/order/components/order-create/order-create.component').then(m => m.OrderCreateComponent),
         title: 'A2H - Novo Pedido',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_ALL_OPS }
       },
       {
         path: 'pedidos/separar',
-        component: OrderSeparateComponent,
+        loadComponent: () => import('./features/order/components/order-separate/order-separate.component').then(m => m.OrderSeparateComponent),
         title: 'A2H - Pedidos para Separação',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_ALL_OPS }
@@ -169,77 +139,77 @@ export const routes: Routes = [
       // ALMOXARIFADO
       {
         path: 'almoxarifado/estoque/geral',
-        component: StockListComponent,
+        loadComponent: () => import('./features/stock/components/stock-list/stock-list.component').then(m => m.StockListComponent),
         title: 'A2H - Estoque Geral',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/estoque/critico',
-        component: StockCriticalComponent,
+        loadComponent: () => import('./features/stock/components/stock-critical/stock-critical.component').then(m => m.StockCriticalComponent),
         title: 'A2H - Estoque Crítico',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/estoque/lotes-ativos',
-        component: StockActiveLotsComponent,
+        loadComponent: () => import('./features/stock/components/stock-active-lots/stock-active-lots.component').then(m => m.StockActiveLotsComponent),
         title: 'A2H - Lotes Ativos',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/estoque/proximo-vencimento',
-        component: StockNearExpiryLotsComponent,
+        loadComponent: () => import('./features/stock/components/stock-near-expiry-lots/stock-near-expiry-lots.component').then(m => m.StockNearExpiryLotsComponent),
         title: 'A2H - Vencimento Próximo',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/configuracoes/estoque-minimo',
-        component: StockMinimumQuantityComponent,
+        loadComponent: () => import('./features/stock/components/stock-minimum-quantity/stock-minimum-quantity.component').then(m => m.StockMinimumQuantityComponent),
         title: 'A2H - Estoque Mínimo',
         canActivate: [scopeGuard, roleGuard],
         data: { scopes: SCOPE_MANAGEMENT, roles: [UserRoles.ADMIN, UserRoles.MASTER] }
       },
       {
         path: 'almoxarifado/movimentacoes/ajustes',
-        component: StockAdjustmentComponent,
+        loadComponent: () => import('./features/stock/components/stock-adjustment/stock-adjustment.component').then(m => m.StockAdjustmentComponent),
         title: 'A2H - Ajustes',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/ajustes/novo',
-        component: StockAdjustmentCreateComponent,
+        loadComponent: () => import('./features/stock/components/stock-adjustment-create/stock-adjustment-create.component').then(m => m.StockAdjustmentCreateComponent),
         title: 'A2H - Novo Ajuste Manual',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/entradas',
-        component: ReceivingListComponent,
+        loadComponent: () => import('./features/receiving/components/receiving-list/receiving-list.component').then(m => m.ReceivingListComponent),
         title: 'A2H - Entradas',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/entradas/nova',
-        component: ReceivingCreateComponent,
+        loadComponent: () => import('./features/receiving/components/receiving-create/receiving-create.component').then(m => m.ReceivingCreateComponent),
         title: 'A2H - Nova Entrada',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/historico',
-        component: StockMovementComponent,
+        loadComponent: () => import('./features/stock/components/stock-movement/stock-movement.component').then(m => m.StockMovementComponent),
         title: 'A2H - Histórico de Movimentações',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
       },
       {
         path: 'almoxarifado/movimentacoes/saidas',
-        component: StockShippingComponent,
+        loadComponent: () => import('./features/stock/components/stock-shipping/stock-shipping.component').then(m => m.StockShippingComponent),
         title: 'A2H - Saídas',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT }
@@ -249,7 +219,7 @@ export const routes: Routes = [
 
   {
     path: '**',
-    component: NotFoundComponent,
+    loadComponent: () => import('./shared/pages/not-found/not-found.component').then(m => m.NotFoundComponent),
     title: 'Araras Health Hub',
   },
 ];
