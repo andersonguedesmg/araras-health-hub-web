@@ -102,11 +102,12 @@ export class RegisterComponent extends BaseComponent implements OnInit, OnDestro
     }
 
     const user = this.registerForm.getRawValue();
-    const apiCall = firstValueFrom(this.accountService.registerAccount(user));
+    const apiCall = () => firstValueFrom(this.accountService.registerAccount(user));
 
-    await this.handleApiCall(apiCall, ConfirmMessages.CREATE_ACCOUNT, ToastMessages.SUCCESS_OPERATION);
-
-    this.resetRegisterForm();
+    const success = await this.handleApiCall(apiCall, ConfirmMessages.CREATE_ACCOUNT, ToastMessages.SUCCESS_OPERATION);
+    if (success) {
+      this.resetRegisterForm();
+    }
   }
 
   public resetRegisterForm(): void {

@@ -97,6 +97,7 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
   private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -149,9 +150,11 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
     this.subscriptions.add(
       this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
         this.searchTerm = searchTerm;
-        this.loadEmployees({ first: 0, rows: 5 });
+        this.loadEmployees({ first: 0, rows: this.lastLazyEvent.rows });
       })
     );
+
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -159,6 +162,7 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
   }
 
   loadEmployees(event: any) {
+    this.lastLazyEvent = event;
     this.loadLazy.next(event);
   }
 
@@ -226,24 +230,27 @@ export class EmployeeListComponent extends BaseComponent implements OnInit, OnDe
     if (this.validateForm()) {
       const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_EMPLOYEE : ConfirmMessages.UPDATE_EMPLOYEE;
       const employee = this.employeeForm.getRawValue();
-      const apiCall = this.formMode === FormMode.Create
+      const apiCall = () => this.formMode === FormMode.Create
         ? firstValueFrom(this.employeeService.createEmployee(employee))
         : firstValueFrom(this.employeeService.updateEmployee(employee, employee.id));
-      await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-      this.hideDialog();
+
+      const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+      if (success) {
+        this.loadLazy.next(this.lastLazyEvent);
+        this.hideDialog();
+      }
     }
   }
 
   async changeStatusEmployee(employeeId: number, employee: Employee): Promise<void> {
     const confirmMsg = employee.isActive ? ConfirmMessages.DISABLE_EMPLOYEE : ConfirmMessages.ACTIVATE_EMPLOYEE;
-    const changeEmployeeIsActive = this.changeIsActive(employee);
-    const apiCall = firstValueFrom(this.employeeService.changeStatusEmployee(employeeId, changeEmployeeIsActive));
-    await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-  }
+    const changeEmployeeIsActive = { ...employee, isActive: !employee.isActive };
+    const apiCall = () => firstValueFrom(this.employeeService.changeStatusEmployee(employeeId, changeEmployeeIsActive));
 
-  async deleteEmployee(employeeId: number): Promise<void> {
-    const apiCall = firstValueFrom(this.employeeService.deleteEmployee(employeeId));
-    await this.handleApiCall(apiCall, ConfirmMessages.DELETE_EMPLOYEE, ToastMessages.SUCCESS_OPERATION);
+    const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+    if (success) {
+      this.loadLazy.next(this.lastLazyEvent);
+    }
   }
 
   private validateForm(): boolean {

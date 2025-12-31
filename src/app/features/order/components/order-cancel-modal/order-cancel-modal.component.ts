@@ -114,7 +114,7 @@ export class OrderCancelModalComponent extends BaseComponent implements OnInit, 
         cancellationReason: formValue.cancellationReason
       };
 
-      const apiCall = firstValueFrom(this.orderService.cancelOrder(cancelCommand));
+      const apiCall = () => firstValueFrom(this.orderService.cancelOrder(cancelCommand));
 
       try {
         await this.handleApiCall(

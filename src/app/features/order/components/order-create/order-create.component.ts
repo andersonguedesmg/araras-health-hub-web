@@ -138,7 +138,7 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
     if (this.validateFormAndShowErrors(this.orderForm, this.formHelperService, this.orderFormLabels)) {
 
       const order: Order = this.orderForm.getRawValue();
-      const apiCall = firstValueFrom(this.orderService.createOrder(order));
+      const apiCall = () => firstValueFrom(this.orderService.createOrder(order));
 
       await this.handleApiCall(
         apiCall,

@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-confirm-dialog',
@@ -17,30 +18,27 @@ export class ConfirmDialogComponent {
   @Input() rejectLabel = 'Não';
   @Input() acceptIcon = 'pi pi-check';
   @Input() rejectIcon = 'pi pi-times';
-  @Output() confirmed = new EventEmitter<void>();
-  @Output() rejected = new EventEmitter<void>();
+
+  private confirmationSubject = new Subject<boolean>();
 
   constructor(private confirmationService: ConfirmationService) { }
 
-  show(): void {
+  show(): Subject<boolean> {
+    this.confirmationSubject = new Subject<boolean>();
+
     this.confirmationService.confirm({
       message: this.message,
       header: this.header,
       icon: this.icon,
       accept: () => {
-        this.accept();
+        this.confirmationSubject.next(true);
+        this.confirmationSubject.complete();
       },
       reject: () => {
-        this.reject();
+        this.confirmationSubject.error('cancel');
       },
     });
-  }
 
-  accept(): void {
-    this.confirmed.emit();
-  }
-
-  reject(): void {
-    this.rejected.emit();
+    return this.confirmationSubject;
   }
 }

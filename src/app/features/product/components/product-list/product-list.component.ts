@@ -95,6 +95,7 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
   private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -148,9 +149,11 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
     this.subscriptions.add(
       this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
         this.searchTerm = searchTerm;
-        this.loadProducts({ first: 0, rows: 5 });
+        this.loadProducts({ first: 0, rows: this.lastLazyEvent.rows });
       })
     );
+
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -158,6 +161,7 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
   }
 
   loadProducts(event: any) {
+    this.lastLazyEvent = event;
     this.loadLazy.next(event);
   }
 
@@ -226,24 +230,27 @@ export class ProductListComponent extends BaseComponent implements OnInit, OnDes
     if (this.validateForm()) {
       const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_PRODUCT : ConfirmMessages.UPDATE_PRODUCT;
       const product = this.productForm.getRawValue();
-      const apiCall = this.formMode === FormMode.Create
+      const apiCall = () => this.formMode === FormMode.Create
         ? firstValueFrom(this.productService.createProduct(product))
         : firstValueFrom(this.productService.updateProduct(product, product.id));
-      await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-      this.hideDialog();
+
+      const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+      if (success) {
+        this.loadLazy.next(this.lastLazyEvent);
+        this.hideDialog();
+      }
     }
   }
 
   async changeStatusProduct(productId: number, product: Product): Promise<void> {
     const confirmMsg = product.isActive ? ConfirmMessages.DISABLE_PRODUCT : ConfirmMessages.ACTIVATE_PRODUCT;
-    const changeProductIsActive = this.changeIsActive(product);
-    const apiCall = firstValueFrom(this.productService.changeStatusProduct(productId, changeProductIsActive));
-    await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-  }
+    const changeProductIsActive = { ...product, isActive: !product.isActive };
+    const apiCall = () => firstValueFrom(this.productService.changeStatusProduct(productId, changeProductIsActive));
 
-  async deleteProduct(productId: number): Promise<void> {
-    const apiCall = firstValueFrom(this.productService.deleteProduct(productId));
-    await this.handleApiCall(apiCall, ConfirmMessages.DELETE_PRODUCT, ToastMessages.SUCCESS_OPERATION);
+    const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+    if (success) {
+      this.loadLazy.next(this.lastLazyEvent);
+    }
   }
 
   private validateForm(): boolean {

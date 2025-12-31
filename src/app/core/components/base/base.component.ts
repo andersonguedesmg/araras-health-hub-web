@@ -29,13 +29,6 @@ export abstract class BaseComponent {
     this.toastService.handleApiError(error);
   }
 
-  protected changeIsActive(objeto: any) {
-    if (objeto && typeof objeto === 'object' && 'isActive' in objeto) {
-      objeto.isActive = !objeto.isActive;
-    }
-    return objeto;
-  }
-
   protected validateFormAndShowErrors(form: any, formHelperService: any, formLabels: any): boolean {
     if (form.valid) {
       return true;
@@ -50,29 +43,39 @@ export abstract class BaseComponent {
   }
 
   protected async handleApiCall(
-    apiCall: Promise<any> | any,
+    apiCallFactory: () => Promise<any>,
     confirmMessage: string,
     successMessage: string
-  ): Promise<void> {
-    if (this.confirmDialog) {
-      this.confirmDialog.message = confirmMessage;
-      this.confirmDialog.show();
+  ): Promise<boolean> {
+    if (!this.confirmDialog) {
+      try {
+        this.isLoading = true;
+        const response = await apiCallFactory();
+        this.handleApiResponse(response, successMessage);
+        return true;
+      } catch (error) {
+        this.handleApiError(error);
+        return false;
+      } finally {
+        this.isLoading = false;
+      }
     }
 
     try {
-      if (this.confirmDialog) {
-        await firstValueFrom(this.confirmDialog.confirmed);
-      }
-
+      this.confirmDialog.message = confirmMessage;
+      await firstValueFrom(this.confirmDialog.show());
       this.isLoading = true;
-      const response = await apiCall;
+      const response = await apiCallFactory();
       this.isLoading = false;
       this.handleApiResponse(response, successMessage);
+      return true;
+
     } catch (error: any) {
       this.isLoading = false;
-      if (error.message !== 'cancel') {
+      if (error !== 'cancel' && error?.message !== 'cancel') {
         this.handleApiError(error);
       }
+      return false;
     }
   }
 

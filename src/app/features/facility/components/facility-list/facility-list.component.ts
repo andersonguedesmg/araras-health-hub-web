@@ -102,6 +102,7 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
   private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -164,9 +165,11 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
     this.subscriptions.add(
       this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
         this.searchTerm = searchTerm;
-        this.loadFacilities({ first: 0, rows: 5 });
+        this.loadFacilities({ first: 0, rows: this.lastLazyEvent.rows });
       })
     );
+
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -247,24 +250,27 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
     if (this.validateForm()) {
       const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_FACILITY : ConfirmMessages.UPDATE_FACILITY;
       const facility = this.facilityForm.getRawValue();
-      const apiCall = this.formMode === FormMode.Create
+      const apiCall = () => this.formMode === FormMode.Create
         ? firstValueFrom(this.facilityService.createFacility(facility))
         : firstValueFrom(this.facilityService.updateFacility(facility, facility.id));
-      await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-      this.hideDialog();
+
+      const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+      if (success) {
+        this.loadLazy.next(this.lastLazyEvent);
+        this.hideDialog();
+      }
     }
   }
 
   async changeStatusFacility(facilityId: number, facility: Facility): Promise<void> {
     const confirmMsg = facility.isActive ? ConfirmMessages.DISABLE_FACILITY : ConfirmMessages.ACTIVATE_FACILITY;
-    const changeFacilityIsActive = this.changeIsActive(facility);
-    const apiCall = firstValueFrom(this.facilityService.changeStatusFacility(facilityId, changeFacilityIsActive));
-    await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-  }
+    const changeFacilityIsActive = { ...facility, isActive: !facility.isActive };
+    const apiCall = () => firstValueFrom(this.facilityService.changeStatusFacility(facilityId, changeFacilityIsActive));
 
-  async deleteFacility(facilityId: number): Promise<void> {
-    const apiCall = firstValueFrom(this.facilityService.deleteFacility(facilityId));
-    await this.handleApiCall(apiCall, ConfirmMessages.DELETE_FACILITY, ToastMessages.SUCCESS_OPERATION);
+    const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+    if (success) {
+      this.loadLazy.next(this.lastLazyEvent);
+    }
   }
 
   private validateForm(): boolean {

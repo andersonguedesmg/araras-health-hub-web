@@ -184,7 +184,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
     this.confirmDialog.message = `Tem certeza que deseja remover o item ${index + 1}?`;
     this.confirmDialog.show();
 
-    firstValueFrom(this.confirmDialog.confirmed)
+    firstValueFrom(this.confirmDialog.show())
       .then(() => {
         if (this.adjustmentItems.length > 1) {
           this.adjustmentItems.removeAt(index);
@@ -220,7 +220,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
     if (this.validateForm()) {
       const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_STOCK_ADJUSTMENT : ConfirmMessages.UPDATE_STOCK_ADJUSTMENT;
       const stockAdjustment = this.stockAdjustmentForm.getRawValue();
-      const apiCall = this.formMode === FormMode.Create
+      const apiCall = () => this.formMode === FormMode.Create
         ? firstValueFrom(this.stockService.createStockAdjustment(stockAdjustment))
         : firstValueFrom(this.stockService.createStockAdjustment(stockAdjustment));
       await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);

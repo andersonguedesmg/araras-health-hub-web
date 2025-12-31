@@ -216,27 +216,19 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
     this.cd.markForCheck();
   }
 
-  private getDialogConfirmation(): Promise<void> {
+  private async getDialogConfirmation(): Promise<void> {
     if (!this.confirmDialog) {
       return Promise.resolve();
     }
 
-    return new Promise((resolve, reject) => {
-      const confirmedSubscription = this.confirmDialog.confirmed
-        .pipe(take(1))
-        .subscribe(() => {
-          rejectedSubscription.unsubscribe();
-          resolve();
-        });
-
-      const rejectedSubscription = this.confirmDialog.rejected
-        .pipe(take(1))
-        .subscribe(() => {
-          confirmedSubscription.unsubscribe();
-          reject({ message: 'cancel' });
-        });
-
-      this.confirmDialog.show();
-    });
+    try {
+      await firstValueFrom(this.confirmDialog.show());
+      return Promise.resolve();
+    } catch (error: any) {
+      if (error === 'cancel') {
+        return Promise.reject({ message: 'cancel' });
+      }
+      return Promise.reject(error);
+    }
   }
 }

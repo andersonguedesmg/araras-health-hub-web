@@ -335,7 +335,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
     this.confirmDialog.show();
 
     try {
-      await firstValueFrom(this.confirmDialog.confirmed);
+      await firstValueFrom(this.confirmDialog.show());
       this.isLoading = true;
       let response: ApiResponse<Order>;
 

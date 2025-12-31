@@ -230,7 +230,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
     this.confirmDialog.message = `Tem certeza que deseja remover o item ${index + 1}?`;
     this.confirmDialog.show();
 
-    firstValueFrom(this.confirmDialog.confirmed)
+    firstValueFrom(this.confirmDialog.show())
       .then(() => {
         if (this.receivedItems.length > 1) {
           this.receivedItems.removeAt(index);
@@ -275,7 +275,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
       const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_RECEIVING : ConfirmMessages.UPDATE_RECEIVING;
       const successMsg = ToastMessages.SUCCESS_OPERATION;
 
-      const apiCall = this.formMode === FormMode.Create
+      const apiCall = () => this.formMode === FormMode.Create
         ? firstValueFrom(this.receivingService.createReceiving(receiving))
         : firstValueFrom(this.receivingService.updateReceiving(receiving, receiving.id));
 
@@ -370,7 +370,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
       const successMsg = ToastMessages.SUCCESS_OPERATION;
 
       const supplier: Supplier = this.supplierForm.getRawValue();
-      const apiCall = this.formMode === FormMode.Create
+      const apiCall = () => this.formMode === FormMode.Create
         ? firstValueFrom(this.supplierService.createSupplier(supplier))
         : firstValueFrom(this.supplierService.updateSupplier(supplier, supplier.id));
 
@@ -380,7 +380,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
       this.confirmDialog.show();
 
       try {
-        await firstValueFrom(this.confirmDialog.confirmed);
+        await firstValueFrom(this.confirmDialog.show());
         this.isLoading = true;
 
         const apiCall$ = this.formMode === FormMode.Create

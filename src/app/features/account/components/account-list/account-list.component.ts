@@ -111,6 +111,7 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -177,9 +178,11 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
     this.subscriptions.add(
       this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
         this.searchTerm = searchTerm;
-        this.loadAccounts({ first: 0, rows: 5 });
+        this.loadAccounts({ first: 0, rows: this.lastLazyEvent.rows });
       })
     );
+
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -195,6 +198,7 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
   }
 
   loadAccounts(event: any) {
+    this.lastLazyEvent = event;
     this.loadLazy.next(event);
   }
 
@@ -263,22 +267,25 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
       const confirmMsg = ConfirmMessages.UPDATE_ACCOUNT;
       const account = this.accountForm.getRawValue();
       delete account.password;
-      const apiCall = firstValueFrom(this.accountService.updateAccount(account, account.userId));
-      await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-      this.hideDialog();
+      const apiCall = () => firstValueFrom(this.accountService.updateAccount(account, account.userId));
+
+      const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+      if (success) {
+        this.loadLazy.next(this.lastLazyEvent);
+        this.hideDialog();
+      }
     }
   }
 
   async changeStatusAccount(accountId: number, account: Account): Promise<void> {
     const confirmMsg = account.isActive ? ConfirmMessages.DISABLE_ACCOUNT : ConfirmMessages.ACTIVATE_ACCOUNT;
-    const changeAccountIsActive = this.changeIsActive(account);
-    const apiCall = firstValueFrom(this.accountService.changeStatusAccount(accountId, changeAccountIsActive));
-    await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-  }
+    const changeAccountIsActive = { ...account, isActive: !account.isActive };
+    const apiCall = () => firstValueFrom(this.accountService.changeStatusAccount(accountId, changeAccountIsActive));
 
-  async deleteAccount(accountId: number): Promise<void> {
-    const apiCall = firstValueFrom(this.accountService.deleteAccount(accountId));
-    await this.handleApiCall(apiCall, ConfirmMessages.DELETE_ACCOUNT, ToastMessages.SUCCESS_OPERATION);
+    const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+    if (success) {
+      this.loadLazy.next(this.lastLazyEvent);
+    }
   }
 
   private validateForm(): boolean {
@@ -328,7 +335,7 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
     }
 
     const requestBody = { userName: userName, newPassword: newPassword };
-    const apiCall = firstValueFrom(this.accountService.resetPassword(requestBody));
+    const apiCall = () => firstValueFrom(this.accountService.resetPassword(requestBody));
     await this.handleApiCall(apiCall, ConfirmMessages.RESET_PASSWORD, ToastMessages.PASSWORD_CHANGED_SUCCESSFULLY);
     this.hidePasswordResetDialog();
   }

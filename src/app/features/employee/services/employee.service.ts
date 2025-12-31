@@ -86,6 +86,7 @@ export class EmployeeService {
       })
     );
   }
+
   public getEmployeeOptions(): Promise<SelectOptions<number>[]> {
     const url = this.apiConfig.getUrl('employee', 'getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<ApiDropdownItem[]>>(url))

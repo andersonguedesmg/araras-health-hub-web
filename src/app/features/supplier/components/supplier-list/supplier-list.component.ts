@@ -104,6 +104,7 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   private searchSubject = new Subject<string>();
 
   private loadLazy = new Subject<any>();
+  private lastLazyEvent: any = { first: 0, rows: 5 };
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
@@ -166,9 +167,11 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
     this.subscriptions.add(
       this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
         this.searchTerm = searchTerm;
-        this.loadSuppliers({ first: 0, rows: 5 });
+        this.loadSuppliers({ first: 0, rows: this.lastLazyEvent.rows });
       })
     );
+
+    this.loadLazy.next(this.lastLazyEvent);
   }
 
   ngOnDestroy(): void {
@@ -176,6 +179,7 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   }
 
   loadSuppliers(event: any) {
+    this.lastLazyEvent = event;
     this.loadLazy.next(event);
   }
 
@@ -250,24 +254,27 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
     if (this.validateForm()) {
       const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_SUPPLIER : ConfirmMessages.UPDATE_SUPPLIER;
       const supplier = this.supplierForm.getRawValue();
-      const apiCall = this.formMode === FormMode.Create
+      const apiCall = () => this.formMode === FormMode.Create
         ? firstValueFrom(this.supplierService.createSupplier(supplier))
         : firstValueFrom(this.supplierService.updateSupplier(supplier, supplier.id));
-      await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-      this.hideDialog();
+
+      const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+      if (success) {
+        this.loadLazy.next(this.lastLazyEvent);
+        this.hideDialog();
+      }
     }
   }
 
   async changeStatusSupplier(supplierId: number, supplier: Supplier): Promise<void> {
     const confirmMsg = supplier.isActive ? ConfirmMessages.DISABLE_SUPPLIER : ConfirmMessages.ACTIVATE_SUPPLIER;
-    const changeSupplierIsActive = this.changeIsActive(supplier);
-    const apiCall = firstValueFrom(this.supplierService.changeStatusSupplier(supplierId, changeSupplierIsActive));
-    await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
-  }
+    const changeSupplierIsActive = { ...supplier, isActive: !supplier.isActive };
+    const apiCall = () => firstValueFrom(this.supplierService.changeStatusSupplier(supplierId, changeSupplierIsActive));
 
-  async deleteSupplier(supplierId: number): Promise<void> {
-    const apiCall = firstValueFrom(this.supplierService.deleteSupplier(supplierId));
-    await this.handleApiCall(apiCall, ConfirmMessages.DELETE_SUPPLIER, ToastMessages.SUCCESS_OPERATION);
+    const success = await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+    if (success) {
+      this.loadLazy.next(this.lastLazyEvent);
+    }
   }
 
   private validateForm(): boolean {
