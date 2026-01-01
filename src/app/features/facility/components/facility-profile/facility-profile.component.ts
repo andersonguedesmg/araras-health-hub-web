@@ -60,7 +60,6 @@ export class FacilityProfileComponent extends BaseComponent implements OnInit {
     this.isLoading = true;
     try {
       const response = await firstValueFrom(this.facilityService.getFacilityProfile());
-      console.log('loadFacilityProfile response:', response);
       if (response.success && response.data) {
         this.facilityProfile = response.data;
       }
