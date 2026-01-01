@@ -49,7 +49,6 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem">ID</th>
             <th style="min-width: 20rem">NOME</th>
             <th style="min-width: 12rem">CPF</th>
             <th style="min-width: 20rem">FUNÇÃO</th>
@@ -61,7 +60,6 @@
 
         <ng-template #bodyTemplate let-employee>
           <tr>
-            <td>{{ employee.id }}</td>
             <td>{{ employee.name }}</td>
             <td>{{ employee.cpf }}</td>
             <td>{{ employee.function }}</td>
