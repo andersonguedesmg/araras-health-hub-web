@@ -51,10 +51,13 @@
           <label class="block text-sm text-gray-400">Endereço:</label>
           <p class="font-light">
             {{ facilityProfile.address.street }},
-            {{ facilityProfile.address.number }}
+            {{ facilityProfile.address.number }},
+            {{ facilityProfile.address.neighborhood }}
           </p>
-          <p class="font-light text-sm text-gray-400">
-            {{ facilityProfile.address.neighborhood }},
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400">Cidade:</label>
+          <p class="font-light">
             {{ facilityProfile.address.city }} -
             {{ facilityProfile.address.state }}
           </p>
@@ -80,6 +83,10 @@
             [value]="getStatus(facilityProfile.isActive)"
             [severity]="getSeverity(facilityProfile.isActive)"
           />
+        </div>
+        <div class="flex items-center">
+          <label class="block text-sm text-gray-400 mr-2">CNES:</label>
+          <p class="font-light">{{ facilityProfile.cnes }}</p>
         </div>
         <div>
           <label class="block text-sm text-gray-400">Criada em:</label>
@@ -117,7 +124,6 @@
       >
         <ng-template #header>
           <tr>
-            <th style="min-width: 5rem">ID</th>
             <th style="min-width: 15rem">NOME</th>
             <th style="min-width: 10rem">FUNÇÃO</th>
             <th style="min-width: 8rem">ESCOPO</th>
@@ -127,7 +133,6 @@
 
         <ng-template #body let-accountUser>
           <tr>
-            <td>{{ accountUser.userId }}</td>
             <td>{{ accountUser.userName }}</td>
             <td>
               <p-tag

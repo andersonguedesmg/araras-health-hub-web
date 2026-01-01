@@ -5,6 +5,7 @@ import { AccountDetails } from "../../account/interfaces/account-details";
 export interface FacilityProfile {
   id: number;
   name: string;
+  cnes: string;
   address: Address;
   contact: Contact;
   createdOn: string;

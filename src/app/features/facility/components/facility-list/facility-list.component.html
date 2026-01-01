@@ -49,16 +49,14 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem">ID</th>
-            <th style="min-width: 20rem">NOME</th>
+            <th style="min-width: 30rem">NOME</th>
+            <th style="min-width: 8rem">CNES</th>
             <th style="min-width: 20rem">ENDEREÇO</th>
             <th style="min-width: 10rem">NÚMERO</th>
             <th style="min-width: 15rem">COMPLEMENTO</th>
             <th style="min-width: 20rem">BAIRRO</th>
             <th style="min-width: 12rem">CIDADE</th>
             <th style="min-width: 10rem">ESTADO</th>
-            <th style="min-width: 10rem">CEP</th>
-            <th style="min-width: 20rem">E-MAIL</th>
             <th style="min-width: 12rem">TELEFONE</th>
             <th style="min-width: 8rem">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
@@ -67,16 +65,14 @@
 
         <ng-template #bodyTemplate let-facility>
           <tr>
-            <td>{{ facility.id }}</td>
             <td>{{ facility.name }}</td>
+            <td>{{ facility.cnes }}</td>
             <td>{{ facility.address.street }}</td>
             <td>{{ facility.address.number }}</td>
             <td>{{ facility.address.complement || "-" }}</td>
             <td>{{ facility.address.neighborhood }}</td>
             <td>{{ facility.address.city }}</td>
             <td>{{ facility.address.state }}</td>
-            <td>{{ facility.address.cep }}</td>
-            <td>{{ facility.contact.email }}</td>
             <td>{{ facility.contact.phone }}</td>
             <td>
               <p-tag
@@ -359,6 +355,27 @@
               />
             </div>
           </ng-container>
+
+          <div class="mb-4">
+            <label for="cnes" class="block text-sm font-medium text-gray-500"
+              >CNES:
+              <span class="text-red-500" *ngIf="formMode !== 'detail'"
+                >*</span
+              ></label
+            >
+            <input
+              id="cnes"
+              pInputText
+              type="text"
+              formControlName="cnes"
+              maxlength="150"
+              class="mt-1 p-2 border rounded-md w-full"
+              [ngClass]="{
+                'border-red-500':
+                  formSubmitted && facilityForm.get('cnes')?.invalid
+              }"
+            />
+          </div>
 
           <div class="mb-4" *ngIf="formMode !== 'create'">
             <label class="block text-sm font-medium text-gray-500"

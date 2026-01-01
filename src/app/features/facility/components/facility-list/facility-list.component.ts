@@ -93,6 +93,7 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
     'address.state': 'Estado',
     'contact.email': 'E-mail',
     'contact.phone': 'Telefone',
+    cnes: 'CNES',
   };
 
   getSeverity = getSeverity;
@@ -128,6 +129,7 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
         email: ['', [Validators.required, Validators.email]],
         phone: ['', Validators.required],
       }),
+      cnes: ['', Validators.required],
       isActive: [{ value: false, disabled: true }],
     });
   }
@@ -232,6 +234,7 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
       this.facilityForm.get('address.cep')?.enable();
       this.facilityForm.get('contact.email')?.enable();
       this.facilityForm.get('contact.phone')?.enable();
+      this.facilityForm.get('cnes')?.enable();
     }
 
     if (isCreate) {
