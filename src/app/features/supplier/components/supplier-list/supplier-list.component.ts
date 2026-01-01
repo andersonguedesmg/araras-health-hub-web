@@ -84,7 +84,8 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
   headerText = '';
 
   private formLabels: { [key: string]: string; } = {
-    name: 'Nome do Fornecedor',
+    legalName: 'Razão Social',
+    tradeName: 'Nome Fantasia',
     cnpj: 'CNPJ',
     'address.cep': 'CEP',
     'address.street': 'Endereço',
@@ -115,7 +116,8 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
     super();
     this.supplierForm = this.fb.group({
       id: [{ value: null, disabled: true }],
-      name: ['', Validators.required],
+      legalName: ['', Validators.required],
+      tradeName: [''],
       cnpj: ['', [Validators.required, cnpjValidator()]],
       address: this.fb.group({
         cep: ['', Validators.required],
@@ -225,7 +227,8 @@ export class SupplierListComponent extends BaseComponent implements OnInit, OnDe
     const isUpdate = this.formMode === FormMode.Update;
 
     if (isCreate || isUpdate) {
-      this.supplierForm.get('name')?.enable();
+      this.supplierForm.get('legalName')?.enable();
+      this.supplierForm.get('tradeName')?.enable();
       this.supplierForm.get('cnpj')?.enable();
       this.supplierForm.get('address.street')?.enable();
       this.supplierForm.get('address.number')?.enable();

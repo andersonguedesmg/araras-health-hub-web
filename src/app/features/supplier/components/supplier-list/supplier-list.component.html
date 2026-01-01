@@ -49,11 +49,11 @@
 
         <ng-template #headerTemplate>
           <tr>
-            <th style="min-width: 5rem">ID</th>
-            <th style="min-width: 20rem">NOME</th>
+            <th style="min-width: 25rem">RAZÃO SOCIAL</th>
+            <th style="min-width: 25rem">NOME FANTASIA</th>
+            <th style="min-width: 12rem">CNPJ</th>
             <th style="min-width: 12rem">CIDADE</th>
             <th style="min-width: 10rem">ESTADO</th>
-            <th style="min-width: 20rem">E-MAIL</th>
             <th style="min-width: 12rem">TELEFONE</th>
             <th style="min-width: 8rem">STATUS</th>
             <th style="min-width: 15rem">AÇÕES</th>
@@ -62,11 +62,11 @@
 
         <ng-template #bodyTemplate let-supplier>
           <tr>
-            <td>{{ supplier.id }}</td>
-            <td>{{ supplier.name }}</td>
+            <td>{{ supplier.legalName }}</td>
+            <td>{{ supplier.tradeName }}</td>
+            <td>{{ supplier.cnpj }}</td>
             <td>{{ supplier.address.city }}</td>
             <td>{{ supplier.address.state }}</td>
-            <td>{{ supplier.contact.email }}</td>
             <td>{{ supplier.contact.phone }}</td>
             <td>
               <p-tag
@@ -133,26 +133,44 @@
           </div>
 
           <div class="mb-4">
-            <label for="name" class="block text-sm font-medium text-gray-500"
-              >Nome:
+            <label
+              for="legalName"
+              class="block text-sm font-medium text-gray-500"
+              >Razão Social:
               <span class="text-red-500" *ngIf="formMode !== 'detail'"
                 >*</span
               ></label
             >
             <input
-              id="name"
+              id="legalName"
               pInputText
               type="text"
-              formControlName="name"
+              formControlName="legalName"
               maxlength="150"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
-                'border-red-500': supplierForm.get('name')?.invalid
+                'border-red-500': supplierForm.get('legalName')?.invalid
               }"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && supplierForm.get('name')?.invalid
+                  formSubmitted && supplierForm.get('legalName')?.invalid
               }"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="tradeName"
+              class="block text-sm font-medium text-gray-500"
+              >Nome Fantasia:</label
+            >
+            <input
+              id="tradeName"
+              pInputText
+              type="text"
+              formControlName="tradeName"
+              maxlength="50"
+              class="mt-1 p-2 border rounded-md w-full"
             />
           </div>
 

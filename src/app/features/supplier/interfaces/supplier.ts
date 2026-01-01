@@ -1,15 +1,13 @@
+import { Address } from "../../../shared/interfaces/address";
+import { Contact } from "../../../shared/interfaces/contact";
+
 export interface Supplier {
   id: number;
   cnpj: string;
-  name: string;
-  cep: string;
-  address: string;
-  number: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  email: string;
-  phone: string;
+  legalName: string;
+  tradeName: string;
+  address: Address;
+  contact: Contact;
   createdOn: string;
   updatedOn: string;
   isActive: boolean;
