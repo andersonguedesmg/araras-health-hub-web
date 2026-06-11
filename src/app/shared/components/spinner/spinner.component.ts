@@ -1,13 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-spinner',
-  imports: [CommonModule, ProgressSpinnerModule],
+  standalone: true,
   templateUrl: './spinner.component.html',
-  styleUrl: './spinner.component.scss'
+  styleUrl: './spinner.component.scss',
 })
 export class SpinnerComponent {
-  @Input() loading: boolean = false;
+  readonly loading = input<boolean>(false);
 }
