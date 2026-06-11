@@ -1,26 +1,27 @@
 import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, UrlTree } from '@angular/router';
-import { UserScopes } from '../constants/auth.constants';
+import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
+import { SCOPE_LABEL_MAPPING, UserScopes } from '../constants/auth.constants';
 import { AuthService } from '../services/auth.service';
-import { map, Observable } from 'rxjs';
 
-export const scopeGuard: CanActivateFn = (route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> | boolean => {
+export const scopeGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-
-  const requiredScopes = route.data['scopes'] as UserScopes[];
+  const requiredScopes = route.data['scopes'] as UserScopes[] | undefined;
 
   if (!requiredScopes || requiredScopes.length === 0) {
     return true;
   }
 
-  return authService.hasScope$(requiredScopes).pipe(
-    map(hasScope => {
-      if (hasScope) {
-        return true;
-      } else {
-        return router.createUrlTree(['/unauthorized']);
-      }
-    })
-  );
+  const user = authService.currentUser();
+  if (user) {
+    const hasValidScope = requiredScopes.some(
+      (scope) => SCOPE_LABEL_MAPPING[scope] === user.scope,
+    );
+
+    if (hasValidScope) {
+      return true;
+    }
+  }
+
+  return router.createUrlTree(['/unauthorized']);
 };
