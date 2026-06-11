@@ -116,7 +116,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
       observation: [''],
       adjustmentDate: [new Date(), Validators.required],
       responsibleId: [null, Validators.required],
-      accountId: this.authService.getUserId(),
+      accountId: 0, // this.authService.getUserId(),
       adjustmentItems: this.fb.array([], Validators.minLength(1)),
     });
   }
@@ -139,7 +139,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
       this.addAdjustmentItem();
 
     } catch (error) {
-      this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar dados iniciais. Por favor, tente novamente.');
+      // this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar dados iniciais. Por favor, tente novamente.');
     } finally {
       this.isLoading = false;
     }
@@ -188,11 +188,11 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
       .then(() => {
         if (this.adjustmentItems.length > 1) {
           this.adjustmentItems.removeAt(index);
-          this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Item ${index + 1} removido com sucesso.`);
+          // this.toastComponent.showMessage(ToastSeverities.SUCCESS, ToastSummaries.SUCCESS, `Item ${index + 1} removido com sucesso.`);
         }
       })
       .catch(() => {
-        this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, 'Remoção cancelada.');
+        // this.toastComponent.showMessage(ToastSeverities.INFO, ToastSummaries.INFO, 'Remoção cancelada.');
       });
   }
 
@@ -231,7 +231,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
   public resetStockAdjustmentForm(): void {
     this.stockAdjustmentForm.reset({
       adjustmentDate: new Date(),
-      accountId: this.authService.getUserId(),
+      accountId: 0 // this.authService.getUserId(),
     });
     this.adjustmentItems.clear();
     this.subscriptions.unsubscribe();

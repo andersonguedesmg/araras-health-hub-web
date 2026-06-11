@@ -95,7 +95,7 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
       orderStatusId: [1],
       createdAt: [new Date(), Validators.required],
       createdByEmployeeId: [null, Validators.required],
-      createdByAccountId: this.authService.getUserId(),
+      createdByAccountId: 0, // this.authService.getUserId(),
       orderItems: this.fb.array([], Validators.minLength(1)),
     });
   }
@@ -155,7 +155,7 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
       orderStatusId: 1,
       createdAt: new Date(),
       createdByEmployeeId: null,
-      createdByAccountId: this.authService.getUserId(),
+      createdByAccountId: 0 // this.authService.getUserId(),
     });
     this.orderItems.clear();
     this.addOrderItem();

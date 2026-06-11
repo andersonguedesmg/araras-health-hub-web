@@ -145,7 +145,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
       supplierId: [null, Validators.required],
       totalValue: ['', Validators.required],
       responsibleId: [null, Validators.required],
-      accountId: this.authService.getUserId(),
+      accountId: 0, // this.authService.getUserId(),
       receivedItems: this.fb.array([], Validators.minLength(1)),
     });
 
@@ -305,7 +305,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
   public resetReceivingForm(): void {
     this.receivingForm.reset({
       receivingDate: new Date(),
-      accountId: this.authService.getUserId(),
+      accountId: 0 // this.authService.getUserId(),
     });
     this.receivedItems.clear();
     this.subscriptions.unsubscribe();

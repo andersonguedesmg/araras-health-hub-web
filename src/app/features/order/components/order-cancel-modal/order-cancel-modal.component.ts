@@ -74,7 +74,7 @@ export class OrderCancelModalComponent extends BaseComponent implements OnInit, 
     private formHelperService: FormHelperService,
   ) {
     super();
-    const userId = this.authService.getUserId();
+    const userId = 0 // this.authService.getUserId();
     this.currentAccountId = userId ? Number(userId) : 0;
   }
 
