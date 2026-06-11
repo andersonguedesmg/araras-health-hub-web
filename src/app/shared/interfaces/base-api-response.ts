@@ -1,4 +1,4 @@
-interface ApiValidationErrors {
+export interface ApiValidationErrors {
   [key: string]: string[];
 }
 
