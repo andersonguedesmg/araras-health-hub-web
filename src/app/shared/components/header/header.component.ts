@@ -1,71 +1,123 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PrimeIcons, MenuItem } from 'primeng/api';
-import { MenubarModule } from 'primeng/menubar';
-import { AvatarModule } from 'primeng/avatar';
-import { Menu, MenuModule } from 'primeng/menu';
-import { AuthService } from '../../../core/services/auth.service';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { AccountInfo } from '../../../core/interfaces/account-info';
-import { UserScopes } from '../../../core/constants/auth.constants';
+import { MenuItem, PrimeIcons } from 'primeng/api';
+import { AvatarModule } from 'primeng/avatar';
+import { PrimeNG } from 'primeng/config';
+import { Menu, MenuModule } from 'primeng/menu';
+import { MenubarModule } from 'primeng/menubar';
+import {
+  SCOPE_LABEL_MAPPING,
+  UserScopes,
+} from '../../../core/constants/auth.constants';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
-  imports: [
-    MenubarModule,
-    AvatarModule,
-    MenuModule,
-    CommonModule,
-  ],
+  standalone: true,
+  imports: [MenubarModule, AvatarModule, MenuModule],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
+  styleUrl: './header.component.scss',
 })
-export class HeaderComponent implements OnInit, OnDestroy {
+export class HeaderComponent implements OnInit {
+  readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly primeng = inject(PrimeNG);
+
   @ViewChild('menu') menu!: Menu;
 
-  items: MenuItem[] | undefined;
-  avatarItems: MenuItem[] | undefined;
+  readonly items = signal<MenuItem[]>([]);
+  readonly avatarItems = signal<MenuItem[]>([]);
+  readonly currentTheme = signal<'light' | 'dark' | 'system'>('system');
 
-  isAvatarClickable = true;
-
-  currentUser: AccountInfo | null = null;
-  private userSubscription!: Subscription;
-
-  isManagementScope = false;
-  isOperationalScope = false;
-
-  constructor(private authService: AuthService, private router: Router) { }
-
-  ngOnInit() {
-    this.userSubscription = this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      this.isManagementScope = this.authService.hasScope([UserScopes.MANAGEMENT]);
-      this.isOperationalScope = this.authService.hasScope([UserScopes.OPERATIONAL]);
-      this.initializeMenuItems();
-      this.updateAvatarMenu();
+  constructor() {
+    effect(() => {
+      const user = this.authService.currentUser();
+      if (user) {
+        this.initializeMenuItems();
+        this.updateAvatarMenu(user.userName, user.scope, user.role);
+      }
     });
   }
 
-  ngOnDestroy(): void {
-    if (this.userSubscription) {
-      this.userSubscription.unsubscribe();
+  ngOnInit(): void {
+    this.detectAndApplyTheme();
+    this.listenToSystemThemeChanges();
+  }
+
+  toggleThemeCycle(): void {
+    const modes: ('light' | 'dark' | 'system')[] = ['light', 'dark', 'system'];
+    const nextIndex = (modes.indexOf(this.currentTheme()) + 1) % modes.length;
+    const nextMode = modes[nextIndex];
+
+    this.currentTheme.set(nextMode);
+    localStorage.setItem('theme', nextMode);
+    this.applyTheme(nextMode);
+
+    const user = this.authService.currentUser();
+    if (user) this.updateAvatarMenu(user.userName, user.scope, user.role);
+  }
+
+  private detectAndApplyTheme(): void {
+    const savedTheme =
+      (localStorage.getItem('theme') as 'light' | 'dark' | 'system') ||
+      'system';
+    this.currentTheme.set(savedTheme);
+    this.applyTheme(savedTheme);
+  }
+
+  private applyTheme(theme: 'light' | 'dark' | 'system'): void {
+    const root = document.documentElement;
+    let isDark = theme === 'dark';
+
+    if (theme === 'system') {
+      isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    if (isDark) {
+      root.classList.add('dark');
+      this.primeng.theme.set({
+        palette: { primary: { 50: '#ecfdf5', 500: '#10b981', 900: '#064e3b' } },
+      });
+    } else {
+      root.classList.remove('dark');
+      this.primeng.theme.set({
+        palette: { primary: { 50: '#f0fdf4', 500: '#22c55e', 900: '#14532d' } },
+      });
     }
   }
 
+  private listenToSystemThemeChanges(): void {
+    window
+      .matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', () => {
+        if (this.currentTheme() === 'system') {
+          this.applyTheme('system');
+        }
+      });
+  }
+
   private initializeMenuItems(): void {
-    const canAccessOrders = this.isManagementScope || this.isOperationalScope;
-    const canAccessManagement = this.isManagementScope;
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    const isManagement =
+      user.scope === SCOPE_LABEL_MAPPING[UserScopes.MANAGEMENT];
+    const isOperational =
+      user.scope === SCOPE_LABEL_MAPPING[UserScopes.OPERATIONAL];
+    const hasOrderAccess = isManagement || isOperational;
 
     const baseItems: MenuItem[] = [
-      {
-        label: 'Home',
-        icon: PrimeIcons.HOME,
-        routerLink: '/',
-      },
+      { label: 'Home', icon: PrimeIcons.HOME, routerLink: '/' },
     ];
 
-    if (canAccessManagement) {
+    if (isManagement) {
       baseItems.push({
         label: 'Administração',
         icon: PrimeIcons.BRIEFCASE,
@@ -94,7 +146,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
                 icon: PrimeIcons.PLUS,
                 routerLink: '/administracao/contas/registrar',
               },
-            ]
+            ],
           },
           {
             label: 'Fornecedores',
@@ -106,7 +158,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             icon: PrimeIcons.BOX,
             routerLink: '/administracao/produtos',
           },
-        ]
+        ],
       });
 
       baseItems.push({
@@ -137,7 +189,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
                 icon: PrimeIcons.CLOCK,
                 routerLink: '/almoxarifado/estoque/proximo-vencimento',
               },
-            ]
+            ],
           },
           {
             label: 'Movimentações',
@@ -175,7 +227,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
                 icon: PrimeIcons.TABLE,
                 routerLink: '/almoxarifado/movimentacoes/ajustes',
               },
-            ]
+            ],
           },
           {
             label: 'Configurações',
@@ -186,132 +238,91 @@ export class HeaderComponent implements OnInit, OnDestroy {
                 icon: PrimeIcons.SLIDERS_H,
                 routerLink: '/almoxarifado/configuracoes/estoque-minimo',
               },
-            ]
+            ],
           },
-        ]
+        ],
       });
     }
 
-    if (canAccessOrders) {
-      const orderItems: MenuItem[] = [
-        {
-          label: 'Aguardando Aprovação',
-          icon: PrimeIcons.CLOCK,
-          routerLink: '/pedidos/aprovar',
-        },
-        ...(this.isManagementScope ? [{
-          label: 'Aguardando Separação',
-          icon: PrimeIcons.LIST_CHECK,
-          routerLink: '/pedidos/separar',
-        } as MenuItem] : []),
-        {
-          label: 'Aguardando Finalização',
-          icon: PrimeIcons.CHECK_SQUARE,
-          routerLink: '/pedidos/finalizar',
-        },
-        { separator: true },
-        {
-          label: 'Cancelado',
-          icon: PrimeIcons.BAN,
-          routerLink: '/pedidos/cancelados',
-        },
-        {
-          label: 'Finalizado',
-          icon: PrimeIcons.CHECK_CIRCLE,
-          routerLink: '/pedidos/finalizados',
-        },
-        {
-          label: 'Histórico',
-          icon: PrimeIcons.LIST,
-          routerLink: '/pedidos/historico',
-        },
-        { separator: true },
-        {
-          label: 'Novo',
-          icon: PrimeIcons.PLUS_CIRCLE,
-          routerLink: '/pedidos/novo',
-        },
-      ];
-
+    if (hasOrderAccess) {
       baseItems.push({
         label: 'Pedido',
         icon: PrimeIcons.SHOPPING_CART,
-        items: orderItems
+        items: [
+          {
+            label: 'Aguardando Aprovação',
+            icon: PrimeIcons.CLOCK,
+            routerLink: '/pedidos/aprovar',
+          },
+          ...(isManagement
+            ? [
+                {
+                  label: 'Aguardando Separação',
+                  icon: PrimeIcons.LIST_CHECK,
+                  routerLink: '/pedidos/separar',
+                },
+              ]
+            : []),
+          {
+            label: 'Aguardando Finalização',
+            icon: PrimeIcons.CHECK_SQUARE,
+            routerLink: '/pedidos/finalizar',
+          },
+          { separator: true },
+          {
+            label: 'Cancelado',
+            icon: PrimeIcons.BAN,
+            routerLink: '/pedidos/cancelados',
+          },
+          {
+            label: 'Finalizado',
+            icon: PrimeIcons.CHECK_CIRCLE,
+            routerLink: '/pedidos/finalizados',
+          },
+          {
+            label: 'Histórico',
+            icon: PrimeIcons.LIST,
+            routerLink: '/pedidos/historico',
+          },
+          { separator: true },
+          {
+            label: 'Novo',
+            icon: PrimeIcons.PLUS_CIRCLE,
+            routerLink: '/pedidos/novo',
+          },
+        ],
       });
     }
 
-    if (canAccessManagement) {
-      baseItems.push({
-        label: 'Nova Entrada',
-        icon: PrimeIcons.PLUS_CIRCLE,
-        routerLink: '/almoxarifado/movimentacoes/entradas/nova',
-      });
-    }
-
-    if (canAccessOrders) {
-      baseItems.push({
-        label: 'Novo Pedido',
-        icon: PrimeIcons.PLUS_CIRCLE,
-        routerLink: '/pedidos/novo',
-      });
-    }
-
-    this.items = baseItems;
+    this.items.set(baseItems);
   }
 
-  private updateAvatarMenu(): void {
-    const userInfo: MenuItem[] = [];
-
-    if (this.currentUser) {
-      userInfo.push({
-        label: `Conta: ${this.currentUser.userName}`,
-        icon: PrimeIcons.USER,
-        styleClass: 'text-sm cursor-default',
-        disabled: true
-      });
-
-      userInfo.push({
-        label: `Escopo: ${this.currentUser.scope}`,
-        icon: PrimeIcons.FLAG,
-        styleClass: 'text-sm cursor-default',
-        disabled: true
-      });
-
-      const rolesString = this.currentUser.roles.join(' / ');
-      userInfo.push({
-        label: `Função: ${rolesString}`,
-        icon: PrimeIcons.SHIELD,
-        styleClass: 'text-sm mb-2 cursor-default',
-        disabled: true
-      });
-
-      userInfo.push({ separator: true });
-    }
-
-    const actions: MenuItem[] = [
+  private updateAvatarMenu(
+    username: string,
+    scope: string,
+    role: string,
+  ): void {
+    this.avatarItems.set([
+      { label: `Conta: ${username}`, icon: PrimeIcons.USER, disabled: true },
+      { label: `Escopo: ${scope}`, icon: PrimeIcons.FLAG, disabled: true },
+      { label: `Função: ${role}`, icon: PrimeIcons.SHIELD, disabled: true },
+      { separator: true },
       {
         label: 'Perfil da Unidade',
         icon: PrimeIcons.ID_CARD,
         routerLink: '/administracao/unidades/perfil',
       },
-      {
-        label: 'Sobre',
-        icon: PrimeIcons.INFO_CIRCLE,
-        routerLink: '/sobre',
-      },
-      {
-        separator: true,
-      },
+      { label: 'Sobre', icon: PrimeIcons.INFO_CIRCLE, routerLink: '/sobre' },
+      { separator: true },
       {
         label: 'Sair',
         icon: PrimeIcons.POWER_OFF,
         command: () => this.logout(),
       },
-    ];
-    this.avatarItems = [...userInfo, ...actions];
+    ]);
   }
 
-  toggleMenu(event: MouseEvent) {
+  toggleMenu(event: MouseEvent): void {
     this.menu.toggle(event);
   }
 

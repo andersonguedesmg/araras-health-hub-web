@@ -1,29 +1,52 @@
 <p-menubar
-  [model]="items"
-  styleClass="bg-zinc-900 text-gray-300 shadow-md border-none p-3"
+  [model]="items()"
+  styleClass="bg-zinc-950 dark:bg-zinc-950 text-zinc-100 shadow-xl border-b border-zinc-800/60 p-3"
 >
   <ng-template pTemplate="start">
-    <div class="flex items-center space-x-2 mr-6">
-      <img src="assets/a2h-menu.png" alt="Logo" class="h-12" />
+    <div class="flex items-center space-x-2 mr-6 select-none">
+      <img
+        src="assets/a2h-menu.png"
+        alt="Logo Araras Health Hub"
+        class="h-10 object-contain"
+      />
     </div>
   </ng-template>
 
   <ng-template pTemplate="end">
-    <p-avatar
-      [icon]="currentUser ? undefined : 'pi pi-user'"
-      [label]="currentUser ? currentUser.userName[0].toUpperCase() : undefined"
-      shape="circle"
-      styleClass="bg-zinc-700 text-white"
-      (click)="toggleMenu($event)"
-      [ngClass]="{ 'cursor-pointer': isAvatarClickable }"
-    ></p-avatar>
-    <p-menu
-      #menu
-      [model]="avatarItems"
-      [popup]="true"
-      [style]="{ width: '200px' }"
-      appendTo="body"
-      styleClass="bg-zinc-800 text-gray-300 border-none"
-    ></p-menu>
+    <div class="flex items-center gap-4">
+      <button
+        (click)="toggleThemeCycle()"
+        class="flex items-center justify-center w-10 h-10 rounded-full text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/60 transition-all active:scale-95 border border-zinc-800/50"
+        [title]="
+          'Tema atual: ' +
+          currentTheme().toUpperCase() +
+          ' (Clique para alterar)'
+        "
+      >
+        @if (currentTheme() === "light") {
+          <i class="pi pi-sun text-lg text-amber-500"></i>
+        } @else if (currentTheme() === "dark") {
+          <i class="pi pi-moon text-lg text-indigo-400"></i>
+        } @else {
+          <i class="pi pi-desktop text-lg text-emerald-400"></i>
+        }
+      </button>
+
+      <p-avatar
+        [label]="authService.currentUser()?.userName?.[0]?.toUpperCase()"
+        shape="circle"
+        styleClass="bg-emerald-600 text-white font-bold cursor-pointer transition-transform hover:scale-105 active:scale-95"
+        (click)="toggleMenu($event)"
+      ></p-avatar>
+
+      <p-menu
+        #menu
+        [model]="avatarItems()"
+        [popup]="true"
+        [style]="{ width: '240px' }"
+        appendTo="body"
+        styleClass="bg-zinc-900 text-zinc-200 border border-zinc-800 rounded-xl shadow-2xl"
+      ></p-menu>
+    </div>
   </ng-template>
 </p-menubar>
