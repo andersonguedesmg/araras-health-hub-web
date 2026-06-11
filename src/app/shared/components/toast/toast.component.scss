@@ -1,0 +1,47 @@
+:host ::ng-deep {
+  .p-toast .p-toast-message {
+    border-width: 1px !important;
+    border-style: solid !important;
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border-radius: 12px !important;
+    backdrop-filter: blur(4px);
+
+    .p-toast-message-content {
+      align-items: flex-start !important;
+      padding: 0.75rem !important;
+    }
+
+    .p-toast-icon-close {
+      color: #ffffff !important;
+      opacity: 0.8;
+      transition: all 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.15) !important;
+      }
+    }
+  }
+
+  .p-toast .p-toast-message-success {
+    background: #065f46 !important;
+    border-color: #059669 !important;
+  }
+
+  .p-toast .p-toast-message-error {
+    background: #b91c1c !important;
+    border-color: #dc2626 !important;
+  }
+
+  .p-toast .p-toast-message-warn {
+    background: #b45309 !important;
+    border-color: #d97706 !important;
+  }
+
+  .p-toast .p-toast-message-info {
+    background: #1d4ed8 !important;
+    border-color: #2563eb !important;
+  }
+}
