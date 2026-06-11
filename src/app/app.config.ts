@@ -1,38 +1,33 @@
-import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideRouter } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from '../assets/mypreset';
 import { routes } from './app.routes';
-import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient } from '@angular/common/http';
-import { JwtInterceptor } from './core/interceptors/auth.interceptor';
-import { MessageService } from 'primeng/api';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(),
-    importProvidersFrom(HttpClientModule),
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: JwtInterceptor, multi: true
-    },
+    provideHttpClient(withInterceptors([authInterceptor])),
     MessageService,
     providePrimeNG({
       theme: {
         preset: MyPreset,
         options: {
           prefix: 'p',
-          darkModeSelector: 'system',
+          darkModeSelector: '.dark',
           cssLayer: {
             name: 'primeng',
-            order: 'tailwind-base, primeng, tailwind-utilities'
-          }
-        }
+            order: 'tailwind-base, primeng, tailwind-utilities',
+          },
+        },
       },
       ripple: true,
-    })
-  ]
+    }),
+  ],
 };

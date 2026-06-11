@@ -1,18 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, computed, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RouteStateService {
-  private showHeaderSubject = new BehaviorSubject<boolean>(false);
-  showHeader$ = this.showHeaderSubject.asObservable();
-
-  constructor(private router: Router, private authService: AuthService) {
-    this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-      this.showHeaderSubject.next(isLoggedIn);
-    });
-  }
+  private readonly authService = inject(AuthService);
+  readonly showHeader = computed(() => this.authService.isLoggedIn());
 }

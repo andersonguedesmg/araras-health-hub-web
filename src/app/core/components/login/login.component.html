@@ -1,46 +1,77 @@
-<div class="flex h-screen bg-zinc-900">
-  <app-spinner></app-spinner>
+<div
+  class="flex h-screen bg-zinc-100 dark:bg-zinc-900 transition-colors duration-300 select-none"
+>
+  <app-spinner [loading]="isLoading()"></app-spinner>
 
-  <div class="w-1/2 flex items-center justify-center p-8">
-    <div class="w-full max-w-md">
-      <div class="bg-zinc-800 p-8 rounded-lg shadow-xl w-full">
-        <h2 class="text-3xl font-bold mb-6 text-center text-white">Login</h2>
+  <div class="w-full lg:w-1/2 flex items-center justify-center p-8 z-10">
+    <div
+      class="w-full max-w-md backdrop-blur-md bg-white/90 dark:bg-zinc-800/80 p-8 rounded-2xl shadow-2xl border border-zinc-200/60 dark:border-zinc-700/50 transition-colors duration-300"
+    >
+      <div class="flex flex-col items-center mb-8">
+        <h2
+          class="text-3xl font-bold text-zinc-800 dark:text-white tracking-wide"
+        >
+          Login
+        </h2>
+      </div>
 
-        <div class="mb-4">
-          <label for="username" class="block text-gray-300 font-medium mb-2">Usuário</label>
+      <form (ngSubmit)="login()" autocomplete="off" class="space-y-5">
+        <div>
+          <label
+            for="username"
+            class="block text-zinc-700 dark:text-zinc-300 font-medium mb-2 text-sm"
+            >Usuário</label
+          >
           <input
             type="text"
             id="username"
-            [(ngModel)]="credentials.userName"
+            [ngModel]="credentials().userName"
+            (ngModelChange)="credentials().userName = $event"
+            name="username"
             pInputText
-            class="w-full p-2 border-none bg-zinc-700 rounded text-white placeholder-gray-400"
+            class="w-full p-3 bg-zinc-50 dark:bg-zinc-700/60 border border-zinc-300 dark:border-zinc-600/40 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
             placeholder="Seu nome de usuário"
           />
         </div>
 
-        <div class="mb-6">
-          <label for="password" class="block text-gray-300 font-medium mb-2">Senha</label>
+        <div>
+          <label
+            for="password"
+            class="block text-zinc-700 dark:text-zinc-300 font-medium mb-2 text-sm"
+            >Senha</label
+          >
           <input
             type="password"
             id="password"
-            [(ngModel)]="credentials.password"
+            [ngModel]="credentials().password"
+            (ngModelChange)="credentials().password = $event"
+            name="password"
             pInputText
-            class="w-full p-2 border-none bg-zinc-700 rounded text-white placeholder-gray-400"
-            placeholder="Sua senha"
+            class="w-full p-3 bg-zinc-50 dark:bg-zinc-700/60 border border-zinc-300 dark:border-zinc-600/40 rounded-xl text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
+            placeholder="Sua senha secreta"
           />
         </div>
 
         <button
           pButton
+          type="submit"
           label="Entrar"
-          class="w-full p-button-sm"
-          (click)="login()"
+          class="w-full p-4 bg-emerald-600 hover:bg-emerald-500 border-none rounded-xl text-white font-semibold shadow-lg shadow-emerald-900/20 transition-all active:scale-[0.98] mt-2"
         ></button>
-      </div>
+      </form>
     </div>
   </div>
 
-  <div class="w-1/2 flex items-center justify-center bg-zinc-950 p-8">
-    <img src="assets/a2h-logo.png" alt="Araras Health Hub" class="max-w-xs" />
+  <div
+    class="hidden lg:flex w-1/2 items-center justify-center bg-zinc-200 dark:bg-zinc-950 p-8 relative overflow-hidden transition-colors duration-300"
+  >
+    <div
+      class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.06)_0%,transparent_70%)]"
+    ></div>
+    <img
+      src="assets/a2h-logo.png"
+      alt="Araras Health Hub Logo"
+      class="max-w-xs relative z-10 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]"
+    />
   </div>
 </div>

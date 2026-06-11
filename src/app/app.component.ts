@@ -1,37 +1,40 @@
-import { Component, OnInit } from '@angular/core';
-import { PrimeNG } from 'primeng/config';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from './shared/components/header/header.component';
-import { ToastComponent } from './shared/components/toast/toast.component';
+import { PrimeNG } from 'primeng/config';
 import { RouteStateService } from './core/services/route-state.service';
-import { CommonModule } from '@angular/common';
-import { SpinnerComponent } from './shared/components/spinner/spinner.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
+import { HeaderComponent } from './shared/components/header/header.component';
+import { SpinnerComponent } from './shared/components/spinner/spinner.component';
+import { ToastComponent } from './shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, ToastComponent, SpinnerComponent, CommonModule, FooterComponent],
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    HeaderComponent,
+    FooterComponent,
+    ToastComponent,
+    SpinnerComponent,
+  ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
-  showHeader = false;
-  showFooter: boolean = false;
+  private readonly primeng = inject(PrimeNG);
+  private readonly routeStateService = inject(RouteStateService);
 
-  constructor(private primeng: PrimeNG, private routeStateService: RouteStateService) { }
+  readonly showHeader = computed(() => this.routeStateService.showHeader());
+  readonly showFooter = computed(() => this.routeStateService.showHeader());
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.primeng.ripple.set(true);
+
     this.primeng.zIndex = {
       modal: 1100,
       overlay: 1000,
       menu: 1000,
-      tooltip: 1100
+      tooltip: 1100,
     };
-
-    this.routeStateService.showHeader$.subscribe((show) => {
-      this.showHeader = show;
-      this.showFooter = show;
-    });
   }
 }
