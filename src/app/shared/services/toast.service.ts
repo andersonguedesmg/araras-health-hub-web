@@ -1,19 +1,25 @@
-import { Injectable } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ToastSeverities, ToastSummaries } from '../constants/toast.constants';
-import { HttpErrorResponse } from '@angular/common/http';
-import { BaseApiResponse } from '../interfaces/base-api-response';
+import {
+  ApiValidationErrors,
+  BaseApiResponse,
+} from '../interfaces/base-api-response';
 
-interface ApiValidationErrors {
-  [key: string]: string[];
+interface ProblemDetailsError {
+  type?: string;
+  title?: string;
+  status?: number;
+  detail?: string;
+  traceId?: string;
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
-
-  constructor(private messageService: MessageService) { }
+  private readonly messageService = inject(MessageService);
 
   showSuccess(message: string, summary: string = ToastSummaries.SUCCESS): void {
     this.messageService.add({
@@ -39,30 +45,39 @@ export class ToastService {
     });
   }
 
-  handleApiError(error: any): void {
+  handleApiError(error: unknown): void {
     let detailMessage = 'Ocorreu um erro desconhecido.';
     let summary = ToastSummaries.ERROR;
-    let severity = ToastSeverities.ERROR;
+    const severity = ToastSeverities.ERROR;
+
     this.messageService.clear();
 
     if (error instanceof HttpErrorResponse) {
-      const apiResponse: BaseApiResponse<any> = error.error;
-      if (apiResponse && apiResponse.errors) {
-        summary = apiResponse.message || ToastSummaries.ERROR;
-        detailMessage = this.formatValidationErrors(apiResponse.errors);
-      } else if (apiResponse && apiResponse.message) {
-        detailMessage = apiResponse.message;
+      const problemDetail = error.error as ProblemDetailsError;
+
+      if (problemDetail && (problemDetail.detail || problemDetail.title)) {
+        summary = problemDetail.title || ToastSummaries.ERROR;
+        detailMessage =
+          problemDetail.detail || 'Erro de processamento na requisição.';
       } else {
-        detailMessage = `[${error.status}] ${error.message}`;
+        const apiResponse = error.error as any;
+        if (apiResponse && apiResponse.errors) {
+          summary = apiResponse.message || ToastSummaries.ERROR;
+          detailMessage = this.formatValidationErrors(apiResponse.errors);
+        } else if (apiResponse && apiResponse.message) {
+          detailMessage = apiResponse.message;
+        } else {
+          detailMessage = `Erro [${error.status}]: ${error.statusText || error.message}`;
+        }
       }
-    } else if (error && error.success === false) {
+    } else if (this.isBaseApiResponse(error)) {
       if (error.errors) {
         summary = 'Ocorreram um ou mais erros de validação.';
         detailMessage = this.formatValidationErrors(error.errors);
       } else {
         detailMessage = error.message;
       }
-    } else if (error && error.message) {
+    } else if (error instanceof Error) {
       detailMessage = error.message;
     }
 
@@ -70,25 +85,32 @@ export class ToastService {
       severity: severity,
       summary: summary,
       detail: detailMessage,
-      life: 8000
+      life: 5000,
     });
   }
 
+  private isBaseApiResponse(obj: any): obj is BaseApiResponse<unknown> {
+    return (
+      obj &&
+      typeof obj === 'object' &&
+      'success' in obj &&
+      obj.success === false
+    );
+  }
+
   private formatValidationErrors(errors: ApiValidationErrors): string {
-    let html = '<ul class="p-0 m-0">';
-
+    let html = '<ul class="p-0 m-0 list-none">';
     for (const key in errors) {
-      if (errors.hasOwnProperty(key)) {
-        errors[key].forEach(error => {
-
-          const fieldName = key !== '$' && key.length < 50 ?
-            `<span class="font-bold">${key}</span>: ` : '';
-
-          html += `<li class="mt-1">${fieldName} ${error}</li>`;
+      if (Object.prototype.hasOwnProperty.call(errors, key)) {
+        errors[key].forEach((error) => {
+          const fieldName =
+            key !== '$' && key.length < 50
+              ? `<span class="font-bold">${key}</span>: `
+              : '';
+          html += `<li class="mt-1">${fieldName}${error}</li>`;
         });
       }
     }
-
     html += '</ul>';
     return html;
   }
