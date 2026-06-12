@@ -1,0 +1,43 @@
+<div
+  class="flex flex-col sm:flex-row gap-4 items-center justify-between w-full py-2 bg-white dark:bg-zinc-950 transition-colors duration-200"
+>
+  <div class="w-full sm:w-72">
+    <p-iconfield class="w-full">
+      <p-inputicon
+        styleClass="pi pi-search text-zinc-400 dark:text-zinc-500 text-sm"
+      />
+      <input
+        pInputText
+        type="text"
+        [placeholder]="searchPlaceholder()"
+        class="w-full p-inputtext-sm text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg focus:border-zinc-400 dark:focus:border-zinc-600 focus:ring-0 transition-all duration-150"
+        (input)="handleSearch($event)"
+      />
+    </p-iconfield>
+  </div>
+
+  <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+    @if (showPdfButton()) {
+      <p-button
+        icon="pi pi-file-pdf"
+        severity="secondary"
+        [loading]="pdfLoading()"
+        [pTooltip]="pdfButtonTooltip()"
+        tooltipPosition="top"
+        styleClass="p-button-sm border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 w-9 h-9 p-0 flex items-center justify-center rounded-lg transition-all duration-150"
+        (click)="onPdfClick.emit()"
+      />
+    }
+
+    @if (showActionButton()) {
+      <p-button
+        [icon]="buttonIcon()"
+        severity="primary"
+        [pTooltip]="buttonTooltip()"
+        tooltipPosition="top"
+        styleClass="p-button-sm bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-200 border-none w-9 h-9 p-0 flex items-center justify-center rounded-lg shadow-xs transition-all duration-150"
+        (click)="onActionClick.emit()"
+      />
+    }
+  </div>
+</div>
