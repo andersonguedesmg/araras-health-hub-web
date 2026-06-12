@@ -1,3 +1,11 @@
-<div class="container mx-auto mt-4">
-  <p-breadcrumb class="" [model]="items" [home]="home" />
+<div
+  class="w-full bg-zinc-50/40 dark:bg-zinc-900/10 py-2.5 border-zinc-200/60 dark:border-zinc-800/60 backdrop-blur-md sticky top-0 z-10 transition-all duration-200"
+>
+  <div class="max-w-7xl mx-auto px-6">
+    <p-breadcrumb
+      [model]="items()"
+      [home]="home"
+      styleClass="bg-transparent border-none p-0 text-xs font-medium"
+    ></p-breadcrumb>
+  </div>
 </div>

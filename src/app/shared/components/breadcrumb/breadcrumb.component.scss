@@ -1,0 +1,111 @@
+app-breadcrumb {
+  .p-breadcrumb {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+
+    .p-breadcrumb-list {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .p-breadcrumb-item {
+      display: inline-flex;
+      align-items: center;
+
+      .p-breadcrumb-item-link {
+        color: rgb(113 113 122) !important;
+        text-decoration: none;
+        font-size: 0.8rem !important;
+        font-weight: 500;
+        border-radius: 4px;
+        padding: 2px 4px;
+        transition: all 0.15s ease-in-out;
+
+        .p-breadcrumb-item-icon {
+          font-size: 0.9rem !important;
+          color: rgb(113 113 122);
+          transition: color 0.15s;
+        }
+
+        &:hover {
+          background-color: rgb(244 244 245) !important;
+          color: rgb(9 9 11) !important;
+
+          .p-breadcrumb-item-icon {
+            color: rgb(9 9 11);
+          }
+        }
+      }
+
+      &:last-child {
+        .p-breadcrumb-item-link {
+          color: rgb(39 39 42) !important;
+          font-weight: 600;
+          cursor: default;
+
+          &:hover {
+            background-color: transparent !important;
+            color: rgb(39 39 42) !important;
+          }
+        }
+      }
+    }
+
+    .p-breadcrumb-separator {
+      color: rgb(212 212 216) !important;
+      font-size: 0.75rem !important;
+      display: inline-flex;
+      align-items: center;
+      user-select: none;
+    }
+  }
+
+  .dark & {
+    .w-full {
+      background-color: rgb(9 9 11 / 0.2) !important;
+      border-color: rgb(39 39 42 / 0.6) !important;
+    }
+
+    .p-breadcrumb {
+      .p-breadcrumb-item {
+        .p-breadcrumb-item-link {
+          color: rgb(161 161 170) !important;
+
+          .p-breadcrumb-item-icon {
+            color: rgb(161 161 170);
+          }
+
+          &:hover {
+            background-color: rgb(24 24 27) !important;
+            color: #ffffff !important;
+
+            .p-breadcrumb-item-icon {
+              color: #ffffff;
+            }
+          }
+        }
+
+        &:last-child {
+          .p-breadcrumb-item-link {
+            color: rgb(244 244 245) !important;
+
+            &:hover {
+              color: rgb(244 244 245) !important;
+            }
+          }
+        }
+      }
+
+      .p-breadcrumb-separator {
+        color: rgb(63 63 70) !important;
+      }
+    }
+  }
+}
