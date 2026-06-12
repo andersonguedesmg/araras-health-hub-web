@@ -5,7 +5,8 @@
 
 <div class="container mx-auto">
   <div class="card mt-10">
-    <app-table-header [title]="title"></app-table-header>
+    <app-page-header [title]="title" [description]="description">
+    </app-page-header>
 
     <ng-container *ngIf="facilities$ | async as facilities">
       <app-table
@@ -154,7 +155,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && facilityForm.get('name')?.invalid
+                  formSubmitted && facilityForm.get('name')?.invalid,
               }"
             />
           </div>
@@ -177,7 +178,7 @@
                 [ngClass]="{
                   'ng-invalid ng-dirty':
                     facilityForm.get('address.cep')?.invalid &&
-                    (formSubmitted || facilityForm.get('address.cep')?.touched)
+                    (formSubmitted || facilityForm.get('address.cep')?.touched),
                 }"
               />
             </div>
@@ -200,7 +201,8 @@
                 class="mt-1 p-2 border rounded-md w-full"
                 [ngClass]="{
                   'border-red-500':
-                    formSubmitted && facilityForm.get('address.street')?.invalid
+                    formSubmitted &&
+                    facilityForm.get('address.street')?.invalid,
                 }"
               />
             </div>
@@ -223,7 +225,8 @@
                 class="mt-1 p-2 border rounded-md w-full"
                 [ngClass]="{
                   'border-red-500':
-                    formSubmitted && facilityForm.get('address.number')?.invalid
+                    formSubmitted &&
+                    facilityForm.get('address.number')?.invalid,
                 }"
               />
             </div>
@@ -263,7 +266,7 @@
                 [ngClass]="{
                   'border-red-500':
                     formSubmitted &&
-                    facilityForm.get('address.neighborhood')?.invalid
+                    facilityForm.get('address.neighborhood')?.invalid,
                 }"
               />
             </div>
@@ -284,7 +287,7 @@
                 class="mt-1 p-2 border rounded-md w-full"
                 [ngClass]="{
                   'border-red-500':
-                    formSubmitted && facilityForm.get('address.city')?.invalid
+                    formSubmitted && facilityForm.get('address.city')?.invalid,
                 }"
               />
             </div>
@@ -305,7 +308,7 @@
                 class="mt-1 p-2 border rounded-md w-full"
                 [ngClass]="{
                   'border-red-500':
-                    formSubmitted && facilityForm.get('address.state')?.invalid
+                    formSubmitted && facilityForm.get('address.state')?.invalid,
                 }"
               />
             </div>
@@ -328,7 +331,7 @@
                 class="mt-1 p-2 border rounded-md w-full"
                 [ngClass]="{
                   'border-red-500':
-                    formSubmitted && facilityForm.get('contact.email')?.invalid
+                    formSubmitted && facilityForm.get('contact.email')?.invalid,
                 }"
               />
             </div>
@@ -350,7 +353,7 @@
                   'ng-invalid ng-dirty':
                     facilityForm.get('contact.phone')?.invalid &&
                     (formSubmitted ||
-                      facilityForm.get('contact.phone')?.touched)
+                      facilityForm.get('contact.phone')?.touched),
                 }"
               />
             </div>
@@ -372,7 +375,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && facilityForm.get('cnes')?.invalid
+                  formSubmitted && facilityForm.get('cnes')?.invalid,
               }"
             />
           </div>

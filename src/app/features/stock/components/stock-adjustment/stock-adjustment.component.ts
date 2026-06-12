@@ -19,7 +19,7 @@ import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { StockMovementService } from '../../services/stock-movement.service';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
@@ -49,7 +49,7 @@ import { TableModule } from 'primeng/table';
     ConfirmDialogComponent,
     TableComponent,
     DialogComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
   ],
   providers: [MessageService, DatePipe],
   templateUrl: './stock-adjustment.component.html',
@@ -60,6 +60,7 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Movimentações' }, { label: 'Ajustes' }];
   title: string = 'Histórico de Ajustes Manuais';
+  description: string = '';
 
   stockAdjustments$!: Observable<StockAdjustment[]>;
   selectedAdjustments?: StockAdjustment;

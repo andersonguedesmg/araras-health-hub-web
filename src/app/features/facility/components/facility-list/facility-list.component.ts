@@ -26,7 +26,7 @@ import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/mes
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { InputMaskModule } from 'primeng/inputmask';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
@@ -55,7 +55,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     ConfirmDialogComponent,
     TableComponent,
     DialogComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
     HasPermissionDirective,
   ],
   providers: [MessageService],
@@ -65,6 +65,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
 export class FacilityListComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Unidades' }];
   title: string = 'Unidades';
+  description: string = '';
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;

@@ -20,7 +20,7 @@ import { Stock } from '../../interfaces/stock';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { TagModule } from 'primeng/tag';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 
 @Component({
@@ -44,7 +44,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
   ],
   providers: [MessageService],
   templateUrl: './stock-near-expiry-lots.component.html',
@@ -53,6 +53,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
 export class StockNearExpiryLotsComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }, { label: 'Vencimento Próximo' }];
   title: string = 'Vencimento Próximo';
+  description: string = '';
 
   nearExpiryLotStocks$!: Observable<Stock[]>;
 

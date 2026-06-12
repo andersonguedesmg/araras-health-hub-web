@@ -331,7 +331,7 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
         this.confirmMessage = ConfirmMessages.CONFIRM_OPERATION;
         break;
     }
-    this.confirmDialog.message = this.confirmMessage;
+    // this.confirmDialog.message = this.confirmMessage;
     this.confirmDialog.show();
 
     try {

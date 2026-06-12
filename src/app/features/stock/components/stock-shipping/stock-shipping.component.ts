@@ -23,7 +23,7 @@ import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs
 import { StockShipping } from '../../interfaces/stock-shipping';
 import { StockMovementService } from '../../services/stock-movement.service';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
@@ -50,7 +50,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     ConfirmDialogComponent,
     TableComponent,
     DialogComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
   ],
   providers: [MessageService],
   templateUrl: './stock-shipping.component.html',
@@ -63,6 +63,7 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Saídas' }, { label: 'Histórico' }];
   title: string = 'Histórico de Saídas';
+  description: string = '';
 
   stockShippings$!: Observable<StockShipping[]>;
   selectedShipping?: StockShipping;

@@ -28,7 +28,7 @@ import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switch
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { getRoleSeverity, getRoleValue } from '../../../../shared/utils/roles.utils';
 import { BaseComponent } from '../../../../core/components/base/base.component';
@@ -58,7 +58,7 @@ import { ScopeOptions } from '../../../../shared/enums/scope.enum';
     ConfirmDialogComponent,
     TableComponent,
     DialogComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
     HasPermissionDirective,
   ],
   providers: [MessageService],
@@ -72,6 +72,7 @@ export class AccountListComponent extends BaseComponent implements OnInit, OnDes
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Contas' }];
   title: string = 'Contas';
+  description: string = '';
 
   accounts$!: Observable<Account[]>;
   selectedAccount?: Account;

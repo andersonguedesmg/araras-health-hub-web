@@ -22,7 +22,7 @@ import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order
 import { OrderService } from '../../services/order.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { Order } from '../../interfaces/order';
 import { OrderActionModalComponent } from '../order-action-modal/order-action-modal.component';
@@ -54,7 +54,7 @@ import { HasPermissionDirective } from '../../../../core/directives/has-permissi
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
     OrderActionModalComponent,
     HasPermissionDirective,
   ],
@@ -68,6 +68,7 @@ export class OrderCompletedComponent extends BaseComponent implements OnInit, On
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Finalizados' }];
   title: string = 'Pedidos Finalizados';
+  description: string = '';
 
   orders$!: Observable<Order[]>;
   selectedOrder?: Order;

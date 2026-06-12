@@ -5,7 +5,8 @@
 
 <div class="container mx-auto">
   <div class="card mt-10">
-    <app-table-header [title]="title"></app-table-header>
+    <app-page-header [title]="title" [description]="description">
+    </app-page-header>
 
     <ng-container *ngIf="accounts$ | async as accounts">
       <app-table
@@ -169,7 +170,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && accountForm.get('userName')?.invalid
+                  formSubmitted && accountForm.get('userName')?.invalid,
               }"
             />
           </div>
@@ -193,7 +194,7 @@
               filterBy="label"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && accountForm.get('facilityId')?.invalid
+                  formSubmitted && accountForm.get('facilityId')?.invalid,
               }"
             ></p-select>
           </div>
@@ -217,7 +218,7 @@
               filterBy="label"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && accountForm.get('role')?.invalid
+                  formSubmitted && accountForm.get('role')?.invalid,
               }"
             ></p-select>
           </div>
@@ -241,7 +242,7 @@
               filterBy="label"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && accountForm.get('scope')?.invalid
+                  formSubmitted && accountForm.get('scope')?.invalid,
               }"
             ></p-select>
           </div>
@@ -295,7 +296,8 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && passwordResetForm.get('newPassword')?.invalid
+                  formSubmitted &&
+                  passwordResetForm.get('newPassword')?.invalid,
               }"
             />
           </div>
@@ -313,7 +315,7 @@
                 'border-red-500':
                   (formSubmitted &&
                     passwordResetForm.get('confirmPassword')?.invalid) ||
-                  (formSubmitted && passwordResetForm.hasError('mismatch'))
+                  (formSubmitted && passwordResetForm.hasError('mismatch')),
               }"
             />
           </div>

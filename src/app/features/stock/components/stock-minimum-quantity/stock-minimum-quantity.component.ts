@@ -18,7 +18,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { ToastMessages } from '../../../../shared/constants/messages.constants';
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap, take, tap } from 'rxjs';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { StockMinQuantity } from '../../interfaces/stock-minimum-quantity';
 import { StockService } from '../../services/stock.service';
 import { TableModule } from 'primeng/table';
@@ -45,7 +45,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     SelectModule,
     TableModule,
     BreadcrumbComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
@@ -56,6 +56,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 export class StockMinimumQuantityComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Configurações' }, { label: 'Estoque Mínimo' }];
   title: string = 'Estoque Mínimo';
+  description: string = '';
 
   stockMinQuantities$!: Observable<StockMinQuantity[]>;
   totalRecords = 0;
@@ -172,7 +173,7 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
     const successMessage = `Estoque mínimo de ${stock.productName} atualizado com sucesso!`;
 
     if (this.confirmDialog) {
-      this.confirmDialog.message = confirmMessage;
+      // this.confirmDialog.message = confirmMessage;
     }
 
     try {

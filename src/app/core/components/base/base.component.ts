@@ -62,7 +62,7 @@ export abstract class BaseComponent {
     }
 
     try {
-      this.confirmDialog.message = confirmMessage;
+      // this.confirmDialog.message = confirmMessage;
       await firstValueFrom(this.confirmDialog.show());
       this.isLoading = true;
       const response = await apiCallFactory();

@@ -26,7 +26,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { Employee } from '../../interfaces/employee';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { InputMask } from 'primeng/inputmask';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
@@ -56,7 +56,7 @@ import { cpfValidator } from '../../../../core/validators/cpf-cnpj.validator';
     ConfirmDialogComponent,
     TableComponent,
     DialogComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
     HasPermissionDirective,
   ],
   providers: [MessageService],
@@ -66,6 +66,7 @@ import { cpfValidator } from '../../../../core/validators/cpf-cnpj.validator';
 export class EmployeeListComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Funcionários' }];
   title: string = 'Funcionários';
+  description: string = '';
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;

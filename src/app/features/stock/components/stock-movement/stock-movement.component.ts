@@ -20,7 +20,7 @@ import { StockMovementService } from '../../services/stock-movement.service';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { TagModule } from 'primeng/tag';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { StockMovement } from '../../interfaces/stock-movement';
 import { StockMovementTypePipe } from "../../../../shared/pipe/stock-movement-type.pipe";
 import { BaseComponent } from '../../../../core/components/base/base.component';
@@ -46,7 +46,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
     StockMovementTypePipe
   ],
   templateUrl: './stock-movement.component.html',
@@ -55,6 +55,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
 export class StockMovementComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Movimentações' }, { label: 'Histórico' }];
   title: string = 'Histórico de Movimentações';
+  description: string = '';
 
   stockMovements$!: Observable<StockMovement[]>;
   selectedStock?: StockMovement;

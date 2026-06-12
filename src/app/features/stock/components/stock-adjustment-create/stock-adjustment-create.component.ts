@@ -181,7 +181,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
   }
 
   removeStockAdjustmentItem(index: number): void {
-    this.confirmDialog.message = `Tem certeza que deseja remover o item ${index + 1}?`;
+    // this.confirmDialog.message = `Tem certeza que deseja remover o item ${index + 1}?`;
     this.confirmDialog.show();
 
     firstValueFrom(this.confirmDialog.show())

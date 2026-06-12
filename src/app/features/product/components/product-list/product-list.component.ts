@@ -26,7 +26,7 @@ import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/mes
 import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { BaseComponent } from '../../../../core/components/base/base.component';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
@@ -53,7 +53,7 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
     ConfirmDialogComponent,
     TableComponent,
     DialogComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
     HasPermissionDirective,
   ],
   providers: [MessageService],
@@ -63,6 +63,7 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
 export class ProductListComponent extends BaseComponent implements OnInit, OnDestroy {
   itemsBreadcrumb: MenuItem[] = [{ label: 'Administração' }, { label: 'Produtos' }];
   title: string = 'Produtos';
+  description: string = '';
 
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;

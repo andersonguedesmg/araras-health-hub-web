@@ -23,7 +23,7 @@ import { OrderService } from '../../services/order.service';
 import { StatusOptions } from '../../../../shared/constants/status-options.constants';
 import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { Order } from '../../interfaces/order';
 import { OrderActionModalComponent } from '../order-action-modal/order-action-modal.component';
@@ -54,7 +54,7 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     SpinnerComponent,
     ConfirmDialogComponent,
     TableComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
     OrderActionModalComponent,
     HasPermissionDirective,
   ],
@@ -68,6 +68,7 @@ export class OrderFinalizeComponent extends BaseComponent implements OnInit, OnD
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Finalizar' }];
   title: string = 'Pedidos para Finalização';
+  description: string = '';
 
   orders$!: Observable<Order[]>;
   selectedOrder?: Order;

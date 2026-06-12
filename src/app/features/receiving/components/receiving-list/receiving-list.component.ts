@@ -21,7 +21,7 @@ import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs
 import { ReceivingService } from '../../services/receiving.service';
 import { Receiving } from '../../interfaces/receiving';
 import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { TableHeaderComponent } from '../../../../shared/components/table-header/table-header.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
@@ -51,7 +51,7 @@ import { TableModule } from 'primeng/table';
     ConfirmDialogComponent,
     TableComponent,
     DialogComponent,
-    TableHeaderComponent,
+    PageHeaderComponent,
   ],
   providers: [MessageService, DatePipe, CurrencyPipe],
   templateUrl: './receiving-list.component.html',
@@ -62,6 +62,7 @@ export class ReceivingListComponent extends BaseComponent implements OnInit, OnD
 
   itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }, { label: 'Histórico' }];
   title: string = 'Histórico de Entradas';
+  description: string = '';
 
   receivings$!: Observable<Receiving[]>;
   selectedReceiving?: Receiving;

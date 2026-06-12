@@ -5,7 +5,8 @@
 
 <div class="container mx-auto">
   <div class="card mt-10">
-    <app-table-header [title]="title"></app-table-header>
+    <app-page-header [title]="title" [description]="description">
+    </app-page-header>
 
     <ng-container *ngIf="employees$ | async as employees">
       <app-table
@@ -143,11 +144,11 @@
               maxlength="100"
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
-                'border-red-500': employeeForm.get('name')?.invalid
+                'border-red-500': employeeForm.get('name')?.invalid,
               }"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && employeeForm.get('name')?.invalid
+                  formSubmitted && employeeForm.get('name')?.invalid,
               }"
             />
           </div>
@@ -169,7 +170,7 @@
               [ngClass]="{
                 'ng-invalid ng-dirty':
                   employeeForm.get('phone')?.invalid &&
-                  (formSubmitted || employeeForm.get('cpf')?.touched)
+                  (formSubmitted || employeeForm.get('cpf')?.touched),
               }"
             />
           </div>
@@ -192,7 +193,7 @@
               class="mt-1 p-2 border rounded-md w-full"
               [ngClass]="{
                 'border-red-500':
-                  formSubmitted && employeeForm.get('function')?.invalid
+                  formSubmitted && employeeForm.get('function')?.invalid,
               }"
             />
           </div>
@@ -213,7 +214,7 @@
               [ngClass]="{
                 'ng-invalid ng-dirty':
                   employeeForm.get('phone')?.invalid &&
-                  (formSubmitted || employeeForm.get('phone')?.touched)
+                  (formSubmitted || employeeForm.get('phone')?.touched),
               }"
             />
           </div>

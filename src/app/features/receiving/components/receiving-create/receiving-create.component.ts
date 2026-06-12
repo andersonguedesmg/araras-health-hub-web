@@ -227,7 +227,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
   }
 
   removeReceivedItem(index: number): void {
-    this.confirmDialog.message = `Tem certeza que deseja remover o item ${index + 1}?`;
+    // this.confirmDialog.message = `Tem certeza que deseja remover o item ${index + 1}?`;
     this.confirmDialog.show();
 
     firstValueFrom(this.confirmDialog.show())
@@ -376,7 +376,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
 
       await this.handleApiCall(apiCall, confirmMsg, successMsg);
 
-      this.confirmDialog.message = confirmMsg;
+      // this.confirmDialog.message = confirmMsg;
       this.confirmDialog.show();
 
       try {
