@@ -36,7 +36,7 @@ export class StockService {
   }
 
   public loadGeneralStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
-    const url = this.apiConfig.getUrl('stock', `general`);
+    const url = this.apiConfig.getUrlOld('stock', `general`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -51,7 +51,7 @@ export class StockService {
   }
 
   public loadStockMinQuantities(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<StockMinQuantity[]>> {
-    const url = this.apiConfig.getUrl('stock', `min-quantities`);
+    const url = this.apiConfig.getUrlOld('stock', `min-quantities`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -66,7 +66,7 @@ export class StockService {
   }
 
   public loadCriticalStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
-    const url = this.apiConfig.getUrl('stock', `critical`);
+    const url = this.apiConfig.getUrlOld('stock', `critical`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -81,7 +81,7 @@ export class StockService {
   }
 
   public loadNearExpiryLotsStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
-    const url = this.apiConfig.getUrl('stock', `near-expiry`);
+    const url = this.apiConfig.getUrlOld('stock', `near-expiry`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -96,7 +96,7 @@ export class StockService {
   }
 
   public loadActiveLotStocks(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Stock[]>> {
-    const url = this.apiConfig.getUrl('stock', `active-lots`);
+    const url = this.apiConfig.getUrlOld('stock', `active-lots`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -111,7 +111,7 @@ export class StockService {
   }
 
   public createStockAdjustment(stockAdjustment: StockAdjustment): Observable<ApiResponse<StockAdjustment>> {
-    const url = this.apiConfig.getUrl('stock', 'create-adjustment');
+    const url = this.apiConfig.getUrlOld('stock', 'create-adjustment');
     return this.http.post<ApiResponse<StockAdjustment>>(url, stockAdjustment).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -123,13 +123,13 @@ export class StockService {
   }
 
   public updateMinQuantity(productId: number, newMinQuantity: number): Observable<ApiResponse<any>> {
-    const url = this.apiConfig.getUrl('stock', `${productId}/min-quantity`);
+    const url = this.apiConfig.getUrlOld('stock', `${productId}/min-quantity`);
     const body = { newMinQuantity: newMinQuantity };
     return this.http.patch<ApiResponse<any>>(url, body);
   }
 
   public exportGeneralStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('stock', `export-general`);
+    const url = this.apiConfig.getUrlOld('stock', `export-general`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {
@@ -140,7 +140,7 @@ export class StockService {
   }
 
   public exportCriticalStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('stock', `export-critical`);
+    const url = this.apiConfig.getUrlOld('stock', `export-critical`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {
@@ -151,7 +151,7 @@ export class StockService {
   }
 
   public exportNearExpiryLotsStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('stock', `export-near-expiry`);
+    const url = this.apiConfig.getUrlOld('stock', `export-near-expiry`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {
@@ -162,7 +162,7 @@ export class StockService {
   }
 
   public exportActiveLotsStocks(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('stock', `export-active-lots`);
+    const url = this.apiConfig.getUrlOld('stock', `export-active-lots`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {

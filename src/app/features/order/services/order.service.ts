@@ -16,7 +16,7 @@ export class OrderService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public loadOrders(pageNumber: number, pageSize: number, searchTerm: string = '', orderStatusId?: number): Observable<ApiResponse<Order[]>> {
-    const url = this.apiConfig.getUrl('order', `getAll`);
+    const url = this.apiConfig.getUrlOld('order', `getAll`);
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -36,7 +36,7 @@ export class OrderService {
   }
 
   public createOrder(order: Order): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', 'create');
+    const url = this.apiConfig.getUrlOld('order', 'create');
     return this.http.post<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -48,7 +48,7 @@ export class OrderService {
   }
 
   public updateOrder(order: Order, orderId: number): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', `update/${orderId}`);
+    const url = this.apiConfig.getUrlOld('order', `update/${orderId}`);
     return this.http.put<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -61,12 +61,12 @@ export class OrderService {
   }
 
   public getOrderById(id: number): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', `getById/${id}`);
+    const url = this.apiConfig.getUrlOld('order', `getById/${id}`);
     return this.http.get<ApiResponse<Order>>(url);
   }
 
   public approveOrder(order: ApproveOrderCommand): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', 'approve');
+    const url = this.apiConfig.getUrlOld('order', 'approve');
     return this.http.put<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -78,17 +78,17 @@ export class OrderService {
   }
 
   public getPickingDetails(id: number): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', `picking-details/${id}`);
+    const url = this.apiConfig.getUrlOld('order', `picking-details/${id}`);
     return this.http.get<ApiResponse<Order>>(url);
   }
 
   public getPickingReport(id: number): Observable<Blob> {
-    const url = this.apiConfig.getUrl('order', `picking-report/${id}`);
+    const url = this.apiConfig.getUrlOld('order', `picking-report/${id}`);
     return this.http.get(url, { responseType: 'blob' });
   }
 
   public separateOrder(order: SeparateOrderCommand): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', 'separate');
+    const url = this.apiConfig.getUrlOld('order', 'separate');
     return this.http.put<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -100,7 +100,7 @@ export class OrderService {
   }
 
   public finalizeOrder(order: FinalizeOrderCommand): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', 'finalize');
+    const url = this.apiConfig.getUrlOld('order', 'finalize');
     return this.http.put<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -112,7 +112,7 @@ export class OrderService {
   }
 
   public cancelOrder(order: CancelOrderCommand): Observable<ApiResponse<Order>> {
-    const url = this.apiConfig.getUrl('order', 'cancel');
+    const url = this.apiConfig.getUrlOld('order', 'cancel');
     return this.http.put<ApiResponse<Order>>(url, order).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -124,7 +124,7 @@ export class OrderService {
   }
 
   public exportOrders(searchTerm: string = '', orderStatusId?: number): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('order', 'export');
+    const url = this.apiConfig.getUrlOld('order', 'export');
     let params = new HttpParams().set('searchTerm', searchTerm);
 
     if (orderStatusId !== undefined && orderStatusId !== null) {

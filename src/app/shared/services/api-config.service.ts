@@ -7,7 +7,13 @@ import { environment } from '../../../environment/environment';
 export class ApiConfigService {
   private readonly apiUrl = environment.apiUrl;
 
-  getUrl(feature: string, endpoint: string): string {
+  getUrlOld(feature: string, endpoint: string): string {
     return `${this.apiUrl}${feature}/${endpoint}`;
+  }
+
+  getUrl(path: string): string {
+    const baseUrl = this.apiUrl.endsWith('/') ? this.apiUrl : `${this.apiUrl}/`;
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return `${baseUrl}#/${cleanPath}`.replace('#/', '');
   }
 }

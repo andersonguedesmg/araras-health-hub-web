@@ -17,7 +17,7 @@ export class EmployeeService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public loadEmployees(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Employee[]>> {
-    const url = this.apiConfig.getUrl('employee', `getAll`);
+    const url = this.apiConfig.getUrlOld('employee', `getAll`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -32,7 +32,7 @@ export class EmployeeService {
   }
 
   public createEmployee(employee: Employee): Observable<ApiResponse<Employee>> {
-    const url = this.apiConfig.getUrl('employee', 'create');
+    const url = this.apiConfig.getUrlOld('employee', 'create');
     return this.http.post<ApiResponse<Employee>>(url, employee).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -44,12 +44,12 @@ export class EmployeeService {
   }
 
   public getEmployeeById(employeeId: number): Observable<ApiResponse<Employee>> {
-    const url = this.apiConfig.getUrl('employee', `getById/${employeeId}`);
+    const url = this.apiConfig.getUrlOld('employee', `getById/${employeeId}`);
     return this.http.get<ApiResponse<Employee>>(url);
   }
 
   public updateEmployee(employee: Employee, employeeId: number): Observable<ApiResponse<Employee>> {
-    const url = this.apiConfig.getUrl('employee', `update/${employeeId}`);
+    const url = this.apiConfig.getUrlOld('employee', `update/${employeeId}`);
     return this.http.put<ApiResponse<Employee>>(url, employee).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -62,7 +62,7 @@ export class EmployeeService {
   }
 
   public changeStatusEmployee(employeeId: number, employee: Employee): Observable<ApiResponse<Employee>> {
-    const url = this.apiConfig.getUrl('employee', `changeStatus/${employeeId}`);
+    const url = this.apiConfig.getUrlOld('employee', `changeStatus/${employeeId}`);
     return this.http.patch<ApiResponse<Employee>>(url, employee).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -75,7 +75,7 @@ export class EmployeeService {
   }
 
   public deleteEmployee(employeeId: number): Observable<ApiResponse<Employee>> {
-    const url = this.apiConfig.getUrl('employee', `delete/${employeeId}`);
+    const url = this.apiConfig.getUrlOld('employee', `delete/${employeeId}`);
     return this.http.delete<ApiResponse<Employee>>(url).pipe(
       tap(response => {
         if (response.success) {
@@ -88,7 +88,7 @@ export class EmployeeService {
   }
 
   public getEmployeeOptions(): Promise<SelectOptions<number>[]> {
-    const url = this.apiConfig.getUrl('employee', 'getDropdownOptions');
+    const url = this.apiConfig.getUrlOld('employee', 'getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<ApiDropdownItem[]>>(url))
       .then(response => {
         return response?.data?.map((item) => ({
@@ -102,7 +102,7 @@ export class EmployeeService {
   }
 
   public exportEmployees(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('employee', `export`);
+    const url = this.apiConfig.getUrlOld('employee', `export`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {

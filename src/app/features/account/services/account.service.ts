@@ -16,7 +16,7 @@ export class AccountService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public loadAccounts(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Account[]>> {
-    const url = this.apiConfig.getUrl('account', `getAll`);
+    const url = this.apiConfig.getUrlOld('account', `getAll`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -31,7 +31,7 @@ export class AccountService {
   }
 
   public registerAccount(account: Account): Observable<ApiResponse<Account>> {
-    const url = this.apiConfig.getUrl('account', 'register');
+    const url = this.apiConfig.getUrlOld('account', 'register');
     return this.http.post<ApiResponse<Account>>(url, account).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -43,12 +43,12 @@ export class AccountService {
   }
 
   public getAccountById(accountId: number): Observable<ApiResponse<Account>> {
-    const url = this.apiConfig.getUrl('account', `getById/${accountId}`);
+    const url = this.apiConfig.getUrlOld('account', `getById/${accountId}`);
     return this.http.get<ApiResponse<Account>>(url);
   }
 
   public updateAccount(account: Account, accountId: number): Observable<ApiResponse<Account>> {
-    const url = this.apiConfig.getUrl('account', `update/${accountId}`);
+    const url = this.apiConfig.getUrlOld('account', `update/${accountId}`);
     return this.http.put<ApiResponse<Account>>(url, account).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -61,7 +61,7 @@ export class AccountService {
   }
 
   public changeStatusAccount(accountId: number, account: Account): Observable<ApiResponse<Account>> {
-    const url = this.apiConfig.getUrl('account', `changeStatus/${accountId}`);
+    const url = this.apiConfig.getUrlOld('account', `changeStatus/${accountId}`);
     return this.http.patch<ApiResponse<Account>>(url, account).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -74,7 +74,7 @@ export class AccountService {
   }
 
   public deleteAccount(accountrId: number): Observable<ApiResponse<Account>> {
-    const url = this.apiConfig.getUrl('account', `delete/${accountrId}`);
+    const url = this.apiConfig.getUrlOld('account', `delete/${accountrId}`);
     return this.http.delete<ApiResponse<Account>>(url).pipe(
       tap(response => {
         if (response.success) {
@@ -87,17 +87,17 @@ export class AccountService {
   }
 
   public getByFacilityId(facilityId: number): Observable<ApiResponse<Account>> {
-    const url = this.apiConfig.getUrl('account', `getByFacilityId/${facilityId}`);
+    const url = this.apiConfig.getUrlOld('account', `getByFacilityId/${facilityId}`);
     return this.http.get<ApiResponse<Account>>(url);
   }
 
   public resetPassword(request: ResetPassword): Observable<ApiResponse<any>> {
-    const url = this.apiConfig.getUrl('account', 'resetPassword');
+    const url = this.apiConfig.getUrlOld('account', 'resetPassword');
     return this.http.post<ApiResponse<any>>(url, request);
   }
 
   public exportAccounts(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('account', `export`);
+    const url = this.apiConfig.getUrlOld('account', `export`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {

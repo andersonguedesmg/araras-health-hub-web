@@ -17,7 +17,7 @@ export class ProductService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public loadProducts(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Product[]>> {
-    const url = this.apiConfig.getUrl('product', `getAll`);
+    const url = this.apiConfig.getUrlOld('product', `getAll`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -32,7 +32,7 @@ export class ProductService {
   }
 
   public createProduct(product: Product): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrl('product', 'create');
+    const url = this.apiConfig.getUrlOld('product', 'create');
     return this.http.post<ApiResponse<Product>>(url, product).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -44,12 +44,12 @@ export class ProductService {
   }
 
   public getProductById(productId: number): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrl('product', `getById/${productId}`);
+    const url = this.apiConfig.getUrlOld('product', `getById/${productId}`);
     return this.http.get<ApiResponse<Product>>(url);
   }
 
   public updateProduct(product: Product, productId: number): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrl('product', `update/${productId}`);
+    const url = this.apiConfig.getUrlOld('product', `update/${productId}`);
     return this.http.put<ApiResponse<Product>>(url, product).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -62,7 +62,7 @@ export class ProductService {
   }
 
   public changeStatusProduct(productId: number, product: Product): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrl('product', `changeStatus/${productId}`);
+    const url = this.apiConfig.getUrlOld('product', `changeStatus/${productId}`);
     return this.http.patch<ApiResponse<Product>>(url, product).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -75,7 +75,7 @@ export class ProductService {
   }
 
   public deleteProduct(productId: number): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrl('product', `delete/${productId}`);
+    const url = this.apiConfig.getUrlOld('product', `delete/${productId}`);
     return this.http.delete<ApiResponse<Product>>(url).pipe(
       tap(response => {
         if (response.success) {
@@ -88,7 +88,7 @@ export class ProductService {
   }
 
   public getProductOptions(): Promise<SelectOptions<number>[]> {
-    const url = this.apiConfig.getUrl('product', 'getDropdownOptions');
+    const url = this.apiConfig.getUrlOld('product', 'getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<ApiDropdownItem[]>>(url))
       .then(response => {
         return response?.data?.map((item) => ({
@@ -102,7 +102,7 @@ export class ProductService {
   }
 
   public exportProducts(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('product', `export`);
+    const url = this.apiConfig.getUrlOld('product', `export`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {

@@ -18,7 +18,7 @@ export class FacilityService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public loadFacilities(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Facility[]>> {
-    const url = this.apiConfig.getUrl('facility', `getAll`);
+    const url = this.apiConfig.getUrlOld('facility', `getAll`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -33,7 +33,7 @@ export class FacilityService {
   }
 
   public createFacility(facility: Facility): Observable<ApiResponse<Facility>> {
-    const url = this.apiConfig.getUrl('facility', 'create');
+    const url = this.apiConfig.getUrlOld('facility', 'create');
     return this.http.post<ApiResponse<Facility>>(url, facility).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -45,12 +45,12 @@ export class FacilityService {
   }
 
   public getFacilityById(facilityId: number): Observable<ApiResponse<Facility>> {
-    const url = this.apiConfig.getUrl('facility', `getById/${facilityId}`);
+    const url = this.apiConfig.getUrlOld('facility', `getById/${facilityId}`);
     return this.http.get<ApiResponse<Facility>>(url);
   }
 
   public updateFacility(facility: Facility, facilityId: number): Observable<ApiResponse<Facility>> {
-    const url = this.apiConfig.getUrl('facility', `update/${facilityId}`);
+    const url = this.apiConfig.getUrlOld('facility', `update/${facilityId}`);
     return this.http.put<ApiResponse<Facility>>(url, facility).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -63,7 +63,7 @@ export class FacilityService {
   }
 
   public changeStatusFacility(facilityId: number, facility: Facility): Observable<ApiResponse<Facility>> {
-    const url = this.apiConfig.getUrl('facility', `changeStatus/${facilityId}`);
+    const url = this.apiConfig.getUrlOld('facility', `changeStatus/${facilityId}`);
     return this.http.patch<ApiResponse<Facility>>(url, facility).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -76,7 +76,7 @@ export class FacilityService {
   }
 
   public deleteFacility(facilityId: number): Observable<ApiResponse<Facility>> {
-    const url = this.apiConfig.getUrl('facility', `delete/${facilityId}`);
+    const url = this.apiConfig.getUrlOld('facility', `delete/${facilityId}`);
     return this.http.delete<ApiResponse<Facility>>(url).pipe(
       tap(response => {
         if (response.success) {
@@ -89,12 +89,12 @@ export class FacilityService {
   }
 
   public getFacilityProfile(): Observable<ApiResponse<FacilityProfile>> {
-    const url = this.apiConfig.getUrl('facility', `profile`);
+    const url = this.apiConfig.getUrlOld('facility', `profile`);
     return this.http.get<ApiResponse<FacilityProfile>>(url);
   }
 
   public getFacilityOptions(): Promise<SelectOptions<number>[]> {
-    const url = this.apiConfig.getUrl('facility', 'getDropdownOptions');
+    const url = this.apiConfig.getUrlOld('facility', 'getDropdownOptions');
     return firstValueFrom(this.http.get<ApiResponse<ApiDropdownItem[]>>(url))
       .then(response => {
         return response?.data?.map((item) => ({
@@ -108,7 +108,7 @@ export class FacilityService {
   }
 
   public exportFacilities(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('facility', `export`);
+    const url = this.apiConfig.getUrlOld('facility', `export`);
     const params = new HttpParams().set('searchTerm', searchTerm);
     return this.http.get(url, {
       params,

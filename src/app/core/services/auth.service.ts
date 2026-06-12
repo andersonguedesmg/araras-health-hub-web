@@ -1,4 +1,3 @@
-// src/app/core/services/auth.service.ts
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
@@ -32,7 +31,7 @@ export class AuthService {
   );
 
   login(credentials: LoginRequest): Observable<BaseApiResponse<Account>> {
-    const url = this.apiConfig.getUrl('accounts', 'login');
+    const url = this.apiConfig.getUrl('accounts/login');
 
     return this.http.post<BaseApiResponse<Account>>(url, credentials).pipe(
       tap((response) => {

@@ -12,7 +12,7 @@ export class DashboardService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   getSummary(): Observable<ApiResponse<DashboardSummary>> {
-    const url = this.apiConfig.getUrl('dashboard', 'summary');
+    const url = this.apiConfig.getUrlOld('dashboard', 'summary');
     return this.http.get<ApiResponse<DashboardSummary>>(url);
   }
 }

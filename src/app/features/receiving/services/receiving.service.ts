@@ -15,7 +15,7 @@ export class ReceivingService {
   constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
 
   public loadReceivings(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Receiving[]>> {
-    const url = this.apiConfig.getUrl('receiving', `getAll`);
+    const url = this.apiConfig.getUrlOld('receiving', `getAll`);
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
@@ -31,7 +31,7 @@ export class ReceivingService {
   }
 
   public createReceiving(receiving: Receiving): Observable<ApiResponse<Receiving>> {
-    const url = this.apiConfig.getUrl('receiving', 'create');
+    const url = this.apiConfig.getUrlOld('receiving', 'create');
     return this.http.post<ApiResponse<Receiving>>(url, receiving).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -43,7 +43,7 @@ export class ReceivingService {
   }
 
   public updateReceiving(receiving: Receiving, receivingId: number): Observable<ApiResponse<Receiving>> {
-    const url = this.apiConfig.getUrl('receiving', `update/${receivingId}`);
+    const url = this.apiConfig.getUrlOld('receiving', `update/${receivingId}`);
     return this.http.put<ApiResponse<Receiving>>(url, receiving).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -56,12 +56,12 @@ export class ReceivingService {
   }
 
   public getReceivingById(id: number): Observable<ApiResponse<Receiving>> {
-    const url = this.apiConfig.getUrl('receiving', `getById/${id}`);
+    const url = this.apiConfig.getUrlOld('receiving', `getById/${id}`);
     return this.http.get<ApiResponse<Receiving>>(url);
   }
 
   public exportReceivings(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrl('receiving', `export`);
+    const url = this.apiConfig.getUrlOld('receiving', `export`);
     const params = new HttpParams().set('searchTerm', searchTerm);
 
     return this.http.get(url, {
