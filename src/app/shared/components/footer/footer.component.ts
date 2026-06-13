@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
+  encapsulation: ViewEncapsulation.None,
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })

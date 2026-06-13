@@ -1,7 +1,27 @@
-<footer class="bg-zinc-950 text-zinc-400 p-4 border-t border-zinc-800/40">
-  <div class="container mx-auto flex items-center justify-center">
-    <p class="text-center text-sm tracking-wide">
-      &copy; {{ currentYear }} Araras Health Hub. Todos os direitos reservados.
+<footer
+  class="w-full bg-white dark:bg-zinc-950 py-4 border-t border-zinc-200/80 dark:border-zinc-800/60 transition-colors duration-200"
+>
+  <div
+    class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-2"
+  >
+    <p
+      class="text-xs font-medium text-zinc-500 dark:text-zinc-400 tracking-wide text-center sm:text-left"
+    >
+      &copy; {{ currentYear }} ArarasHealthHub. Todos os direitos reservados.
     </p>
+
+    <div
+      class="flex items-center gap-4 text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 tracking-wider uppercase"
+    >
+      <span
+        class="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
+        >Termos</span
+      >
+      <span class="w-1 h-1 bg-zinc-300 dark:bg-zinc-700 rounded-full"></span>
+      <span
+        class="hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
+        >Privacidade</span
+      >
+    </div>
   </div>
 </footer>
