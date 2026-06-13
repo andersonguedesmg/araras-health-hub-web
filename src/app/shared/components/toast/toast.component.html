@@ -1,26 +1,31 @@
 <p-toast position="top-right" [life]="5000">
   <ng-template let-message pTemplate="message">
-    <div class="flex flex-col w-full text-white pl-1">
-      <div class="flex items-center text-base font-bold tracking-wide">
+    <div class="flex flex-col w-full pl-1">
+      <div
+        class="flex items-center text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+      >
         @switch (message.severity) {
           @case ("success") {
-            <i class="pi pi-check-circle text-lg mr-2"></i>
+            <i class="pi pi-check-circle text-base text-emerald-500 mr-2.5"></i>
           }
           @case ("error") {
-            <i class="pi pi-times-circle text-lg mr-2"></i>
+            <i class="pi pi-times-circle text-base text-red-500 mr-2.5"></i>
           }
           @case ("warn") {
-            <i class="pi pi-exclamation-triangle text-lg mr-2"></i>
+            <i
+              class="pi pi-exclamation-triangle text-base text-amber-500 mr-2.5"
+            ></i>
           }
           @default {
-            <i class="pi pi-info-circle text-lg mr-2"></i>
+            <i class="pi pi-info-circle text-base text-zinc-500 mr-2.5"></i>
           }
         }
         <span>{{ message.summary }}</span>
       </div>
+
       <div
         [innerHTML]="message.detail"
-        class="mt-1 text-sm pl-7 text-white/90 font-medium"
+        class="mt-1 text-xs pl-6.5 text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed"
       ></div>
     </div>
   </ng-template>
