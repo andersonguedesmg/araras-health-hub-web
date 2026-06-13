@@ -1,12 +1,14 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
-  OnInit,
-  ViewChild,
   effect,
   inject,
+  OnInit,
   signal,
+  ViewChild,
+  ViewEncapsulation,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MenuItem, PrimeIcons } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { PrimeNG } from 'primeng/config';
@@ -21,7 +23,14 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [MenubarModule, AvatarModule, MenuModule],
+  imports: [
+    CommonModule,
+    MenubarModule,
+    AvatarModule,
+    MenuModule,
+    RouterModule,
+  ],
+  encapsulation: ViewEncapsulation.None,
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
