@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +21,7 @@ import { AuthService } from '../../services/auth.service';
   imports: [FormsModule, ButtonModule, InputTextModule, SpinnerComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 export class LoginComponent implements OnInit {
   private readonly authService = inject(AuthService);
