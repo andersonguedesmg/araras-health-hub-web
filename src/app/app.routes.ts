@@ -19,7 +19,7 @@ export const routes: Routes = [
   {
     path: 'unauthorized',
     loadComponent: () =>
-      import('./shared/pages/unauthorized/unauthorized.component').then(
+      import('./features/errors/unauthorized/unauthorized.component').then(
         (m) => m.UnauthorizedComponent,
       ),
     title: 'Araras Health Hub - Não Autorizado',
