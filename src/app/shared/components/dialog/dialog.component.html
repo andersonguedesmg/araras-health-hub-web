@@ -1,25 +1,38 @@
 <p-dialog
   [(visible)]="visible"
   [modal]="true"
-  [style]="{ width: '50vw' }"
-  [header]="headerText"
-  (onHide)="hideDialog()"
+  [style]="{ width: '600px', 'max-width': '95vw' }"
+  [header]="headerText()"
+  [draggable]="false"
+  [resizable]="false"
+  maskStyleClass="backdrop-blur-[2px] bg-zinc-950/50 dark:bg-zinc-950/70 transition-all duration-200"
+  styleClass="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl overflow-hidden app-custom-dialog"
 >
-  <ng-content></ng-content>
+  <div class="py-3 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+    <ng-content></ng-content>
+  </div>
 
   <ng-template pTemplate="footer">
-    <p-button
-      *ngIf="formMode !== FormMode.Detail && showSaveButton"
-      [label]="saveButtonLabel"
-      icon="pi pi-check"
-      (click)="save()"
-    ></p-button>
-    <p-button
-      [label]="cancelButtonLabel"
-      icon="pi pi-times"
-      severity="info"
-      [outlined]="true"
-      (click)="cancel()"
-    ></p-button>
+    <div
+      class="flex items-center justify-end gap-2.5 pt-3 border-t border-zinc-100 dark:border-zinc-800/60"
+    >
+      <p-button
+        [label]="cancelButtonLabel()"
+        severity="secondary"
+        [text]="true"
+        styleClass="px-4 py-2 text-xs font-semibold rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-150"
+        (click)="handleCancel()"
+      ></p-button>
+
+      @if (formMode() !== FormMode.Detail && showSaveButton()) {
+        <p-button
+          [label]="saveButtonLabel()"
+          icon="pi pi-check"
+          severity="primary"
+          styleClass="px-4 py-2 text-xs font-semibold rounded-lg bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-200 border-none transition-all duration-150 inline-flex items-center gap-2"
+          (click)="onSave.emit()"
+        ></p-button>
+      }
+    </div>
   </ng-template>
 </p-dialog>
