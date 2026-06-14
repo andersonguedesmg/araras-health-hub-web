@@ -1,5 +1,12 @@
 <p-confirmDialog
-  [style]="{ width: '25vw' }"
-  [acceptIcon]="acceptIcon"
-  [rejectIcon]="rejectIcon">
-></p-confirmDialog>
+  [style]="{ width: '420px', 'max-width': '95vw' }"
+  [acceptIcon]="acceptIcon()"
+  [rejectIcon]="rejectIcon()"
+  [acceptLabel]="acceptLabel()"
+  [rejectLabel]="rejectLabel()"
+  [blockScroll]="true"
+  [closable]="false"
+  maskStyleClass="backdrop-blur-[2px] bg-zinc-950/50 dark:bg-zinc-950/70 transition-all duration-200"
+  styleClass="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl overflow-hidden app-custom-confirm"
+>
+</p-confirmDialog>

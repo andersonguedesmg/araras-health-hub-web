@@ -1,0 +1,146 @@
+.app-custom-confirm {
+  background: #ffffff !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  border: 10px solid var(--zinc-200) !important;
+
+  .p-dialog-header {
+    background: #ffffff !important;
+    padding: 1.5rem 1.5rem 0.75rem 1.5rem !important;
+    border: none !important;
+
+    .p-dialog-title {
+      font-size: 1.125rem !important;
+      font-weight: 700 !important;
+      color: var(--zinc-900) !important;
+      letter-spacing: -0.025em;
+    }
+  }
+
+  .p-dialog-content {
+    background: #ffffff !important;
+    padding: 0 1.5rem 1.75rem 1.5rem !important;
+    border: none !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: var(--zinc-600) !important;
+    line-height: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+
+    .p-dialog-confirm-icon,
+    .p-dialog-message-icon {
+      font-size: 1.5rem !important;
+      color: #ea580c !important;
+      margin: 0 !important;
+      flex-shrink: 0;
+    }
+  }
+
+  .p-dialog-footer {
+    background: var(--zinc-50) !important;
+    padding: 1rem 1.5rem !important;
+    border-top: 1px solid rgba(228, 228, 231, 0.8) !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 0.75rem !important;
+
+    .p-button {
+      font-size: 0.8125rem !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 1.25rem !important;
+      border-radius: 0.5rem !important;
+      transition: all 0.15s ease-in-out !important;
+      box-shadow: none !important;
+      border: 1px solid transparent !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      .p-button-icon {
+        margin-right: 0.5rem !important;
+        font-size: 0.875rem !important;
+        color: inherit !important;
+      }
+
+      &.p-confirm-dialog-reject {
+        background: #ffffff !important;
+        color: var(--zinc-600) !important;
+        border-color: var(--zinc-200) !important;
+
+        &:hover {
+          background: var(--zinc-50) !important;
+          border-color: var(--zinc-300) !important;
+          color: var(--zinc-900) !important;
+        }
+      }
+
+      &.p-confirm-dialog-accept {
+        background: var(--zinc-900) !important;
+        color: #ffffff !important;
+
+        &:hover {
+          background: #059669 !important;
+          border-color: #059669 !important;
+          color: #ffffff !important;
+        }
+      }
+    }
+  }
+}
+
+.dark {
+  .app-custom-confirm {
+    background: #121214 !important;
+
+    border: 1px solid var(--zinc-800) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+
+    .p-dialog-header {
+      background: #121214 !important;
+      .p-dialog-title {
+        color: var(--zinc-50) !important;
+      }
+    }
+
+    .p-dialog-content {
+      background: #121214 !important;
+      color: var(--zinc-300) !important;
+
+      .p-dialog-confirm-icon,
+      .p-dialog-message-icon {
+        color: #fbbf24 !important;
+      }
+    }
+
+    .p-dialog-footer {
+      background: #18181b !important;
+      border-top-color: var(--zinc-800) !important;
+
+      .p-button {
+        &.p-confirm-dialog-reject {
+          background: #18181b !important;
+          color: var(--zinc-400) !important;
+          border-color: var(--zinc-800) !important;
+
+          &:hover {
+            background: var(--zinc-800) !important;
+            border-color: var(--zinc-700) !important;
+            color: var(--zinc-100) !important;
+          }
+        }
+
+        &.p-confirm-dialog-accept {
+          background: var(--zinc-50) !important;
+          color: var(--zinc-950) !important;
+
+          &:hover {
+            background: #10b981 !important;
+            border-color: #10b981 !important;
+            color: #ffffff !important;
+          }
+        }
+      }
+    }
+  }
+}
