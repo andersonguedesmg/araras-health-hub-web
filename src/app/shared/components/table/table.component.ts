@@ -1,60 +1,54 @@
 import { CommonModule } from '@angular/common';
-import { Component, ContentChild, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  contentChild,
+  input,
+  output,
+  TemplateRef,
+  viewChild,
+  ViewEncapsulation,
+} from '@angular/core';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { ButtonModule } from 'primeng/button';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-table',
-  imports: [
-    CommonModule,
-    TableModule,
-    ToolbarModule,
-    ButtonModule,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
-    TagModule,
-  ],
+  standalone: true,
+  imports: [CommonModule, TableModule],
+  encapsulation: ViewEncapsulation.None,
   templateUrl: './table.component.html',
-  styleUrl: './table.component.scss'
+  styleUrl: './table.component.scss',
 })
 export class TableComponent {
-  @ViewChild('dt') dt!: Table;
+  protected dt = viewChild<Table>('dt');
 
-  @Input() value: any[] = [];
-  @Input() totalRecords: number = 0;
-  @Input() paginator: boolean = true;
-  @Input() lazy: boolean = true;
-  @Input() rows: number = 5;
-  @Input() rowsPerPageOptions: number[] = [5, 10, 25];
-  @Input() globalFilterFields: string[] = [];
-  @Input() dataKey: string = 'id';
-  @Input() loading: boolean = false;
-  @Input() colspan: number = 1;
-  @Input() emptyMessage: string = 'Nenhum registro encontrado.';
+  value = input<any[]>([]);
+  totalRecords = input<number>(0);
+  paginator = input<boolean>(true);
+  lazy = input<boolean>(true);
+  rows = input<number>(5);
+  first = input<number>(0);
+  rowsPerPageOptions = input<number[]>([5, 10, 25]);
+  globalFilterFields = input<string[]>([]);
+  dataKey = input<string>('id');
+  loading = input<boolean>(false);
+  colspan = input<number>(1);
+  emptyMessage = input<string>('Nenhum registro encontrado.');
 
-  @ContentChild('captionTemplate', { static: false }) captionTemplate!: TemplateRef<any>;
-  @ContentChild('headerTemplate', { static: false }) headerTemplate!: TemplateRef<any>;
-  @ContentChild('bodyTemplate', { static: false }) bodyTemplate!: TemplateRef<any>;
-  @ContentChild('footerTemplate', { static: false }) footerTemplate!: TemplateRef<any>;
-  @ContentChild('emptyMessageTemplate', { static: false }) emptyMessageTemplate!: TemplateRef<any>;
+  protected captionTemplate = contentChild<TemplateRef<any>>('captionTemplate');
+  protected headerTemplate = contentChild<TemplateRef<any>>('headerTemplate');
+  protected bodyTemplate = contentChild<TemplateRef<any>>('bodyTemplate');
+  protected footerTemplate = contentChild<TemplateRef<any>>('footerTemplate');
+  protected emptyMessageTemplate = contentChild<TemplateRef<any>>(
+    'emptyMessageTemplate',
+  );
 
-  @Output() onLazyLoad = new EventEmitter<TableLazyLoadEvent>();
+  onLazyLoad = output<TableLazyLoadEvent>();
 
-  filterGlobal(value: string, matchMode: string): void {
-    this.dt?.filterGlobal(value, matchMode);
+  public filterGlobal(value: string, matchMode: string): void {
+    this.dt()?.filterGlobal(value, matchMode);
   }
 
-  exportCSV(): void {
-    this.dt?.exportCSV();
-  }
-
-  onLazyLoadEvent(event: TableLazyLoadEvent): void {
-    this.onLazyLoad.emit(event);
+  public exportCSV(): void {
+    this.dt()?.exportCSV();
   }
 }

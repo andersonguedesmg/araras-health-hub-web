@@ -16,4 +16,15 @@
   .bg-zinc-950\/40 {
     background-color: rgb(9 9 11 / 0.4) !important;
   }
+
+  .p-paginator {
+    .p-paginator-page.p-paginator-page-selected {
+      background-color: var(--p-primary-color) !important;
+      color: var(--p-primary-contrast-color) !important;
+    }
+
+    .p-paginator-page:not(.p-paginator-page-selected):hover {
+      background-color: var(--p-content-hover-background) !important;
+    }
+  }
 }
