@@ -101,8 +101,8 @@ export const routes: Routes = [
       {
         path: 'administracao/unidades',
         loadComponent: () =>
-          import('./features/facility/components/facility-list/facility-list.component').then(
-            (m) => m.FacilityListComponent,
+          import('./features/facility/components/facility-container/facility-container.component').then(
+            (m) => m.FacilityContainerComponent,
           ),
         title: 'A2H - Unidades',
         canActivate: [scopeGuard],
