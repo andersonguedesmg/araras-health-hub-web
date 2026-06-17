@@ -305,7 +305,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
   public resetReceivingForm(): void {
     this.receivingForm.reset({
       receivingDate: new Date(),
-      accountId: 0 // this.authService.getUserId(),
+      accountId: 0, // this.authService.getUserId(),
     });
     this.receivedItems.clear();
     this.subscriptions.unsubscribe();
@@ -426,7 +426,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
     }
 
     this.isLoading = true;
-    const success = await this.formHelperService.bindAddressByCep(addressGroup, this.toastService);
+    const success = true; //await this.formHelperService.bindAddressByCep(addressGroup, this.toastService);
 
     this.updateSupplierFormState();
     this.isLoading = false;

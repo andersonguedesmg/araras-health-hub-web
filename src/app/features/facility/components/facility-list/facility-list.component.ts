@@ -289,7 +289,7 @@ export class FacilityListComponent extends BaseComponent implements OnInit, OnDe
     }
 
     this.isLoading = true;
-    const success = await this.formHelperService.bindAddressByCep(addressGroup, this.toastService);
+    const success = true; //await this.formHelperService.bindAddressByCep(addressGroup, this.toastService);
 
     this.updateFormState();
     this.isLoading = false;

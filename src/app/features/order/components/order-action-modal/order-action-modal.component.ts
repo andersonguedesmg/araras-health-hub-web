@@ -260,13 +260,13 @@ export class OrderActionModalComponent extends BaseComponent implements OnInit, 
   }
 
   private validateForm(formGroup: FormGroup, labels: { [key: string]: string }): boolean {
-    this.formHelperService.markAllControlsAsTouched(formGroup);
+    this.formHelperService.getInvalidControls(formGroup);
 
     if (formGroup.valid) {
       return true;
     }
 
-    const invalidControls = this.formHelperService.findInvalidControlsRecursive(formGroup);
+    const invalidControls = this.formHelperService.getInvalidControls(formGroup);
     const invalidFields = invalidControls.map(control => {
       const controlName = this.getFormControlName(control, labels);
       return controlName;

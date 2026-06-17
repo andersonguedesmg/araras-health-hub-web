@@ -71,8 +71,8 @@ export const routes: Routes = [
       {
         path: 'administracao/fornecedores',
         loadComponent: () =>
-          import('./features/supplier/components/supplier-list/supplier-list.component').then(
-            (m) => m.SupplierListComponent,
+          import('./features/supplier/components/supplier-container/supplier-container.component').then(
+            (m) => m.SupplierContainerComponent,
           ),
         title: 'A2H - Fornecedores',
         canActivate: [scopeGuard],
