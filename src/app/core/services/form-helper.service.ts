@@ -1,145 +1,123 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
-import { CepService } from './cep.service';
-import { firstValueFrom } from 'rxjs';
-import { ToastSummaries } from '../../shared/constants/toast.constants';
-import { ToastMessages } from '../../shared/constants/messages.constants';
 import { ToastService } from '../../shared/services/toast.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FormHelperService {
+  private toastService = inject(ToastService);
 
-  constructor(
-    private cepService: CepService,
-  ) { }
-
-  findInvalidControlsRecursive(form: FormGroup | AbstractControl): AbstractControl[] {
+  /**
+   * Varre o formulário recursivamente e retorna um array contendo apenas os
+   * campos finais (FormControls) que estão inválidos.
+   */
+  getInvalidControls(form: FormGroup | AbstractControl): AbstractControl[] {
     const invalidControls: AbstractControl[] = [];
+
     if (form instanceof FormGroup) {
       for (const name in form.controls) {
         const control = form.controls[name];
-
         if (control instanceof FormGroup || control instanceof FormArray) {
-          invalidControls.push(...this.findInvalidControlsRecursive(control));
+          invalidControls.push(...this.getInvalidControls(control));
         } else if (control.invalid) {
           invalidControls.push(control);
         }
       }
     } else if (form instanceof FormArray) {
-      form.controls.forEach(control => {
-        invalidControls.push(...this.findInvalidControlsRecursive(control));
+      form.controls.forEach((control) => {
+        invalidControls.push(...this.getInvalidControls(control));
       });
     }
+
     return invalidControls;
   }
 
-  markAllControlsAsTouched(abstractControl: AbstractControl): void {
-    if (abstractControl instanceof FormGroup) {
-      Object.values(abstractControl.controls).forEach(control => {
+  /**
+   * Marca todos os campos e sub-campos (FormGroups/FormArrays) como tocados
+   * para disparar instantaneamente os feedbacks visuais de erro na tela.
+   */
+  markAllAsTouched(abstractControl: AbstractControl): void {
+    if (
+      abstractControl instanceof FormGroup ||
+      abstractControl instanceof FormArray
+    ) {
+      Object.values(abstractControl.controls).forEach((control) => {
         control.markAsTouched();
-        if (control instanceof FormGroup || control instanceof FormArray) {
-          this.markAllControlsAsTouched(control);
-        }
+        this.markAllAsTouched(control);
       });
-    } else if (abstractControl instanceof FormArray) {
-      abstractControl.controls.forEach(control => {
-        control.markAsTouched();
-        if (control instanceof FormGroup || control instanceof FormArray) {
-          this.markAllControlsAsTouched(control);
-        }
-      });
+    } else {
+      abstractControl.markAsTouched();
     }
   }
 
-  getFormControlName(control: AbstractControl, formLabels: { [key: string]: string; }): string {
-    const controlPath = this.getFormControlPath(control);
-
+  /**
+   * Retorna o nome amigável de exibição do campo baseado no dicionário fornecido.
+   * Caso não encontre mapeamento, converte a propriedade de camelCase para Pascal Case espaçado.
+   */
+  getControlLabel(
+    control: AbstractControl,
+    formLabels: { [key: string]: string },
+  ): string {
+    const controlPath = this.getControlPath(control);
     if (controlPath) {
-      if (formLabels[controlPath]) {
-        return formLabels[controlPath];
-      }
+      if (formLabels[controlPath]) return formLabels[controlPath];
 
       const parts = controlPath.split('.');
       const name = parts[parts.length - 1];
-
-      return name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+      return name
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, (str) => str.toUpperCase());
     }
 
     return '';
   }
 
-  private getFormControlPath(control: AbstractControl): string | null {
-    if (!control.parent) {
-      return null;
-    }
-
+  /**
+   * Reconstrói recursivamente o caminho hierárquico do controle (path) dentro
+   * da estrutura do formulário (ex: 'address.cep').
+   */
+  private getControlPath(control: AbstractControl): string | null {
+    if (!control.parent) return null;
     const parent = control.parent as FormGroup | FormArray;
     let controlName: string | null = null;
 
     if (parent instanceof FormGroup) {
-      controlName = Object.keys(parent.controls).find(name => control === parent.controls[name]) || null;
+      controlName =
+        Object.keys(parent.controls).find(
+          (name) => control === parent.controls[name],
+        ) || null;
     }
 
-    if (!controlName) {
-      return null;
-    }
-
-    const parentPath = this.getFormControlPath(parent);
-
-    if (parentPath) {
-      return `${parentPath}.${controlName}`;
-    }
-
-    return controlName;
+    if (!controlName) return null;
+    const parentPath = this.getControlPath(parent);
+    return parentPath ? `${parentPath}.${controlName}` : controlName;
   }
 
-  async bindAddressByCep(form: FormGroup, toastService: ToastService): Promise<boolean> {
-    const cepControl = form.get('cep');
-    const cepValue = cepControl?.value?.replace(/\D/g, '');
-
-    if (!cepValue || cepControl?.invalid) {
-      return false;
+  /**
+   * Avalia a validade do formulário. Caso seja inválido, exibe um alerta (Toast)
+   * listando os campos pendentes e destaca visualmente os inputs incorretos na tela.
+   */
+  validateAndShowErrors(
+    form: FormGroup,
+    formLabels: { [key: string]: string },
+  ): boolean {
+    if (form.valid) {
+      return true;
     }
 
-    form.disable();
-    this.clearAddressFields(form);
+    const invalidControls = this.getInvalidControls(form);
+    const invalidFields = invalidControls.map((control) =>
+      this.getControlLabel(control, formLabels),
+    );
 
-    try {
-      const response = await firstValueFrom(this.cepService.getAddressByCep(cepValue));
-      if (response.erro === 'true') {
-        toastService.showError(ToastMessages.CEP_NOT_FOUND, ToastSummaries.INFO);
-        form.get('cep')?.enable();
-        document.getElementById('cep')?.focus();
-        return false;
-      } else {
-        form.patchValue({
-          street: response.logradouro,
-          complement: response.complemento || '',
-          neighborhood: response.bairro,
-          city: response.localidade,
-          state: response.uf,
-        });
-        return true;
-      }
-    } catch (error) {
-      toastService.showError(ToastMessages.CEP_CHECK_ERROR, ToastSummaries.ERROR);
-      form.get('cep')?.enable();
-      return false;
-    } finally {
-      form.enable();
-    }
-  }
+    const invalidFieldsMessage =
+      invalidFields.length > 0
+        ? `Por favor, preencha os seguintes campos obrigatórios: ${invalidFields.join(', ')}.`
+        : 'Existem inconsistências ou campos vazios obrigatórios.';
 
-  private clearAddressFields(form: FormGroup): void {
-    form.patchValue({
-      street: '',
-      number: '',
-      complement: '',
-      neighborhood: '',
-      city: '',
-      state: '',
-    });
+    this.toastService.showError(invalidFieldsMessage, 'Campos Obrigatórios');
+    this.markAllAsTouched(form);
+    return false;
   }
 }
