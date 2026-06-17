@@ -1,0 +1,31 @@
+<p-drawer
+  [(visible)]="visible"
+  [position]="position()"
+  [header]="header()"
+  [styleClass]="
+    drawerDimensionClass() +
+    ' bg-zinc-50 dark:bg-zinc-950 shadow-2xl border-zinc-200 dark:border-zinc-800 transition-all duration-300 ' +
+    (position() === 'right' ? 'border-l' : '') +
+    (position() === 'left' ? 'border-r' : '') +
+    (position() === 'top' ? 'border-b rounded-b-2xl' : '') +
+    (position() === 'bottom' ? 'border-t rounded-t-2xl' : '')
+  "
+>
+  <div class="flex flex-col h-full justify-between relative overflow-hidden">
+    <div
+      class="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] bg-[linear-gradient(to_right,rgb(161,161,170)_1px,transparent_1px),linear-gradient(to_bottom,rgb(161,161,170)_1px,transparent_1px)] bg-[size:32px_32px]"
+    ></div>
+
+    <div
+      class="overflow-y-auto px-6 py-6 flex-1 bg-white/40 dark:bg-zinc-950/20 backdrop-blur-[0.5px] z-10"
+    >
+      <ng-content select="[body]"></ng-content>
+    </div>
+
+    <div
+      class="border-t border-zinc-200 dark:border-zinc-800 p-4 bg-zinc-50/90 dark:bg-zinc-900/80 backdrop-blur-md flex justify-end gap-3 z-10"
+    >
+      <ng-content select="[footer]"></ng-content>
+    </div>
+  </div>
+</p-drawer>
