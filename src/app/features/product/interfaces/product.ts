@@ -4,7 +4,7 @@ export interface Product {
   description: string;
   mainCategory: string;
   subCategory: string;
-  presentationForm: string;
+  packagingType: string;
   createdOn: string;
   updatedOn: string;
   isActive: boolean;

@@ -1,114 +1,109 @@
-import { Injectable } from '@angular/core';
-import { ApiConfigService } from '../../../shared/services/api-config.service';
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
-import { Product } from '../interfaces/product';
-import { ApiResponse } from '../../../shared/interfaces/api-response';
-import { BehaviorSubject, firstValueFrom, Observable, tap } from 'rxjs';
-import { SelectOptions } from '../../../shared/interfaces/select-options';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { inject, Injectable, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
+import { ApiResponse } from '../../../shared/interfaces/api-response';
+import { SelectOptions } from '../../../shared/interfaces/select-options';
+import { ApiConfigService } from '../../../shared/services/api-config.service';
+import { Product } from '../interfaces/product';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductService {
-  private productsSubject = new BehaviorSubject<Product[]>([]);
-  public products$ = this.productsSubject.asObservable();
+  private http = inject(HttpClient);
+  private apiConfig = inject(ApiConfigService);
+  private productsSignal = signal<Product[]>([]);
 
-  constructor(private http: HttpClient, private apiConfig: ApiConfigService) { }
+  public products = this.productsSignal.asReadonly();
 
-  public loadProducts(pageNumber: number, pageSize: number, searchTerm: string = ''): Observable<ApiResponse<Product[]>> {
-    const url = this.apiConfig.getUrlOld('product', `getAll`);
+  public loadProducts(
+    pageNumber: number,
+    pageSize: number,
+    searchTerm: string = '',
+  ): Observable<ApiResponse<Product[]>> {
+    const url = this.apiConfig.getUrl('products');
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
       .set('searchTerm', searchTerm);
+
     return this.http.get<ApiResponse<Product[]>>(url, { params }).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          this.productsSubject.next(response.data);
+      tap((response) => {
+        if (response && response.data) {
+          this.productsSignal.set(response.data);
         }
-      })
+      }),
     );
   }
 
   public createProduct(product: Product): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrlOld('product', 'create');
+    const url = this.apiConfig.getUrl('products');
     return this.http.post<ApiResponse<Product>>(url, product).pipe(
-      tap(response => {
+      tap((response) => {
         if (response.success && response.data) {
-          const currentProducts = this.productsSubject.getValue();
-          this.productsSubject.next([...currentProducts, response.data]);
+          this.productsSignal.update((current) => [response.data!, ...current]);
         }
-      })
+      }),
     );
   }
 
   public getProductById(productId: number): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrlOld('product', `getById/${productId}`);
+    const url = this.apiConfig.getUrl(`products/${productId}`);
     return this.http.get<ApiResponse<Product>>(url);
   }
 
-  public updateProduct(product: Product, productId: number): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrlOld('product', `update/${productId}`);
+  public updateProduct(
+    product: Product,
+    productId: number,
+  ): Observable<ApiResponse<Product>> {
+    const url = this.apiConfig.getUrl(`products/${productId}`);
     return this.http.put<ApiResponse<Product>>(url, product).pipe(
-      tap(response => {
+      tap((response) => {
         if (response.success && response.data) {
-          const currentProducts = this.productsSubject.getValue();
-          const updatedList = currentProducts.map(p => p.id === productId ? response.data! : p);
-          this.productsSubject.next(updatedList);
+          this.productsSignal.update((current) =>
+            current.map((item) =>
+              item.id === productId ? response.data! : item,
+            ),
+          );
         }
-      })
+      }),
     );
   }
 
-  public changeStatusProduct(productId: number, product: Product): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrlOld('product', `changeStatus/${productId}`);
-    return this.http.patch<ApiResponse<Product>>(url, product).pipe(
-      tap(response => {
+  public changeStatusProduct(
+    productId: number,
+    product: Product,
+  ): Observable<ApiResponse<Product>> {
+    const action = product.isActive ? 'activate' : 'deactivate';
+    const url = this.apiConfig.getUrl(`products/${productId}/${action}`);
+
+    return this.http.patch<ApiResponse<Product>>(url, {}).pipe(
+      tap((response) => {
         if (response.success && response.data) {
-          const currentProducts = this.productsSubject.getValue();
-          const updatedList = currentProducts.map(p => p.id === productId ? response.data! : p);
-          this.productsSubject.next(updatedList);
+          this.productsSignal.update((current) =>
+            current.map((item) =>
+              item.id === productId ? response.data! : item,
+            ),
+          );
         }
-      })
+      }),
     );
   }
 
-  public deleteProduct(productId: number): Observable<ApiResponse<Product>> {
-    const url = this.apiConfig.getUrlOld('product', `delete/${productId}`);
-    return this.http.delete<ApiResponse<Product>>(url).pipe(
-      tap(response => {
-        if (response.success) {
-          const currentProducts = this.productsSubject.getValue();
-          const updatedList = currentProducts.filter(p => p.id !== productId);
-          this.productsSubject.next(updatedList);
-        }
-      })
-    );
-  }
-
-  public getProductOptions(): Promise<SelectOptions<number>[]> {
-    const url = this.apiConfig.getUrlOld('product', 'getDropdownOptions');
-    return firstValueFrom(this.http.get<ApiResponse<ApiDropdownItem[]>>(url))
-      .then(response => {
-        return response?.data?.map((item) => ({
-          label: item.name,
-          value: item.id,
-        })) || [];
-      })
-      .catch(error => {
-        return [];
-      });
-  }
-
-  public exportProducts(searchTerm: string = ''): Observable<HttpResponse<Blob>> {
-    const url = this.apiConfig.getUrlOld('product', `export`);
-    const params = new HttpParams().set('searchTerm', searchTerm);
-
-    return this.http.get(url, {
-      params,
-      responseType: 'blob',
-      observe: 'response'
-    });
+  public getProductOptions(): Observable<SelectOptions<number>[]> {
+    const url = this.apiConfig.getUrl('products/dropdown');
+    return this.http.get<ApiResponse<ApiDropdownItem[]>>(url).pipe(
+      tap({
+        next: (response) => {
+          return (
+            response?.data?.map((item) => ({
+              label: item.name,
+              value: item.id,
+            })) || []
+          );
+        },
+      }),
+    ) as unknown as Observable<SelectOptions<number>[]>;
   }
 }

@@ -91,8 +91,8 @@ export const routes: Routes = [
       {
         path: 'administracao/produtos',
         loadComponent: () =>
-          import('./features/product/components/product-list/product-list.component').then(
-            (m) => m.ProductListComponent,
+          import('./features/product/components/product-container/product-container.component').then(
+            (m) => m.ProductContainerComponent,
           ),
         title: 'A2H - Produtos',
         canActivate: [scopeGuard],
