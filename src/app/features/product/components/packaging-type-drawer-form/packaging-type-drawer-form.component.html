@@ -1,0 +1,88 @@
+<app-drawer
+  [(visible)]="visible"
+  [header]="headerText()"
+  [position]="'right'"
+  [size]="'md'"
+>
+  <form [formGroup]="packagingTypeForm" body class="space-y-6">
+    <div
+      class="bg-white dark:bg-zinc-900/90 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4"
+    >
+      <h3
+        class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2"
+      >
+        <i class="pi pi-box"></i> Identificação
+      </h3>
+      <hr class="border-zinc-100 dark:border-zinc-800" />
+
+      <div class="grid grid-cols-1 gap-4">
+        <div *ngIf="formMode() !== FormMode.Create">
+          <label class="block text-xs font-semibold text-zinc-500 mb-1"
+            >ID</label
+          >
+          <input
+            pInputText
+            type="text"
+            formControlName="id"
+            class="w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-2"
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
+          >
+            Nome da Embalagem
+            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
+              >*</span
+            >
+          </label>
+          <input
+            pInputText
+            type="text"
+            formControlName="name"
+            maxlength="100"
+            class="w-full border rounded-lg p-2 transition-colors duration-200"
+            [ngClass]="
+              packagingTypeForm.get('name')?.invalid &&
+              packagingTypeForm.get('name')?.touched
+                ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                : 'border-zinc-300 dark:border-zinc-700 focus:border-primary'
+            "
+          />
+        </div>
+
+        <div *ngIf="formMode() !== FormMode.Create">
+          <label
+            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
+            >Status</label
+          >
+          <p-select
+            [options]="statusOptions"
+            formControlName="isActive"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg"
+          ></p-select>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <ng-container footer>
+    <p-button
+      label="Cancelar"
+      icon="pi pi-ban"
+      severity="secondary"
+      [outlined]="true"
+      (click)="visible.set(false)"
+    />
+    <p-button
+      *ngIf="formMode() !== FormMode.Detail"
+      label="Salvar"
+      icon="pi pi-check-circle"
+      severity="primary"
+      (click)="submitForm()"
+    />
+  </ng-container>
+</app-drawer>

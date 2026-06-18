@@ -1,0 +1,122 @@
+<app-table
+  [value]="value()"
+  [rows]="rows()"
+  [first]="first()"
+  [rowsPerPageOptions]="[5, 10, 25]"
+  [lazy]="true"
+  [totalRecords]="totalRecords()"
+  [loading]="loading()"
+  [colspan]="3"
+  (onLazyLoad)="onLazyLoad.emit($event)"
+>
+  <ng-template #captionTemplate>
+    <app-table-toolbar
+      searchPlaceholder="Pesquisar..."
+      buttonTooltip="Cadastrar Embalagem"
+      buttonIcon="pi pi-plus"
+      [showActionButton]="hasManagementPermission()"
+      [showPdfButton]="true"
+      pdfButtonTooltip="Exportar para PDF"
+      (onSearch)="onSearch.emit($event)"
+      (onActionClick)="onAdd.emit()"
+      (onPdfClick)="onPdfClick.emit()"
+    ></app-table-toolbar>
+  </ng-template>
+
+  <ng-template #headerTemplate>
+    <tr
+      class="bg-zinc-50/70 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800"
+    >
+      <th
+        class="w-8/12 sticky left-0 z-20 bg-zinc-50 dark:bg-zinc-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
+      >
+        Tipo de Embalagem
+      </th>
+      <th class="w-2/12 text-center">Status</th>
+      <th class="w-2/12 text-center">Ações</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #bodyTemplate let-packagingType>
+    <tr
+      class="group border-b border-zinc-100 dark:border-zinc-800/60 hover:bg-zinc-50/60 dark:hover:bg-zinc-900/40 transition-colors duration-150"
+    >
+      <td
+        class="sticky left-0 z-10 bg-white dark:bg-zinc-950 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900/40 transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
+      >
+        <div
+          class="flex flex-col max-w-xl truncate"
+          [pTooltip]="packagingType.name"
+          tooltipPosition="top"
+        >
+          <span
+            class="font-bold text-zinc-900 dark:text-zinc-50 tracking-tight leading-snug truncate"
+          >
+            {{ packagingType.name }}
+          </span>
+        </div>
+      </td>
+
+      <td class="text-center">
+        <p-tag
+          [value]="getStatus(packagingType.isActive)"
+          [severity]="getSeverity(packagingType.isActive)"
+          styleClass="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border shadow-3xs"
+          [ngClass]="
+            packagingType.isActive
+              ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-400'
+              : 'bg-red-50 dark:bg-red-950/30 border-red-200/60 dark:border-red-800/30 text-red-700 dark:text-red-400'
+          "
+        />
+      </td>
+
+      <td class="text-center">
+        <div
+          class="flex items-center justify-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity duration-150"
+        >
+          <p-button
+            icon="pi pi-info-circle"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            pTooltip="Detalhar"
+            tooltipPosition="top"
+            styleClass="w-8 h-8 p-0 text-zinc-400 hover:text-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-full transition-colors duration-150"
+            (click)="onDetail.emit(packagingType)"
+          />
+
+          @if (hasManagementPermission()) {
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              pTooltip="Editar"
+              tooltipPosition="top"
+              styleClass="w-8 h-8 p-0 text-zinc-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-full transition-colors duration-150"
+              (click)="onEdit.emit(packagingType)"
+            />
+
+            <p-button
+              [icon]="
+                packagingType.isActive ? 'pi pi-ban' : 'pi pi-check-circle'
+              "
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [pTooltip]="packagingType.isActive ? 'Desativar' : 'Ativar'"
+              tooltipPosition="top"
+              class="transition-all duration-150 active:scale-95"
+              [styleClass]="
+                packagingType.isActive
+                  ? 'w-8 h-8 p-0 text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full'
+                  : 'w-8 h-8 p-0 text-zinc-400 hover:text-emerald-600 dark:text-zinc-500 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-full'
+              "
+              (click)="onChangeStatus.emit(packagingType)"
+            />
+          }
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</app-table>

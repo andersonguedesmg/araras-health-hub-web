@@ -99,6 +99,16 @@ export const routes: Routes = [
         data: { scopes: SCOPE_MANAGEMENT },
       },
       {
+        path: 'administracao/produtos/embalagens',
+        loadComponent: () =>
+          import('./features/product/components/packaging-type-container/packaging-type-container.component').then(
+            (m) => m.PackagingTypeContainerComponent,
+          ),
+        title: 'A2H - Tipos de Embalagem',
+        canActivate: [scopeGuard],
+        data: { scopes: SCOPE_MANAGEMENT },
+      },
+      {
         path: 'administracao/unidades',
         loadComponent: () =>
           import('./features/facility/components/facility-container/facility-container.component').then(

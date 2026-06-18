@@ -1,0 +1,36 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+<app-spinner [loading]="isLoading"></app-spinner>
+
+<app-confirm-dialog
+  #confirmDialog
+  acceptLabel="Confirmar"
+  rejectLabel="Cancelar"
+  acceptIcon="pi pi-check-circle"
+  rejectIcon="pi pi-ban"
+></app-confirm-dialog>
+
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+  <app-page-header [title]="title" [description]="description">
+  </app-page-header>
+
+  <app-packaging-type-table
+    [value]="packagingTypes()"
+    [totalRecords]="totalRecords"
+    [rows]="rows"
+    [first]="first"
+    [loading]="isLoading"
+    (onLazyLoad)="loadPackagingTypes($event)"
+    (onSearch)="onSearch($event)"
+    (onAdd)="openForm(FormMode.Create)"
+    (onEdit)="openForm(FormMode.Update, $event)"
+    (onDetail)="openForm(FormMode.Detail, $event)"
+    (onChangeStatus)="changeStatusPackagingType($event)"
+  ></app-packaging-type-table>
+
+  <app-packaging-type-drawer-form
+    [(visible)]="displayDrawer"
+    [formMode]="formMode"
+    [packagingTypeData]="selectedPackagingType"
+    (onSave)="savePackagingType($event)"
+  ></app-packaging-type-drawer-form>
+</div>
