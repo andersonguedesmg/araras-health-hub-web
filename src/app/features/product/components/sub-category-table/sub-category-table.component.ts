@@ -7,10 +7,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TableToolbarComponent } from '../../../../shared/components/table-toolbar/table-toolbar.component';
 import { TableComponent } from '../../../../shared/components/table/table.component';
 import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-import { PackagingType } from '../../interfaces/packaging-type';
+import { SubCategory } from '../../interfaces/sub-category';
 
 @Component({
-  selector: 'app-packaging-type-table',
+  selector: 'app-sub-category-table',
   standalone: true,
   imports: [
     CommonModule,
@@ -21,11 +21,11 @@ import { PackagingType } from '../../interfaces/packaging-type';
     TableToolbarComponent,
   ],
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './packaging-type-table.component.html',
-  styleUrl: './packaging-type-table.component.scss',
+  templateUrl: './sub-category-table.component.html',
+  styleUrl: './sub-category-table.component.scss',
 })
-export class PackagingTypeTableComponent {
-  value = input<PackagingType[]>([]);
+export class SubCategoryTableComponent {
+  value = input<SubCategory[]>([]);
   totalRecords = input<number>(0);
   loading = input<boolean>(false);
   rows = input<number>(5);
@@ -35,9 +35,9 @@ export class PackagingTypeTableComponent {
   onSearch = output<string>();
   onAdd = output<void>();
   onPdfClick = output<void>();
-  onEdit = output<PackagingType>();
-  onDetail = output<PackagingType>();
-  onChangeStatus = output<PackagingType>();
+  onEdit = output<SubCategory>();
+  onDetail = output<SubCategory>();
+  onChangeStatus = output<SubCategory>();
 
   protected readonly getSeverity = getSeverity;
   protected readonly getStatus = getStatus;

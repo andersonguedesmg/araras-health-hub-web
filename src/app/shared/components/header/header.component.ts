@@ -172,6 +172,11 @@ export class HeaderComponent implements OnInit {
                 routerLink: '/administracao/produtos',
               },
               {
+                label: 'Categorias',
+                icon: PrimeIcons.TAGS,
+                routerLink: '/administracao/produtos/categorias',
+              },
+              {
                 label: 'Tipos de Embalagem',
                 icon: PrimeIcons.BOX,
                 routerLink: '/administracao/produtos/embalagens',

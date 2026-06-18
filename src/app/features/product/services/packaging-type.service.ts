@@ -5,7 +5,7 @@ import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
-import { PackagingType } from '../interfaces/packaging-type.interface';
+import { PackagingType } from '../interfaces/packaging-type';
 
 @Injectable({
   providedIn: 'root',

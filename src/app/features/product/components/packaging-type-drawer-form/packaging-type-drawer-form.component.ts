@@ -21,7 +21,7 @@ import { SelectModule } from 'primeng/select';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { PackagingType } from '../../interfaces/packaging-type.interface';
+import { PackagingType } from '../../interfaces/packaging-type';
 
 @Component({
   selector: 'app-packaging-type-drawer-form',

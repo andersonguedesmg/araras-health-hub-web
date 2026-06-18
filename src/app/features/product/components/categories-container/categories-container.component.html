@@ -1,0 +1,80 @@
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
+<app-spinner [loading]="isLoading"></app-spinner>
+
+<app-confirm-dialog
+  #confirmDialog
+  acceptLabel="Confirmar"
+  rejectLabel="Cancelar"
+  acceptIcon="pi pi-check-circle"
+  rejectIcon="pi pi-ban"
+></app-confirm-dialog>
+
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+  <app-page-header
+    [title]="title"
+    [description]="description"
+  ></app-page-header>
+
+  <div
+    class="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/60 rounded-xl p-4 shadow-3xs"
+  >
+    <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
+      <p-tablist>
+        <p-tab value="main">
+          <i class="pi pi-tags mr-2"></i> Categorias Principais
+        </p-tab>
+        <p-tab value="sub">
+          <i class="pi pi-tag mr-2"></i> Subcategorias
+        </p-tab>
+      </p-tablist>
+
+      <p-tabpanels class="pt-4">
+        <p-tabpanel value="main">
+          <app-main-category-table
+            [value]="mainCategories()"
+            [totalRecords]="totalRecordsMain"
+            [rows]="rowsMain"
+            [first]="firstMain"
+            [loading]="isLoading"
+            (onLazyLoad)="loadMainCategories($event)"
+            (onSearch)="onSearchMain($event)"
+            (onAdd)="openMainForm(FormMode.Create)"
+            (onEdit)="openMainForm(FormMode.Update, $event)"
+            (onDetail)="openMainForm(FormMode.Detail, $event)"
+            (onChangeStatus)="changeStatusMainCategory($event)"
+          ></app-main-category-table>
+        </p-tabpanel>
+
+        <p-tabpanel value="sub">
+          <app-sub-category-table
+            [value]="subCategories()"
+            [totalRecords]="totalRecordsSub"
+            [rows]="rowsSub"
+            [first]="firstSub"
+            [loading]="isLoading"
+            (onLazyLoad)="loadSubCategories($event)"
+            (onSearch)="onSearchSub($event)"
+            (onAdd)="openSubForm(FormMode.Create)"
+            (onEdit)="openSubForm(FormMode.Update, $event)"
+            (onDetail)="openSubForm(FormMode.Detail, $event)"
+            (onChangeStatus)="changeStatusSubCategory($event)"
+          ></app-sub-category-table>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+
+  <app-main-category-drawer-form
+    [(visible)]="displayMainDrawer"
+    [formMode]="formMode"
+    [mainCategoryData]="selectedMainCategory"
+    (onSave)="saveMainCategory($event)"
+  ></app-main-category-drawer-form>
+
+  <app-sub-category-drawer-form
+    [(visible)]="displaySubDrawer"
+    [formMode]="formMode"
+    [subCategoryData]="selectedSubCategory"
+    (onSave)="saveSubCategory($event)"
+  ></app-sub-category-drawer-form>
+</div>

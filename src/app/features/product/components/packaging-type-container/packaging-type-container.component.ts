@@ -15,7 +15,7 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
 import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ToastService } from '../../../../shared/services/toast.service';
-import { PackagingType } from '../../interfaces/packaging-type.interface';
+import { PackagingType } from '../../interfaces/packaging-type';
 import { PackagingTypeService } from '../../services/packaging-type.service';
 import { PackagingTypeDrawerFormComponent } from '../packaging-type-drawer-form/packaging-type-drawer-form.component';
 import { PackagingTypeTableComponent } from '../packaging-type-table/packaging-type-table.component';
