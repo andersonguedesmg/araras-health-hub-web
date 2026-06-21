@@ -144,18 +144,7 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Contas',
             icon: PrimeIcons.ID_CARD,
-            items: [
-              {
-                label: 'Gerenciar',
-                icon: PrimeIcons.LIST,
-                routerLink: '/administracao/contas',
-              },
-              {
-                label: 'Registrar',
-                icon: PrimeIcons.PLUS,
-                routerLink: '/administracao/contas/registrar',
-              },
-            ],
+            routerLink: '/administracao/contas',
           },
           {
             label: 'Fornecedores',

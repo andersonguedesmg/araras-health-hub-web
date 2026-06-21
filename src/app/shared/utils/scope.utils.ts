@@ -1,12 +1,11 @@
-import { Roles } from "../enums/roles.enum";
-import { Scope } from "../enums/scope.enum";
-import { Severity } from "../enums/severity.enum";
+import { Scope } from '../enums/scope.enum';
+import { Severity } from '../enums/severity.enum';
 
 export function getScopeSeverity(scope: number): Severity {
   switch (scope) {
-    case 1:
+    case Scope.Management:
       return Severity.Warn;
-    case 2:
+    case Scope.Operational:
       return Severity.Danger;
     default:
       return Severity.Contrast;
@@ -15,9 +14,9 @@ export function getScopeSeverity(scope: number): Severity {
 
 export function getScopeValue(scope: number): string {
   switch (scope) {
-    case 1:
+    case Scope.Management:
       return 'Gerencial';
-    case 2:
+    case Scope.Operational:
       return 'Operacional';
     default:
       return 'Unknown';

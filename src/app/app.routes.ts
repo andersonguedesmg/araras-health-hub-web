@@ -48,25 +48,12 @@ export const routes: Routes = [
       {
         path: 'administracao/contas',
         loadComponent: () =>
-          import('./features/account/components/account-list/account-list.component').then(
-            (m) => m.AccountListComponent,
+          import('./features/account/components/account-container/account-container.component').then(
+            (m) => m.AccountContainerComponent,
           ),
         title: 'A2H - Contas',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT },
-      },
-      {
-        path: 'administracao/contas/registrar',
-        loadComponent: () =>
-          import('./core/components/register/register.component').then(
-            (m) => m.RegisterComponent,
-          ),
-        title: 'A2H - Registro',
-        canActivate: [scopeGuard, roleGuard],
-        data: {
-          scopes: SCOPE_MANAGEMENT,
-          roles: [UserRoles.ADMIN, UserRoles.MASTER],
-        },
       },
       {
         path: 'administracao/fornecedores',

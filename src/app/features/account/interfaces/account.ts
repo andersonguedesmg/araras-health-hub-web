@@ -1,14 +1,15 @@
-import { Scope } from "../../../shared/enums/scope.enum";
-import { Facility } from "../../facility/interfaces/facility";
+import { Roles } from '../../../shared/enums/roles.enum';
+import { Scope } from '../../../shared/enums/scope.enum';
+import { Facility } from '../../facility/interfaces/facility';
 
 export interface Account {
+  id: number;
   userId: number;
   userName: string;
-  facilityId: number;
-  facility?: Facility;
-  createdOn: string;
-  updatedOn: string;
-  roles: string[];
-  scope: Scope;
   isActive: boolean;
+  scope: Scope;
+  role: Roles;
+  createdOn: string;
+  updatedOn: string | null;
+  facility: Facility;
 }

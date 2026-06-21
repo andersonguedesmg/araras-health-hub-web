@@ -1,28 +1,35 @@
-import { Roles } from "../enums/roles.enum";
-import { Severity } from "../enums/severity.enum";
+import { Roles } from '../enums/roles.enum';
 
-export function getRoleSeverity(role: string): Severity {
+type TagSeverity =
+  | 'success'
+  | 'info'
+  | 'warn'
+  | 'danger'
+  | 'secondary'
+  | 'contrast';
+
+export function getRoleSeverity(role: number): TagSeverity {
   switch (role) {
-    case 'Master':
-      return Severity.Secondary;
-    case 'Admin':
-      return Severity.Warn;
-    case 'User':
-      return Severity.Info;
+    case Roles.Master:
+      return 'secondary';
+    case Roles.Admin:
+      return 'warn';
+    case Roles.User:
+      return 'info';
     default:
-      return Severity.Contrast;
+      return 'contrast';
   }
 }
 
-export function getRoleValue(role: string): Roles {
+export function getRoleValue(role: number): string {
   switch (role) {
-    case 'Master':
-      return Roles.Master;
-    case 'Admin':
-      return Roles.Admin;
-    case 'User':
-      return Roles.User;
+    case Roles.Master:
+      return 'Master';
+    case Roles.Admin:
+      return 'Administrador';
+    case Roles.User:
+      return 'Usuário';
     default:
-      return Roles.Unknown;
+      return 'Desconhecido';
   }
 }
