@@ -8,6 +8,7 @@ import {
   model,
   output,
   signal,
+  viewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import {
@@ -19,9 +20,10 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
+import { firstValueFrom } from 'rxjs';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { cpfValidator } from '../../../../core/validators/cpf-cnpj.validator';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -36,17 +38,19 @@ import { Employee } from '../../interfaces/employee';
     ButtonModule,
     InputTextModule,
     InputMaskModule,
-    SelectModule,
     DrawerComponent,
+    ConfirmDialogComponent,
   ],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './employee-drawer-form.component.html',
   styleUrl: './employee-drawer-form.component.scss',
 })
 export class EmployeeDrawerFormComponent {
-  private fb = inject(FormBuilder);
-  private formHelperService = inject(FormHelperService);
-  private toastService = inject(ToastService);
+  private readonly fb = inject(FormBuilder);
+  private readonly formHelperService = inject(FormHelperService);
+  private readonly toastService = inject(ToastService);
+  private readonly confirmDialog =
+    viewChild<ConfirmDialogComponent>('confirmDialog');
 
   visible = model<boolean>(false);
   formMode = input<FormMode>(FormMode.Create);
@@ -59,10 +63,7 @@ export class EmployeeDrawerFormComponent {
 
   isGlobalLoading = computed(() => this.isCpfValidating());
 
-  statusOptions = [
-    { label: 'Ativo', value: true },
-    { label: 'Inativo', value: false },
-  ];
+  protected statusLabel = signal<string>('Ativo');
 
   private readonly formLabels: { [key: string]: string } = {
     name: 'Nome Completo',
@@ -111,18 +112,36 @@ export class EmployeeDrawerFormComponent {
 
     if (currentData) {
       this.employeeForm.patchValue(currentData);
+      this.statusLabel.set(currentData.isActive ? 'Ativo' : 'Inativo');
+    } else {
+      this.statusLabel.set('Ativo');
     }
 
-    if (mode === FormMode.Detail) {
+    if (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && currentData?.isActive === false)
+    ) {
       this.employeeForm.disable();
     } else {
       this.employeeForm.enable();
+      this.employeeForm.get('id')?.disable();
+      this.employeeForm.get('isActive')?.disable();
+
       if (mode === FormMode.Create) {
         this.employeeForm.get('isActive')?.setValue(true);
-        this.employeeForm.get('isActive')?.disable();
       }
     }
   }
+
+  protected isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.employeeData();
+
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
+  });
 
   validateCpf(): void {
     const cpfControl = this.employeeForm.get('cpf');
@@ -131,13 +150,30 @@ export class EmployeeDrawerFormComponent {
     }
   }
 
-  submitForm(): void {
+  async submitForm(): Promise<void> {
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.employeeForm,
       this.formLabels,
     );
 
-    if (isFormValid) {
+    if (!isFormValid) {
+      return;
+    }
+
+    const dialog = this.confirmDialog();
+    if (!dialog) {
+      this.onSave.emit(this.employeeForm.getRawValue());
+      return;
+    }
+
+    const isCreate = this.formMode() === FormMode.Create;
+    const title = isCreate ? 'Confirmar Cadastro' : 'Confirmar Alteração';
+    const msg = isCreate
+      ? 'Deseja realmente cadastrar este novo funcionário?'
+      : 'Deseja salvar as alterações feitas no registro deste funcionário?';
+    const confirmed = await firstValueFrom(dialog.show(msg, title));
+
+    if (confirmed) {
       this.onSave.emit(this.employeeForm.getRawValue());
     }
   }

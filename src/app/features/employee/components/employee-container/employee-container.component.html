@@ -25,6 +25,7 @@
     (onEdit)="openForm(FormMode.Update, $event)"
     (onDetail)="openForm(FormMode.Detail, $event)"
     (onChangeStatus)="changeStatusEmployee($event)"
+    (onPdfClick)="generatePdfReport()"
   ></app-employee-table>
 
   <app-employee-drawer-form
