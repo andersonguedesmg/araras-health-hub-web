@@ -25,6 +25,7 @@
     (onEdit)="openForm(FormMode.Update, $event)"
     (onDetail)="openForm(FormMode.Detail, $event)"
     (onChangeStatus)="changeStatusPackagingType($event)"
+    (onPdfClick)="generatePdfReport()"
   ></app-packaging-type-table>
 
   <app-packaging-type-drawer-form

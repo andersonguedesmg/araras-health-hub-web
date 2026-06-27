@@ -47,7 +47,7 @@ export class PackagingTypeContainerComponent implements OnInit, OnDestroy {
   readonly FormMode = FormMode;
   readonly title = 'Tipos de Embalagem';
   readonly description =
-    'Cadastro e controle de tipos de embalagens para os insumos da rede de saúde.';
+    'Cadastro e controle de tipos de embalagens para os insumos da rede municipal de saúde.';
 
   readonly itemsBreadcrumb = [
     { label: 'Catálogo', routerLink: '/catalogo' },
@@ -123,6 +123,12 @@ export class PackagingTypeContainerComponent implements OnInit, OnDestroy {
     this.formMode = mode;
     this.selectedPackagingType = packagingType;
     this.displayDrawer = true;
+  }
+
+  generatePdfReport(): void {
+    this.toastService.showInfo(
+      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
+    );
   }
 
   async savePackagingType(formValue: PackagingType): Promise<void> {

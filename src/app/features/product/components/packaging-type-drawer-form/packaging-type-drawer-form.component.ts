@@ -7,6 +7,8 @@ import {
   input,
   model,
   output,
+  signal,
+  viewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import {
@@ -17,8 +19,9 @@ import {
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
+import { firstValueFrom } from 'rxjs';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { PackagingType } from '../../interfaces/packaging-type';
@@ -31,16 +34,18 @@ import { PackagingType } from '../../interfaces/packaging-type';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    SelectModule,
     DrawerComponent,
+    ConfirmDialogComponent,
   ],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './packaging-type-drawer-form.component.html',
   styleUrl: './packaging-type-drawer-form.component.scss',
 })
 export class PackagingTypeDrawerFormComponent {
-  private fb = inject(FormBuilder);
-  private formHelperService = inject(FormHelperService);
+  private readonly fb = inject(FormBuilder);
+  private readonly formHelperService = inject(FormHelperService);
+  private readonly confirmDialog =
+    viewChild<ConfirmDialogComponent>('confirmDialog');
 
   visible = model<boolean>(false);
   formMode = input<FormMode>(FormMode.Create);
@@ -50,10 +55,7 @@ export class PackagingTypeDrawerFormComponent {
   FormMode = FormMode;
   packagingTypeForm: FormGroup;
 
-  statusOptions = [
-    { label: 'Ativo', value: true },
-    { label: 'Inativo', value: false },
-  ];
+  protected statusLabel = signal<string>('Ativo');
 
   private readonly formLabels: { [key: string]: string } = {
     name: 'Nome da Embalagem',
@@ -96,26 +98,62 @@ export class PackagingTypeDrawerFormComponent {
 
     if (currentData) {
       this.packagingTypeForm.patchValue(currentData);
+      this.statusLabel.set(currentData.isActive ? 'Ativo' : 'Inativo');
+    } else {
+      this.statusLabel.set('Ativo');
     }
 
-    if (mode === FormMode.Detail) {
+    if (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && currentData?.isActive === false)
+    ) {
       this.packagingTypeForm.disable();
     } else {
       this.packagingTypeForm.enable();
+      this.packagingTypeForm.get('id')?.disable();
+      this.packagingTypeForm.get('isActive')?.disable();
+
       if (mode === FormMode.Create) {
         this.packagingTypeForm.get('isActive')?.setValue(true);
-        this.packagingTypeForm.get('isActive')?.disable();
       }
     }
   }
 
-  submitForm(): void {
+  protected isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.packagingTypeData();
+
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
+  });
+
+  async submitForm(): Promise<void> {
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.packagingTypeForm,
       this.formLabels,
     );
 
-    if (isFormValid) {
+    if (!isFormValid) {
+      return;
+    }
+
+    const dialog = this.confirmDialog();
+    if (!dialog) {
+      this.onSave.emit(this.packagingTypeForm.getRawValue());
+      return;
+    }
+
+    const isCreate = this.formMode() === FormMode.Create;
+    const title = isCreate ? 'Confirmar Cadastro' : 'Confirmar Alteração';
+    const msg = isCreate
+      ? 'Deseja realmente cadastrar este novo tipo de embalagem?'
+      : 'Deseja salvar as alterações feitas no registro deste tipo de embalagem?';
+
+    const confirmed = await firstValueFrom(dialog.show(msg, title));
+
+    if (confirmed) {
       this.onSave.emit(this.packagingTypeForm.getRawValue());
     }
   }
