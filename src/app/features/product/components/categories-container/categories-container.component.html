@@ -42,6 +42,7 @@
             (onEdit)="openMainForm(FormMode.Update, $event)"
             (onDetail)="openMainForm(FormMode.Detail, $event)"
             (onChangeStatus)="changeStatusMainCategory($event)"
+            (onPdfClick)="generateMainCategoryPdfReport()"
           ></app-main-category-table>
         </p-tabpanel>
 
@@ -58,6 +59,7 @@
             (onEdit)="openSubForm(FormMode.Update, $event)"
             (onDetail)="openSubForm(FormMode.Detail, $event)"
             (onChangeStatus)="changeStatusSubCategory($event)"
+            (onPdfClick)="generateSubCategoryPdfReport()"
           ></app-sub-category-table>
         </p-tabpanel>
       </p-tabpanels>

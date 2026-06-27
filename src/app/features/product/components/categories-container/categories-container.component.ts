@@ -1,15 +1,20 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  inject,
   OnDestroy,
   OnInit,
-  ViewEncapsulation,
-  inject,
   viewChild,
+  ViewEncapsulation,
 } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
-import { Subject, Subscription, firstValueFrom } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import {
+  debounceTime,
+  firstValueFrom,
+  Subject,
+  Subscription,
+  switchMap,
+} from 'rxjs';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -55,17 +60,19 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
   readonly FormMode = FormMode;
-  readonly title = 'Categorias e Classificações';
+  readonly title = 'Categorias';
   readonly description =
-    'Gerencie as categorias estruturais e subcategorias para a organização atômica dos itens do catálogo.';
+    'Cadastro e controle da categoria e subcategoria para a organização atômica dos itens do catálogo de produto.';
 
   readonly itemsBreadcrumb = [
-    { label: 'Catálogo', routerLink: '/administracao/produtos' },
+    { label: 'Administração', routerLink: '/administracao' },
+    { label: 'Produtos', routerLink: '/administracao/produtos' },
     { label: 'Categorias', routerLink: '/administracao/produtos/categorias' },
   ];
 
   activeTab: string = 'main';
   formMode: FormMode = FormMode.Create;
+  isLoading = false;
 
   displayMainDrawer = false;
   selectedMainCategory?: MainCategory;
@@ -107,8 +114,9 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             this.isLoading = false;
-            if (response && response.totalCount !== undefined)
+            if (response && response.totalCount !== undefined) {
               this.totalRecordsMain = response.totalCount;
+            }
           },
           error: (err) => {
             this.isLoading = false;
@@ -136,8 +144,9 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             this.isLoading = false;
-            if (response && response.totalCount !== undefined)
+            if (response && response.totalCount !== undefined) {
               this.totalRecordsSub = response.totalCount;
+            }
           },
           error: (err) => {
             this.isLoading = false;
@@ -151,14 +160,6 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  get isLoading(): boolean {
-    return false;
-  }
-  private _loading = false;
-  set isLoading(v: boolean) {
-    this._loading = v;
   }
 
   onTabChange(tab: string | unknown): void {
@@ -187,6 +188,12 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     this.displayMainDrawer = true;
   }
 
+  generateMainCategoryPdfReport(): void {
+    this.toastService.showInfo(
+      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
+    );
+  }
+
   async saveMainCategory(formValue: MainCategory): Promise<void> {
     this.isLoading = true;
     const op$ =
@@ -195,7 +202,8 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
         : this.mainCategoryService.updateMainCategory(formValue, formValue.id);
 
     try {
-      if (await firstValueFrom(op$)) {
+      const response = await firstValueFrom(op$);
+      if (response) {
         this.displayMainDrawer = false;
         this.loadLazyMain.next(this.lastLazyEventMain);
       }
@@ -211,13 +219,13 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     if (!dialog) return;
 
     const isActivating = !category.isActive;
-    const msg = `Deseja realmente ${category.isActive ? 'desativar' : 'ativar'} a categoria "${category.name}"?`;
-    const confirmed = await firstValueFrom(
-      dialog.show(
-        msg,
-        category.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação',
-      ),
-    );
+    const actionText = category.isActive ? 'desativar' : 'ativar';
+    const msg = `Deseja realmente ${actionText} a categoria "${category.name}"?`;
+    const title = category.isActive
+      ? 'Confirmar Desativação'
+      : 'Confirmar Ativação';
+
+    const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
     this.isLoading = true;
@@ -255,6 +263,12 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     this.displaySubDrawer = true;
   }
 
+  generateSubCategoryPdfReport(): void {
+    this.toastService.showInfo(
+      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
+    );
+  }
+
   async saveSubCategory(formValue: SubCategory): Promise<void> {
     this.isLoading = true;
     const op$ =
@@ -263,7 +277,8 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
         : this.subCategoryService.updateSubCategory(formValue, formValue.id);
 
     try {
-      if (await firstValueFrom(op$)) {
+      const response = await firstValueFrom(op$);
+      if (response) {
         this.displaySubDrawer = false;
         this.loadLazySub.next(this.lastLazyEventSub);
       }
@@ -279,13 +294,13 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     if (!dialog) return;
 
     const isActivating = !subCategory.isActive;
-    const msg = `Deseja realmente ${subCategory.isActive ? 'desativar' : 'ativar'} a subcategoria "${subCategory.name}"?`;
-    const confirmed = await firstValueFrom(
-      dialog.show(
-        msg,
-        subCategory.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação',
-      ),
-    );
+    const actionText = subCategory.isActive ? 'desativar' : 'ativar';
+    const msg = `Deseja realmente ${actionText} a subcategoria "${subCategory.name}"?`;
+    const title = subCategory.isActive
+      ? 'Confirmar Desativação'
+      : 'Confirmar Ativação';
+
+    const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
     this.isLoading = true;

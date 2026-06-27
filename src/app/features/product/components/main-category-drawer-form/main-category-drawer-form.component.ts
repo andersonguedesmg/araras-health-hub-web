@@ -7,6 +7,8 @@ import {
   input,
   model,
   output,
+  signal,
+  viewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import {
@@ -17,8 +19,9 @@ import {
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
+import { firstValueFrom } from 'rxjs';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { MainCategory } from '../../interfaces/main-category';
@@ -31,16 +34,18 @@ import { MainCategory } from '../../interfaces/main-category';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    SelectModule,
     DrawerComponent,
+    ConfirmDialogComponent,
   ],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './main-category-drawer-form.component.html',
   styleUrl: './main-category-drawer-form.component.scss',
 })
 export class MainCategoryDrawerFormComponent {
-  private fb = inject(FormBuilder);
-  private formHelperService = inject(FormHelperService);
+  private readonly fb = inject(FormBuilder);
+  private readonly formHelperService = inject(FormHelperService);
+  private readonly confirmDialog =
+    viewChild<ConfirmDialogComponent>('confirmDialog');
 
   visible = model<boolean>(false);
   formMode = input<FormMode>(FormMode.Create);
@@ -49,19 +54,26 @@ export class MainCategoryDrawerFormComponent {
 
   FormMode = FormMode;
   mainCategoryForm: FormGroup;
-  statusOptions = [
-    { label: 'Ativo', value: true },
-    { label: 'Inativo', value: false },
-  ];
 
-  private readonly formLabels = { name: 'Nome da Categoria' };
-  headerText = computed(() =>
-    this.formMode() === FormMode.Create
-      ? 'Nova Categoria Principal'
-      : this.formMode() === FormMode.Update
-        ? 'Editar Categoria Principal'
-        : 'Detalhes da Categoria',
-  );
+  isSubmitting = signal<boolean>(false);
+  isGlobalLoading = computed(() => this.isSubmitting());
+
+  protected statusLabel = signal<string>('Ativo');
+
+  private readonly formLabels: { [key: string]: string } = {
+    name: 'Nome',
+  };
+
+  headerText = computed(() => {
+    switch (this.formMode()) {
+      case FormMode.Create:
+        return 'Nova Categoria Principal';
+      case FormMode.Update:
+        return 'Editar Categoria Principal';
+      case FormMode.Detail:
+        return 'Detalhes da Categoria';
+    }
+  });
 
   constructor() {
     this.mainCategoryForm = this.fb.group({
@@ -71,30 +83,80 @@ export class MainCategoryDrawerFormComponent {
     });
 
     effect(() => {
-      if (this.visible()) {
-        this.mainCategoryForm.reset();
-        if (this.mainCategoryData())
-          this.mainCategoryForm.patchValue(this.mainCategoryData()!);
-        if (this.formMode() === FormMode.Detail) {
-          this.mainCategoryForm.disable();
-        } else {
-          this.mainCategoryForm.enable();
-          if (this.formMode() === FormMode.Create) {
-            this.mainCategoryForm.get('isActive')?.setValue(true);
-            this.mainCategoryForm.get('isActive')?.disable();
-          }
-        }
+      const isVisible = this.visible();
+      const data = this.mainCategoryData();
+      const mode = this.formMode();
+
+      if (isVisible) {
+        setTimeout(() => this.syncFormState(data, mode), 0);
       }
     });
   }
 
-  submitForm(): void {
+  private syncFormState(
+    currentData: MainCategory | undefined,
+    mode: FormMode,
+  ): void {
+    this.mainCategoryForm.reset();
+
+    if (currentData) {
+      this.mainCategoryForm.patchValue(currentData);
+      this.statusLabel.set(currentData.isActive ? 'Ativo' : 'Inativo');
+    } else {
+      this.statusLabel.set('Ativo');
+    }
+
     if (
-      this.formHelperService.validateAndShowErrors(
-        this.mainCategoryForm,
-        this.formLabels,
-      )
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && currentData?.isActive === false)
     ) {
+      this.mainCategoryForm.disable();
+    } else {
+      this.mainCategoryForm.enable();
+      this.mainCategoryForm.get('id')?.disable();
+      this.mainCategoryForm.get('isActive')?.disable();
+
+      if (mode === FormMode.Create) {
+        this.mainCategoryForm.get('isActive')?.setValue(true);
+      }
+    }
+  }
+
+  protected isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.mainCategoryData();
+
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
+  });
+
+  async submitForm(): Promise<void> {
+    const isFormValid = this.formHelperService.validateAndShowErrors(
+      this.mainCategoryForm,
+      this.formLabels,
+    );
+
+    if (!isFormValid) {
+      return;
+    }
+
+    const dialog = this.confirmDialog();
+    if (!dialog) {
+      this.onSave.emit(this.mainCategoryForm.getRawValue());
+      return;
+    }
+
+    const isCreate = this.formMode() === FormMode.Create;
+    const title = isCreate ? 'Confirmar Cadastro' : 'Confirmar Alteração';
+    const msg = isCreate
+      ? 'Deseja realmente cadastrar esta nova categoria principal?'
+      : 'Deseja salvar as alterações feitas no registro desta categoria principal?';
+
+    const confirmed = await firstValueFrom(dialog.show(msg, title));
+
+    if (confirmed) {
       this.onSave.emit(this.mainCategoryForm.getRawValue());
     }
   }
