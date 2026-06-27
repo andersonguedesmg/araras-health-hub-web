@@ -1,14 +1,20 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  inject,
   OnDestroy,
   OnInit,
-  ViewEncapsulation,
-  inject,
   viewChild,
+  ViewEncapsulation,
 } from '@angular/core';
-import { Subject, Subscription, firstValueFrom } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import {
+  debounceTime,
+  firstValueFrom,
+  Subject,
+  Subscription,
+  switchMap,
+} from 'rxjs';
+
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -47,7 +53,7 @@ export class FacilityContainerComponent implements OnInit, OnDestroy {
   readonly FormMode = FormMode;
   readonly title = 'Unidades de Saúde';
   readonly description =
-    'Gestão e monitoramento dos estabelecimentos, hospitais e UBS da rede municipal de saúde.';
+    'Gestão e controle dos estabelecimentos da rede municipal de saúde.';
 
   readonly itemsBreadcrumb = [
     { label: 'Administração', routerLink: '/administracao' },
@@ -123,6 +129,12 @@ export class FacilityContainerComponent implements OnInit, OnDestroy {
     this.formMode = mode;
     this.selectedFacility = facility;
     this.displayDrawer = true;
+  }
+
+  generatePdfReport(): void {
+    this.toastService.showInfo(
+      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
+    );
   }
 
   async saveFacility(formValue: Facility): Promise<void> {

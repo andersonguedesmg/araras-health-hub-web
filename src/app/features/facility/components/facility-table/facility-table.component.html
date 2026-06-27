@@ -11,12 +11,12 @@
 >
   <ng-template #captionTemplate>
     <app-table-toolbar
-      searchPlaceholder="Pesquisar por nome ou CNES..."
-      buttonTooltip="Cadastrar Unidade"
+      searchPlaceholder="Pesquisar..."
+      buttonTooltip="Cadastrar"
       buttonIcon="pi pi-plus"
       [showActionButton]="hasManagementPermission()"
       [showPdfButton]="true"
-      pdfButtonTooltip="Exportar Lista"
+      pdfButtonTooltip="Exportar para PDF"
       (onSearch)="onSearch.emit($event)"
       (onActionClick)="onAdd.emit()"
       (onPdfClick)="onPdfClick.emit()"
@@ -28,15 +28,15 @@
       class="bg-zinc-50/70 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800"
     >
       <th
-        class="w-4/12 sticky left-0 z-20 bg-zinc-50 dark:bg-zinc-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
+        class="w-96 min-w-[350px] sticky left-0 z-20 bg-zinc-50 dark:bg-zinc-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
       >
-        Unidade
+        Nome
       </th>
-      <th class="w-2/12">CNES</th>
-      <th class="w-3/12">Endereço</th>
-      <th class="w-2/12">Contato</th>
-      <th class="w-1/12 text-center">Status</th>
-      <th class="w-1/12 text-center">Ações</th>
+      <th class="w-40 min-w-[140px]">CNES</th>
+      <th class="w-80 min-w-[260px]">Endereço</th>
+      <th class="w-56 min-w-[180px]">Contato</th>
+      <th class="w-28 min-w-[100px] text-center">Status</th>
+      <th class="w-32 min-w-[120px] text-center">Ações</th>
     </tr>
   </ng-template>
 
@@ -48,7 +48,7 @@
         class="sticky left-0 z-10 bg-white dark:bg-zinc-950 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900/40 transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
       >
         <div
-          class="flex flex-col max-w-sm truncate"
+          class="flex flex-col max-w-xs truncate"
           [pTooltip]="facility.name"
           tooltipPosition="top"
         >

@@ -7,6 +7,8 @@ import {
   input,
   model,
   output,
+  signal,
+  viewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import {
@@ -18,9 +20,10 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
+import { firstValueFrom } from 'rxjs';
 import { CepService } from '../../../../core/services/cep.service';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -35,18 +38,20 @@ import { Facility } from '../../interfaces/facility';
     ButtonModule,
     InputTextModule,
     InputMaskModule,
-    SelectModule,
     DrawerComponent,
+    ConfirmDialogComponent,
   ],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './facility-drawer-form.component.html',
   styleUrl: './facility-drawer-form.component.scss',
 })
 export class FacilityDrawerFormComponent {
-  private fb = inject(FormBuilder);
-  private formHelperService = inject(FormHelperService);
-  protected cepService = inject(CepService);
-  private toastService = inject(ToastService);
+  private readonly fb = inject(FormBuilder);
+  private readonly formHelperService = inject(FormHelperService);
+  protected readonly cepService = inject(CepService);
+  private readonly toastService = inject(ToastService);
+  private readonly confirmDialog =
+    viewChild<ConfirmDialogComponent>('confirmDialog');
 
   visible = model<boolean>(false);
   formMode = input<FormMode>(FormMode.Create);
@@ -57,11 +62,7 @@ export class FacilityDrawerFormComponent {
   facilityForm: FormGroup;
 
   isGlobalLoading = computed(() => this.cepService.isLoading());
-
-  statusOptions = [
-    { label: 'Ativo', value: true },
-    { label: 'Inativo', value: false },
-  ];
+  protected statusLabel = signal<string>('Ativo');
 
   private readonly formLabels: { [key: string]: string } = {
     name: 'Nome da Unidade',
@@ -127,18 +128,36 @@ export class FacilityDrawerFormComponent {
 
     if (currentData) {
       this.facilityForm.patchValue(currentData);
+      this.statusLabel.set(currentData.isActive ? 'Ativo' : 'Inativo');
+    } else {
+      this.statusLabel.set('Ativo');
     }
 
-    if (mode === FormMode.Detail) {
+    if (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && currentData?.isActive === false)
+    ) {
       this.facilityForm.disable();
     } else {
       this.facilityForm.enable();
+      this.facilityForm.get('id')?.disable();
+      this.facilityForm.get('isActive')?.disable();
+
       if (mode === FormMode.Create) {
         this.facilityForm.get('isActive')?.setValue(true);
-        this.facilityForm.get('isActive')?.disable();
       }
     }
   }
+
+  protected isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.facilityData();
+
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
+  });
 
   async searchCep(): Promise<void> {
     const addressGroup = this.facilityForm.get('address') as FormGroup;
@@ -151,13 +170,31 @@ export class FacilityDrawerFormComponent {
     }
   }
 
-  submitForm(): void {
+  async submitForm(): Promise<void> {
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.facilityForm,
       this.formLabels,
     );
 
-    if (isFormValid) {
+    if (!isFormValid) {
+      return;
+    }
+
+    const dialog = this.confirmDialog();
+    if (!dialog) {
+      this.onSave.emit(this.facilityForm.getRawValue());
+      return;
+    }
+
+    const isCreate = this.formMode() === FormMode.Create;
+    const title = isCreate ? 'Confirmar Cadastro' : 'Confirmar Alteração';
+    const msg = isCreate
+      ? 'Deseja realmente cadastrar esta nova unidade de saúde?'
+      : 'Deseja salvar as alterações feitas no registro desta unidade de saúde?';
+
+    const confirmed = await firstValueFrom(dialog.show(msg, title));
+
+    if (confirmed) {
       this.onSave.emit(this.facilityForm.getRawValue());
     }
   }

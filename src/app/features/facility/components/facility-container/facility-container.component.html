@@ -25,6 +25,7 @@
     (onEdit)="openForm(FormMode.Update, $event)"
     (onDetail)="openForm(FormMode.Detail, $event)"
     (onChangeStatus)="changeStatusFacility($event)"
+    (onPdfClick)="generatePdfReport()"
   ></app-facility-table>
 
   <app-facility-drawer-form
