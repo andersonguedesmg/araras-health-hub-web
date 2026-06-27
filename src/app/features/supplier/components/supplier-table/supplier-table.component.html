@@ -28,15 +28,15 @@
       class="bg-zinc-50/70 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800"
     >
       <th
-        class="w-4/12 sticky left-0 z-20 bg-zinc-50 dark:bg-zinc-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
+        class="w-96 min-w-[350px] sticky left-0 z-20 bg-zinc-50 dark:bg-zinc-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
       >
-        Fornecedor
+        Nome
       </th>
-      <th class="w-2/12">CNPJ</th>
-      <th class="w-2/12">Localização</th>
-      <th class="w-2/12">Contato</th>
-      <th class="w-1/12 text-center">Status</th>
-      <th class="w-1/12 text-center">Ações</th>
+      <th class="w-52 min-w-[170px]">CNPJ</th>
+      <th class="w-64 min-w-[200px]">Localização</th>
+      <th class="w-56 min-w-[180px]">Contato</th>
+      <th class="w-28 min-w-[100px] text-center">Status</th>
+      <th class="w-32 min-w-[120px] text-center">Ações</th>
     </tr>
   </ng-template>
 
@@ -48,7 +48,7 @@
         class="sticky left-0 z-10 bg-white dark:bg-zinc-950 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-900/40 transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
       >
         <div
-          class="flex flex-col max-w-sm truncate"
+          class="flex flex-col max-w-xs truncate"
           [pTooltip]="supplier.tradeName || supplier.legalName"
           tooltipPosition="top"
         >
@@ -80,16 +80,20 @@
       </td>
 
       <td>
-        <span class="text-xs text-zinc-700 dark:text-zinc-300 font-medium">
+        <span
+          class="text-xs text-zinc-700 dark:text-zinc-300 font-medium block truncate max-w-xs"
+          [pTooltip]="supplier.address.city + ' · ' + supplier.address.state"
+          tooltipPosition="top"
+        >
           {{ supplier.address.city }} · {{ supplier.address.state }}
         </span>
       </td>
 
       <td>
         <div class="flex gap-1.5 text-xs text-zinc-600 dark:text-zinc-400">
-          <span class="font-medium">{{
-            supplier.contact.phone || "Sem registro"
-          }}</span>
+          <span class="font-medium">
+            {{ supplier.contact.phone || "Sem registro" }}
+          </span>
         </div>
       </td>
 

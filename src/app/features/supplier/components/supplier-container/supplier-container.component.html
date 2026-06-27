@@ -25,6 +25,7 @@
     (onEdit)="openForm(FormMode.Update, $event)"
     (onDetail)="openForm(FormMode.Detail, $event)"
     (onChangeStatus)="changeStatusSupplier($event)"
+    (onPdfClick)="generatePdfReport()"
   ></app-supplier-table>
 
   <app-supplier-drawer-form

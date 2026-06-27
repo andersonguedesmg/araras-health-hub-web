@@ -125,6 +125,12 @@ export class SupplierContainerComponent implements OnInit, OnDestroy {
     this.displayDrawer = true;
   }
 
+  generatePdfReport(): void {
+    this.toastService.showInfo(
+      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
+    );
+  }
+
   async saveSupplier(formValue: Supplier): Promise<void> {
     this.isLoading = true;
     const operation$ =
