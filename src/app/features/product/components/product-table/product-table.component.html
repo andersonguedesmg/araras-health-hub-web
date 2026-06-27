@@ -12,11 +12,11 @@
   <ng-template #captionTemplate>
     <app-table-toolbar
       searchPlaceholder="Pesquisar..."
-      buttonTooltip="Cadastrar Produto"
+      buttonTooltip="Cadastrar"
       buttonIcon="pi pi-plus"
       [showActionButton]="hasManagementPermission()"
       [showPdfButton]="true"
-      pdfButtonTooltip="Exportar Produtos"
+      pdfButtonTooltip="Exportar para PDF"
       (onSearch)="onSearch.emit($event)"
       (onActionClick)="onAdd.emit()"
       (onPdfClick)="onPdfClick.emit()"
@@ -30,7 +30,7 @@
       <th
         class="w-96 min-w-[400px] sticky left-0 z-20 bg-zinc-50 dark:bg-zinc-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]"
       >
-        Produto
+        Nome
       </th>
       <th class="w-80 min-w-[300px]">Descrição</th>
       <th class="w-64 min-w-[200px]">Categoria</th>
@@ -84,9 +84,7 @@
       </td>
 
       <td>
-        <span
-          class="inline-flex text-[11px] font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 px-2 py-0.5 rounded border border-zinc-200/40 dark:border-zinc-800/50"
-        >
+        <span class="text-xs text-zinc-700 dark:text-zinc-300 font-medium">
           {{ product.packagingTypeName }}
         </span>
       </td>

@@ -47,7 +47,7 @@ export class ProductContainerComponent implements OnInit, OnDestroy {
   readonly FormMode = FormMode;
   readonly title = 'Produtos e Insumos';
   readonly description =
-    'Cadastro de medicamentos, materiais hospitalares e controle do catálogo da rede municipal de saúde.';
+    'Cadastro e controle do catálogo de suprimentos da rede municipal de saúde.';
 
   readonly itemsBreadcrumb = [
     { label: 'Administração', routerLink: '/administracao' },
@@ -123,6 +123,12 @@ export class ProductContainerComponent implements OnInit, OnDestroy {
     this.formMode = mode;
     this.selectedProduct = product;
     this.displayDrawer = true;
+  }
+
+  generatePdfReport(): void {
+    this.toastService.showInfo(
+      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
+    );
   }
 
   async saveProduct(formValue: Product): Promise<void> {
