@@ -7,6 +7,8 @@ import {
   input,
   model,
   output,
+  signal,
+  viewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import {
@@ -19,7 +21,9 @@ import {
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { firstValueFrom } from 'rxjs';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { Account } from '../../interfaces/account';
 
@@ -32,6 +36,7 @@ import { Account } from '../../interfaces/account';
     ButtonModule,
     InputTextModule,
     DrawerComponent,
+    ConfirmDialogComponent,
   ],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './account-password-drawer-form.component.html',
@@ -40,12 +45,17 @@ import { Account } from '../../interfaces/account';
 export class AccountPasswordDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
+  private readonly confirmDialog =
+    viewChild<ConfirmDialogComponent>('confirmDialog');
 
   visible = model<boolean>(false);
   accountData = input<Account | undefined>(undefined);
   onSavePassword = output<{ userId: number; password: string }>();
 
   passwordForm: FormGroup;
+
+  isPasswordUpdating = signal<boolean>(false);
+  isGlobalLoading = computed(() => this.isPasswordUpdating());
 
   accountName = computed(() => this.accountData()?.userName || 'Usuário');
 
@@ -65,7 +75,7 @@ export class AccountPasswordDrawerFormComponent {
 
     effect(() => {
       if (this.visible()) {
-        this.passwordForm.reset();
+        setTimeout(() => this.passwordForm.reset(), 0);
       }
     });
   }
@@ -78,19 +88,36 @@ export class AccountPasswordDrawerFormComponent {
     return password === confirmPassword ? null : { mismatch: true };
   }
 
-  submitForm(): void {
+  async submitForm(): Promise<void> {
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.passwordForm,
       this.formLabels,
     );
 
     const account = this.accountData();
-
-    if (isFormValid && account) {
-      this.onSavePassword.emit({
-        userId: account.id,
-        password: this.passwordForm.get('password')?.value,
-      });
+    if (!isFormValid || !account) {
+      return;
     }
+
+    const dialog = this.confirmDialog();
+    if (!dialog) {
+      this.emitPayload(account.id);
+      return;
+    }
+
+    const title = 'Confirmar Alteração';
+    const msg = `Deseja realmente alterar a senha de acesso da conta de ${this.accountName()}?`;
+    const confirmed = await firstValueFrom(dialog.show(msg, title));
+
+    if (confirmed) {
+      this.emitPayload(account.id);
+    }
+  }
+
+  private emitPayload(userId: number): void {
+    this.onSavePassword.emit({
+      userId: userId,
+      password: this.passwordForm.get('password')?.value,
+    });
   }
 }
