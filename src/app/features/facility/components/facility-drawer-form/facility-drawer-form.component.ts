@@ -65,7 +65,7 @@ export class FacilityDrawerFormComponent {
   protected statusLabel = signal<string>('Ativo');
 
   private readonly formLabels: { [key: string]: string } = {
-    name: 'Nome da Unidade',
+    name: 'Nome',
     cnes: 'CNES',
     'address.cep': 'CEP',
     'address.street': 'Endereço (Logradouro)',

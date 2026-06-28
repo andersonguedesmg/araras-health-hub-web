@@ -58,7 +58,7 @@ export class PackagingTypeDrawerFormComponent {
   protected statusLabel = signal<string>('Ativo');
 
   private readonly formLabels: { [key: string]: string } = {
-    name: 'Nome da Embalagem',
+    name: 'Nome',
   };
 
   headerText = computed(() => {

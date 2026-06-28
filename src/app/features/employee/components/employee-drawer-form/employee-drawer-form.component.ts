@@ -66,7 +66,7 @@ export class EmployeeDrawerFormComponent {
   protected statusLabel = signal<string>('Ativo');
 
   private readonly formLabels: { [key: string]: string } = {
-    name: 'Nome Completo',
+    name: 'Nome',
     cpf: 'CPF',
     function: 'Função / Cargo',
     phone: 'Telefone de Contato',
