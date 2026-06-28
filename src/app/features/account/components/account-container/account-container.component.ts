@@ -48,8 +48,7 @@ export class AccountContainerComponent implements OnInit, OnDestroy {
 
   readonly FormMode = FormMode;
   readonly title = 'Contas';
-  readonly description =
-    'Gestão, controle de acessos e permissões de contas no sistema.';
+  readonly description = 'Cadastro e controle de contas de acesso ao sistema.';
 
   readonly itemsBreadcrumb = [
     { label: 'Administração', routerLink: '/administracao' },
@@ -131,6 +130,12 @@ export class AccountContainerComponent implements OnInit, OnDestroy {
   openPasswordResetForm(account: Account): void {
     this.selectedAccount = account;
     this.isPasswordOpen = true;
+  }
+
+  generatePdfReport(): void {
+    this.toastService.showInfo(
+      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
+    );
   }
 
   async saveNewPassword(event: {

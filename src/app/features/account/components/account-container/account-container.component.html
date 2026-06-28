@@ -26,6 +26,7 @@
     (onDetail)="openForm(FormMode.Detail, $event)"
     (onChangeStatus)="changeStatusAccount($event)"
     (onPasswordReset)="openPasswordResetForm($event)"
+    (onPdfClick)="generatePdfReport()"
   ></app-account-table>
 
   <app-account-drawer-form
