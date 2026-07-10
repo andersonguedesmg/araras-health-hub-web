@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   effect,
@@ -11,7 +10,7 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { MenuItem, PrimeIcons } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
-import { PrimeNG } from 'primeng/config';
+import { ButtonModule } from 'primeng/button';
 import { Menu, MenuModule } from 'primeng/menu';
 import { MenubarModule } from 'primeng/menubar';
 import {
@@ -24,26 +23,39 @@ import { AuthService } from '../../../core/services/auth.service';
   selector: 'app-header',
   standalone: true,
   imports: [
-    CommonModule,
     MenubarModule,
     AvatarModule,
     MenuModule,
+    ButtonModule,
     RouterModule,
   ],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
+  host: {
+    class: 'block w-full sticky top-0 z-[100]',
+  },
 })
 export class HeaderComponent implements OnInit {
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly primeng = inject(PrimeNG);
 
   @ViewChild('menu') menu!: Menu;
 
   readonly items = signal<MenuItem[]>([]);
   readonly avatarItems = signal<MenuItem[]>([]);
   readonly currentTheme = signal<'light' | 'dark' | 'system'>('system');
+
+  readonly themeIcon = () => {
+    switch (this.currentTheme()) {
+      case 'light':
+        return PrimeIcons.SUN;
+      case 'dark':
+        return PrimeIcons.MOON;
+      default:
+        return PrimeIcons.DESKTOP;
+    }
+  };
 
   constructor() {
     effect(() => {
@@ -91,14 +103,8 @@ export class HeaderComponent implements OnInit {
 
     if (isDark) {
       root.classList.add('dark');
-      this.primeng.theme.set({
-        palette: { primary: { 50: '#ecfdf5', 500: '#10b981', 900: '#064e3b' } },
-      });
     } else {
       root.classList.remove('dark');
-      this.primeng.theme.set({
-        palette: { primary: { 50: '#f0fdf4', 500: '#22c55e', 900: '#14532d' } },
-      });
     }
   }
 
