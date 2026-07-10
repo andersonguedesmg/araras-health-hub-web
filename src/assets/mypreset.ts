@@ -7,12 +7,34 @@ export const MyPreset = definePreset(Aura, {
       colorScheme: {
         light: {
           root: {
-            background: '#FFFFFF',
+            background: 'transparent',
+            borderColor: 'transparent',
+            padding: '0px',
+          },
+          item: {
+            color: '{surface.500}',
+            focusColor: '{surface.900}',
+            iconColor: '{surface.500}',
+            iconFocusColor: '{surface.900}',
+          },
+          separator: {
+            color: '{surface.300}',
           },
         },
         dark: {
           root: {
-            background: '#121212',
+            background: 'transparent',
+            borderColor: 'transparent',
+            padding: '0px',
+          },
+          item: {
+            color: '{surface.400}',
+            focusColor: '#ffffff',
+            iconColor: '{surface.400}',
+            iconFocusColor: '#ffffff',
+          },
+          separator: {
+            color: '{surface.700}',
           },
         },
       },
