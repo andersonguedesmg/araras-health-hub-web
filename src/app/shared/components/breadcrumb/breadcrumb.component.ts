@@ -1,4 +1,4 @@
-import { Component, computed, input, ViewEncapsulation } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MenuItem, PrimeIcons } from 'primeng/api';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
@@ -9,10 +9,12 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
   imports: [BreadcrumbModule, RouterModule],
   templateUrl: './breadcrumb.component.html',
   styleUrl: './breadcrumb.component.scss',
-  encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'block w-full',
+  },
 })
 export class BreadcrumbComponent {
-  itemsBreadcrumb = input.required<MenuItem[]>();
+  readonly itemsBreadcrumb = input.required<MenuItem[]>();
 
   protected readonly home: MenuItem = {
     icon: PrimeIcons.HOME,
