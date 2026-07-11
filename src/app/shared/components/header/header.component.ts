@@ -1,11 +1,10 @@
 import {
   Component,
+  computed,
   effect,
   inject,
-  OnInit,
   signal,
   ViewChild,
-  ViewEncapsulation,
 } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MenuItem, PrimeIcons } from 'primeng/api';
@@ -13,11 +12,14 @@ import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { Menu, MenuModule } from 'primeng/menu';
 import { MenubarModule } from 'primeng/menubar';
+import { TooltipModule } from 'primeng/tooltip';
+
 import {
   SCOPE_LABEL_MAPPING,
   UserScopes,
 } from '../../../core/constants/auth.constants';
 import { AuthService } from '../../../core/services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -28,34 +30,37 @@ import { AuthService } from '../../../core/services/auth.service';
     MenuModule,
     ButtonModule,
     RouterModule,
+    TooltipModule,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   host: {
     class: 'block w-full sticky top-0 z-[100]',
   },
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  readonly themeService = inject(ThemeService);
 
   @ViewChild('menu') menu!: Menu;
 
   readonly items = signal<MenuItem[]>([]);
   readonly avatarItems = signal<MenuItem[]>([]);
-  readonly currentTheme = signal<'light' | 'dark' | 'system'>('system');
 
-  readonly themeIcon = () => {
-    switch (this.currentTheme()) {
-      case 'light':
-        return PrimeIcons.SUN;
-      case 'dark':
-        return PrimeIcons.MOON;
-      default:
-        return PrimeIcons.DESKTOP;
+  readonly themeIcon = computed(() => {
+    return this.themeService.currentTheme() === 'light'
+      ? PrimeIcons.SUN
+      : PrimeIcons.MOON;
+  });
+
+  readonly userInitial = computed(() => {
+    const user = this.authService.currentUser();
+    if (user && user.userName && user.userName.length > 0) {
+      return user.userName.charAt(0).toUpperCase();
     }
-  };
+    return '';
+  });
 
   constructor() {
     effect(() => {
@@ -67,55 +72,13 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.detectAndApplyTheme();
-    this.listenToSystemThemeChanges();
-  }
-
   toggleThemeCycle(): void {
-    const modes: ('light' | 'dark' | 'system')[] = ['light', 'dark', 'system'];
-    const nextIndex = (modes.indexOf(this.currentTheme()) + 1) % modes.length;
-    const nextMode = modes[nextIndex];
-
-    this.currentTheme.set(nextMode);
-    localStorage.setItem('theme', nextMode);
-    this.applyTheme(nextMode);
+    this.themeService.toggleThemeCycle();
 
     const user = this.authService.currentUser();
-    if (user) this.updateAvatarMenu(user.userName, user.scope, user.role);
-  }
-
-  private detectAndApplyTheme(): void {
-    const savedTheme =
-      (localStorage.getItem('theme') as 'light' | 'dark' | 'system') ||
-      'system';
-    this.currentTheme.set(savedTheme);
-    this.applyTheme(savedTheme);
-  }
-
-  private applyTheme(theme: 'light' | 'dark' | 'system'): void {
-    const root = document.documentElement;
-    let isDark = theme === 'dark';
-
-    if (theme === 'system') {
-      isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (user) {
+      this.updateAvatarMenu(user.userName, user.scope, user.role);
     }
-
-    if (isDark) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }
-
-  private listenToSystemThemeChanges(): void {
-    window
-      .matchMedia('(prefers-color-scheme: dark)')
-      .addEventListener('change', () => {
-        if (this.currentTheme() === 'system') {
-          this.applyTheme('system');
-        }
-      });
   }
 
   private initializeMenuItems(): void {

@@ -1,5 +1,9 @@
-<p-menubar [model]="items()">
-  <ng-template pTemplate="start">
+<p-menubar
+  [model]="items()"
+  class="w-full block"
+  styleClass="!rounded-none !border-t-0 !border-x-0 border-b border-surface-200 dark:border-surface-800"
+>
+  <ng-template #start>
     <div
       class="flex items-center space-x-2 mr-6 select-none cursor-pointer"
       routerLink="/"
@@ -29,7 +33,7 @@
           (click)="toggleMenu($event)"
         >
           <p-avatar
-            image="assets/images/avatar-placeholder.png"
+            [label]="userInitial()"
             shape="circle"
             class="border border-surface-200 dark:border-surface-700"
           />
