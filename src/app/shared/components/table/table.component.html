@@ -1,89 +1,80 @@
-<div
-  class="w-full bg-white dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden transition-all duration-200"
+<p-table
+  #dt
+  [value]="value()"
+  [rows]="rows()"
+  [first]="first()"
+  [rowsPerPageOptions]="rowsPerPageOptions()"
+  [paginator]="paginator()"
+  [lazy]="lazy()"
+  (onLazyLoad)="onLazyLoad.emit($event)"
+  [totalRecords]="totalRecords()"
+  [globalFilterFields]="globalFilterFields()"
+  [dataKey]="dataKey()"
+  [rowHover]="true"
+  [loading]="loading()"
+  currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+  [showCurrentPageReport]="true"
+  styleClass="p-datatable-sm shadow-none"
+  class="block w-full bg-white dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800 rounded-xl shadow-xs transition-all duration-200 [&_.p-datatable-header]:bg-transparent [&_.p-datatable-header]:p-0 [&_.p-datatable-header]:border-none [&_.p-datatable-thead_th]:bg-zinc-50/60 dark:[&_.p-datatable-thead_th]:bg-zinc-900/80 [&_.p-datatable-thead_th]:text-zinc-700 dark:[&_.p-datatable-thead_th]:text-zinc-300 [&_.p-datatable-thead_th]:font-semibold [&_.p-datatable-thead_th]:text-[11px] [&_.p-datatable-thead_th]:uppercase [&_.p-datatable-thead_th]:tracking-wider [&_.p-datatable-thead_th]:px-4 [&_.p-datatable-thead_th]:py-3 [&_.p-datatable-thead_th]:border-b [&_.p-datatable-thead_th]:border-zinc-200 dark:[&_.p-datatable-thead_th]:border-zinc-800 [&_.p-datatable-thead_th]:transition-colors [&_.p-datatable-thead_th:first-child]:rounded-tl-xl [&_.p-datatable-thead_th:last-child]:rounded-tr-xl [&_.p-datatable-tbody_tr]:bg-white dark:[&_.p-datatable-tbody_tr]:bg-zinc-950 [&_.p-datatable-tbody_tr]:text-zinc-800 dark:[&_.p-datatable-tbody_tr]:text-zinc-200 [&_.p-datatable-tbody_tr_td]:px-4 [&_.p-datatable-tbody_tr_td]:py-3.5 [&_.p-datatable-tbody_tr_td]:text-sm [&_.p-datatable-tbody_tr_td]:border-b [&_.p-datatable-tbody_tr_td]:border-zinc-100 dark:[&_.p-datatable-tbody_tr_td]:border-zinc-900/50 [&_.p-datatable-tbody_tr:last-child_td]:border-none hover:[&_.p-datatable-tbody_tr]:bg-zinc-50/50 dark:hover:[&_.p-datatable-tbody_tr]:bg-zinc-900/40 [&_.p-paginator]:bg-white dark:[&_.p-paginator]:bg-zinc-950 [&_.p-paginator]:border-t [&_.p-paginator]:border-zinc-200 dark:[&_.p-paginator]:border-zinc-800 [&_.p-paginator]:px-4 [&_.p-paginator]:py-2.5 [&_.p-paginator]:rounded-b-xl [&_.p-paginator-current]:text-zinc-500 dark:[&_.p-paginator-current]:text-zinc-400 [&_.p-paginator-current]:font-medium [&_.p-paginator-current]:text-xs [&_.p-paginator-current]:mr-auto [&_.p-paginator_button]:min-w-8 [&_.p-paginator_button]:h-8 [&_.p-paginator_button]:rounded-md [&_.p-paginator_button]:text-zinc-600 dark:[&_.p-paginator_button]:text-zinc-400 [&_.p-paginator_button]:text-xs [&_.p-paginator_button]:transition-all hover:[&_.p-paginator_button]:bg-zinc-100 dark:hover:[&_.p-paginator_button]:bg-zinc-900 hover:[&_.p-paginator_button]:text-zinc-900 dark:hover:[&_.p-paginator_button]:text-white [&_.p-paginator_button.p-highlight]:bg-zinc-100 dark:[&_.p-paginator_button.p-highlight]:bg-zinc-900 [&_.p-paginator_button.p-highlight]:text-zinc-900 dark:[&_.p-paginator_button.p-highlight]:text-white [&_.p-paginator_button.p-highlight]:font-semibold [&_.p-paginator_button.p-highlight]:border [&_.p-paginator_button.p-highlight]:border-zinc-300 dark:[&_.p-paginator_button.p-highlight]:border-zinc-700"
 >
-  <p-table
-    #dt
-    [value]="value()"
-    [rows]="rows()"
-    [first]="first()"
-    [rowsPerPageOptions]="rowsPerPageOptions()"
-    [paginator]="paginator()"
-    [lazy]="lazy()"
-    (onLazyLoad)="onLazyLoad.emit($event)"
-    [totalRecords]="totalRecords()"
-    [globalFilterFields]="globalFilterFields()"
-    [dataKey]="dataKey()"
-    [rowHover]="true"
-    [loading]="loading()"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
-    [showCurrentPageReport]="true"
-    styleClass="p-datatable-sm shadow-none"
-  >
-    @if (captionTemplate()) {
-      <ng-template pTemplate="caption">
-        <div
-          class="px-4 py-3 bg-zinc-50/50 dark:bg-zinc-900/20 border-b border-zinc-200/80 dark:border-zinc-800"
-        >
-          <ng-container
-            [ngTemplateOutlet]="captionTemplate()!"
-            [ngTemplateOutletContext]="{ $implicit: dt, loading: loading() }"
-          >
-          </ng-container>
-        </div>
-      </ng-template>
-    }
-
-    @if (headerTemplate()) {
-      <ng-template pTemplate="header">
-        <ng-container [ngTemplateOutlet]="headerTemplate()!"></ng-container>
-      </ng-template>
-    }
-
-    @if (bodyTemplate()) {
-      <ng-template pTemplate="body" let-rowData let-columns="columns">
+  @if (captionTemplate()) {
+    <ng-template pTemplate="caption">
+      <div
+        class="px-4 py-3 bg-zinc-50/50 dark:bg-zinc-900/20 border-b border-zinc-200/80 dark:border-zinc-800 rounded-t-xl"
+      >
         <ng-container
-          [ngTemplateOutlet]="bodyTemplate()!"
-          [ngTemplateOutletContext]="{ $implicit: rowData, columns: columns }"
-        >
-        </ng-container>
-      </ng-template>
-    }
-
-    @if (footerTemplate()) {
-      <ng-template pTemplate="footer">
-        <ng-container [ngTemplateOutlet]="footerTemplate()!"></ng-container>
-      </ng-template>
-    }
-
-    <ng-template pTemplate="emptymessage">
-      @if (emptyMessageTemplate()) {
-        <ng-container
-          [ngTemplateOutlet]="emptyMessageTemplate()!"
-        ></ng-container>
-      } @else {
-        <tr>
-          <td [attr.colspan]="colspan()">
-            <div
-              class="flex flex-col items-center justify-center py-16 px-4 gap-3 text-zinc-400 dark:text-zinc-500"
-            >
-              <div
-                class="p-4 bg-zinc-100 dark:bg-zinc-900 rounded-full border border-zinc-200/60 dark:border-zinc-800/80"
-              >
-                <i
-                  class="pi pi-box text-3xl text-zinc-400/80 dark:text-zinc-500/80"
-                ></i>
-              </div>
-              <div class="text-center max-w-xs space-y-1">
-                <p
-                  class="text-sm font-semibold text-zinc-700 dark:text-zinc-300"
-                >
-                  {{ emptyMessage() }}
-                </p>
-              </div>
-            </div>
-          </td>
-        </tr>
-      }
+          [ngTemplateOutlet]="captionTemplate()!"
+          [ngTemplateOutletContext]="{ $implicit: dt, loading: loading() }"
+        />
+      </div>
     </ng-template>
-  </p-table>
-</div>
+  }
+
+  @if (headerTemplate()) {
+    <ng-template pTemplate="header">
+      <ng-container [ngTemplateOutlet]="headerTemplate()!" />
+    </ng-template>
+  }
+
+  @if (bodyTemplate()) {
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <ng-container
+        [ngTemplateOutlet]="bodyTemplate()!"
+        [ngTemplateOutletContext]="{ $implicit: rowData, columns: columns }"
+      />
+    </ng-template>
+  }
+
+  @if (footerTemplate()) {
+    <ng-template pTemplate="footer">
+      <ng-container [ngTemplateOutlet]="footerTemplate()!" />
+    </ng-template>
+  }
+
+  <ng-template pTemplate="emptymessage">
+    @if (emptyMessageTemplate()) {
+      <ng-container [ngTemplateOutlet]="emptyMessageTemplate()!" />
+    } @else {
+      <tr>
+        <td [attr.colspan]="colspan()">
+          <div
+            class="flex flex-col items-center justify-center py-16 px-4 gap-3 text-zinc-400 dark:text-zinc-500 bg-white dark:bg-zinc-950 rounded-b-xl"
+          >
+            <div
+              class="p-4 bg-zinc-100 dark:bg-zinc-900 rounded-full border border-zinc-200/60 dark:border-zinc-800/80"
+            >
+              <i
+                class="pi pi-box text-3xl text-zinc-400/80 dark:text-zinc-500/80"
+              ></i>
+            </div>
+            <div class="text-center max-w-xs space-y-1">
+              <p class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                {{ emptyMessage() }}
+              </p>
+            </div>
+          </div>
+        </td>
+      </tr>
+    }
+  </ng-template>
+</p-table>

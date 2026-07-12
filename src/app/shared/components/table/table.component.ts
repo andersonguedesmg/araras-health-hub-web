@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   contentChild,
@@ -6,49 +6,47 @@ import {
   output,
   TemplateRef,
   viewChild,
-  ViewEncapsulation,
 } from '@angular/core';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, TableModule],
-  encapsulation: ViewEncapsulation.None,
+  imports: [NgTemplateOutlet, TableModule],
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss',
 })
 export class TableComponent {
-  protected dt = viewChild<Table>('dt');
+  protected readonly dt = viewChild<Table>('dt');
 
-  value = input<any[]>([]);
-  totalRecords = input<number>(0);
-  paginator = input<boolean>(true);
-  lazy = input<boolean>(true);
-  rows = input<number>(5);
-  first = input<number>(0);
-  rowsPerPageOptions = input<number[]>([5, 10, 25]);
-  globalFilterFields = input<string[]>([]);
-  dataKey = input<string>('id');
-  loading = input<boolean>(false);
-  colspan = input<number>(1);
-  emptyMessage = input<string>('Nenhum registro encontrado.');
+  readonly value = input<unknown[]>([]);
+  readonly totalRecords = input<number>(0);
+  readonly paginator = input<boolean>(true);
+  readonly lazy = input<boolean>(true);
+  readonly rows = input<number>(5);
+  readonly first = input<number>(0);
+  readonly rowsPerPageOptions = input<number[]>([5, 10, 25]);
+  readonly globalFilterFields = input<string[]>([]);
+  readonly dataKey = input<string>('id');
+  readonly loading = input<boolean>(false);
+  readonly colspan = input<number>(1);
+  readonly emptyMessage = input<string>('Nenhum registro encontrado.');
 
-  protected captionTemplate = contentChild<TemplateRef<any>>('captionTemplate');
-  protected headerTemplate = contentChild<TemplateRef<any>>('headerTemplate');
-  protected bodyTemplate = contentChild<TemplateRef<any>>('bodyTemplate');
-  protected footerTemplate = contentChild<TemplateRef<any>>('footerTemplate');
-  protected emptyMessageTemplate = contentChild<TemplateRef<any>>(
+  protected readonly captionTemplate =
+    contentChild<TemplateRef<unknown>>('captionTemplate');
+  protected readonly headerTemplate =
+    contentChild<TemplateRef<unknown>>('headerTemplate');
+  protected readonly bodyTemplate =
+    contentChild<TemplateRef<unknown>>('bodyTemplate');
+  protected readonly footerTemplate =
+    contentChild<TemplateRef<unknown>>('footerTemplate');
+  protected readonly emptyMessageTemplate = contentChild<TemplateRef<unknown>>(
     'emptyMessageTemplate',
   );
 
-  onLazyLoad = output<TableLazyLoadEvent>();
+  readonly onLazyLoad = output<TableLazyLoadEvent>();
 
   public filterGlobal(value: string, matchMode: string): void {
     this.dt()?.filterGlobal(value, matchMode);
-  }
-
-  public exportCSV(): void {
-    this.dt()?.exportCSV();
   }
 }
