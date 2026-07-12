@@ -1,4 +1,4 @@
-import { Component, inject, ViewEncapsulation } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
@@ -6,7 +6,9 @@ import { ToastModule } from 'primeng/toast';
   selector: 'app-toast',
   standalone: true,
   imports: [ToastModule],
-  encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'block',
+  },
   templateUrl: './toast.component.html',
   styleUrl: './toast.component.scss',
 })
