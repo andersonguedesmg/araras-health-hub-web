@@ -1,13 +1,16 @@
-import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-page-header',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [],
+  host: {
+    class: 'block w-full',
+  },
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss',
 })
 export class PageHeaderComponent {
-  title = input.required<string>();
-  description = input<string>('');
+  readonly title = input.required<string>();
+  readonly description = input<string>('');
 }
