@@ -2,14 +2,7 @@
   [(visible)]="visible"
   [position]="position()"
   [header]="header()"
-  [styleClass]="
-    drawerDimensionClass() +
-    ' bg-zinc-50 dark:bg-zinc-950 shadow-2xl border-zinc-200 dark:border-zinc-800 transition-all duration-300 ' +
-    (position() === 'right' ? 'border-l' : '') +
-    (position() === 'left' ? 'border-r' : '') +
-    (position() === 'top' ? 'border-b rounded-b-2xl' : '') +
-    (position() === 'bottom' ? 'border-t rounded-t-2xl' : '')
-  "
+  [styleClass]="drawerStyleClass()"
 >
   <div class="flex flex-col h-full justify-between relative overflow-hidden">
     <div
