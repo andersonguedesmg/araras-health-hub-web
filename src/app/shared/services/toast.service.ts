@@ -45,6 +45,10 @@ export class ToastService {
     });
   }
 
+  clearAll(): void {
+    this.messageService.clear();
+  }
+
   handleApiError(error: unknown): void {
     let detailMessage = 'Ocorreu um erro desconhecido.';
     let summary = ToastSummaries.ERROR;

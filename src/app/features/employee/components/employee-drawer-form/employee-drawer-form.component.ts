@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -33,7 +32,6 @@ import { Employee } from '../../interfaces/employee';
   selector: 'app-employee-drawer-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
@@ -60,12 +58,12 @@ export class EmployeeDrawerFormComponent {
   FormMode = FormMode;
   employeeForm: FormGroup;
   isCpfValidating = signal<boolean>(false);
+  formSubmitted = signal<boolean>(false);
+  statusLabel = signal<string>('Ativo');
 
   isGlobalLoading = computed(() => this.isCpfValidating());
 
-  protected statusLabel = signal<string>('Ativo');
-
-  private readonly formLabels: { [key: string]: string } = {
+  private readonly formLabels: Record<string, string> = {
     name: 'Nome',
     cpf: 'CPF',
     function: 'Função / Cargo',
@@ -80,7 +78,18 @@ export class EmployeeDrawerFormComponent {
         return 'Editar Funcionário';
       case FormMode.Detail:
         return 'Detalhes do Funcionário';
+      default:
+        return 'Funcionário';
     }
+  });
+
+  isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.employeeData();
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
   });
 
   constructor() {
@@ -99,7 +108,7 @@ export class EmployeeDrawerFormComponent {
       const mode = this.formMode();
 
       if (isVisible) {
-        setTimeout(() => this.syncFormState(data, mode), 0);
+        this.syncFormState(data, mode);
       }
     });
   }
@@ -109,6 +118,7 @@ export class EmployeeDrawerFormComponent {
     mode: FormMode,
   ): void {
     this.employeeForm.reset();
+    this.formSubmitted.set(false);
 
     if (currentData) {
       this.employeeForm.patchValue(currentData);
@@ -133,16 +143,6 @@ export class EmployeeDrawerFormComponent {
     }
   }
 
-  protected isReadOnly = computed(() => {
-    const mode = this.formMode();
-    const data = this.employeeData();
-
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
-  });
-
   validateCpf(): void {
     const cpfControl = this.employeeForm.get('cpf');
     if (cpfControl?.value && cpfControl.invalid) {
@@ -150,7 +150,32 @@ export class EmployeeDrawerFormComponent {
     }
   }
 
+  clearForm(): void {
+    this.formSubmitted.set(false);
+    this.toastService.clearAll();
+
+    const data = this.employeeData();
+    const mode = this.formMode();
+
+    if (mode === FormMode.Update && data) {
+      this.employeeForm.patchValue({
+        id: data.id,
+        name: '',
+        cpf: '',
+        isActive: data.isActive,
+        function: '',
+        phone: '',
+      });
+    } else {
+      this.employeeForm.reset();
+      this.employeeForm.get('isActive')?.setValue(true);
+      this.statusLabel.set('Ativo');
+    }
+  }
+
   async submitForm(): Promise<void> {
+    this.formSubmitted.set(true);
+
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.employeeForm,
       this.formLabels,
