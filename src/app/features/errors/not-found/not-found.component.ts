@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { BreadcrumbComponent } from '../../../shared/components/breadcrumb/breadcrumb.component';
@@ -9,8 +9,12 @@ import { BreadcrumbComponent } from '../../../shared/components/breadcrumb/bread
   imports: [RouterModule, ButtonModule, BreadcrumbComponent],
   templateUrl: './not-found.component.html',
   styleUrl: './not-found.component.scss',
-  encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'block w-full h-full overflow-hidden',
+  },
 })
 export class NotFoundComponent {
-  itemsBreadcrumb = [{ label: 'Não Encontrado', routerLink: '/404' }];
+  readonly itemsBreadcrumb = signal([
+    { label: 'Não Encontrado', routerLink: '/404' },
+  ]);
 }
