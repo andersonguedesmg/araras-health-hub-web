@@ -1,14 +1,7 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation,
-  inject,
-  viewChild,
-} from '@angular/core';
-import { Subject, Subscription, firstValueFrom } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { firstValueFrom } from 'rxjs';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -24,7 +17,6 @@ import { EmployeeTableComponent } from '../employee-table/employee-table.compone
   selector: 'app-employee-container',
   standalone: true,
   imports: [
-    CommonModule,
     EmployeeTableComponent,
     EmployeeDrawerFormComponent,
     BreadcrumbComponent,
@@ -32,107 +24,90 @@ import { EmployeeTableComponent } from '../employee-table/employee-table.compone
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './employee-container.component.html',
   styleUrl: './employee-container.component.scss',
 })
-export class EmployeeContainerComponent implements OnInit, OnDestroy {
+export class EmployeeContainerComponent {
   private readonly employeeService = inject(EmployeeService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly employees = this.employeeService.employees;
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  readonly FormMode = FormMode;
-  readonly title = 'Funcionários';
-  readonly description =
+  protected readonly FormMode = FormMode;
+  protected readonly title = 'Funcionários';
+  protected readonly description =
     'Cadastro e controle de colaboradores da rede municipal de saúde.';
 
-  readonly itemsBreadcrumb = [
+  protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
     { label: 'Funcionários', routerLink: '/administracao/funcionarios' },
-  ];
+  ]);
 
-  selectedEmployee?: Employee;
-  formMode: FormMode = FormMode.Create;
+  protected selectedEmployee?: Employee;
+  protected formMode: FormMode = FormMode.Create;
+  protected displayDrawer = false;
 
-  displayDrawer = false;
-  isLoading = false;
-  totalRecords = 0;
-  rows = 5;
-  first = 0;
+  protected readonly first = signal<number>(0);
+  protected readonly rows = signal<number>(5);
+  protected readonly searchTerm = signal<string>('');
 
-  private searchTerm = '';
-  private readonly loadLazy = new Subject<any>();
-  private lastLazyEvent = { first: 0, rows: 5 };
-  private readonly subscriptions = new Subscription();
+  private readonly refreshTrigger = signal<number>(0);
 
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.loadLazy
-        .pipe(
-          debounceTime(300),
-          switchMap((event) => {
-            this.isLoading = true;
+  private readonly queryParams = computed(() => ({
+    page: Math.floor(this.first() / this.rows()) + 1,
+    rows: this.rows(),
+    searchTerm: this.searchTerm(),
+    refresh: this.refreshTrigger(),
+  }));
 
-            this.first = event.first;
-            this.rows = event.rows;
+  private readonly employeesResource = rxResource({
+    request: () => this.queryParams(),
+    loader: ({ request }) => {
+      return this.employeeService.loadEmployees(
+        request.page,
+        request.rows,
+        request.searchTerm,
+      );
+    },
+  });
 
-            const page = event.first / event.rows + 1;
-            return this.employeeService.loadEmployees(
-              page,
-              event.rows,
-              this.searchTerm,
-            );
-          }),
-        )
-        .subscribe({
-          next: (response) => {
-            this.isLoading = false;
+  protected readonly employees = computed(
+    () => this.employeesResource.value()?.data ?? [],
+  );
+  protected readonly totalRecords = computed(
+    () => this.employeesResource.value()?.totalCount ?? 0,
+  );
 
-            if (response && response.totalCount !== undefined) {
-              this.totalRecords = response.totalCount;
-            }
-          },
-          error: (error) => {
-            this.isLoading = false;
-            this.toastService.handleApiError(error);
-          },
-        }),
-    );
+  private readonly isActionLoading = signal<boolean>(false);
+  protected readonly isLoading = computed(
+    () => this.employeesResource.isLoading() || this.isActionLoading(),
+  );
 
-    this.loadLazy.next(this.lastLazyEvent);
+  protected loadEmployees(event: TableLazyLoadEvent): void {
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? 5);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  protected onSearch(value: string): void {
+    this.searchTerm.set(value);
+    this.first.set(0);
   }
 
-  loadEmployees(event: any): void {
-    this.lastLazyEvent = event;
-    this.loadLazy.next(event);
-  }
-
-  onSearch(value: string): void {
-    this.searchTerm = value;
-    this.loadEmployees({ first: 0, rows: this.lastLazyEvent.rows });
-  }
-
-  openForm(mode: FormMode, employee?: Employee): void {
+  protected openForm(mode: FormMode, employee?: Employee): void {
     this.formMode = mode;
     this.selectedEmployee = employee;
     this.displayDrawer = true;
   }
 
-  generatePdfReport(): void {
+  protected generatePdfReport(): void {
     this.toastService.showInfo(
       'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
     );
   }
 
-  async saveEmployee(formValue: Employee): Promise<void> {
-    this.isLoading = true;
+  protected async saveEmployee(formValue: Employee): Promise<void> {
+    this.isActionLoading.set(true);
     const operation$ =
       this.formMode === FormMode.Create
         ? this.employeeService.createEmployee(formValue)
@@ -142,16 +117,16 @@ export class EmployeeContainerComponent implements OnInit, OnDestroy {
       const response = await firstValueFrom(operation$);
       if (response) {
         this.displayDrawer = false;
-        this.loadLazy.next(this.lastLazyEvent);
+        this.refreshList();
       }
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async changeStatusEmployee(employee: Employee): Promise<void> {
+  protected async changeStatusEmployee(employee: Employee): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
@@ -165,7 +140,7 @@ export class EmployeeContainerComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
-    this.isLoading = true;
+    this.isActionLoading.set(true);
     const alteredEmployee = { ...employee, isActive: isActivating };
 
     try {
@@ -175,11 +150,15 @@ export class EmployeeContainerComponent implements OnInit, OnDestroy {
 
       const successMessage = `Funcionário ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);
-      this.loadLazy.next(this.lastLazyEvent);
+      this.refreshList();
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
+  }
+
+  private refreshList(): void {
+    this.refreshTrigger.update((n) => n + 1);
   }
 }
