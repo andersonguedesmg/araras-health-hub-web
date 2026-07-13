@@ -9,6 +9,7 @@ import { ApiConfigService } from '../../shared/services/api-config.service';
 import {
   ROLE_LABEL_MAPPING,
   SCOPE_LABEL_MAPPING,
+  UserRoles,
   UserScopes,
 } from '../constants/auth.constants';
 import {
@@ -26,9 +27,29 @@ export class AuthService {
   private readonly router = inject(Router);
 
   readonly currentUser = signal<AccountInfo | null>(this.loadUserInfo());
+
   readonly isLoggedIn = computed(
     () => this.currentUser() !== null && !this.isTokenExpired(),
   );
+
+  readonly hasManagementPermission = computed<boolean>(() => {
+    const user = this.currentUser();
+    if (!user) {
+      return false;
+    }
+
+    const isMasterOrAdmin =
+      user.role === 'Master' ||
+      user.role === 'Admin' ||
+      user.role === UserRoles.MASTER.toString() ||
+      user.role === UserRoles.ADMIN.toString();
+
+    const hasManagementScope =
+      user.scope === 'Management' ||
+      user.scope === UserScopes.MANAGEMENT.toString();
+
+    return isMasterOrAdmin && hasManagementScope;
+  });
 
   login(credentials: LoginRequest): Observable<BaseApiResponse<Account>> {
     const url = this.apiConfig.getUrl('accounts/login');
