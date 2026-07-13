@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { BreadcrumbComponent } from '../../../shared/components/breadcrumb/breadcrumb.component';
@@ -9,8 +9,12 @@ import { BreadcrumbComponent } from '../../../shared/components/breadcrumb/bread
   imports: [RouterModule, ButtonModule, BreadcrumbComponent],
   templateUrl: './unauthorized.component.html',
   styleUrl: './unauthorized.component.scss',
-  encapsulation: ViewEncapsulation.None,
+  host: {
+    class: 'block w-full h-full overflow-hidden',
+  },
 })
 export class UnauthorizedComponent {
-  readonly itemsBreadcrumb = [{ label: 'Acesso Restrito', routerLink: '/403' }];
+  readonly itemsBreadcrumb = signal([
+    { label: 'Acesso Restrito', routerLink: '/403' },
+  ]);
 }
