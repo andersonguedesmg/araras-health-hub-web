@@ -91,7 +91,7 @@
           [value]="getStatus(employee.isActive)"
           [severity]="getSeverity(employee.isActive)"
           styleClass="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase border shadow-3xs"
-          [ngClass]="
+          [class]="
             employee.isActive
               ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-400'
               : 'bg-red-50 dark:bg-red-950/30 border-red-200/60 dark:border-red-800/30 text-red-700 dark:text-red-400'
