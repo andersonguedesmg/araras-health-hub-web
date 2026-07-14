@@ -1,7 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
@@ -12,11 +11,8 @@ import { MainCategory } from '../interfaces/main-category';
   providedIn: 'root',
 })
 export class MainCategoryService {
-  private http = inject(HttpClient);
-  private apiConfig = inject(ApiConfigService);
-  private mainCategoriesSignal = signal<MainCategory[]>([]);
-
-  public mainCategories = this.mainCategoriesSignal.asReadonly();
+  private readonly http = inject(HttpClient);
+  private readonly apiConfig = inject(ApiConfigService);
 
   public loadMainCategories(
     pageNumber: number,
@@ -29,29 +25,14 @@ export class MainCategoryService {
       .set('pageSize', pageSize.toString())
       .set('searchTerm', searchTerm);
 
-    return this.http.get<ApiResponse<MainCategory[]>>(url, { params }).pipe(
-      tap((response) => {
-        if (response && response.data) {
-          this.mainCategoriesSignal.set(response.data);
-        }
-      }),
-    );
+    return this.http.get<ApiResponse<MainCategory[]>>(url, { params });
   }
 
   public createMainCategory(
     mainCategory: MainCategory,
   ): Observable<ApiResponse<MainCategory>> {
     const url = this.apiConfig.getUrl('main-categories');
-    return this.http.post<ApiResponse<MainCategory>>(url, mainCategory).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.mainCategoriesSignal.update((current) => [
-            response.data!,
-            ...current,
-          ]);
-        }
-      }),
-    );
+    return this.http.post<ApiResponse<MainCategory>>(url, mainCategory);
   }
 
   public getMainCategoryById(
@@ -66,17 +47,7 @@ export class MainCategoryService {
     mainCategoryId: number,
   ): Observable<ApiResponse<MainCategory>> {
     const url = this.apiConfig.getUrl(`main-categories/${mainCategoryId}`);
-    return this.http.put<ApiResponse<MainCategory>>(url, mainCategory).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.mainCategoriesSignal.update((current) =>
-            current.map((item) =>
-              item.id === mainCategoryId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.put<ApiResponse<MainCategory>>(url, mainCategory);
   }
 
   public changeStatusMainCategory(
@@ -88,17 +59,7 @@ export class MainCategoryService {
       `main-categories/${mainCategoryId}/${action}`,
     );
 
-    return this.http.patch<ApiResponse<MainCategory>>(url, {}).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.mainCategoriesSignal.update((current) =>
-            current.map((item) =>
-              item.id === mainCategoryId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.patch<ApiResponse<MainCategory>>(url, {});
   }
 
   public getMainCategoryOptions(): Observable<SelectOptions<number>[]> {
@@ -107,7 +68,7 @@ export class MainCategoryService {
       map((response) => {
         return (
           response?.data?.map((item) => ({
-            label: item.name,
+            label: item.label,
             value: item.id,
           })) || []
         );

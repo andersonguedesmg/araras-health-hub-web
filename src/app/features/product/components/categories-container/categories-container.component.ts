@@ -1,20 +1,9 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  viewChild,
-  ViewEncapsulation,
-} from '@angular/core';
+// src/app/features/categories/components/categories-container/categories-container.component.ts
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { TableLazyLoadEvent } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
-import {
-  debounceTime,
-  firstValueFrom,
-  Subject,
-  Subscription,
-  switchMap,
-} from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -34,7 +23,6 @@ import { SubCategoryTableComponent } from '../sub-category-table/sub-category-ta
   selector: 'app-categories-container',
   standalone: true,
   imports: [
-    CommonModule,
     TabsModule,
     MainCategoryTableComponent,
     MainCategoryDrawerFormComponent,
@@ -45,157 +33,149 @@ import { SubCategoryTableComponent } from '../sub-category-table/sub-category-ta
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './categories-container.component.html',
   styleUrl: './categories-container.component.scss',
 })
-export class CategoriesContainerComponent implements OnInit, OnDestroy {
+export class CategoriesContainerComponent {
   private readonly mainCategoryService = inject(MainCategoryService);
   private readonly subCategoryService = inject(SubCategoryService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly mainCategories = this.mainCategoryService.mainCategories;
-  protected readonly subCategories = this.subCategoryService.subCategories;
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  readonly FormMode = FormMode;
-  readonly title = 'Categorias';
-  readonly description =
+  protected readonly FormMode = FormMode;
+  protected readonly title = 'Categorias';
+  protected readonly description =
     'Cadastro e controle da categoria e subcategoria para a organização atômica dos itens do catálogo de produto.';
 
-  readonly itemsBreadcrumb = [
+  protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
     { label: 'Produtos', routerLink: '/administracao/produtos' },
     { label: 'Categorias', routerLink: '/administracao/produtos/categorias' },
-  ];
+  ]);
 
-  activeTab: string = 'main';
-  formMode: FormMode = FormMode.Create;
-  isLoading = false;
+  protected readonly activeTab = signal<string>('main');
+  protected formMode: FormMode = FormMode.Create;
 
-  displayMainDrawer = false;
-  selectedMainCategory?: MainCategory;
-  totalRecordsMain = 0;
-  rowsMain = 5;
-  firstMain = 0;
-  private searchTermMain = '';
-  private readonly loadLazyMain = new Subject<any>();
-  private lastLazyEventMain = { first: 0, rows: 5 };
+  // Estados Reativos do Fluxo de Categoria Principal
+  protected readonly displayMainDrawer = signal<boolean>(false);
+  protected selectedMainCategory?: MainCategory;
+  protected readonly firstMain = signal<number>(0);
+  protected readonly rowsMain = signal<number>(5);
+  protected readonly searchTermMain = signal<string>('');
+  private readonly refreshTriggerMain = signal<number>(0);
 
-  displaySubDrawer = false;
-  selectedSubCategory?: SubCategory;
-  totalRecordsSub = 0;
-  rowsSub = 5;
-  firstSub = 0;
-  private searchTermSub = '';
-  private readonly loadLazySub = new Subject<any>();
-  private lastLazyEventSub = { first: 0, rows: 5 };
+  // Estados Reativos do Fluxo de Subcategoria
+  protected readonly displaySubDrawer = signal<boolean>(false);
+  protected selectedSubCategory?: SubCategory;
+  protected readonly firstSub = signal<number>(0);
+  protected readonly rowsSub = signal<number>(5);
+  protected readonly searchTermSub = signal<string>('');
+  private readonly refreshTriggerSub = signal<number>(0);
 
-  private readonly subscriptions = new Subscription();
+  // Estados Reativos de Ações Paralelas
+  private readonly isActionLoading = signal<boolean>(false);
 
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.loadLazyMain
-        .pipe(
-          debounceTime(300),
-          switchMap((event) => {
-            this.isLoading = true;
-            this.firstMain = event.first;
-            this.rowsMain = event.rows;
-            const page = event.first / event.rows + 1;
-            return this.mainCategoryService.loadMainCategories(
-              page,
-              event.rows,
-              this.searchTermMain,
-            );
-          }),
-        )
-        .subscribe({
-          next: (response) => {
-            this.isLoading = false;
-            if (response && response.totalCount !== undefined) {
-              this.totalRecordsMain = response.totalCount;
-            }
-          },
-          error: (err) => {
-            this.isLoading = false;
-            this.toastService.handleApiError(err);
-          },
-        }),
+  // Computed QueryParams para Categoria Principal
+  private readonly queryParamsMain = computed(() => ({
+    page: Math.floor(this.firstMain() / this.rowsMain()) + 1,
+    rows: this.rowsMain(),
+    searchTerm: this.searchTermMain(),
+    refresh: this.refreshTriggerMain(),
+  }));
+
+  // Computed QueryParams para Subcategoria
+  private readonly queryParamsSub = computed(() => ({
+    page: Math.floor(this.firstSub() / this.rowsSub()) + 1,
+    rows: this.rowsSub(),
+    searchTerm: this.searchTermSub(),
+    refresh: this.refreshTriggerSub(),
+  }));
+
+  // rxResource declarativo para Categoria Principal
+  private readonly mainCategoriesResource = rxResource({
+    request: () => this.queryParamsMain(),
+    loader: ({ request }) => {
+      return this.mainCategoryService.loadMainCategories(
+        request.page,
+        request.rows,
+        request.searchTerm,
+      );
+    },
+  });
+
+  // rxResource declarativo para Subcategoria
+  private readonly subCategoriesResource = rxResource({
+    request: () => this.queryParamsSub(),
+    loader: ({ request }) => {
+      return this.subCategoryService.loadSubCategories(
+        request.page,
+        request.rows,
+        request.searchTerm,
+      );
+    },
+  });
+
+  // Signals derivados de dados para o Template
+  protected readonly mainCategories = computed(
+    () => this.mainCategoriesResource.value()?.data ?? [],
+  );
+  protected readonly totalRecordsMain = computed(
+    () => this.mainCategoriesResource.value()?.totalCount ?? 0,
+  );
+
+  protected readonly subCategories = computed(
+    () => this.subCategoriesResource.value()?.data ?? [],
+  );
+  protected readonly totalRecordsSub = computed(
+    () => this.subCategoriesResource.value()?.totalCount ?? 0,
+  );
+
+  // Signal Unificado de Carregamento
+  protected readonly isLoading = computed(() => {
+    return (
+      this.mainCategoriesResource.isLoading() ||
+      this.subCategoriesResource.isLoading() ||
+      this.isActionLoading()
     );
+  });
 
-    this.subscriptions.add(
-      this.loadLazySub
-        .pipe(
-          debounceTime(300),
-          switchMap((event) => {
-            this.isLoading = true;
-            this.firstSub = event.first;
-            this.rowsSub = event.rows;
-            const page = event.first / event.rows + 1;
-            return this.subCategoryService.loadSubCategories(
-              page,
-              event.rows,
-              this.searchTermSub,
-            );
-          }),
-        )
-        .subscribe({
-          next: (response) => {
-            this.isLoading = false;
-            if (response && response.totalCount !== undefined) {
-              this.totalRecordsSub = response.totalCount;
-            }
-          },
-          error: (err) => {
-            this.isLoading = false;
-            this.toastService.handleApiError(err);
-          },
-        }),
-    );
-
-    this.loadLazyMain.next(this.lastLazyEventMain);
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
-
-  onTabChange(tab: string | unknown): void {
+  protected onTabChange(tab: string | unknown): void {
     const tabString = tab as string;
-    this.activeTab = tabString;
+    this.activeTab.set(tabString);
     if (tabString === 'main') {
-      this.loadMainCategories(this.lastLazyEventMain);
+      this.refreshMainList();
     } else {
-      this.loadSubCategories(this.lastLazyEventSub);
+      this.refreshSubList();
     }
   }
 
-  loadMainCategories(event: any): void {
-    this.lastLazyEventMain = event;
-    this.loadLazyMain.next(event);
+  // Ações de Categoria Principal
+  protected loadMainCategories(event: TableLazyLoadEvent): void {
+    this.firstMain.set(event.first ?? 0);
+    this.rowsMain.set(event.rows ?? 5);
   }
 
-  onSearchMain(value: string): void {
-    this.searchTermMain = value;
-    this.loadMainCategories({ first: 0, rows: this.lastLazyEventMain.rows });
+  protected onSearchMain(value: string): void {
+    this.searchTermMain.set(value);
+    this.firstMain.set(0);
   }
 
-  openMainForm(mode: FormMode, category?: MainCategory): void {
+  protected openMainForm(mode: FormMode, category?: MainCategory): void {
     this.formMode = mode;
     this.selectedMainCategory = category;
-    this.displayMainDrawer = true;
+    this.displayMainDrawer.set(true);
   }
 
-  generateMainCategoryPdfReport(): void {
+  protected generateMainCategoryPdfReport(): void {
     this.toastService.showInfo(
       'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
     );
   }
 
-  async saveMainCategory(formValue: MainCategory): Promise<void> {
-    this.isLoading = true;
+  protected async saveMainCategory(formValue: MainCategory): Promise<void> {
+    this.isActionLoading.set(true);
     const op$ =
       this.formMode === FormMode.Create
         ? this.mainCategoryService.createMainCategory(formValue)
@@ -204,17 +184,19 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     try {
       const response = await firstValueFrom(op$);
       if (response) {
-        this.displayMainDrawer = false;
-        this.loadLazyMain.next(this.lastLazyEventMain);
+        this.displayMainDrawer.set(false);
+        this.refreshMainList();
       }
     } catch (err) {
       this.toastService.handleApiError(err);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async changeStatusMainCategory(category: MainCategory): Promise<void> {
+  protected async changeStatusMainCategory(
+    category: MainCategory,
+  ): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
@@ -228,7 +210,7 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
-    this.isLoading = true;
+    this.isActionLoading.set(true);
     try {
       await firstValueFrom(
         this.mainCategoryService.changeStatusMainCategory(category.id, {
@@ -239,38 +221,39 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
       this.toastService.showSuccess(
         `Categoria ${isActivating ? 'ativada' : 'desativada'} com sucesso!`,
       );
-      this.loadLazyMain.next(this.lastLazyEventMain);
+      this.refreshMainList();
     } catch (err) {
       this.toastService.handleApiError(err);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  loadSubCategories(event: any): void {
-    this.lastLazyEventSub = event;
-    this.loadLazySub.next(event);
+  // Ações de Subcategoria
+  protected loadSubCategories(event: TableLazyLoadEvent): void {
+    this.firstSub.set(event.first ?? 0);
+    this.rowsSub.set(event.rows ?? 5);
   }
 
-  onSearchSub(value: string): void {
-    this.searchTermSub = value;
-    this.loadSubCategories({ first: 0, rows: this.lastLazyEventSub.rows });
+  protected onSearchSub(value: string): void {
+    this.searchTermSub.set(value);
+    this.firstSub.set(0);
   }
 
-  openSubForm(mode: FormMode, subCategory?: SubCategory): void {
+  protected openSubForm(mode: FormMode, subCategory?: SubCategory): void {
     this.formMode = mode;
     this.selectedSubCategory = subCategory;
-    this.displaySubDrawer = true;
+    this.displaySubDrawer.set(true);
   }
 
-  generateSubCategoryPdfReport(): void {
+  protected generateSubCategoryPdfReport(): void {
     this.toastService.showInfo(
       'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
     );
   }
 
-  async saveSubCategory(formValue: SubCategory): Promise<void> {
-    this.isLoading = true;
+  protected async saveSubCategory(formValue: SubCategory): Promise<void> {
+    this.isActionLoading.set(true);
     const op$ =
       this.formMode === FormMode.Create
         ? this.subCategoryService.createSubCategory(formValue)
@@ -279,17 +262,19 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     try {
       const response = await firstValueFrom(op$);
       if (response) {
-        this.displaySubDrawer = false;
-        this.loadLazySub.next(this.lastLazyEventSub);
+        this.displaySubDrawer.set(false);
+        this.refreshSubList();
       }
     } catch (err) {
       this.toastService.handleApiError(err);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async changeStatusSubCategory(subCategory: SubCategory): Promise<void> {
+  protected async changeStatusSubCategory(
+    subCategory: SubCategory,
+  ): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
@@ -303,7 +288,7 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
-    this.isLoading = true;
+    this.isActionLoading.set(true);
     try {
       await firstValueFrom(
         this.subCategoryService.changeStatusSubCategory(subCategory.id, {
@@ -314,11 +299,19 @@ export class CategoriesContainerComponent implements OnInit, OnDestroy {
       this.toastService.showSuccess(
         `Subcategoria ${isActivating ? 'ativada' : 'desativada'} com sucesso!`,
       );
-      this.loadLazySub.next(this.lastLazyEventSub);
+      this.refreshSubList();
     } catch (err) {
       this.toastService.handleApiError(err);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
+  }
+
+  private refreshMainList(): void {
+    this.refreshTriggerMain.update((n) => n + 1);
+  }
+
+  private refreshSubList(): void {
+    this.refreshTriggerSub.update((n) => n + 1);
   }
 }

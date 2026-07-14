@@ -1,5 +1,6 @@
-<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
-<app-spinner [loading]="isLoading"></app-spinner>
+<!-- src/app/features/categories/components/categories-container/categories-container.component.html -->
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb()"></app-breadcrumb>
+<app-spinner [loading]="isLoading()"></app-spinner>
 
 <app-confirm-dialog
   #confirmDialog
@@ -16,9 +17,9 @@
   ></app-page-header>
 
   <div
-    class="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/60 rounded-xl p-4 shadow-3xs"
+    class="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/60 rounded-xl p-4 shadow-sm"
   >
-    <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
       <p-tablist>
         <p-tab value="main">
           <i class="pi pi-tags mr-2"></i> Categorias Principais
@@ -32,10 +33,10 @@
         <p-tabpanel value="main">
           <app-main-category-table
             [value]="mainCategories()"
-            [totalRecords]="totalRecordsMain"
-            [rows]="rowsMain"
-            [first]="firstMain"
-            [loading]="isLoading"
+            [totalRecords]="totalRecordsMain()"
+            [rows]="rowsMain()"
+            [first]="firstMain()"
+            [loading]="isLoading()"
             (onLazyLoad)="loadMainCategories($event)"
             (onSearch)="onSearchMain($event)"
             (onAdd)="openMainForm(FormMode.Create)"
@@ -49,10 +50,10 @@
         <p-tabpanel value="sub">
           <app-sub-category-table
             [value]="subCategories()"
-            [totalRecords]="totalRecordsSub"
-            [rows]="rowsSub"
-            [first]="firstSub"
-            [loading]="isLoading"
+            [totalRecords]="totalRecordsSub()"
+            [rows]="rowsSub()"
+            [first]="firstSub()"
+            [loading]="isLoading()"
             (onLazyLoad)="loadSubCategories($event)"
             (onSearch)="onSearchSub($event)"
             (onAdd)="openSubForm(FormMode.Create)"
