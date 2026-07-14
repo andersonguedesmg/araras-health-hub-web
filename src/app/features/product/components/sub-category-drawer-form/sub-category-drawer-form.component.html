@@ -4,14 +4,15 @@
   [position]="'right'"
   [size]="'md'"
 >
-  <div
-    *ngIf="isGlobalLoading()"
-    class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full"
-  >
+  @if (isGlobalLoading()) {
     <div
-      class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"
-    ></div>
-  </div>
+      class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full"
+    >
+      <div
+        class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"
+      ></div>
+    </div>
+  }
 
   <form
     [formGroup]="subCategoryForm"
@@ -30,7 +31,7 @@
       <hr class="border-zinc-100 dark:border-zinc-800" />
 
       <div class="grid grid-cols-1 gap-4">
-        <ng-container *ngIf="formMode() !== FormMode.Create">
+        @if (formMode() !== FormMode.Create) {
           <div>
             <label class="block text-xs font-semibold text-zinc-500 mb-1"
               >ID</label
@@ -39,7 +40,7 @@
               pInputText
               type="text"
               formControlName="id"
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium cursor-not-allowed shadow-inner"
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
             />
           </div>
 
@@ -52,39 +53,44 @@
               type="text"
               [value]="statusLabel()"
               disabled
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium cursor-not-allowed shadow-inner"
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
             />
           </div>
-        </ng-container>
+        }
 
         <div>
           <label
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Nome
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="name"
             maxlength="150"
-            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                subCategoryForm.get('name')?.invalid &&
-                subCategoryForm.get('name')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                subCategoryForm.get('name')?.invalid &&
-                subCategoryForm.get('name')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(formSubmitted() && subCategoryForm.get('name')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && subCategoryForm.get('name')?.invalid)
+            "
+            [class.border-red-500]="
+              formSubmitted() && subCategoryForm.get('name')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && subCategoryForm.get('name')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && subCategoryForm.get('name')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && subCategoryForm.get('name')?.invalid
+            "
           />
         </div>
 
@@ -93,9 +99,9 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Categoria Principal Vinculada
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <p-select
             [options]="mainCategoryOptions()"
@@ -103,16 +109,22 @@
             optionLabel="label"
             optionValue="value"
             placeholder="Selecione a categoria principal"
-            class="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg focus-within:border-primary"
-            [ngClass]="{
-              'border-red-500':
-                subCategoryForm.get('mainCategoryId')?.invalid &&
-                subCategoryForm.get('mainCategoryId')?.touched,
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg focus-within:border-primary"
+            [class.border-zinc-300]="
+              !(
+                formSubmitted() &&
+                subCategoryForm.get('mainCategoryId')?.invalid
+              )
+            "
+            [class.dark:border-zinc-700]="
+              !(
+                formSubmitted() &&
+                subCategoryForm.get('mainCategoryId')?.invalid
+              )
+            "
+            [class.border-red-500]="
+              formSubmitted() && subCategoryForm.get('mainCategoryId')?.invalid
+            "
           ></p-select>
         </div>
       </div>
@@ -121,21 +133,33 @@
 
   <ng-container footer>
     <p-button
-      label="Cancelar"
-      icon="pi pi-ban"
+      label="Voltar"
+      icon="pi pi-arrow-left"
       severity="secondary"
       [outlined]="true"
       [disabled]="isGlobalLoading()"
-      (click)="visible.set(false)"
+      (onClick)="visible.set(false)"
     />
-    <p-button
-      *ngIf="!isReadOnly()"
-      label="Salvar"
-      icon="pi pi-check-circle"
-      severity="primary"
-      [disabled]="isGlobalLoading()"
-      (click)="submitForm()"
-    />
+
+    @if (!isReadOnly()) {
+      <p-button
+        label="Limpar"
+        icon="pi pi-refresh"
+        severity="help"
+        [outlined]="true"
+        [disabled]="isGlobalLoading()"
+        (onClick)="clearForm()"
+        class="ml-auto"
+      />
+
+      <p-button
+        label="Salvar"
+        icon="pi pi-check-circle"
+        severity="success"
+        [disabled]="isGlobalLoading()"
+        (onClick)="submitForm()"
+      />
+    }
   </ng-container>
 </app-drawer>
 

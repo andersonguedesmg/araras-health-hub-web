@@ -1,7 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
@@ -12,11 +11,8 @@ import { SubCategory } from '../interfaces/sub-category';
   providedIn: 'root',
 })
 export class SubCategoryService {
-  private http = inject(HttpClient);
-  private apiConfig = inject(ApiConfigService);
-  private subCategoriesSignal = signal<SubCategory[]>([]);
-
-  public subCategories = this.subCategoriesSignal.asReadonly();
+  private readonly http = inject(HttpClient);
+  private readonly apiConfig = inject(ApiConfigService);
 
   public loadSubCategories(
     pageNumber: number,
@@ -29,29 +25,14 @@ export class SubCategoryService {
       .set('pageSize', pageSize.toString())
       .set('searchTerm', searchTerm);
 
-    return this.http.get<ApiResponse<SubCategory[]>>(url, { params }).pipe(
-      tap((response) => {
-        if (response && response.data) {
-          this.subCategoriesSignal.set(response.data);
-        }
-      }),
-    );
+    return this.http.get<ApiResponse<SubCategory[]>>(url, { params });
   }
 
   public createSubCategory(
     subCategory: SubCategory,
   ): Observable<ApiResponse<SubCategory>> {
     const url = this.apiConfig.getUrl('subcategories');
-    return this.http.post<ApiResponse<SubCategory>>(url, subCategory).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.subCategoriesSignal.update((current) => [
-            response.data!,
-            ...current,
-          ]);
-        }
-      }),
-    );
+    return this.http.post<ApiResponse<SubCategory>>(url, subCategory);
   }
 
   public getSubCategoryById(
@@ -66,17 +47,7 @@ export class SubCategoryService {
     subCategoryId: number,
   ): Observable<ApiResponse<SubCategory>> {
     const url = this.apiConfig.getUrl(`subcategories/${subCategoryId}`);
-    return this.http.put<ApiResponse<SubCategory>>(url, subCategory).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.subCategoriesSignal.update((current) =>
-            current.map((item) =>
-              item.id === subCategoryId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.put<ApiResponse<SubCategory>>(url, subCategory);
   }
 
   public changeStatusSubCategory(
@@ -88,17 +59,7 @@ export class SubCategoryService {
       `subcategories/${subCategoryId}/${action}`,
     );
 
-    return this.http.patch<ApiResponse<SubCategory>>(url, {}).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.subCategoriesSignal.update((current) =>
-            current.map((item) =>
-              item.id === subCategoryId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.patch<ApiResponse<SubCategory>>(url, {});
   }
 
   public getSubCategoryOptions(): Observable<SelectOptions<number>[]> {
@@ -107,7 +68,7 @@ export class SubCategoryService {
       map((response) => {
         return (
           response?.data?.map((item) => ({
-            label: item.name,
+            label: item.label,
             value: item.id,
           })) || []
         );

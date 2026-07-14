@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -9,7 +8,6 @@ import {
   output,
   signal,
   viewChild,
-  ViewEncapsulation,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -26,6 +24,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { SelectOptions } from '../../../../shared/interfaces/select-options';
+import { ToastService } from '../../../../shared/services/toast.service';
 import { SubCategory } from '../../interfaces/sub-category';
 import { MainCategoryService } from '../../services/main-category.service';
 
@@ -33,7 +32,6 @@ import { MainCategoryService } from '../../services/main-category.service';
   selector: 'app-sub-category-drawer-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
@@ -41,7 +39,6 @@ import { MainCategoryService } from '../../services/main-category.service';
     DrawerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './sub-category-drawer-form.component.html',
   styleUrl: './sub-category-drawer-form.component.scss',
 })
@@ -49,29 +46,31 @@ export class SubCategoryDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
   private readonly mainCategoryService = inject(MainCategoryService);
+  private readonly toastService = inject(ToastService);
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  visible = model<boolean>(false);
-  formMode = input<FormMode>(FormMode.Create);
-  subCategoryData = input<SubCategory | undefined>(undefined);
-  onSave = output<SubCategory>();
+  readonly visible = model<boolean>(false);
+  readonly formMode = input<FormMode>(FormMode.Create);
+  readonly subCategoryData = input<SubCategory | undefined>(undefined);
+  readonly onSave = output<SubCategory>();
 
-  FormMode = FormMode;
-  subCategoryForm: FormGroup;
+  protected readonly FormMode = FormMode;
+  protected readonly subCategoryForm: FormGroup;
 
-  isOptionsLoading = signal<boolean>(false);
-  isGlobalLoading = computed(() => this.isOptionsLoading());
+  protected readonly isOptionsLoading = signal<boolean>(false);
+  protected readonly isGlobalLoading = computed(() => this.isOptionsLoading());
+  protected readonly formSubmitted = signal<boolean>(false);
 
-  mainCategoryOptions = signal<SelectOptions<number>[]>([]);
-  protected statusLabel = signal<string>('Ativo');
+  protected readonly mainCategoryOptions = signal<SelectOptions<number>[]>([]);
+  protected readonly statusLabel = signal<string>('Ativo');
 
-  private readonly formLabels: { [key: string]: string } = {
+  private readonly formLabels: Record<string, string> = {
     name: 'Nome',
     mainCategoryId: 'Categoria Principal Vinculada',
   };
 
-  headerText = computed(() => {
+  protected readonly headerText = computed(() => {
     switch (this.formMode()) {
       case FormMode.Create:
         return 'Nova Subcategoria';
@@ -79,7 +78,19 @@ export class SubCategoryDrawerFormComponent {
         return 'Editar Subcategoria';
       case FormMode.Detail:
         return 'Detalhes da Subcategoria';
+      default:
+        return 'Subcategoria';
     }
+  });
+
+  protected readonly isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.subCategoryData();
+
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
   });
 
   constructor() {
@@ -118,6 +129,7 @@ export class SubCategoryDrawerFormComponent {
     mode: FormMode,
   ): void {
     this.subCategoryForm.reset();
+    this.formSubmitted.set(false);
 
     if (currentData) {
       this.subCategoryForm.patchValue(currentData);
@@ -142,17 +154,30 @@ export class SubCategoryDrawerFormComponent {
     }
   }
 
-  protected isReadOnly = computed(() => {
-    const mode = this.formMode();
+  protected clearForm(): void {
+    this.formSubmitted.set(false);
+    this.toastService.clearAll();
+
     const data = this.subCategoryData();
+    const mode = this.formMode();
 
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
-  });
+    if (mode === FormMode.Update && data) {
+      this.subCategoryForm.patchValue({
+        id: data.id,
+        name: '',
+        mainCategoryId: null,
+        isActive: data.isActive,
+      });
+    } else {
+      this.subCategoryForm.reset();
+      this.subCategoryForm.get('isActive')?.setValue(true);
+      this.statusLabel.set('Ativo');
+    }
+  }
 
-  async submitForm(): Promise<void> {
+  protected async submitForm(): Promise<void> {
+    this.formSubmitted.set(true);
+
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.subCategoryForm,
       this.formLabels,
