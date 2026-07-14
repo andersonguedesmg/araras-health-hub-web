@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -9,7 +8,6 @@ import {
   output,
   signal,
   viewChild,
-  ViewEncapsulation,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -24,44 +22,44 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
+import { ToastService } from '../../../../shared/services/toast.service';
 import { PackagingType } from '../../interfaces/packaging-type';
 
 @Component({
   selector: 'app-packaging-type-drawer-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
     DrawerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './packaging-type-drawer-form.component.html',
   styleUrl: './packaging-type-drawer-form.component.scss',
 })
 export class PackagingTypeDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
+  private readonly toastService = inject(ToastService);
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  visible = model<boolean>(false);
-  formMode = input<FormMode>(FormMode.Create);
-  packagingTypeData = input<PackagingType | undefined>(undefined);
-  onSave = output<PackagingType>();
+  readonly visible = model<boolean>(false);
+  readonly formMode = input<FormMode>(FormMode.Create);
+  readonly packagingTypeData = input<PackagingType | undefined>(undefined);
+  readonly onSave = output<PackagingType>();
 
-  FormMode = FormMode;
-  packagingTypeForm: FormGroup;
+  protected readonly FormMode = FormMode;
+  protected readonly packagingTypeForm: FormGroup;
+  protected readonly statusLabel = signal<string>('Ativo');
+  protected readonly formSubmitted = signal<boolean>(false);
 
-  protected statusLabel = signal<string>('Ativo');
-
-  private readonly formLabels: { [key: string]: string } = {
+  private readonly formLabels: Record<string, string> = {
     name: 'Nome',
   };
 
-  headerText = computed(() => {
+  protected readonly headerText = computed(() => {
     switch (this.formMode()) {
       case FormMode.Create:
         return 'Novo Tipo de Embalagem';
@@ -69,7 +67,19 @@ export class PackagingTypeDrawerFormComponent {
         return 'Editar Tipo de Embalagem';
       case FormMode.Detail:
         return 'Detalhes do Tipo de Embalagem';
+      default:
+        return 'Tipo de Embalagem';
     }
+  });
+
+  protected readonly isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.packagingTypeData();
+
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
   });
 
   constructor() {
@@ -85,7 +95,7 @@ export class PackagingTypeDrawerFormComponent {
       const mode = this.formMode();
 
       if (isVisible) {
-        setTimeout(() => this.syncFormState(data, mode), 0);
+        this.syncFormState(data, mode);
       }
     });
   }
@@ -95,6 +105,7 @@ export class PackagingTypeDrawerFormComponent {
     mode: FormMode,
   ): void {
     this.packagingTypeForm.reset();
+    this.formSubmitted.set(false);
 
     if (currentData) {
       this.packagingTypeForm.patchValue(currentData);
@@ -119,17 +130,28 @@ export class PackagingTypeDrawerFormComponent {
     }
   }
 
-  protected isReadOnly = computed(() => {
-    const mode = this.formMode();
+  clearForm(): void {
+    this.formSubmitted.set(false);
+    this.toastService.clearAll();
     const data = this.packagingTypeData();
+    const mode = this.formMode();
 
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
-  });
+    if (mode === FormMode.Update && data) {
+      this.packagingTypeForm.patchValue({
+        id: data.id,
+        name: '',
+        isActive: data.isActive,
+      });
+    } else {
+      this.packagingTypeForm.reset();
+      this.packagingTypeForm.get('isActive')?.setValue(true);
+      this.statusLabel.set('Ativo');
+    }
+  }
 
   async submitForm(): Promise<void> {
+    this.formSubmitted.set(true);
+
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.packagingTypeForm,
       this.formLabels,

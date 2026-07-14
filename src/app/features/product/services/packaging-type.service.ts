@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { map, Observable, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
@@ -11,11 +11,8 @@ import { PackagingType } from '../interfaces/packaging-type';
   providedIn: 'root',
 })
 export class PackagingTypeService {
-  private http = inject(HttpClient);
-  private apiConfig = inject(ApiConfigService);
-  private packagingTypesSignal = signal<PackagingType[]>([]);
-
-  public packagingTypes = this.packagingTypesSignal.asReadonly();
+  private readonly http = inject(HttpClient);
+  private readonly apiConfig = inject(ApiConfigService);
 
   public loadPackagingTypes(
     pageNumber: number,
@@ -28,29 +25,14 @@ export class PackagingTypeService {
       .set('pageSize', pageSize.toString())
       .set('searchTerm', searchTerm);
 
-    return this.http.get<ApiResponse<PackagingType[]>>(url, { params }).pipe(
-      tap((response) => {
-        if (response && response.data) {
-          this.packagingTypesSignal.set(response.data);
-        }
-      }),
-    );
+    return this.http.get<ApiResponse<PackagingType[]>>(url, { params });
   }
 
   public createPackagingType(
     packagingType: PackagingType,
   ): Observable<ApiResponse<PackagingType>> {
     const url = this.apiConfig.getUrl('packaging-types');
-    return this.http.post<ApiResponse<PackagingType>>(url, packagingType).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.packagingTypesSignal.update((current) => [
-            response.data!,
-            ...current,
-          ]);
-        }
-      }),
-    );
+    return this.http.post<ApiResponse<PackagingType>>(url, packagingType);
   }
 
   public getPackagingTypeById(
@@ -65,17 +47,7 @@ export class PackagingTypeService {
     packagingTypeId: number,
   ): Observable<ApiResponse<PackagingType>> {
     const url = this.apiConfig.getUrl(`packaging-types/${packagingTypeId}`);
-    return this.http.put<ApiResponse<PackagingType>>(url, packagingType).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.packagingTypesSignal.update((current) =>
-            current.map((item) =>
-              item.id === packagingTypeId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.put<ApiResponse<PackagingType>>(url, packagingType);
   }
 
   public changeStatusPackagingType(
@@ -86,18 +58,7 @@ export class PackagingTypeService {
     const url = this.apiConfig.getUrl(
       `packaging-types/${packagingTypeId}/${action}`,
     );
-
-    return this.http.patch<ApiResponse<PackagingType>>(url, {}).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.packagingTypesSignal.update((current) =>
-            current.map((item) =>
-              item.id === packagingTypeId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.patch<ApiResponse<PackagingType>>(url, {});
   }
 
   public getPackagingTypeOptions(): Observable<SelectOptions<number>[]> {

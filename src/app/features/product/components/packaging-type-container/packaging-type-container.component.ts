@@ -1,14 +1,7 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation,
-  inject,
-  viewChild,
-} from '@angular/core';
-import { Subject, Subscription, firstValueFrom } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { firstValueFrom } from 'rxjs';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -24,7 +17,6 @@ import { PackagingTypeTableComponent } from '../packaging-type-table/packaging-t
   selector: 'app-packaging-type-container',
   standalone: true,
   imports: [
-    CommonModule,
     PackagingTypeTableComponent,
     PackagingTypeDrawerFormComponent,
     BreadcrumbComponent,
@@ -32,107 +24,90 @@ import { PackagingTypeTableComponent } from '../packaging-type-table/packaging-t
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './packaging-type-container.component.html',
   styleUrl: './packaging-type-container.component.scss',
 })
-export class PackagingTypeContainerComponent implements OnInit, OnDestroy {
+export class PackagingTypeContainerComponent {
   private readonly packagingTypeService = inject(PackagingTypeService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly packagingTypes = this.packagingTypeService.packagingTypes;
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  readonly FormMode = FormMode;
-  readonly title = 'Tipos de Embalagem';
-  readonly description =
+  protected readonly FormMode = FormMode;
+  protected readonly title = 'Tipos de Embalagem';
+  protected readonly description =
     'Cadastro e controle de tipos de embalagens para os insumos da rede municipal de saúde.';
 
-  readonly itemsBreadcrumb = [
-    { label: 'Catálogo', routerLink: '/catalogo' },
+  protected readonly itemsBreadcrumb = signal([
+    { label: 'Catálogo de Produto', routerLink: '/catalogo' },
     { label: 'Tipos de Embalagem', routerLink: '/catalogo/embalagens' },
-  ];
+  ]);
 
-  selectedPackagingType?: PackagingType;
-  formMode: FormMode = FormMode.Create;
+  protected selectedPackagingType?: PackagingType;
+  protected formMode: FormMode = FormMode.Create;
+  protected displayDrawer = false;
 
-  displayDrawer = false;
-  isLoading = false;
-  totalRecords = 0;
-  rows = 5;
-  first = 0;
+  protected readonly first = signal<number>(0);
+  protected readonly rows = signal<number>(5);
+  protected readonly searchTerm = signal<string>('');
 
-  private searchTerm = '';
-  private readonly loadLazy = new Subject<any>();
-  private lastLazyEvent = { first: 0, rows: 5 };
-  private readonly subscriptions = new Subscription();
+  private readonly refreshTrigger = signal<number>(0);
 
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.loadLazy
-        .pipe(
-          debounceTime(300),
-          switchMap((event) => {
-            this.isLoading = true;
+  private readonly queryParams = computed(() => ({
+    page: Math.floor(this.first() / this.rows()) + 1,
+    rows: this.rows(),
+    searchTerm: this.searchTerm(),
+    refresh: this.refreshTrigger(),
+  }));
 
-            this.first = event.first;
-            this.rows = event.rows;
+  private readonly packagingTypesResource = rxResource({
+    request: () => this.queryParams(),
+    loader: ({ request }) => {
+      return this.packagingTypeService.loadPackagingTypes(
+        request.page,
+        request.rows,
+        request.searchTerm,
+      );
+    },
+  });
 
-            const page = event.first / event.rows + 1;
-            return this.packagingTypeService.loadPackagingTypes(
-              page,
-              event.rows,
-              this.searchTerm,
-            );
-          }),
-        )
-        .subscribe({
-          next: (response) => {
-            this.isLoading = false;
+  protected readonly packagingTypes = computed(
+    () => this.packagingTypesResource.value()?.data ?? [],
+  );
+  protected readonly totalRecords = computed(
+    () => this.packagingTypesResource.value()?.totalCount ?? 0,
+  );
 
-            if (response && response.totalCount !== undefined) {
-              this.totalRecords = response.totalCount;
-            }
-          },
-          error: (error) => {
-            this.isLoading = false;
-            this.toastService.handleApiError(error);
-          },
-        }),
-    );
+  private readonly isActionLoading = signal<boolean>(false);
+  protected readonly isLoading = computed(
+    () => this.packagingTypesResource.isLoading() || this.isActionLoading(),
+  );
 
-    this.loadLazy.next(this.lastLazyEvent);
+  protected loadPackagingTypes(event: TableLazyLoadEvent): void {
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? 5);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  protected onSearch(value: string): void {
+    this.searchTerm.set(value);
+    this.first.set(0);
   }
 
-  loadPackagingTypes(event: any): void {
-    this.lastLazyEvent = event;
-    this.loadLazy.next(event);
-  }
-
-  onSearch(value: string): void {
-    this.searchTerm = value;
-    this.loadPackagingTypes({ first: 0, rows: this.lastLazyEvent.rows });
-  }
-
-  openForm(mode: FormMode, packagingType?: PackagingType): void {
+  protected openForm(mode: FormMode, packagingType?: PackagingType): void {
     this.formMode = mode;
     this.selectedPackagingType = packagingType;
     this.displayDrawer = true;
   }
 
-  generatePdfReport(): void {
+  protected generatePdfReport(): void {
     this.toastService.showInfo(
       'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
     );
   }
 
-  async savePackagingType(formValue: PackagingType): Promise<void> {
-    this.isLoading = true;
+  protected async savePackagingType(formValue: PackagingType): Promise<void> {
+    this.isActionLoading.set(true);
     const operation$ =
       this.formMode === FormMode.Create
         ? this.packagingTypeService.createPackagingType(formValue)
@@ -145,16 +120,18 @@ export class PackagingTypeContainerComponent implements OnInit, OnDestroy {
       const response = await firstValueFrom(operation$);
       if (response) {
         this.displayDrawer = false;
-        this.loadLazy.next(this.lastLazyEvent);
+        this.refreshList();
       }
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async changeStatusPackagingType(packagingType: PackagingType): Promise<void> {
+  protected async changeStatusPackagingType(
+    packagingType: PackagingType,
+  ): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
@@ -168,7 +145,7 @@ export class PackagingTypeContainerComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
-    this.isLoading = true;
+    this.isActionLoading.set(true);
     const alteredType = { ...packagingType, isActive: isActivating };
 
     try {
@@ -181,11 +158,15 @@ export class PackagingTypeContainerComponent implements OnInit, OnDestroy {
 
       const successMessage = `Tipo de embalagem ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);
-      this.loadLazy.next(this.lastLazyEvent);
+      this.refreshList();
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
+  }
+
+  private refreshList(): void {
+    this.refreshTrigger.update((n) => n + 1);
   }
 }
