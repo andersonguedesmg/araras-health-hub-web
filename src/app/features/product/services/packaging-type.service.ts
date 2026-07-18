@@ -61,16 +61,35 @@ export class PackagingTypeService {
     return this.http.patch<ApiResponse<PackagingType>>(url, {});
   }
 
-  public getPackagingTypeOptions(): Observable<SelectOptions<number>[]> {
+  public getPackagingTypePagedOptions(
+    pageNumber: number,
+    pageSize: number,
+    searchTerm: string = '',
+    isActive?: boolean,
+  ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('packaging-types/dropdown');
-    return this.http.get<ApiResponse<ApiDropdownItem[]>>(url).pipe(
+
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+
+    if (isActive !== undefined) {
+      params = params.set('isActive', isActive.toString());
+    }
+
+    return this.http.get<ApiResponse<ApiDropdownItem[]>>(url, { params }).pipe(
       map((response) => {
-        return (
+        const mappedData: SelectOptions<number>[] =
           response?.data?.map((item) => ({
-            label: item.name,
+            label: item.label,
             value: item.id,
-          })) || []
-        );
+          })) || [];
+
+        return {
+          ...response,
+          data: mappedData,
+        };
       }),
     );
   }
