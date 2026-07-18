@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
@@ -96,19 +96,36 @@ export class SupplierService {
     );
   }
 
-  public getSupplierOptions(): Observable<SelectOptions<number>[]> {
+  public getSupplierPagedOptions(
+    pageNumber: number,
+    pageSize: number,
+    searchTerm: string = '',
+    isActive?: boolean,
+  ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('suppliers/dropdown');
-    return this.http.get<ApiResponse<ApiDropdownItem[]>>(url).pipe(
-      tap({
-        next: (response) => {
-          return (
-            response?.data?.map((item) => ({
-              label: item.name,
-              value: item.id,
-            })) || []
-          );
-        },
+
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString())
+      .set('searchTerm', searchTerm);
+
+    if (isActive !== undefined) {
+      params = params.set('isActive', isActive.toString());
+    }
+
+    return this.http.get<ApiResponse<ApiDropdownItem[]>>(url, { params }).pipe(
+      map((response) => {
+        const mappedData: SelectOptions<number>[] =
+          response?.data?.map((item) => ({
+            label: item.label,
+            value: item.id,
+          })) || [];
+
+        return {
+          ...response,
+          data: mappedData,
+        };
       }),
-    ) as unknown as Observable<SelectOptions<number>[]>;
+    );
   }
 }
