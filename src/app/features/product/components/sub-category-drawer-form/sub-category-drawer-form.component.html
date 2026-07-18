@@ -125,7 +125,20 @@
             [class.border-red-500]="
               formSubmitted() && subCategoryForm.get('mainCategoryId')?.invalid
             "
-          ></p-select>
+            [virtualScroll]="true"
+            [virtualScrollItemSize]="38"
+            [lazy]="true"
+            (onLazyLoad)="onDropdownLazyLoad($event)"
+            [filter]="true"
+            (onFilter)="onDropdownFilter($event)"
+            [loading]="isOptionsLoading()"
+          >
+            <ng-template pTemplate="empty">
+              <span class="p-4 text-xs text-zinc-500 block"
+                >Nenhuma categoria encontrada</span
+              >
+            </ng-template>
+          </p-select>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import {
   inject,
   input,
   model,
+  OnDestroy,
   output,
   signal,
   viewChild,
@@ -17,8 +18,14 @@ import {
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { firstValueFrom } from 'rxjs';
+import { SelectLazyLoadEvent, SelectModule } from 'primeng/select';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  firstValueFrom,
+  Subject,
+  Subscription,
+} from 'rxjs';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
@@ -42,7 +49,7 @@ import { MainCategoryService } from '../../services/main-category.service';
   templateUrl: './sub-category-drawer-form.component.html',
   styleUrl: './sub-category-drawer-form.component.scss',
 })
-export class SubCategoryDrawerFormComponent {
+export class SubCategoryDrawerFormComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
   private readonly mainCategoryService = inject(MainCategoryService);
@@ -64,6 +71,16 @@ export class SubCategoryDrawerFormComponent {
 
   protected readonly mainCategoryOptions = signal<SelectOptions<number>[]>([]);
   protected readonly statusLabel = signal<string>('Ativo');
+
+  private currentDropdownPage = 1;
+  private readonly dropdownPageSize = 10;
+  private dropdownSearchTerm = '';
+  private hasNextDropdownPage = true;
+  private isRequestInProgress = false;
+  private isInitializing = false;
+
+  private readonly filterSubject = new Subject<string>();
+  private filterSubscription?: Subscription;
 
   private readonly formLabels: Record<string, string> = {
     name: 'Nome',
@@ -101,27 +118,215 @@ export class SubCategoryDrawerFormComponent {
       isActive: [{ value: true, disabled: true }],
     });
 
+    this.registerFilterDebounce();
+
     effect(() => {
       const isVisible = this.visible();
       const data = this.subCategoryData();
       const mode = this.formMode();
 
       if (isVisible) {
-        this.loadMainCategoryOptions();
-        setTimeout(() => this.syncFormState(data, mode), 0);
+        this.initializeDropdownAndForm(data, mode);
+      } else {
+        this.isInitializing = false;
       }
     });
   }
 
-  private loadMainCategoryOptions(): void {
+  ngOnDestroy(): void {
+    this.filterSubscription?.unsubscribe();
+  }
+
+  private registerFilterDebounce(): void {
+    this.filterSubscription = this.filterSubject
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe((searchTerm) => {
+        this.dropdownSearchTerm = searchTerm;
+        this.resetAndReloadDropdown();
+      });
+  }
+
+  private async initializeDropdownAndForm(
+    data: SubCategory | undefined,
+    mode: FormMode,
+  ): Promise<void> {
+    if (this.isInitializing) return;
+    this.isInitializing = true;
+
+    this.currentDropdownPage = 1;
+    this.hasNextDropdownPage = true;
+    this.isRequestInProgress = false;
+    this.mainCategoryOptions.set([]);
+
+    if (data?.mainCategoryId) {
+      await this.ensureSelectedValueIsLoaded(data.mainCategoryId);
+    }
+
+    await this.loadFirstPageComplement();
+
+    this.syncFormState(data, mode);
+  }
+
+  private async resetAndReloadDropdown(): Promise<void> {
+    this.currentDropdownPage = 1;
+    this.hasNextDropdownPage = true;
+    this.isRequestInProgress = false;
+
+    const selectedId = this.subCategoryForm.get('mainCategoryId')?.value;
+    const currentOptions = this.mainCategoryOptions();
+    const selectedOption = currentOptions.find(
+      (opt) => opt.value === selectedId,
+    );
+
+    this.mainCategoryOptions.set(selectedOption ? [selectedOption] : []);
+    await this.loadNextDropdownPage();
+  }
+
+  private loadFirstPageComplement(): Promise<void> {
+    if (this.isRequestInProgress) return Promise.resolve();
+
+    this.isRequestInProgress = true;
     this.isOptionsLoading.set(true);
-    this.mainCategoryService.getMainCategoryOptions().subscribe({
-      next: (options) => {
-        this.mainCategoryOptions.set(options);
-        this.isOptionsLoading.set(false);
-      },
-      error: () => this.isOptionsLoading.set(false),
+
+    const filterActive = this.formMode() === FormMode.Detail ? undefined : true;
+
+    return new Promise((resolve) => {
+      this.mainCategoryService
+        .getMainCategoryPagedOptions(
+          1,
+          this.dropdownPageSize,
+          this.dropdownSearchTerm,
+          filterActive,
+        )
+        .subscribe({
+          next: (response) => {
+            const incomingOptions = response.data || [];
+
+            this.hasNextDropdownPage =
+              response.hasNextPage ??
+              incomingOptions.length === this.dropdownPageSize;
+
+            this.mainCategoryOptions.update((existing) => {
+              const existingIds = new Set(existing.map((item) => item.value));
+              const filteredNew = incomingOptions.filter(
+                (item) => !existingIds.has(item.value),
+              );
+              return [...existing, ...filteredNew];
+            });
+
+            this.currentDropdownPage = 2;
+            this.isRequestInProgress = false;
+            this.isOptionsLoading.set(false);
+            resolve();
+          },
+          error: () => {
+            this.isRequestInProgress = false;
+            this.isOptionsLoading.set(false);
+            resolve();
+          },
+        });
     });
+  }
+
+  private loadNextDropdownPage(): Promise<void> {
+    if (this.isRequestInProgress || !this.hasNextDropdownPage) {
+      return Promise.resolve();
+    }
+
+    this.isRequestInProgress = true;
+    this.isOptionsLoading.set(true);
+
+    const filterActive = this.formMode() === FormMode.Detail ? undefined : true;
+
+    return new Promise((resolve) => {
+      this.mainCategoryService
+        .getMainCategoryPagedOptions(
+          this.currentDropdownPage,
+          this.dropdownPageSize,
+          this.dropdownSearchTerm,
+          filterActive,
+        )
+        .subscribe({
+          next: (response) => {
+            const incomingOptions = response.data || [];
+
+            this.hasNextDropdownPage =
+              response.hasNextPage ??
+              incomingOptions.length === this.dropdownPageSize;
+
+            this.mainCategoryOptions.update((existing) => {
+              const existingIds = new Set(existing.map((item) => item.value));
+              const filteredNew = incomingOptions.filter(
+                (item) => !existingIds.has(item.value),
+              );
+              return [...existing, ...filteredNew];
+            });
+
+            this.currentDropdownPage++;
+            this.isRequestInProgress = false;
+            this.isOptionsLoading.set(false);
+            resolve();
+          },
+          error: () => {
+            this.isRequestInProgress = false;
+            this.isOptionsLoading.set(false);
+            resolve();
+          },
+        });
+    });
+  }
+
+  private ensureSelectedValueIsLoaded(selectedId: number): Promise<void> {
+    const alreadyLoaded = this.mainCategoryOptions().some(
+      (item) => item.value === selectedId,
+    );
+
+    if (alreadyLoaded) {
+      return Promise.resolve();
+    }
+
+    this.isOptionsLoading.set(true);
+
+    return new Promise((resolve) => {
+      this.mainCategoryService.getMainCategoryById(selectedId).subscribe({
+        next: (response) => {
+          if (response && response.data) {
+            const matchedItem: SelectOptions<number> = {
+              label: response.data.name,
+              value: response.data.id,
+            };
+
+            this.mainCategoryOptions.set([matchedItem]);
+          }
+          this.isOptionsLoading.set(false);
+          resolve();
+        },
+        error: () => {
+          this.isOptionsLoading.set(false);
+          resolve();
+        },
+      });
+    });
+  }
+
+  protected onDropdownLazyLoad(event: SelectLazyLoadEvent): void {
+    if (
+      this.isRequestInProgress ||
+      !this.hasNextDropdownPage ||
+      this.isOptionsLoading()
+    )
+      return;
+
+    const lastLoadedIndex = event.last ?? 0;
+    const currentListLength = this.mainCategoryOptions().length;
+
+    if (lastLoadedIndex >= currentListLength - 3 || currentListLength === 0) {
+      this.loadNextDropdownPage();
+    }
+  }
+
+  protected onDropdownFilter(event: { filter: string }): void {
+    this.filterSubject.next(event.filter || '');
   }
 
   private syncFormState(
