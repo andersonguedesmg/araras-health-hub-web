@@ -1,4 +1,3 @@
-// src/app/features/categories/components/categories-container/categories-container.component.ts
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -58,7 +57,6 @@ export class CategoriesContainerComponent {
   protected readonly activeTab = signal<string>('main');
   protected formMode: FormMode = FormMode.Create;
 
-  // Estados Reativos do Fluxo de Categoria Principal
   protected readonly displayMainDrawer = signal<boolean>(false);
   protected selectedMainCategory?: MainCategory;
   protected readonly firstMain = signal<number>(0);
@@ -66,7 +64,6 @@ export class CategoriesContainerComponent {
   protected readonly searchTermMain = signal<string>('');
   private readonly refreshTriggerMain = signal<number>(0);
 
-  // Estados Reativos do Fluxo de Subcategoria
   protected readonly displaySubDrawer = signal<boolean>(false);
   protected selectedSubCategory?: SubCategory;
   protected readonly firstSub = signal<number>(0);
@@ -74,10 +71,8 @@ export class CategoriesContainerComponent {
   protected readonly searchTermSub = signal<string>('');
   private readonly refreshTriggerSub = signal<number>(0);
 
-  // Estados Reativos de Ações Paralelas
   private readonly isActionLoading = signal<boolean>(false);
 
-  // Computed QueryParams para Categoria Principal
   private readonly queryParamsMain = computed(() => ({
     page: Math.floor(this.firstMain() / this.rowsMain()) + 1,
     rows: this.rowsMain(),
@@ -85,7 +80,6 @@ export class CategoriesContainerComponent {
     refresh: this.refreshTriggerMain(),
   }));
 
-  // Computed QueryParams para Subcategoria
   private readonly queryParamsSub = computed(() => ({
     page: Math.floor(this.firstSub() / this.rowsSub()) + 1,
     rows: this.rowsSub(),
@@ -93,7 +87,6 @@ export class CategoriesContainerComponent {
     refresh: this.refreshTriggerSub(),
   }));
 
-  // rxResource declarativo para Categoria Principal
   private readonly mainCategoriesResource = rxResource({
     request: () => this.queryParamsMain(),
     loader: ({ request }) => {
@@ -105,7 +98,6 @@ export class CategoriesContainerComponent {
     },
   });
 
-  // rxResource declarativo para Subcategoria
   private readonly subCategoriesResource = rxResource({
     request: () => this.queryParamsSub(),
     loader: ({ request }) => {
@@ -117,7 +109,6 @@ export class CategoriesContainerComponent {
     },
   });
 
-  // Signals derivados de dados para o Template
   protected readonly mainCategories = computed(
     () => this.mainCategoriesResource.value()?.data ?? [],
   );
@@ -132,7 +123,6 @@ export class CategoriesContainerComponent {
     () => this.subCategoriesResource.value()?.totalCount ?? 0,
   );
 
-  // Signal Unificado de Carregamento
   protected readonly isLoading = computed(() => {
     return (
       this.mainCategoriesResource.isLoading() ||
@@ -151,7 +141,6 @@ export class CategoriesContainerComponent {
     }
   }
 
-  // Ações de Categoria Principal
   protected loadMainCategories(event: TableLazyLoadEvent): void {
     this.firstMain.set(event.first ?? 0);
     this.rowsMain.set(event.rows ?? 5);
@@ -229,7 +218,6 @@ export class CategoriesContainerComponent {
     }
   }
 
-  // Ações de Subcategoria
   protected loadSubCategories(event: TableLazyLoadEvent): void {
     this.firstSub.set(event.first ?? 0);
     this.rowsSub.set(event.rows ?? 5);
