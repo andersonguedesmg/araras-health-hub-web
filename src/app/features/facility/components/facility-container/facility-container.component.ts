@@ -1,20 +1,7 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-  viewChild,
-  ViewEncapsulation,
-} from '@angular/core';
-import {
-  debounceTime,
-  firstValueFrom,
-  Subject,
-  Subscription,
-  switchMap,
-} from 'rxjs';
-
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { firstValueFrom } from 'rxjs';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -30,7 +17,6 @@ import { FacilityTableComponent } from '../facility-table/facility-table.compone
   selector: 'app-facility-container',
   standalone: true,
   imports: [
-    CommonModule,
     FacilityTableComponent,
     FacilityDrawerFormComponent,
     BreadcrumbComponent,
@@ -38,107 +24,91 @@ import { FacilityTableComponent } from '../facility-table/facility-table.compone
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './facility-container.component.html',
   styleUrl: './facility-container.component.scss',
 })
-export class FacilityContainerComponent implements OnInit, OnDestroy {
+export class FacilityContainerComponent {
   private readonly facilityService = inject(FacilityService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly facilities = this.facilityService.facilities;
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  readonly FormMode = FormMode;
-  readonly title = 'Unidades de Saúde';
-  readonly description =
+  protected readonly FormMode = FormMode;
+  protected readonly title = 'Unidades de Saúde';
+  protected readonly description =
     'Gestão e controle dos estabelecimentos da rede municipal de saúde.';
 
-  readonly itemsBreadcrumb = [
+  protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
     { label: 'Unidades de Saúde', routerLink: '/administracao/unidades' },
-  ];
+  ]);
 
-  selectedFacility?: Facility;
-  formMode: FormMode = FormMode.Create;
+  protected selectedFacility?: Facility;
+  protected formMode: FormMode = FormMode.Create;
+  protected displayDrawer = false;
 
-  displayDrawer = false;
-  isLoading = false;
-  totalRecords = 0;
-  rows = 5;
-  first = 0;
+  protected readonly first = signal<number>(0);
+  protected readonly rows = signal<number>(5);
+  protected readonly searchTerm = signal<string>('');
 
-  private searchTerm = '';
-  private readonly loadLazy = new Subject<any>();
-  private lastLazyEvent = { first: 0, rows: 5 };
-  private readonly subscriptions = new Subscription();
+  private readonly refreshTrigger = signal<number>(0);
 
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.loadLazy
-        .pipe(
-          debounceTime(300),
-          switchMap((event) => {
-            this.isLoading = true;
+  private readonly queryParams = computed(() => ({
+    page: Math.floor(this.first() / this.rows()) + 1,
+    rows: this.rows(),
+    searchTerm: this.searchTerm(),
+    refresh: this.refreshTrigger(),
+  }));
 
-            this.first = event.first;
-            this.rows = event.rows;
+  private readonly facilitiesResource = rxResource({
+    request: () => this.queryParams(),
+    loader: ({ request }) => {
+      return this.facilityService.loadFacilities(
+        request.page,
+        request.rows,
+        request.searchTerm,
+      );
+    },
+  });
 
-            const page = event.first / event.rows + 1;
-            return this.facilityService.loadFacilities(
-              page,
-              event.rows,
-              this.searchTerm,
-            );
-          }),
-        )
-        .subscribe({
-          next: (response) => {
-            this.isLoading = false;
+  protected readonly facilities = computed(
+    () => this.facilitiesResource.value()?.data ?? [],
+  );
 
-            if (response && response.totalCount !== undefined) {
-              this.totalRecords = response.totalCount;
-            }
-          },
-          error: (error) => {
-            this.isLoading = false;
-            this.toastService.handleApiError(error);
-          },
-        }),
-    );
+  protected readonly totalRecords = computed(
+    () => this.facilitiesResource.value()?.totalCount ?? 0,
+  );
 
-    this.loadLazy.next(this.lastLazyEvent);
+  private readonly isActionLoading = signal<boolean>(false);
+  protected readonly isLoading = computed(
+    () => this.facilitiesResource.isLoading() || this.isActionLoading(),
+  );
+
+  protected loadFacilities(event: TableLazyLoadEvent): void {
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? 5);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  protected onSearch(value: string): void {
+    this.searchTerm.set(value);
+    this.first.set(0);
   }
 
-  loadFacilities(event: any): void {
-    this.lastLazyEvent = event;
-    this.loadLazy.next(event);
-  }
-
-  onSearch(value: string): void {
-    this.searchTerm = value;
-    this.loadFacilities({ first: 0, rows: this.lastLazyEvent.rows });
-  }
-
-  openForm(mode: FormMode, facility?: Facility): void {
+  protected openForm(mode: FormMode, facility?: Facility): void {
     this.formMode = mode;
     this.selectedFacility = facility;
     this.displayDrawer = true;
   }
 
-  generatePdfReport(): void {
+  protected generatePdfReport(): void {
     this.toastService.showInfo(
       'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
     );
   }
 
-  async saveFacility(formValue: Facility): Promise<void> {
-    this.isLoading = true;
+  protected async saveFacility(formValue: Facility): Promise<void> {
+    this.isActionLoading.set(true);
     const operation$ =
       this.formMode === FormMode.Create
         ? this.facilityService.createFacility(formValue)
@@ -148,16 +118,16 @@ export class FacilityContainerComponent implements OnInit, OnDestroy {
       const response = await firstValueFrom(operation$);
       if (response) {
         this.displayDrawer = false;
-        this.loadLazy.next(this.lastLazyEvent);
+        this.refreshList();
       }
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async changeStatusFacility(facility: Facility): Promise<void> {
+  protected async changeStatusFacility(facility: Facility): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
@@ -171,7 +141,7 @@ export class FacilityContainerComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
-    this.isLoading = true;
+    this.isActionLoading.set(true);
     const alteredFacility = { ...facility, isActive: isActivating };
 
     try {
@@ -181,11 +151,15 @@ export class FacilityContainerComponent implements OnInit, OnDestroy {
 
       const successMessage = `Unidade de saúde ${isActivating ? 'ativada' : 'desativada'} com sucesso!`;
       this.toastService.showSuccess(successMessage);
-      this.loadLazy.next(this.lastLazyEvent);
+      this.refreshList();
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
+  }
+
+  private refreshList(): void {
+    this.refreshTrigger.update((n) => n + 1);
   }
 }

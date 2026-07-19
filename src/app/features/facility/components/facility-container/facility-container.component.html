@@ -1,5 +1,5 @@
-<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb"></app-breadcrumb>
-<app-spinner [loading]="isLoading"></app-spinner>
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb()"></app-breadcrumb>
+<app-spinner [loading]="isLoading()"></app-spinner>
 
 <app-confirm-dialog
   #confirmDialog
@@ -10,15 +10,17 @@
 ></app-confirm-dialog>
 
 <div class="p-6 max-w-7xl mx-auto space-y-6">
-  <app-page-header [title]="title" [description]="description">
-  </app-page-header>
+  <app-page-header
+    [title]="title"
+    [description]="description"
+  ></app-page-header>
 
   <app-facility-table
     [value]="facilities()"
-    [totalRecords]="totalRecords"
-    [rows]="rows"
-    [first]="first"
-    [loading]="isLoading"
+    [totalRecords]="totalRecords()"
+    [rows]="rows()"
+    [first]="first()"
+    [loading]="isLoading()"
     (onLazyLoad)="loadFacilities($event)"
     (onSearch)="onSearch($event)"
     (onAdd)="openForm(FormMode.Create)"

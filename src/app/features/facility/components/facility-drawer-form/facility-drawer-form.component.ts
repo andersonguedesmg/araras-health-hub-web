@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -33,7 +32,6 @@ import { Facility } from '../../interfaces/facility';
   selector: 'app-facility-drawer-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
@@ -48,7 +46,7 @@ import { Facility } from '../../interfaces/facility';
 export class FacilityDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
-  protected readonly cepService = inject(CepService);
+  private readonly cepService = inject(CepService);
   private readonly toastService = inject(ToastService);
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
@@ -60,11 +58,15 @@ export class FacilityDrawerFormComponent {
 
   FormMode = FormMode;
   facilityForm: FormGroup;
+  isCepValidating = signal<boolean>(false);
+  formSubmitted = signal<boolean>(false);
+  statusLabel = signal<string>('Ativo');
 
-  isGlobalLoading = computed(() => this.cepService.isLoading());
-  protected statusLabel = signal<string>('Ativo');
+  isGlobalLoading = computed(
+    () => this.isCepValidating() || this.cepService.isLoading(),
+  );
 
-  private readonly formLabels: { [key: string]: string } = {
+  private readonly formLabels: Record<string, string> = {
     name: 'Nome',
     cnes: 'CNES',
     'address.cep': 'CEP',
@@ -84,8 +86,19 @@ export class FacilityDrawerFormComponent {
       case FormMode.Update:
         return 'Editar Unidade de Saúde';
       case FormMode.Detail:
-        return 'Detalhes da Unidade';
+        return 'Detalhes da Unidade de Saúde';
+      default:
+        return 'Unidade de Saúde';
     }
+  });
+
+  isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.facilityData();
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
   });
 
   constructor() {
@@ -101,7 +114,7 @@ export class FacilityDrawerFormComponent {
         complement: [''],
         neighborhood: ['', Validators.required],
         city: ['', Validators.required],
-        state: ['', Validators.required],
+        state: ['', [Validators.required, Validators.maxLength(2)]],
       }),
       contact: this.fb.group({
         email: ['', [Validators.required, Validators.email]],
@@ -115,7 +128,7 @@ export class FacilityDrawerFormComponent {
       const mode = this.formMode();
 
       if (isVisible) {
-        setTimeout(() => this.syncFormState(data, mode), 0);
+        this.syncFormState(data, mode);
       }
     });
   }
@@ -125,6 +138,7 @@ export class FacilityDrawerFormComponent {
     mode: FormMode,
   ): void {
     this.facilityForm.reset();
+    this.formSubmitted.set(false);
 
     if (currentData) {
       this.facilityForm.patchValue(currentData);
@@ -149,28 +163,69 @@ export class FacilityDrawerFormComponent {
     }
   }
 
-  protected isReadOnly = computed(() => {
-    const mode = this.formMode();
-    const data = this.facilityData();
-
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
-  });
-
   async searchCep(): Promise<void> {
     const addressGroup = this.facilityForm.get('address') as FormGroup;
+    const cepControl = addressGroup.get('cep');
+
+    if (!cepControl?.value || cepControl.invalid) {
+      if (cepControl?.value && cepControl.invalid) {
+        this.toastService.showError('O número de CEP informado é inválido.');
+      }
+      return;
+    }
+
     const success = await this.cepService.fillAddressByCep(
       addressGroup,
       this.toastService,
     );
+
     if (success) {
-      setTimeout(() => document.getElementById('number')?.focus(), 50);
+      setTimeout(() => {
+        const numberInput =
+          document.getElementsByName('number')[0] ||
+          document.getElementById('number');
+        numberInput?.focus();
+      }, 50);
+    }
+  }
+
+  clearForm(): void {
+    this.formSubmitted.set(false);
+    this.toastService.clearAll();
+
+    const data = this.facilityData();
+    const mode = this.formMode();
+
+    if (mode === FormMode.Update && data) {
+      this.facilityForm.patchValue({
+        id: data.id,
+        name: '',
+        cnes: '',
+        isActive: data.isActive,
+        address: {
+          cep: '',
+          street: '',
+          number: '',
+          complement: '',
+          neighborhood: '',
+          city: '',
+          state: '',
+        },
+        contact: {
+          email: '',
+          phone: '',
+        },
+      });
+    } else {
+      this.facilityForm.reset();
+      this.facilityForm.get('isActive')?.setValue(true);
+      this.statusLabel.set('Ativo');
     }
   }
 
   async submitForm(): Promise<void> {
+    this.formSubmitted.set(true);
+
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.facilityForm,
       this.formLabels,
@@ -191,7 +246,6 @@ export class FacilityDrawerFormComponent {
     const msg = isCreate
       ? 'Deseja realmente cadastrar esta nova unidade de saúde?'
       : 'Deseja salvar as alterações feitas no registro desta unidade de saúde?';
-
     const confirmed = await firstValueFrom(dialog.show(msg, title));
 
     if (confirmed) {

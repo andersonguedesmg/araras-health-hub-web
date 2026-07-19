@@ -4,14 +4,15 @@
   [position]="'right'"
   [size]="'xl'"
 >
-  <div
-    *ngIf="isGlobalLoading()"
-    class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full"
-  >
+  @if (isGlobalLoading()) {
     <div
-      class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"
-    ></div>
-  </div>
+      class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full"
+    >
+      <div
+        class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"
+      ></div>
+    </div>
+  }
 
   <form
     [formGroup]="facilityForm"
@@ -30,7 +31,7 @@
       <hr class="border-zinc-100 dark:border-zinc-800" />
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <ng-container *ngIf="formMode() !== FormMode.Create">
+        @if (formMode() !== FormMode.Create) {
           <div>
             <label class="block text-xs font-semibold text-zinc-500 mb-1"
               >ID</label
@@ -39,7 +40,7 @@
               pInputText
               type="text"
               formControlName="id"
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium cursor-not-allowed shadow-inner"
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
             />
           </div>
 
@@ -52,39 +53,44 @@
               type="text"
               [value]="statusLabel()"
               disabled
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium cursor-not-allowed shadow-inner"
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
             />
           </div>
-        </ng-container>
+        }
 
         <div class="sm:col-span-2">
           <label
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Nome da Unidade
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="name"
             maxlength="150"
-            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('name')?.invalid &&
-                facilityForm.get('name')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('name')?.invalid &&
-                facilityForm.get('name')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(formSubmitted() && facilityForm.get('name')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && facilityForm.get('name')?.invalid)
+            "
+            [class.border-red-500]="
+              formSubmitted() && facilityForm.get('name')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && facilityForm.get('name')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && facilityForm.get('name')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && facilityForm.get('name')?.invalid
+            "
           />
         </div>
 
@@ -93,29 +99,34 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             CNES
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="cnes"
             maxlength="50"
-            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('cnes')?.invalid &&
-                facilityForm.get('cnes')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('cnes')?.invalid &&
-                facilityForm.get('cnes')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(formSubmitted() && facilityForm.get('cnes')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && facilityForm.get('cnes')?.invalid)
+            "
+            [class.border-red-500]="
+              formSubmitted() && facilityForm.get('cnes')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && facilityForm.get('cnes')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && facilityForm.get('cnes')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && facilityForm.get('cnes')?.invalid
+            "
           />
         </div>
       </div>
@@ -138,28 +149,20 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             CEP
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <p-inputmask
             mask="99999-999"
             formControlName="cep"
-            styleClass="w-full"
             (onBlur)="searchCep()"
-            [ngClass]="{
-              'border-red-500':
-                facilityForm.get('address.cep')?.invalid &&
-                facilityForm.get('address.cep')?.touched,
-              'border-zinc-300 dark:border-zinc-700': !(
-                facilityForm.get('address.cep')?.invalid &&
-                facilityForm.get('address.cep')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            [styleClass]="
+              'w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner ' +
+              (formSubmitted() && facilityForm.get('address.cep')?.invalid
+                ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500 ring-1 ring-red-500'
+                : 'border-zinc-300 dark:border-zinc-700')
+            "
           />
         </div>
 
@@ -168,28 +171,33 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Endereço (Logradouro)
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="street"
-            class="w-full border rounded-lg p-2 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('address.street')?.invalid &&
-                facilityForm.get('address.street')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('address.street')?.invalid &&
-                facilityForm.get('address.street')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(formSubmitted() && facilityForm.get('address.street')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && facilityForm.get('address.street')?.invalid)
+            "
+            [class.border-red-500]="
+              formSubmitted() && facilityForm.get('address.street')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && facilityForm.get('address.street')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && facilityForm.get('address.street')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && facilityForm.get('address.street')?.invalid
+            "
           />
         </div>
 
@@ -198,29 +206,33 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Número
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
-            id="number"
             type="text"
             formControlName="number"
-            class="w-full border rounded-lg p-2 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('address.number')?.invalid &&
-                facilityForm.get('address.number')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('address.number')?.invalid &&
-                facilityForm.get('address.number')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(formSubmitted() && facilityForm.get('address.number')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && facilityForm.get('address.number')?.invalid)
+            "
+            [class.border-red-500]="
+              formSubmitted() && facilityForm.get('address.number')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && facilityForm.get('address.number')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && facilityForm.get('address.number')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && facilityForm.get('address.number')?.invalid
+            "
           />
         </div>
 
@@ -233,14 +245,7 @@
             pInputText
             type="text"
             formControlName="complement"
-            class="w-full border rounded-lg p-2 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': true,
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
           />
         </div>
 
@@ -249,28 +254,43 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Bairro
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="neighborhood"
-            class="w-full border rounded-lg p-2 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('address.neighborhood')?.invalid &&
-                facilityForm.get('address.neighborhood')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('address.neighborhood')?.invalid &&
-                facilityForm.get('address.neighborhood')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(
+                formSubmitted() &&
+                facilityForm.get('address.neighborhood')?.invalid
+              )
+            "
+            [class.dark:border-zinc-700]="
+              !(
+                formSubmitted() &&
+                facilityForm.get('address.neighborhood')?.invalid
+              )
+            "
+            [class.border-red-500]="
+              formSubmitted() &&
+              facilityForm.get('address.neighborhood')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() &&
+              facilityForm.get('address.neighborhood')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() &&
+              facilityForm.get('address.neighborhood')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() &&
+              facilityForm.get('address.neighborhood')?.invalid
+            "
           />
         </div>
 
@@ -279,28 +299,33 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Cidade
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="city"
-            class="w-full border rounded-lg p-2 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('address.city')?.invalid &&
-                facilityForm.get('address.city')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('address.city')?.invalid &&
-                facilityForm.get('address.city')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(formSubmitted() && facilityForm.get('address.city')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && facilityForm.get('address.city')?.invalid)
+            "
+            [class.border-red-500]="
+              formSubmitted() && facilityForm.get('address.city')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && facilityForm.get('address.city')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && facilityForm.get('address.city')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && facilityForm.get('address.city')?.invalid
+            "
           />
         </div>
 
@@ -309,29 +334,34 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             UF
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="state"
             maxlength="2"
-            class="w-full border rounded-lg p-2 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('address.state')?.invalid &&
-                facilityForm.get('address.state')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('address.state')?.invalid &&
-                facilityForm.get('address.state')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(formSubmitted() && facilityForm.get('address.state')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && facilityForm.get('address.state')?.invalid)
+            "
+            [class.border-red-500]="
+              formSubmitted() && facilityForm.get('address.state')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && facilityForm.get('address.state')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && facilityForm.get('address.state')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && facilityForm.get('address.state')?.invalid
+            "
           />
         </div>
       </div>
@@ -354,56 +384,54 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             E-mail
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="email"
-            class="w-full border rounded-lg p-2 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('contact.email')?.invalid &&
-                facilityForm.get('contact.email')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('contact.email')?.invalid &&
-                facilityForm.get('contact.email')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-zinc-300]="
+              !(formSubmitted() && facilityForm.get('contact.email')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && facilityForm.get('contact.email')?.invalid)
+            "
+            [class.border-red-500]="
+              formSubmitted() && facilityForm.get('contact.email')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && facilityForm.get('contact.email')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && facilityForm.get('contact.email')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && facilityForm.get('contact.email')?.invalid
+            "
           />
         </div>
+
         <div class="sm:col-span-2">
           <label
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Telefone
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <p-inputmask
             mask="(99) 9999-9999"
             formControlName="phone"
-            styleClass="w-full"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                facilityForm.get('contact.phone')?.invalid &&
-                facilityForm.get('contact.phone')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                facilityForm.get('contact.phone')?.invalid &&
-                facilityForm.get('contact.phone')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            [styleClass]="
+              'w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner ' +
+              (formSubmitted() && facilityForm.get('contact.phone')?.invalid
+                ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500 ring-1 ring-red-500'
+                : 'border-zinc-300 dark:border-zinc-700')
+            "
           />
         </div>
       </div>
@@ -412,21 +440,33 @@
 
   <ng-container footer>
     <p-button
-      label="Cancelar"
-      icon="pi pi-ban"
+      label="Voltar"
+      icon="pi pi-arrow-left"
       severity="secondary"
       [outlined]="true"
       [disabled]="isGlobalLoading()"
-      (click)="visible.set(false)"
+      (onClick)="visible.set(false)"
     />
-    <p-button
-      *ngIf="!isReadOnly()"
-      label="Salvar"
-      icon="pi pi-check-circle"
-      severity="primary"
-      [disabled]="isGlobalLoading()"
-      (click)="submitForm()"
-    />
+
+    @if (!isReadOnly()) {
+      <p-button
+        label="Limpar"
+        icon="pi pi-refresh"
+        severity="help"
+        [outlined]="true"
+        [disabled]="isGlobalLoading()"
+        (onClick)="clearForm()"
+        class="ml-auto"
+      />
+
+      <p-button
+        label="Salvar"
+        icon="pi pi-check-circle"
+        severity="success"
+        [disabled]="isGlobalLoading()"
+        (onClick)="submitForm()"
+      />
+    }
   </ng-container>
 </app-drawer>
 

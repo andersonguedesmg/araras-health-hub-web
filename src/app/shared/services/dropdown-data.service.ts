@@ -4,7 +4,7 @@ import { ProductService } from '../../features/product/services/product.service'
 import { SupplierService } from '../../features/supplier/services/supplier.service';
 import { ToastMessages } from '../constants/messages.constants';
 import { FacilityService } from '../../features/facility/services/facility.service';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, Observable, of } from 'rxjs';
 import { SelectOptions } from '../interfaces/select-options';
 
 @Injectable({
@@ -32,18 +32,22 @@ export class DropdownDataService {
   }
 
   getEmployeeOptions(): Promise<SelectOptions<number>[]> {
-    return this.getOptions(() => this.employeeService.getEmployeeOptions());
+    // return this.getOptions(() => this.employeeService.getEmployeeOptions());
+    return this.getOptions(() => of([]));
   }
 
   getProductOptions(): Promise<SelectOptions<number>[]> {
-    return this.getOptions(() => this.productService.getProductOptions());
+    // return this.getOptions(() => this.productService.getProductOptions());
+    return this.getOptions(() => of([]));
   }
 
   getSupplierOptions(): Promise<SelectOptions<number>[]> {
-    return this.getOptions(() => this.supplierService.getSupplierOptions());
+    // return this.getOptions(() => this.supplierService.getSupplierOptions());
+    return this.getOptions(() => of([]));
   }
 
   getFacilitiesOptions(): Promise<SelectOptions<number>[]> {
-    return this.getOptions(() => this.facilityService.getFacilityOptions());
+    // return this.getOptions(() => this.facilityService.getFacilityOptions());
+    return this.getOptions(() => of([]));
   }
 }
