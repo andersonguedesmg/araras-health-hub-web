@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -34,7 +33,6 @@ import { Supplier } from '../../interfaces/supplier';
   selector: 'app-supplier-drawer-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
@@ -49,7 +47,7 @@ import { Supplier } from '../../interfaces/supplier';
 export class SupplierDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
-  protected readonly cepService = inject(CepService);
+  private readonly cepService = inject(CepService);
   private readonly toastService = inject(ToastService);
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
@@ -62,15 +60,16 @@ export class SupplierDrawerFormComponent {
   FormMode = FormMode;
   supplierForm: FormGroup;
   isCnpjValidating = signal<boolean>(false);
+  formSubmitted = signal<boolean>(false);
+  statusLabel = signal<string>('Ativo');
 
   isGlobalLoading = computed(
-    () => this.cepService.isLoading() || this.isCnpjValidating(),
+    () => this.isCnpjValidating() || this.cepService.isLoading(),
   );
 
-  protected statusLabel = signal<string>('Ativo');
-
-  private readonly formLabels: { [key: string]: string } = {
+  private readonly formLabels: Record<string, string> = {
     legalName: 'Razão Social',
+    tradeName: 'Nome Fantasia',
     cnpj: 'CNPJ',
     'address.cep': 'CEP',
     'address.street': 'Logradouro',
@@ -90,7 +89,18 @@ export class SupplierDrawerFormComponent {
         return 'Editar Fornecedor';
       case FormMode.Detail:
         return 'Detalhes do Fornecedor';
+      default:
+        return 'Fornecedor';
     }
+  });
+
+  isReadOnly = computed(() => {
+    const mode = this.formMode();
+    const data = this.supplierData();
+    return (
+      mode === FormMode.Detail ||
+      (mode === FormMode.Update && data?.isActive === false)
+    );
   });
 
   constructor() {
@@ -107,7 +117,7 @@ export class SupplierDrawerFormComponent {
         complement: [''],
         neighborhood: ['', Validators.required],
         city: ['', Validators.required],
-        state: ['', Validators.required],
+        state: ['', [Validators.required, Validators.maxLength(2)]],
       }),
       contact: this.fb.group({
         email: ['', [Validators.required, Validators.email]],
@@ -121,7 +131,7 @@ export class SupplierDrawerFormComponent {
       const mode = this.formMode();
 
       if (isVisible) {
-        setTimeout(() => this.syncFormState(data, mode), 0);
+        this.syncFormState(data, mode);
       }
     });
   }
@@ -131,6 +141,7 @@ export class SupplierDrawerFormComponent {
     mode: FormMode,
   ): void {
     this.supplierForm.reset();
+    this.formSubmitted.set(false);
 
     if (currentData) {
       this.supplierForm.patchValue(currentData);
@@ -155,24 +166,29 @@ export class SupplierDrawerFormComponent {
     }
   }
 
-  protected isReadOnly = computed(() => {
-    const mode = this.formMode();
-    const data = this.supplierData();
-
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
-  });
-
   async searchCep(): Promise<void> {
     const addressGroup = this.supplierForm.get('address') as FormGroup;
+    const cepControl = addressGroup.get('cep');
+
+    if (!cepControl?.value || cepControl.invalid) {
+      if (cepControl?.value && cepControl.invalid) {
+        this.toastService.showError('O número de CEP informado é inválido.');
+      }
+      return;
+    }
+
     const success = await this.cepService.fillAddressByCep(
       addressGroup,
       this.toastService,
     );
+
     if (success) {
-      setTimeout(() => document.getElementById('number')?.focus(), 50);
+      setTimeout(() => {
+        const numberInput =
+          document.getElementsByName('number')[0] ||
+          document.getElementById('number');
+        numberInput?.focus();
+      }, 50);
     }
   }
 
@@ -183,7 +199,44 @@ export class SupplierDrawerFormComponent {
     }
   }
 
+  clearForm(): void {
+    this.formSubmitted.set(false);
+    this.toastService.clearAll();
+
+    const data = this.supplierData();
+    const mode = this.formMode();
+
+    if (mode === FormMode.Update && data) {
+      this.supplierForm.patchValue({
+        id: data.id,
+        legalName: '',
+        tradeName: '',
+        cnpj: '',
+        isActive: data.isActive,
+        address: {
+          cep: '',
+          street: '',
+          number: '',
+          complement: '',
+          neighborhood: '',
+          city: '',
+          state: '',
+        },
+        contact: {
+          email: '',
+          phone: '',
+        },
+      });
+    } else {
+      this.supplierForm.reset();
+      this.supplierForm.get('isActive')?.setValue(true);
+      this.statusLabel.set('Ativo');
+    }
+  }
+
   async submitForm(): Promise<void> {
+    this.formSubmitted.set(true);
+
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.supplierForm,
       this.formLabels,

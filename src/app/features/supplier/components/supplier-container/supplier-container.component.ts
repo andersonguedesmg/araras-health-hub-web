@@ -1,14 +1,7 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation,
-  inject,
-  viewChild,
-} from '@angular/core';
-import { Subject, Subscription, firstValueFrom } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { firstValueFrom } from 'rxjs';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -24,7 +17,6 @@ import { SupplierTableComponent } from '../supplier-table/supplier-table.compone
   selector: 'app-supplier-container',
   standalone: true,
   imports: [
-    CommonModule,
     SupplierTableComponent,
     SupplierDrawerFormComponent,
     BreadcrumbComponent,
@@ -32,107 +24,90 @@ import { SupplierTableComponent } from '../supplier-table/supplier-table.compone
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './supplier-container.component.html',
   styleUrl: './supplier-container.component.scss',
 })
-export class SupplierContainerComponent implements OnInit, OnDestroy {
+export class SupplierContainerComponent {
   private readonly supplierService = inject(SupplierService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly suppliers = this.supplierService.suppliers;
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  readonly FormMode = FormMode;
-  readonly title = 'Fornecedores';
-  readonly description =
+  protected readonly FormMode = FormMode;
+  protected readonly title = 'Fornecedores';
+  protected readonly description =
     'Cadastro e controle de parceiros comerciais da rede municipal de saúde.';
 
-  readonly itemsBreadcrumb = [
+  protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
     { label: 'Fornecedores', routerLink: '/administracao/fornecedores' },
-  ];
+  ]);
 
-  selectedSupplier?: Supplier;
-  formMode: FormMode = FormMode.Create;
+  protected selectedSupplier?: Supplier;
+  protected formMode: FormMode = FormMode.Create;
+  protected displayDrawer = false;
 
-  displayDrawer = false;
-  isLoading = false;
-  totalRecords = 0;
-  rows = 5;
-  first = 0;
+  protected readonly first = signal<number>(0);
+  protected readonly rows = signal<number>(5);
+  protected readonly searchTerm = signal<string>('');
 
-  private searchTerm = '';
-  private readonly loadLazy = new Subject<any>();
-  private lastLazyEvent = { first: 0, rows: 5 };
-  private readonly subscriptions = new Subscription();
+  private readonly refreshTrigger = signal<number>(0);
 
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.loadLazy
-        .pipe(
-          debounceTime(300),
-          switchMap((event) => {
-            this.isLoading = true;
+  private readonly queryParams = computed(() => ({
+    page: Math.floor(this.first() / this.rows()) + 1,
+    rows: this.rows(),
+    searchTerm: this.searchTerm(),
+    refresh: this.refreshTrigger(),
+  }));
 
-            this.first = event.first;
-            this.rows = event.rows;
+  private readonly suppliersResource = rxResource({
+    request: () => this.queryParams(),
+    loader: ({ request }) => {
+      return this.supplierService.loadSuppliers(
+        request.page,
+        request.rows,
+        request.searchTerm,
+      );
+    },
+  });
 
-            const page = event.first / event.rows + 1;
-            return this.supplierService.loadSuppliers(
-              page,
-              event.rows,
-              this.searchTerm,
-            );
-          }),
-        )
-        .subscribe({
-          next: (response) => {
-            this.isLoading = false;
+  protected readonly suppliers = computed(
+    () => this.suppliersResource.value()?.data ?? [],
+  );
+  protected readonly totalRecords = computed(
+    () => this.suppliersResource.value()?.totalCount ?? 0,
+  );
 
-            if (response && response.totalCount !== undefined) {
-              this.totalRecords = response.totalCount;
-            }
-          },
-          error: (error) => {
-            this.isLoading = false;
-            this.toastService.handleApiError(error);
-          },
-        }),
-    );
+  private readonly isActionLoading = signal<boolean>(false);
+  protected readonly isLoading = computed(
+    () => this.suppliersResource.isLoading() || this.isActionLoading(),
+  );
 
-    this.loadLazy.next(this.lastLazyEvent);
+  protected loadSuppliers(event: TableLazyLoadEvent): void {
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? 5);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  protected onSearch(value: string): void {
+    this.searchTerm.set(value);
+    this.first.set(0);
   }
 
-  loadSuppliers(event: any): void {
-    this.lastLazyEvent = event;
-    this.loadLazy.next(event);
-  }
-
-  onSearch(value: string): void {
-    this.searchTerm = value;
-    this.loadSuppliers({ first: 0, rows: this.lastLazyEvent.rows });
-  }
-
-  openForm(mode: FormMode, supplier?: Supplier): void {
+  protected openForm(mode: FormMode, supplier?: Supplier): void {
     this.formMode = mode;
     this.selectedSupplier = supplier;
     this.displayDrawer = true;
   }
 
-  generatePdfReport(): void {
+  protected generatePdfReport(): void {
     this.toastService.showInfo(
       'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
     );
   }
 
-  async saveSupplier(formValue: Supplier): Promise<void> {
-    this.isLoading = true;
+  protected async saveSupplier(formValue: Supplier): Promise<void> {
+    this.isActionLoading.set(true);
     const operation$ =
       this.formMode === FormMode.Create
         ? this.supplierService.createSupplier(formValue)
@@ -142,22 +117,23 @@ export class SupplierContainerComponent implements OnInit, OnDestroy {
       const response = await firstValueFrom(operation$);
       if (response) {
         this.displayDrawer = false;
-        this.loadLazy.next(this.lastLazyEvent);
+        this.refreshList();
       }
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async changeStatusSupplier(supplier: Supplier): Promise<void> {
+  protected async changeStatusSupplier(supplier: Supplier): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
     const isActivating = !supplier.isActive;
     const actionText = supplier.isActive ? 'desativar' : 'ativar';
-    const msg = `Deseja realmente ${actionText} o fornecedor "${supplier.tradeName || supplier.legalName}"?`;
+    const supplierName = supplier.tradeName || supplier.legalName || '';
+    const msg = `Deseja realmente ${actionText} o fornecedor "${supplierName}"?`;
     const title = supplier.isActive
       ? 'Confirmar Desativação'
       : 'Confirmar Ativação';
@@ -165,7 +141,7 @@ export class SupplierContainerComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
-    this.isLoading = true;
+    this.isActionLoading.set(true);
     const alteredSupplier = { ...supplier, isActive: isActivating };
 
     try {
@@ -175,11 +151,15 @@ export class SupplierContainerComponent implements OnInit, OnDestroy {
 
       const successMessage = `Fornecedor ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);
-      this.loadLazy.next(this.lastLazyEvent);
+      this.refreshList();
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
+  }
+
+  private refreshList(): void {
+    this.refreshTrigger.update((n) => n + 1);
   }
 }
