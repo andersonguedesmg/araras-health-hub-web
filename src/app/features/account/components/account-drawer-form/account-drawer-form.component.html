@@ -4,14 +4,15 @@
   [position]="'right'"
   [size]="'xl'"
 >
-  <div
-    *ngIf="isGlobalLoading()"
-    class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full"
-  >
+  @if (isGlobalLoading()) {
     <div
-      class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"
-    ></div>
-  </div>
+      class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full"
+    >
+      <div
+        class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"
+      ></div>
+    </div>
+  }
 
   <form
     [formGroup]="accountForm"
@@ -30,7 +31,7 @@
       <hr class="border-zinc-100 dark:border-zinc-800" />
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <ng-container *ngIf="formMode() !== FormMode.Create">
+        @if (formMode() !== FormMode.Create) {
           <div>
             <label class="block text-xs font-semibold text-zinc-500 mb-1"
               >ID</label
@@ -39,7 +40,7 @@
               pInputText
               type="text"
               formControlName="id"
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium cursor-not-allowed shadow-inner"
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
             />
           </div>
 
@@ -52,95 +53,126 @@
               type="text"
               [value]="statusLabel()"
               disabled
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium cursor-not-allowed shadow-inner"
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
             />
           </div>
-        </ng-container>
+        }
 
-        <div class="w-full">
+        <div
+          class="w-full"
+          [class.sm:col-span-1]="formMode() === FormMode.Create"
+          [class.sm:col-span-2]="formMode() !== FormMode.Create"
+        >
           <label
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Nome
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <input
             pInputText
             type="text"
             formControlName="userName"
             maxlength="100"
-            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                accountForm.get('userName')?.invalid &&
-                accountForm.get('userName')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                accountForm.get('userName')?.invalid &&
-                accountForm.get('userName')?.touched
-              ),
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
+            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+            [class.border-red-500]="
+              formSubmitted() && accountForm.get('userName')?.invalid
+            "
+            [class.focus:border-red-500]="
+              formSubmitted() && accountForm.get('userName')?.invalid
+            "
+            [class.focus:ring-1]="
+              formSubmitted() && accountForm.get('userName')?.invalid
+            "
+            [class.focus:ring-red-500]="
+              formSubmitted() && accountForm.get('userName')?.invalid
+            "
+            [class.border-zinc-300]="
+              !(formSubmitted() && accountForm.get('userName')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && accountForm.get('userName')?.invalid)
+            "
           />
         </div>
 
-        <div *ngIf="formMode() === FormMode.Create">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
-            Senha
-            <span class="text-red-500">*</span>
-          </label>
-          <input
-            pInputText
-            type="password"
-            formControlName="password"
-            class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100"
-            [ngClass]="{
-              'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500':
-                accountForm.get('password')?.invalid &&
-                accountForm.get('password')?.touched,
-              'border-zinc-300 dark:border-zinc-700 focus:border-primary': !(
-                accountForm.get('password')?.invalid &&
-                accountForm.get('password')?.touched
-              ),
-            }"
-          />
-        </div>
+        @if (formMode() === FormMode.Create) {
+          <div>
+            <label
+              class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
+            >
+              Senha
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              pInputText
+              type="password"
+              formControlName="password"
+              class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
+              [class.border-red-500]="
+                formSubmitted() && accountForm.get('password')?.invalid
+              "
+              [class.focus:border-red-500]="
+                formSubmitted() && accountForm.get('password')?.invalid
+              "
+              [class.focus:ring-1]="
+                formSubmitted() && accountForm.get('password')?.invalid
+              "
+              [class.focus:ring-red-500]="
+                formSubmitted() && accountForm.get('password')?.invalid
+              "
+              [class.border-zinc-300]="
+                !(formSubmitted() && accountForm.get('password')?.invalid)
+              "
+              [class.dark:border-zinc-700]="
+                !(formSubmitted() && accountForm.get('password')?.invalid)
+              "
+            />
+          </div>
+        }
 
-        <div>
+        <div class="sm:col-span-2">
           <label
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Unidade
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <p-select
-            [options]="facilityOptions() || []"
+            [options]="facilityOptions()"
             formControlName="facilityId"
             optionLabel="label"
             optionValue="value"
-            class="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg"
             placeholder="Selecione uma unidade"
+            class="w-full border rounded-lg transition-colors duration-200 focus-within:border-primary"
+            [class.border-red-500]="
+              formSubmitted() && accountForm.get('facilityId')?.invalid
+            "
+            [class.border-zinc-300]="
+              !(formSubmitted() && accountForm.get('facilityId')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && accountForm.get('facilityId')?.invalid)
+            "
             [showClear]="formMode() !== FormMode.Detail"
+            [virtualScroll]="true"
+            [virtualScrollItemSize]="38"
+            [lazy]="true"
+            (onLazyLoad)="onFacilityDropdownLazyLoad($event)"
             [filter]="true"
-            filterBy="label"
-            [ngClass]="{
-              'border-red-500':
-                accountForm.get('facilityId')?.invalid &&
-                accountForm.get('facilityId')?.touched,
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
-          ></p-select>
+            (onFilter)="onFacilityDropdownFilter($event)"
+            [loading]="isFacilitiesLoading()"
+          >
+            <ng-template pTemplate="empty">
+              <span class="p-4 text-xs text-zinc-500 block"
+                >Nenhuma unidade encontrada</span
+              >
+            </ng-template>
+          </p-select>
         </div>
 
         <div>
@@ -148,26 +180,26 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Função / Perfil
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <p-select
             [options]="rolesOptions"
             formControlName="role"
             optionLabel="label"
             optionValue="value"
-            class="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg"
+            class="w-full border rounded-lg transition-colors duration-200"
+            [class.border-red-500]="
+              formSubmitted() && accountForm.get('role')?.invalid
+            "
+            [class.border-zinc-300]="
+              !(formSubmitted() && accountForm.get('role')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && accountForm.get('role')?.invalid)
+            "
             placeholder="Selecione o perfil"
-            [ngClass]="{
-              'border-red-500':
-                accountForm.get('role')?.invalid &&
-                accountForm.get('role')?.touched,
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
           ></p-select>
         </div>
 
@@ -176,26 +208,26 @@
             class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
           >
             Escopo de Acesso
-            <span class="text-red-500" *ngIf="formMode() !== FormMode.Detail"
-              >*</span
-            >
+            @if (formMode() !== FormMode.Detail) {
+              <span class="text-red-500">*</span>
+            }
           </label>
           <p-select
             [options]="scopeOptions"
             formControlName="scope"
             optionLabel="label"
             optionValue="value"
-            class="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg"
+            class="w-full border rounded-lg transition-colors duration-200"
+            [class.border-red-500]="
+              formSubmitted() && accountForm.get('scope')?.invalid
+            "
+            [class.border-zinc-300]="
+              !(formSubmitted() && accountForm.get('scope')?.invalid)
+            "
+            [class.dark:border-zinc-700]="
+              !(formSubmitted() && accountForm.get('scope')?.invalid)
+            "
             placeholder="Selecione o escopo"
-            [ngClass]="{
-              'border-red-500':
-                accountForm.get('scope')?.invalid &&
-                accountForm.get('scope')?.touched,
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner cursor-not-allowed':
-                formMode() === FormMode.Update && statusLabel() === 'Inativo',
-              'bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 shadow-inner':
-                formMode() === FormMode.Detail,
-            }"
           ></p-select>
         </div>
       </div>
@@ -204,21 +236,33 @@
 
   <ng-container footer>
     <p-button
-      label="Cancelar"
-      icon="pi pi-ban"
+      label="Voltar"
+      icon="pi pi-arrow-left"
       severity="secondary"
       [outlined]="true"
       [disabled]="isGlobalLoading()"
-      (click)="visible.set(false)"
+      (onClick)="visible.set(false)"
     />
-    <p-button
-      *ngIf="!isReadOnly()"
-      label="Salvar"
-      icon="pi pi-check-circle"
-      severity="primary"
-      [disabled]="isGlobalLoading()"
-      (click)="submitForm()"
-    />
+
+    @if (!isReadOnly()) {
+      <p-button
+        label="Limpar"
+        icon="pi pi-refresh"
+        severity="help"
+        [outlined]="true"
+        [disabled]="isGlobalLoading()"
+        (onClick)="clearForm()"
+        class="ml-auto"
+      />
+
+      <p-button
+        label="Salvar"
+        icon="pi pi-check-circle"
+        severity="success"
+        [disabled]="isGlobalLoading()"
+        (onClick)="submitForm()"
+      />
+    }
   </ng-container>
 </app-drawer>
 

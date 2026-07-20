@@ -51,6 +51,22 @@ export class AuthService {
     return isMasterOrAdmin && hasManagementScope;
   });
 
+  readonly hasMasterPermission = computed<boolean>(() => {
+    const user = this.currentUser();
+    if (!user) {
+      return false;
+    }
+
+    const isMaster =
+      user.role === 'Master' || user.role === UserRoles.MASTER.toString();
+
+    const hasManagementScope =
+      user.scope === 'Management' ||
+      user.scope === UserScopes.MANAGEMENT.toString();
+
+    return isMaster && hasManagementScope;
+  });
+
   login(credentials: LoginRequest): Observable<BaseApiResponse<Account>> {
     const url = this.apiConfig.getUrl('accounts/login');
 

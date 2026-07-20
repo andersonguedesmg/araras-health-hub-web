@@ -1,14 +1,7 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation,
-  inject,
-  viewChild,
-} from '@angular/core';
-import { Subject, Subscription, firstValueFrom } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { firstValueFrom } from 'rxjs';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -25,7 +18,6 @@ import { AccountTableComponent } from '../account-table/account-table.component'
   selector: 'app-account-container',
   standalone: true,
   imports: [
-    CommonModule,
     AccountTableComponent,
     AccountDrawerFormComponent,
     AccountPasswordDrawerFormComponent,
@@ -34,115 +26,101 @@ import { AccountTableComponent } from '../account-table/account-table.component'
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './account-container.component.html',
   styleUrl: './account-container.component.scss',
 })
-export class AccountContainerComponent implements OnInit, OnDestroy {
+export class AccountContainerComponent {
   private readonly accountService = inject(AccountService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly accounts = this.accountService.accounts;
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  readonly FormMode = FormMode;
-  readonly title = 'Contas';
-  readonly description = 'Cadastro e controle de contas de acesso ao sistema.';
+  protected readonly FormMode = FormMode;
+  protected readonly title = 'Contas';
+  protected readonly description =
+    'Cadastro e controle de contas de acesso ao sistema.';
 
-  readonly itemsBreadcrumb = [
+  protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
     { label: 'Contas', routerLink: '/administracao/contas' },
-  ];
+  ]);
 
-  selectedAccount?: Account;
-  formMode: FormMode = FormMode.Create;
+  protected selectedAccount?: Account;
+  protected formMode: FormMode = FormMode.Create;
 
-  displayDrawer = false;
-  isPasswordOpen = false;
-  isLoading = false;
-  totalRecords = 0;
-  rows = 5;
-  first = 0;
+  protected displayDrawer = false;
+  protected isPasswordOpen = false;
 
-  private searchTerm = '';
-  private readonly loadLazy = new Subject<any>();
-  private lastLazyEvent = { first: 0, rows: 5 };
-  private readonly subscriptions = new Subscription();
+  protected readonly first = signal<number>(0);
+  protected readonly rows = signal<number>(5);
+  protected readonly searchTerm = signal<string>('');
 
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.loadLazy
-        .pipe(
-          debounceTime(300),
-          switchMap((event) => {
-            this.isLoading = true;
+  private readonly refreshTrigger = signal<number>(0);
 
-            this.first = event.first;
-            this.rows = event.rows;
+  private readonly queryParams = computed(() => ({
+    page: Math.floor(this.first() / this.rows()) + 1,
+    rows: this.rows(),
+    searchTerm: this.searchTerm(),
+    refresh: this.refreshTrigger(),
+  }));
 
-            const page = event.first / event.rows + 1;
-            return this.accountService.loadAccounts(
-              page,
-              event.rows,
-              this.searchTerm,
-            );
-          }),
-        )
-        .subscribe({
-          next: (response) => {
-            this.isLoading = false;
+  private readonly accountsResource = rxResource({
+    request: () => this.queryParams(),
+    loader: ({ request }) => {
+      return this.accountService.loadAccounts(
+        request.page,
+        request.rows,
+        request.searchTerm,
+      );
+    },
+  });
 
-            if (response && response.totalCount !== undefined) {
-              this.totalRecords = response.totalCount;
-            }
-          },
-          error: (error) => {
-            this.isLoading = false;
-            this.toastService.handleApiError(error);
-          },
-        }),
-    );
+  protected readonly accounts = computed(
+    () => this.accountsResource.value()?.data ?? [],
+  );
 
-    this.loadLazy.next(this.lastLazyEvent);
+  protected readonly totalRecords = computed(
+    () => this.accountsResource.value()?.totalCount ?? 0,
+  );
+
+  private readonly isActionLoading = signal<boolean>(false);
+  protected readonly isLoading = computed(
+    () => this.accountsResource.isLoading() || this.isActionLoading(),
+  );
+
+  protected loadAccounts(event: TableLazyLoadEvent): void {
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? 5);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  protected onSearch(value: string): void {
+    this.searchTerm.set(value);
+    this.first.set(0);
   }
 
-  loadAccounts(event: any): void {
-    this.lastLazyEvent = event;
-    this.loadLazy.next(event);
-  }
-
-  onSearch(value: string): void {
-    this.searchTerm = value;
-    this.loadAccounts({ first: 0, rows: this.lastLazyEvent.rows });
-  }
-
-  openForm(mode: FormMode, account?: Account): void {
+  protected openForm(mode: FormMode, account?: Account): void {
     this.formMode = mode;
     this.selectedAccount = account;
     this.displayDrawer = true;
   }
 
-  openPasswordResetForm(account: Account): void {
+  protected openPasswordResetForm(account: Account): void {
     this.selectedAccount = account;
     this.isPasswordOpen = true;
   }
 
-  generatePdfReport(): void {
+  protected generatePdfReport(): void {
     this.toastService.showInfo(
       'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
     );
   }
 
-  async saveNewPassword(event: {
+  protected async saveNewPassword(event: {
     userId: number;
     password: string;
   }): Promise<void> {
-    this.isLoading = true;
+    this.isActionLoading.set(true);
 
     try {
       await firstValueFrom(
@@ -151,16 +129,16 @@ export class AccountContainerComponent implements OnInit, OnDestroy {
 
       this.toastService.showSuccess('Senha resetada com sucesso!');
       this.isPasswordOpen = false;
-      this.loadLazy.next(this.lastLazyEvent);
+      this.refreshList();
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async saveAccount(formValue: Account): Promise<void> {
-    this.isLoading = true;
+  protected async saveAccount(formValue: Account): Promise<void> {
+    this.isActionLoading.set(true);
     const operation$ =
       this.formMode === FormMode.Create
         ? this.accountService.registerAccount(formValue)
@@ -170,16 +148,16 @@ export class AccountContainerComponent implements OnInit, OnDestroy {
       const response = await firstValueFrom(operation$);
       if (response) {
         this.displayDrawer = false;
-        this.loadLazy.next(this.lastLazyEvent);
+        this.refreshList();
       }
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async changeStatusAccount(account: Account): Promise<void> {
+  protected async changeStatusAccount(account: Account): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
@@ -193,7 +171,7 @@ export class AccountContainerComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
-    this.isLoading = true;
+    this.isActionLoading.set(true);
     const alteredAccount = { ...account, isActive: isActivating };
 
     try {
@@ -203,11 +181,15 @@ export class AccountContainerComponent implements OnInit, OnDestroy {
 
       const successMessage = `Usuário ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);
-      this.loadLazy.next(this.lastLazyEvent);
+      this.refreshList();
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
+  }
+
+  private refreshList(): void {
+    this.refreshTrigger.update((n) => n + 1);
   }
 }

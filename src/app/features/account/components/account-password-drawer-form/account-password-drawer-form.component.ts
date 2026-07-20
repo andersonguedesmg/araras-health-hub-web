@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -25,13 +24,13 @@ import { firstValueFrom } from 'rxjs';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
+import { ToastService } from '../../../../shared/services/toast.service';
 import { Account } from '../../interfaces/account';
 
 @Component({
   selector: 'app-account-password-drawer-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
@@ -45,21 +44,26 @@ import { Account } from '../../interfaces/account';
 export class AccountPasswordDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
+  private readonly toastService = inject(ToastService);
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  visible = model<boolean>(false);
-  accountData = input<Account | undefined>(undefined);
-  onSavePassword = output<{ userId: number; password: string }>();
+  readonly visible = model<boolean>(false);
+  readonly accountData = input<Account | undefined>(undefined);
+  readonly onSavePassword = output<{ userId: number; password: string }>();
 
-  passwordForm: FormGroup;
+  protected readonly passwordForm: FormGroup;
+  protected readonly isPasswordUpdating = signal<boolean>(false);
+  protected readonly formSubmitted = signal<boolean>(false);
 
-  isPasswordUpdating = signal<boolean>(false);
-  isGlobalLoading = computed(() => this.isPasswordUpdating());
+  protected readonly isGlobalLoading = computed(() =>
+    this.isPasswordUpdating(),
+  );
+  protected readonly accountName = computed(
+    () => this.accountData()?.userName || 'Usuário',
+  );
 
-  accountName = computed(() => this.accountData()?.userName || 'Usuário');
-
-  private readonly formLabels: { [key: string]: string } = {
+  private readonly formLabels: Record<string, string> = {
     password: 'Nova Senha',
     confirmPassword: 'Confirmar Nova Senha',
   };
@@ -75,7 +79,7 @@ export class AccountPasswordDrawerFormComponent {
 
     effect(() => {
       if (this.visible()) {
-        setTimeout(() => this.passwordForm.reset(), 0);
+        this.clearForm();
       }
     });
   }
@@ -88,7 +92,15 @@ export class AccountPasswordDrawerFormComponent {
     return password === confirmPassword ? null : { mismatch: true };
   }
 
-  async submitForm(): Promise<void> {
+  protected clearForm(): void {
+    this.formSubmitted.set(false);
+    this.passwordForm.reset();
+    this.toastService.clearAll();
+  }
+
+  protected async submitForm(): Promise<void> {
+    this.formSubmitted.set(true);
+
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.passwordForm,
       this.formLabels,

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -6,11 +5,10 @@ import {
   inject,
   input,
   model,
-  OnInit,
+  OnDestroy,
   output,
   signal,
   viewChild,
-  ViewEncapsulation,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -20,22 +18,30 @@ import {
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { firstValueFrom } from 'rxjs';
+import { SelectLazyLoadEvent, SelectModule } from 'primeng/select';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  firstValueFrom,
+  Subject,
+  Subscription,
+} from 'rxjs';
+import { AuthService } from '../../../../core/services/auth.service';
 import { FormHelperService } from '../../../../core/services/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../shared/enums/form-mode.enum';
 import { Roles } from '../../../../shared/enums/roles.enum';
 import { Scope } from '../../../../shared/enums/scope.enum';
-import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
+import { SelectOptions } from '../../../../shared/interfaces/select-options';
+import { ToastService } from '../../../../shared/services/toast.service';
+import { FacilityService } from '../../../facility/services/facility.service';
 import { Account } from '../../interfaces/account';
 
 @Component({
   selector: 'app-account-drawer-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
@@ -43,43 +49,58 @@ import { Account } from '../../interfaces/account';
     DrawerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './account-drawer-form.component.html',
   styleUrl: './account-drawer-form.component.scss',
 })
-export class AccountDrawerFormComponent implements OnInit {
+export class AccountDrawerFormComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
   private readonly formHelperService = inject(FormHelperService);
-  private readonly dropdownDataService = inject(DropdownDataService);
+  private readonly facilityService = inject(FacilityService);
+  private readonly toastService = inject(ToastService);
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  visible = model<boolean>(false);
-  formMode = input<FormMode>(FormMode.Create);
-  accountData = input<Account | undefined>(undefined);
-  onSave = output<Account>();
+  readonly visible = model<boolean>(false);
+  readonly formMode = input<FormMode>(FormMode.Create);
+  readonly accountData = input<Account | undefined>(undefined);
+  readonly onSave = output<Account>();
 
-  FormMode = FormMode;
-  accountForm: FormGroup;
+  protected readonly FormMode = FormMode;
+  protected readonly accountForm: FormGroup;
 
-  facilityOptions = signal<{ label: string; value: number }[]>([]);
-  isFacilitiesLoading = signal<boolean>(false);
+  protected readonly facilityOptions = signal<SelectOptions<number>[]>([]);
+  protected readonly isFacilitiesLoading = signal<boolean>(false);
+  protected readonly isGlobalLoading = computed(() =>
+    this.isFacilitiesLoading(),
+  );
+  protected readonly formSubmitted = signal<boolean>(false);
+  protected readonly statusLabel = signal<string>('Ativo');
 
-  isGlobalLoading = computed(() => this.isFacilitiesLoading());
-  protected statusLabel = signal<string>('Ativo');
+  protected readonly canEditRoleAndScope = this.authService.hasMasterPermission;
 
-  rolesOptions = [
+  protected readonly rolesOptions = [
     { label: 'Usuário', value: Roles.User },
     { label: 'Administrador', value: Roles.Admin },
     { label: 'Master', value: Roles.Master },
   ];
 
-  scopeOptions = [
+  protected readonly scopeOptions = [
     { label: 'Gerencial', value: Scope.Management },
     { label: 'Operacional', value: Scope.Operational },
   ];
 
-  private readonly formLabels: { [key: string]: string } = {
+  private currentFacilityPage = 1;
+  private readonly facilityPageSize = 10;
+  private facilitySearchTerm = '';
+  private hasNextFacilityPage = true;
+  private isFacilityRequestInProgress = false;
+  private isInitializing = false;
+
+  private readonly facilityFilterSubject = new Subject<string>();
+  private facilityFilterSubscription?: Subscription;
+
+  private readonly formLabels: Record<string, string> = {
     userName: 'Nome',
     password: 'Senha de Acesso',
     facilityId: 'Unidade de Saúde',
@@ -87,7 +108,7 @@ export class AccountDrawerFormComponent implements OnInit {
     scope: 'Escopo de Acesso',
   };
 
-  headerText = computed(() => {
+  protected readonly headerText = computed(() => {
     switch (this.formMode()) {
       case FormMode.Create:
         return 'Nova Conta';
@@ -95,10 +116,12 @@ export class AccountDrawerFormComponent implements OnInit {
         return 'Editar Conta';
       case FormMode.Detail:
         return 'Detalhes da Conta';
+      default:
+        return 'Conta';
     }
   });
 
-  protected isReadOnly = computed(() => {
+  protected readonly isReadOnly = computed(() => {
     const mode = this.formMode();
     const data = this.accountData();
 
@@ -120,42 +143,224 @@ export class AccountDrawerFormComponent implements OnInit {
       isActive: [{ value: true, disabled: true }],
     });
 
+    this.registerFacilityFilterDebounce();
+
     effect(() => {
       const isVisible = this.visible();
       const data = this.accountData();
       const mode = this.formMode();
 
       if (isVisible) {
-        setTimeout(() => this.syncFormState(data, mode), 0);
+        this.initializeFacilityDropdownAndForm(data, mode);
+      } else {
+        this.isInitializing = false;
       }
     });
   }
 
-  ngOnInit(): void {
-    this.loadFacilities();
+  ngOnDestroy(): void {
+    this.facilityFilterSubscription?.unsubscribe();
   }
 
-  private async loadFacilities(): Promise<void> {
-    try {
-      this.isFacilitiesLoading.set(true);
-      const response = await this.dropdownDataService.getFacilitiesOptions();
-      if (response && Array.isArray(response)) {
-        this.facilityOptions.set(response);
-      } else if (
-        response &&
-        'data' in response &&
-        Array.isArray((response as any).data)
-      ) {
-        this.facilityOptions.set((response as any).data);
-      } else {
-        this.facilityOptions.set([]);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar as opções de unidades de saúde:', error);
-      this.facilityOptions.set([]);
-    } finally {
-      this.isFacilitiesLoading.set(false);
+  private registerFacilityFilterDebounce(): void {
+    this.facilityFilterSubscription = this.facilityFilterSubject
+      .pipe(debounceTime(350), distinctUntilChanged())
+      .subscribe((searchTerm) => {
+        this.facilitySearchTerm = searchTerm;
+        this.resetAndReloadFacilityDropdown();
+      });
+  }
+
+  private async initializeFacilityDropdownAndForm(
+    data: Account | undefined,
+    mode: FormMode,
+  ): Promise<void> {
+    if (this.isInitializing) return;
+    this.isInitializing = true;
+
+    this.currentFacilityPage = 1;
+    this.hasNextFacilityPage = true;
+    this.isFacilityRequestInProgress = false;
+    this.facilityOptions.set([]);
+
+    if (data?.facility?.id) {
+      await this.ensureSelectedFacilityIsLoaded(
+        data.facility.id,
+        data.facility.name,
+      );
     }
+
+    await this.loadFirstFacilityPageComplement();
+
+    this.syncFormState(data, mode);
+  }
+
+  private async resetAndReloadFacilityDropdown(): Promise<void> {
+    this.currentFacilityPage = 1;
+    this.hasNextFacilityPage = true;
+    this.isFacilityRequestInProgress = false;
+
+    const selectedId = this.accountForm.get('facilityId')?.value;
+    const currentOptions = this.facilityOptions();
+    const selectedOption = currentOptions.find(
+      (opt) => opt.value === selectedId,
+    );
+
+    this.facilityOptions.set(selectedOption ? [selectedOption] : []);
+    await this.loadNextFacilityPage();
+  }
+
+  private loadFirstFacilityPageComplement(): Promise<void> {
+    if (this.isFacilityRequestInProgress) return Promise.resolve();
+
+    this.isFacilityRequestInProgress = true;
+    this.isFacilitiesLoading.set(true);
+
+    const filterActive = this.formMode() === FormMode.Detail ? undefined : true;
+
+    return new Promise((resolve) => {
+      this.facilityService
+        .getFacilityPagedOptions(
+          1,
+          this.facilityPageSize,
+          this.facilitySearchTerm,
+          filterActive,
+        )
+        .subscribe({
+          next: (response) => {
+            const incomingOptions = response.data || [];
+
+            this.hasNextFacilityPage =
+              response.hasNextPage ??
+              incomingOptions.length === this.facilityPageSize;
+
+            this.facilityOptions.update((existing) => {
+              const existingIds = new Set(existing.map((item) => item.value));
+              const filteredNew = incomingOptions.filter(
+                (item) => !existingIds.has(item.value),
+              );
+              return [...existing, ...filteredNew];
+            });
+
+            this.currentFacilityPage = 2;
+            this.isFacilityRequestInProgress = false;
+            this.isFacilitiesLoading.set(false);
+            resolve();
+          },
+          error: () => {
+            this.isFacilityRequestInProgress = false;
+            this.isFacilitiesLoading.set(false);
+            resolve();
+          },
+        });
+    });
+  }
+
+  private loadNextFacilityPage(): Promise<void> {
+    if (this.isFacilityRequestInProgress || !this.hasNextFacilityPage) {
+      return Promise.resolve();
+    }
+
+    this.isFacilityRequestInProgress = true;
+    this.isFacilitiesLoading.set(true);
+
+    const filterActive = this.formMode() === FormMode.Detail ? undefined : true;
+
+    return new Promise((resolve) => {
+      this.facilityService
+        .getFacilityPagedOptions(
+          this.currentFacilityPage,
+          this.facilityPageSize,
+          this.facilitySearchTerm,
+          filterActive,
+        )
+        .subscribe({
+          next: (response) => {
+            const incomingOptions = response.data || [];
+
+            this.hasNextFacilityPage =
+              response.hasNextPage ??
+              incomingOptions.length === this.facilityPageSize;
+
+            this.facilityOptions.update((existing) => {
+              const existingIds = new Set(existing.map((item) => item.value));
+              const filteredNew = incomingOptions.filter(
+                (item) => !existingIds.has(item.value),
+              );
+              return [...existing, ...filteredNew];
+            });
+
+            this.currentFacilityPage++;
+            this.isFacilityRequestInProgress = false;
+            this.isFacilitiesLoading.set(false);
+            resolve();
+          },
+          error: () => {
+            this.isFacilityRequestInProgress = false;
+            this.isFacilitiesLoading.set(false);
+            resolve();
+          },
+        });
+    });
+  }
+
+  private ensureSelectedFacilityIsLoaded(
+    selectedId: number,
+    facilityName?: string,
+  ): Promise<void> {
+    const alreadyLoaded = this.facilityOptions().some(
+      (item) => item.value === selectedId,
+    );
+
+    if (alreadyLoaded) {
+      return Promise.resolve();
+    }
+
+    if (facilityName) {
+      const matchedItem: SelectOptions<number> = {
+        label: facilityName,
+        value: selectedId,
+      };
+      this.facilityOptions.set([matchedItem]);
+      return Promise.resolve();
+    }
+
+    this.isFacilitiesLoading.set(true);
+
+    return new Promise((resolve) => {
+      this.facilityService
+        .getFacilityPagedOptions(1, 1, '', undefined)
+        .subscribe({
+          next: () => {
+            this.isFacilitiesLoading.set(false);
+            resolve();
+          },
+          error: () => {
+            this.isFacilitiesLoading.set(false);
+            resolve();
+          },
+        });
+    });
+  }
+
+  protected onFacilityDropdownLazyLoad(event: SelectLazyLoadEvent): void {
+    if (
+      this.isFacilityRequestInProgress ||
+      !this.hasNextFacilityPage ||
+      this.isFacilitiesLoading()
+    )
+      return;
+
+    const lastLoadedIndex = event.last ?? 0;
+    const currentListLength = this.facilityOptions().length;
+
+    if (lastLoadedIndex >= currentListLength - 3 || currentListLength === 0) {
+      this.loadNextFacilityPage();
+    }
+  }
+
+  protected onFacilityDropdownFilter(event: { filter: string }): void {
+    this.facilityFilterSubject.next(event.filter || '');
   }
 
   private syncFormState(
@@ -163,14 +368,18 @@ export class AccountDrawerFormComponent implements OnInit {
     mode: FormMode,
   ): void {
     this.accountForm.reset();
+    this.formSubmitted.set(false);
     const passwordControl = this.accountForm.get('password');
+    const facilityControl = this.accountForm.get('facilityId');
+    const roleControl = this.accountForm.get('role');
+    const scopeControl = this.accountForm.get('scope');
 
     if (currentData) {
       const patchValue = {
         id: currentData.id,
         userId: currentData.id,
         userName: currentData.userName,
-        facilityId: currentData.facility?.id,
+        facilityId: currentData.facility?.id ?? null,
         role: currentData.role,
         scope: currentData.scope,
         isActive: currentData.isActive,
@@ -194,16 +403,58 @@ export class AccountDrawerFormComponent implements OnInit {
       if (mode === FormMode.Create) {
         passwordControl?.setValidators([Validators.required]);
         this.accountForm.get('isActive')?.setValue(true);
-      } else {
+      } else if (mode === FormMode.Update) {
         passwordControl?.clearValidators();
         passwordControl?.disable();
+        facilityControl?.disable();
+
+        if (!this.canEditRoleAndScope()) {
+          roleControl?.disable();
+          scopeControl?.disable();
+        } else {
+          roleControl?.enable();
+          scopeControl?.enable();
+        }
       }
     }
 
     passwordControl?.updateValueAndValidity();
   }
 
-  async submitForm(): Promise<void> {
+  protected clearForm(): void {
+    this.formSubmitted.set(false);
+    this.toastService.clearAll();
+
+    const data = this.accountData();
+    const mode = this.formMode();
+
+    if (mode === FormMode.Update && data) {
+      this.accountForm.patchValue({
+        id: data.id,
+        userId: data.id,
+        userName: '',
+        password: '',
+        facilityId: data.facility?.id ?? null,
+        role: data.role,
+        scope: data.scope,
+        isActive: data.isActive,
+      });
+
+      this.accountForm.get('facilityId')?.disable();
+      if (!this.canEditRoleAndScope()) {
+        this.accountForm.get('role')?.disable();
+        this.accountForm.get('scope')?.disable();
+      }
+    } else {
+      this.accountForm.reset();
+      this.accountForm.get('isActive')?.setValue(true);
+      this.statusLabel.set('Ativo');
+    }
+  }
+
+  protected async submitForm(): Promise<void> {
+    this.formSubmitted.set(true);
+
     const isFormValid = this.formHelperService.validateAndShowErrors(
       this.accountForm,
       this.formLabels,

@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { ApiConfigService } from '../../../shared/services/api-config.service';
 import { Account } from '../interfaces/account';
@@ -25,24 +25,12 @@ export class AccountService {
       .set('pageSize', pageSize.toString())
       .set('searchTerm', searchTerm);
 
-    return this.http.get<ApiResponse<Account[]>>(url, { params }).pipe(
-      tap((response) => {
-        if (response && response.data) {
-          this.accountsSignal.set(response.data);
-        }
-      }),
-    );
+    return this.http.get<ApiResponse<Account[]>>(url, { params });
   }
 
   public registerAccount(account: Account): Observable<ApiResponse<Account>> {
     const url = this.apiConfig.getUrl('accounts');
-    return this.http.post<ApiResponse<Account>>(url, account).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.accountsSignal.update((current) => [response.data!, ...current]);
-        }
-      }),
-    );
+    return this.http.post<ApiResponse<Account>>(url, account);
   }
 
   public getAccountById(accountId: number): Observable<ApiResponse<Account>> {
@@ -55,17 +43,7 @@ export class AccountService {
     accountId: number,
   ): Observable<ApiResponse<Account>> {
     const url = this.apiConfig.getUrl(`accounts/${accountId}`);
-    return this.http.put<ApiResponse<Account>>(url, account).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.accountsSignal.update((current) =>
-            current.map((item) =>
-              item.userId === accountId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.put<ApiResponse<Account>>(url, account);
   }
 
   public changeStatusAccount(
@@ -74,18 +52,7 @@ export class AccountService {
   ): Observable<ApiResponse<Account>> {
     const action = account.isActive ? 'activate' : 'deactivate';
     const url = this.apiConfig.getUrl(`accounts/${accountId}/${action}`);
-
-    return this.http.patch<ApiResponse<Account>>(url, {}).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.accountsSignal.update((current) =>
-            current.map((item) =>
-              item.userId === accountId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.patch<ApiResponse<Account>>(url, {});
   }
 
   public getByFacilityId(
