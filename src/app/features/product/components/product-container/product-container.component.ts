@@ -1,14 +1,7 @@
-import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation,
-  inject,
-  viewChild,
-} from '@angular/core';
-import { Subject, Subscription, firstValueFrom } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { TableLazyLoadEvent } from 'primeng/table';
+import { firstValueFrom } from 'rxjs';
 import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -24,7 +17,6 @@ import { ProductTableComponent } from '../product-table/product-table.component'
   selector: 'app-product-container',
   standalone: true,
   imports: [
-    CommonModule,
     ProductTableComponent,
     ProductDrawerFormComponent,
     BreadcrumbComponent,
@@ -32,107 +24,90 @@ import { ProductTableComponent } from '../product-table/product-table.component'
     SpinnerComponent,
     ConfirmDialogComponent,
   ],
-  encapsulation: ViewEncapsulation.None,
   templateUrl: './product-container.component.html',
   styleUrl: './product-container.component.scss',
 })
-export class ProductContainerComponent implements OnInit, OnDestroy {
+export class ProductContainerComponent {
   private readonly productService = inject(ProductService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly products = this.productService.products;
   private readonly confirmDialog =
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  readonly FormMode = FormMode;
-  readonly title = 'Produtos e Insumos';
-  readonly description =
+  protected readonly FormMode = FormMode;
+  protected readonly title = 'Produtos e Insumos';
+  protected readonly description =
     'Cadastro e controle do catálogo de suprimentos da rede municipal de saúde.';
 
-  readonly itemsBreadcrumb = [
+  protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
     { label: 'Produtos', routerLink: '/administracao/produtos' },
-  ];
+  ]);
 
-  selectedProduct?: Product;
-  formMode: FormMode = FormMode.Create;
+  protected selectedProduct?: Product;
+  protected formMode: FormMode = FormMode.Create;
+  protected displayDrawer = false;
 
-  displayDrawer = false;
-  isLoading = false;
-  totalRecords = 0;
-  rows = 5;
-  first = 0;
+  protected readonly first = signal<number>(0);
+  protected readonly rows = signal<number>(5);
+  protected readonly searchTerm = signal<string>('');
 
-  private searchTerm = '';
-  private readonly loadLazy = new Subject<any>();
-  private lastLazyEvent = { first: 0, rows: 5 };
-  private readonly subscriptions = new Subscription();
+  private readonly refreshTrigger = signal<number>(0);
 
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.loadLazy
-        .pipe(
-          debounceTime(300),
-          switchMap((event) => {
-            this.isLoading = true;
+  private readonly queryParams = computed(() => ({
+    page: Math.floor(this.first() / this.rows()) + 1,
+    rows: this.rows(),
+    searchTerm: this.searchTerm(),
+    refresh: this.refreshTrigger(),
+  }));
 
-            this.first = event.first;
-            this.rows = event.rows;
+  private readonly productsResource = rxResource({
+    request: () => this.queryParams(),
+    loader: ({ request }) => {
+      return this.productService.loadProducts(
+        request.page,
+        request.rows,
+        request.searchTerm,
+      );
+    },
+  });
 
-            const page = event.first / event.rows + 1;
-            return this.productService.loadProducts(
-              page,
-              event.rows,
-              this.searchTerm,
-            );
-          }),
-        )
-        .subscribe({
-          next: (response) => {
-            this.isLoading = false;
+  protected readonly products = computed(
+    () => this.productsResource.value()?.data ?? [],
+  );
+  protected readonly totalRecords = computed(
+    () => this.productsResource.value()?.totalCount ?? 0,
+  );
 
-            if (response && response.totalCount !== undefined) {
-              this.totalRecords = response.totalCount;
-            }
-          },
-          error: (error) => {
-            this.isLoading = false;
-            this.toastService.handleApiError(error);
-          },
-        }),
-    );
+  private readonly isActionLoading = signal<boolean>(false);
+  protected readonly isLoading = computed(
+    () => this.productsResource.isLoading() || this.isActionLoading(),
+  );
 
-    this.loadLazy.next(this.lastLazyEvent);
+  protected loadProducts(event: TableLazyLoadEvent): void {
+    this.first.set(event.first ?? 0);
+    this.rows.set(event.rows ?? 5);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  protected onSearch(value: string): void {
+    this.searchTerm.set(value);
+    this.first.set(0);
   }
 
-  loadProducts(event: any): void {
-    this.lastLazyEvent = event;
-    this.loadLazy.next(event);
-  }
-
-  onSearch(value: string): void {
-    this.searchTerm = value;
-    this.loadProducts({ first: 0, rows: this.lastLazyEvent.rows });
-  }
-
-  openForm(mode: FormMode, product?: Product): void {
+  protected openForm(mode: FormMode, product?: Product): void {
     this.formMode = mode;
     this.selectedProduct = product;
     this.displayDrawer = true;
   }
 
-  generatePdfReport(): void {
+  protected generatePdfReport(): void {
     this.toastService.showInfo(
       'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
     );
   }
 
-  async saveProduct(formValue: Product): Promise<void> {
-    this.isLoading = true;
+  protected async saveProduct(formValue: Product): Promise<void> {
+    this.isActionLoading.set(true);
     const operation$ =
       this.formMode === FormMode.Create
         ? this.productService.createProduct(formValue)
@@ -142,16 +117,16 @@ export class ProductContainerComponent implements OnInit, OnDestroy {
       const response = await firstValueFrom(operation$);
       if (response) {
         this.displayDrawer = false;
-        this.loadLazy.next(this.lastLazyEvent);
+        this.refreshList();
       }
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
   }
 
-  async changeStatusProduct(product: Product): Promise<void> {
+  protected async changeStatusProduct(product: Product): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
@@ -165,7 +140,7 @@ export class ProductContainerComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
 
-    this.isLoading = true;
+    this.isActionLoading.set(true);
     const alteredProduct = { ...product, isActive: isActivating };
 
     try {
@@ -175,11 +150,15 @@ export class ProductContainerComponent implements OnInit, OnDestroy {
 
       const successMessage = `Produto ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);
-      this.loadLazy.next(this.lastLazyEvent);
+      this.refreshList();
     } catch (error) {
       this.toastService.handleApiError(error);
     } finally {
-      this.isLoading = false;
+      this.isActionLoading.set(false);
     }
+  }
+
+  private refreshList(): void {
+    this.refreshTrigger.update((n) => n + 1);
   }
 }

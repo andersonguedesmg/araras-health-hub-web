@@ -66,6 +66,7 @@ export class SubCategoryService {
     pageNumber: number,
     pageSize: number,
     searchTerm: string = '',
+    mainCategoryId?: number,
     isActive?: boolean,
   ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('subcategories/dropdown');
@@ -74,6 +75,10 @@ export class SubCategoryService {
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString())
       .set('searchTerm', searchTerm);
+
+    if (mainCategoryId) {
+      params = params.set('mainCategoryId', mainCategoryId.toString());
+    }
 
     if (isActive !== undefined) {
       params = params.set('isActive', isActive.toString());

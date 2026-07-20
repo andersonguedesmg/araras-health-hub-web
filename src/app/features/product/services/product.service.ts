@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { map, Observable, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
 import { ApiDropdownItem } from '../../../shared/interfaces/api-dropdown-item';
 import { ApiResponse } from '../../../shared/interfaces/api-response';
 import { SelectOptions } from '../../../shared/interfaces/select-options';
@@ -11,11 +11,8 @@ import { Product } from '../interfaces/product';
   providedIn: 'root',
 })
 export class ProductService {
-  private http = inject(HttpClient);
-  private apiConfig = inject(ApiConfigService);
-  private productsSignal = signal<Product[]>([]);
-
-  public products = this.productsSignal.asReadonly();
+  private readonly http = inject(HttpClient);
+  private readonly apiConfig = inject(ApiConfigService);
 
   public loadProducts(
     pageNumber: number,
@@ -28,24 +25,12 @@ export class ProductService {
       .set('pageSize', pageSize.toString())
       .set('searchTerm', searchTerm);
 
-    return this.http.get<ApiResponse<Product[]>>(url, { params }).pipe(
-      tap((response) => {
-        if (response && response.data) {
-          this.productsSignal.set(response.data);
-        }
-      }),
-    );
+    return this.http.get<ApiResponse<Product[]>>(url, { params });
   }
 
   public createProduct(product: Product): Observable<ApiResponse<Product>> {
     const url = this.apiConfig.getUrl('products');
-    return this.http.post<ApiResponse<Product>>(url, product).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.productsSignal.update((current) => [response.data!, ...current]);
-        }
-      }),
-    );
+    return this.http.post<ApiResponse<Product>>(url, product);
   }
 
   public getProductById(productId: number): Observable<ApiResponse<Product>> {
@@ -58,17 +43,7 @@ export class ProductService {
     productId: number,
   ): Observable<ApiResponse<Product>> {
     const url = this.apiConfig.getUrl(`products/${productId}`);
-    return this.http.put<ApiResponse<Product>>(url, product).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.productsSignal.update((current) =>
-            current.map((item) =>
-              item.id === productId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+    return this.http.put<ApiResponse<Product>>(url, product);
   }
 
   public changeStatusProduct(
@@ -77,18 +52,12 @@ export class ProductService {
   ): Observable<ApiResponse<Product>> {
     const action = product.isActive ? 'activate' : 'deactivate';
     const url = this.apiConfig.getUrl(`products/${productId}/${action}`);
+    return this.http.patch<ApiResponse<Product>>(url, {});
+  }
 
-    return this.http.patch<ApiResponse<Product>>(url, {}).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.productsSignal.update((current) =>
-            current.map((item) =>
-              item.id === productId ? response.data! : item,
-            ),
-          );
-        }
-      }),
-    );
+  public deleteProduct(productId: number): Observable<ApiResponse<Product>> {
+    const url = this.apiConfig.getUrl(`products/${productId}`);
+    return this.http.delete<ApiResponse<Product>>(url);
   }
 
   public getProductPagedOptions(
