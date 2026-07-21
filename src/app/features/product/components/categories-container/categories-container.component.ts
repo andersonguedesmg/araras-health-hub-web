@@ -50,8 +50,11 @@ export class CategoriesContainerComponent {
 
   protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
-    { label: 'Produtos', routerLink: '/administracao/produtos' },
-    { label: 'Categorias', routerLink: '/administracao/produtos/categorias' },
+    { label: 'Itens', routerLink: '/administracao/suprimentos/itens' },
+    {
+      label: 'Categorias',
+      routerLink: '/administracao/suprimentos/categorias',
+    },
   ]);
 
   protected readonly activeTab = signal<string>('main');

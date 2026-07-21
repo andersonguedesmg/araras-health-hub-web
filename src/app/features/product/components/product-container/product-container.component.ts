@@ -35,13 +35,13 @@ export class ProductContainerComponent {
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
-  protected readonly title = 'Produtos e Insumos';
+  protected readonly title = 'Itens';
   protected readonly description =
     'Cadastro e controle do catálogo de suprimentos da rede municipal de saúde.';
 
   protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
-    { label: 'Produtos', routerLink: '/administracao/produtos' },
+    { label: 'Itens', routerLink: '/administracao/suprimentos/itens' },
   ]);
 
   protected selectedProduct?: Product;

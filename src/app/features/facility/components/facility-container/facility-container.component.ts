@@ -35,13 +35,13 @@ export class FacilityContainerComponent {
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
-  protected readonly title = 'Unidades de Saúde';
+  protected readonly title = 'Unidades';
   protected readonly description =
     'Gestão e controle dos estabelecimentos da rede municipal de saúde.';
 
   protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
-    { label: 'Unidades de Saúde', routerLink: '/administracao/unidades' },
+    { label: 'Unidades', routerLink: '/administracao/unidades' },
   ]);
 
   protected selectedFacility?: Facility;

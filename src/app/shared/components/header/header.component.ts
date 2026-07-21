@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, computed, inject, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MenuItem, PrimeIcons } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
@@ -45,9 +38,6 @@ export class HeaderComponent {
 
   @ViewChild('menu') menu!: Menu;
 
-  readonly items = signal<MenuItem[]>([]);
-  readonly avatarItems = signal<MenuItem[]>([]);
-
   readonly themeIcon = computed(() => {
     return this.themeService.currentTheme() === 'light'
       ? PrimeIcons.SUN
@@ -56,34 +46,15 @@ export class HeaderComponent {
 
   readonly userInitial = computed(() => {
     const user = this.authService.currentUser();
-    if (user && user.userName && user.userName.length > 0) {
+    if (user?.userName && user.userName.length > 0) {
       return user.userName.charAt(0).toUpperCase();
     }
     return '';
   });
 
-  constructor() {
-    effect(() => {
-      const user = this.authService.currentUser();
-      if (user) {
-        this.initializeMenuItems();
-        this.updateAvatarMenu(user.userName, user.scope, user.role);
-      }
-    });
-  }
-
-  toggleThemeCycle(): void {
-    this.themeService.toggleThemeCycle();
-
+  readonly items = computed<MenuItem[]>(() => {
     const user = this.authService.currentUser();
-    if (user) {
-      this.updateAvatarMenu(user.userName, user.scope, user.role);
-    }
-  }
-
-  private initializeMenuItems(): void {
-    const user = this.authService.currentUser();
-    if (!user) return;
+    if (!user) return [];
 
     const isManagement =
       user.scope === SCOPE_LABEL_MAPPING[UserScopes.MANAGEMENT];
@@ -91,62 +62,80 @@ export class HeaderComponent {
       user.scope === SCOPE_LABEL_MAPPING[UserScopes.OPERATIONAL];
     const hasOrderAccess = isManagement || isOperational;
 
-    const baseItems: MenuItem[] = [
+    const navItems: MenuItem[] = [
       { label: 'Home', icon: PrimeIcons.HOME, routerLink: '/' },
     ];
 
     if (isManagement) {
-      baseItems.push({
+      navItems.push({
         label: 'Administração',
-        icon: PrimeIcons.BRIEFCASE,
+        icon: PrimeIcons.SLIDERS_H,
         items: [
           {
-            label: 'Funcionários',
-            icon: PrimeIcons.USERS,
-            routerLink: '/administracao/funcionarios',
+            label: 'Visão Geral',
+            icon: PrimeIcons.TH_LARGE,
+            routerLink: '/administracao',
           },
+          { separator: true },
           {
-            label: 'Unidades',
-            icon: PrimeIcons.BUILDING,
-            routerLink: '/administracao/unidades',
-          },
-          {
-            label: 'Contas',
-            icon: PrimeIcons.ID_CARD,
-            routerLink: '/administracao/contas',
-          },
-          {
-            label: 'Fornecedores',
-            icon: PrimeIcons.TRUCK,
-            routerLink: '/administracao/fornecedores',
-          },
-          {
-            label: 'Catálogo de Produtos',
-            icon: PrimeIcons.BOX,
+            label: 'Organização',
+            icon: PrimeIcons.SITEMAP,
             items: [
               {
-                label: 'Produtos',
-                icon: PrimeIcons.BARS,
-                routerLink: '/administracao/produtos',
+                label: 'Funcionários',
+                icon: PrimeIcons.USERS,
+                routerLink: '/administracao/funcionarios',
               },
               {
-                label: 'Categorias',
-                icon: PrimeIcons.TAGS,
-                routerLink: '/administracao/produtos/categorias',
+                label: 'Unidades',
+                icon: PrimeIcons.BUILDING,
+                routerLink: '/administracao/unidades',
               },
               {
-                label: 'Tipos de Embalagem',
+                label: 'Contas',
+                icon: PrimeIcons.ID_CARD,
+                routerLink: '/administracao/contas',
+              },
+            ],
+          },
+          {
+            label: 'Suprimentos',
+            icon: PrimeIcons.TRUCK,
+            items: [
+              {
+                label: 'Fornecedores',
+                icon: PrimeIcons.ADDRESS_BOOK,
+                routerLink: '/administracao/fornecedores',
+              },
+              {
+                label: 'Materiais',
                 icon: PrimeIcons.BOX,
-                routerLink: '/administracao/produtos/embalagens',
+                items: [
+                  {
+                    label: 'Itens',
+                    icon: PrimeIcons.BARS,
+                    routerLink: '/administracao/suprimentos/itens',
+                  },
+                  {
+                    label: 'Categorias',
+                    icon: PrimeIcons.TAGS,
+                    routerLink: '/administracao/suprimentos/categorias',
+                  },
+                  {
+                    label: 'Acondicionamento',
+                    icon: PrimeIcons.INBOX,
+                    routerLink: '/administracao/suprimentos/acondicionamento',
+                  },
+                ],
               },
             ],
           },
         ],
       });
 
-      baseItems.push({
+      navItems.push({
         label: 'Almoxarifado',
-        icon: PrimeIcons.WAREHOUSE,
+        icon: PrimeIcons.BUILDING_COLUMNS,
         items: [
           {
             label: 'Estoque',
@@ -154,7 +143,7 @@ export class HeaderComponent {
             items: [
               {
                 label: 'Estoque Geral',
-                icon: PrimeIcons.BOX,
+                icon: PrimeIcons.DATABASE,
                 routerLink: '/almoxarifado/estoque/geral',
               },
               {
@@ -164,19 +153,19 @@ export class HeaderComponent {
               },
               {
                 label: 'Lotes Ativos',
-                icon: PrimeIcons.CLOCK,
+                icon: PrimeIcons.BARCODE,
                 routerLink: '/almoxarifado/estoque/lotes-ativos',
               },
               {
                 label: 'Vencimento Próximo',
-                icon: PrimeIcons.CLOCK,
+                icon: PrimeIcons.CALENDAR_TIMES,
                 routerLink: '/almoxarifado/estoque/proximo-vencimento',
               },
             ],
           },
           {
             label: 'Movimentações',
-            icon: PrimeIcons.HISTORY,
+            icon: PrimeIcons.SYNC,
             items: [
               {
                 label: 'Nova Entrada',
@@ -190,24 +179,24 @@ export class HeaderComponent {
               },
               { separator: true },
               {
-                label: 'Histórico',
-                icon: PrimeIcons.LIST,
+                label: 'Histórico Geral',
+                icon: PrimeIcons.HISTORY,
                 routerLink: '/almoxarifado/movimentacoes/historico',
               },
               { separator: true },
               {
-                label: 'Entradas',
+                label: 'Entradas Realizadas',
                 icon: PrimeIcons.FILE_IMPORT,
                 routerLink: '/almoxarifado/movimentacoes/entradas',
               },
               {
-                label: 'Saídas',
+                label: 'Saídas Realizadas',
                 icon: PrimeIcons.FILE_EXPORT,
                 routerLink: '/almoxarifado/movimentacoes/saidas',
               },
               {
-                label: 'Ajustes',
-                icon: PrimeIcons.TABLE,
+                label: 'Ajustes Efetuados',
+                icon: PrimeIcons.SLIDERS_V,
                 routerLink: '/almoxarifado/movimentacoes/ajustes',
               },
             ],
@@ -228,8 +217,8 @@ export class HeaderComponent {
     }
 
     if (hasOrderAccess) {
-      baseItems.push({
-        label: 'Pedido',
+      navItems.push({
+        label: 'Pedidos',
         icon: PrimeIcons.SHOPPING_CART,
         items: [
           {
@@ -253,23 +242,23 @@ export class HeaderComponent {
           },
           { separator: true },
           {
-            label: 'Cancelado',
+            label: 'Cancelados',
             icon: PrimeIcons.BAN,
             routerLink: '/pedidos/cancelados',
           },
           {
-            label: 'Finalizado',
+            label: 'Finalizados',
             icon: PrimeIcons.CHECK_CIRCLE,
             routerLink: '/pedidos/finalizados',
           },
           {
-            label: 'Histórico',
+            label: 'Histórico Completo',
             icon: PrimeIcons.LIST,
             routerLink: '/pedidos/historico',
           },
           { separator: true },
           {
-            label: 'Novo',
+            label: 'Novo Pedido',
             icon: PrimeIcons.PLUS_CIRCLE,
             routerLink: '/pedidos/novo',
           },
@@ -277,32 +266,47 @@ export class HeaderComponent {
       });
     }
 
-    this.items.set(baseItems);
-  }
+    return navItems;
+  });
 
-  private updateAvatarMenu(
-    username: string,
-    scope: string,
-    role: string,
-  ): void {
-    this.avatarItems.set([
-      { label: `Conta: ${username}`, icon: PrimeIcons.USER, disabled: true },
-      { label: `Escopo: ${scope}`, icon: PrimeIcons.FLAG, disabled: true },
-      { label: `Função: ${role}`, icon: PrimeIcons.SHIELD, disabled: true },
+  readonly avatarItems = computed<MenuItem[]>(() => {
+    const user = this.authService.currentUser();
+    if (!user) return [];
+
+    return [
+      {
+        label: `Usuário: ${user.userName}`,
+        icon: PrimeIcons.USER,
+        disabled: true,
+      },
+      { label: `Escopo: ${user.scope}`, icon: PrimeIcons.FLAG, disabled: true },
+      {
+        label: `Função: ${user.role}`,
+        icon: PrimeIcons.SHIELD,
+        disabled: true,
+      },
       { separator: true },
       {
         label: 'Perfil da Unidade',
-        icon: PrimeIcons.ID_CARD,
+        icon: PrimeIcons.BUILDING,
         routerLink: '/administracao/unidades/perfil',
       },
-      { label: 'Sobre', icon: PrimeIcons.INFO_CIRCLE, routerLink: '/sobre' },
+      {
+        label: 'Sobre o Sistema',
+        icon: PrimeIcons.INFO_CIRCLE,
+        routerLink: '/sobre',
+      },
       { separator: true },
       {
-        label: 'Sair',
+        label: 'Sair do Sistema',
         icon: PrimeIcons.POWER_OFF,
         command: () => this.logout(),
       },
-    ]);
+    ];
+  });
+
+  toggleThemeCycle(): void {
+    this.themeService.toggleThemeCycle();
   }
 
   toggleMenu(event: MouseEvent): void {

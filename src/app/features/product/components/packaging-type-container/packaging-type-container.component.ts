@@ -35,13 +35,17 @@ export class PackagingTypeContainerComponent {
     viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
-  protected readonly title = 'Tipos de Embalagem';
+  protected readonly title = 'Acondicionamento';
   protected readonly description =
-    'Cadastro e controle de tipos de embalagens para os insumos da rede municipal de saúde.';
+    'Cadastro e controle de tipos de acondicionamento para os insumos da rede municipal de saúde.';
 
   protected readonly itemsBreadcrumb = signal([
-    { label: 'Catálogo de Produto', routerLink: '/catalogo' },
-    { label: 'Tipos de Embalagem', routerLink: '/catalogo/embalagens' },
+    { label: 'Administração', routerLink: '/administracao' },
+    { label: 'Itens', routerLink: '/administracao/suprimentos/itens' },
+    {
+      label: 'Acondicionamento',
+      routerLink: '/administracao/suprimentos/acondicionamento',
+    },
   ]);
 
   protected selectedPackagingType?: PackagingType;

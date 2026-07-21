@@ -1,11 +1,11 @@
 <p-menubar
   [model]="items()"
   class="w-full block"
-  styleClass="!rounded-none !border-t-0 !border-x-0 border-b border-surface-200 dark:border-surface-800"
+  styleClass="!rounded-none !border-t-0 !border-x-0 border-b border-surface-200 dark:border-surface-800 bg-surface-0/95 dark:bg-surface-900/95 backdrop-blur-md"
 >
   <ng-template #start>
     <div
-      class="flex items-center space-x-2 mr-6 select-none cursor-pointer"
+      class="flex items-center space-x-2 mr-6 select-none cursor-pointer transition-opacity hover:opacity-90"
       routerLink="/"
     >
       <img
@@ -17,11 +17,12 @@
   </ng-template>
 
   <ng-template #end>
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
       <p-button
         [icon]="themeIcon()"
         severity="secondary"
         [text]="true"
+        [rounded]="true"
         (onClick)="toggleThemeCycle()"
         pTooltip="Alternar Tema"
         tooltipPosition="bottom"
@@ -29,13 +30,15 @@
 
       @if (authService.currentUser()) {
         <div
-          class="flex items-center gap-2 cursor-pointer"
+          class="flex items-center gap-2 cursor-pointer p-1 rounded-full hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
           (click)="toggleMenu($event)"
+          pTooltip="Perfil e Conta"
+          tooltipPosition="bottom"
         >
           <p-avatar
             [label]="userInitial()"
             shape="circle"
-            class="border border-surface-200 dark:border-surface-700"
+            styleClass="bg-primary-500 text-white font-bold border border-surface-200 dark:border-surface-700"
           />
         </div>
       }

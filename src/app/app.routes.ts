@@ -76,27 +76,27 @@ export const routes: Routes = [
         data: { scopes: SCOPE_MANAGEMENT },
       },
       {
-        path: 'administracao/produtos',
+        path: 'administracao/suprimentos/itens',
         loadComponent: () =>
           import('./features/product/components/product-container/product-container.component').then(
             (m) => m.ProductContainerComponent,
           ),
-        title: 'A2H - Produtos',
+        title: 'A2H - Itens',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT },
       },
       {
-        path: 'administracao/produtos/embalagens',
+        path: 'administracao/suprimentos/acondicionamento',
         loadComponent: () =>
           import('./features/product/components/packaging-type-container/packaging-type-container.component').then(
             (m) => m.PackagingTypeContainerComponent,
           ),
-        title: 'A2H - Tipos de Embalagem',
+        title: 'A2H - Acondicionamento',
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT },
       },
       {
-        path: 'administracao/produtos/categorias',
+        path: 'administracao/suprimentos/categorias',
         loadComponent: () =>
           import('./features/product/components/categories-container/categories-container.component').then(
             (m) => m.CategoriesContainerComponent,
