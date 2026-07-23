@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { EmployeeService } from '../../features/employee/services/employee.service';
+import { firstValueFrom, Observable, of } from 'rxjs';
+import { EmployeeService } from '../../features/admin/domains/employee/services/employee.service';
+import { FacilityService } from '../../features/facility/services/facility.service';
 import { ProductService } from '../../features/product/services/product.service';
 import { SupplierService } from '../../features/supplier/services/supplier.service';
 import { ToastMessages } from '../constants/messages.constants';
-import { FacilityService } from '../../features/facility/services/facility.service';
-import { firstValueFrom, Observable, of } from 'rxjs';
 import { SelectOptions } from '../interfaces/select-options';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DropdownDataService {
   constructor(
@@ -16,14 +16,19 @@ export class DropdownDataService {
     private productService: ProductService,
     private supplierService: SupplierService,
     private facilityService: FacilityService,
-  ) { }
+  ) {}
 
   private async getOptions<T>(
-    serviceCall: () => Promise<SelectOptions<T>[]> | Observable<SelectOptions<T>[]>
+    serviceCall: () =>
+      | Promise<SelectOptions<T>[]>
+      | Observable<SelectOptions<T>[]>,
   ): Promise<SelectOptions<T>[]> {
     try {
       const response = serviceCall();
-      const options = response instanceof Observable ? await firstValueFrom(response) : await response;
+      const options =
+        response instanceof Observable
+          ? await firstValueFrom(response)
+          : await response;
       return options || [];
     } catch (error) {
       console.error(ToastMessages.ERROR_LOADING_NAMES, error);

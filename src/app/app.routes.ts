@@ -68,7 +68,7 @@ export const routes: Routes = [
       {
         path: 'administracao/funcionarios',
         loadComponent: () =>
-          import('./features/employee/components/employee-container/employee-container.component').then(
+          import('./features/admin/domains/employee/components/employee-container/employee-container.component').then(
             (m) => m.EmployeeContainerComponent,
           ),
         title: 'A2H - Funcionários',

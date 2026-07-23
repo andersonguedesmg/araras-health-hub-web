@@ -20,12 +20,12 @@ import { ButtonModule } from 'primeng/button';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
 import { firstValueFrom } from 'rxjs';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
-import { cpfValidator } from '../../../../core/validators/cpf-cnpj.validator';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ToastService } from '../../../../shared/services/toast.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { cpfValidator } from '../../../../../../core/validators/cpf-cnpj.validator';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
+import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
+import { ToastService } from '../../../../../../shared/services/toast.service';
 import { Employee } from '../../interfaces/employee';
 
 @Component({

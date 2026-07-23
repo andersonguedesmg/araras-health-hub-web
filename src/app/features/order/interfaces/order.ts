@@ -1,7 +1,7 @@
-import { Account } from "../../account/interfaces/account";
-import { Employee } from "../../employee/interfaces/employee";
-import { OrderItem } from "./orderItem";
-import { OrderStatus } from "./orderStatus";
+import { Account } from '../../account/interfaces/account';
+import { Employee } from '../../admin/domains/employee/interfaces/employee';
+import { OrderItem } from './orderItem';
+import { OrderStatus } from './orderStatus';
 
 export interface Order {
   id: number;

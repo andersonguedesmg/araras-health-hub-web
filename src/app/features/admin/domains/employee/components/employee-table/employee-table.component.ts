@@ -3,10 +3,13 @@ import { ButtonModule } from 'primeng/button';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { AuthService } from '../../../../core/services/auth.service';
-import { TableToolbarComponent } from '../../../../shared/components/table-toolbar/table-toolbar.component';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
+import { AuthService } from '../../../../../../core/services/auth.service';
+import { TableToolbarComponent } from '../../../../../../shared/components/table-toolbar/table-toolbar.component';
+import { TableComponent } from '../../../../../../shared/components/table/table.component';
+import {
+  getSeverity,
+  getStatus,
+} from '../../../../../../shared/utils/status.utils';
 import { Employee } from '../../interfaces/employee';
 
 @Component({

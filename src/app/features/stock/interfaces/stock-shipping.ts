@@ -1,6 +1,6 @@
-import { Account } from "../../account/interfaces/account";
-import { Employee } from "../../employee/interfaces/employee";
-import { StockShippingItem } from "./stock-shipping-item";
+import { Account } from '../../account/interfaces/account';
+import { Employee } from '../../admin/domains/employee/interfaces/employee';
+import { StockShippingItem } from './stock-shipping-item';
 
 export interface StockShipping {
   id: number;
