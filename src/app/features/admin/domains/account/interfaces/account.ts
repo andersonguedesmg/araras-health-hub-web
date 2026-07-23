@@ -1,6 +1,6 @@
 import { Roles } from '../../../../../shared/enums/roles.enum';
 import { Scope } from '../../../../../shared/enums/scope.enum';
-import { Facility } from '../../../../facility/interfaces/facility';
+import { Facility } from '../../facility/interfaces/facility';
 
 export interface Account {
   id: number;

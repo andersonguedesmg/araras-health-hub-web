@@ -1,5 +1,5 @@
 import { Scope } from '../../../../../shared/enums/scope.enum';
-import { Facility } from '../../../../facility/interfaces/facility';
+import { Facility } from '../../facility/interfaces/facility';
 
 export interface AccountDetails {
   id: number;

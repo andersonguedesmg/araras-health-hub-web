@@ -6,19 +6,22 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { firstValueFrom } from 'rxjs';
-import { BaseComponent } from '../../../../core/components/base/base.component';
-import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { HasPermissionDirective } from '../../../../../../core/directives/has-permission.directive';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
 import {
   getRoleSeverity,
   getRoleValue,
-} from '../../../../shared/utils/roles.utils';
+} from '../../../../../../shared/utils/roles.utils';
 import {
   getScopeSeverity,
   getScopeValue,
-} from '../../../../shared/utils/scope.utils';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
+} from '../../../../../../shared/utils/scope.utils';
+import {
+  getSeverity,
+  getStatus,
+} from '../../../../../../shared/utils/status.utils';
 import { FacilityProfile } from '../../interfaces/facility-profile';
 import { FacilityService } from '../../services/facility.service';
 

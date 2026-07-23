@@ -108,7 +108,7 @@ export const routes: Routes = [
       {
         path: 'administracao/unidades',
         loadComponent: () =>
-          import('./features/facility/components/facility-container/facility-container.component').then(
+          import('./features/admin/domains/facility/components/facility-container/facility-container.component').then(
             (m) => m.FacilityContainerComponent,
           ),
         title: 'A2H - Unidades',
@@ -118,7 +118,7 @@ export const routes: Routes = [
       {
         path: 'administracao/unidades/perfil',
         loadComponent: () =>
-          import('./features/facility/components/facility-profile/facility-profile.component').then(
+          import('./features/admin/domains/facility/components/facility-profile/facility-profile.component').then(
             (m) => m.FacilityProfileComponent,
           ),
         title: 'A2H - Perfil da Unidade',
