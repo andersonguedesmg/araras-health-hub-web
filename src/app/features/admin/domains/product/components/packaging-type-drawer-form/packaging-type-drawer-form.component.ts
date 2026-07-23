@@ -18,11 +18,11 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { firstValueFrom } from 'rxjs';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ToastService } from '../../../../shared/services/toast.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
+import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
+import { ToastService } from '../../../../../../shared/services/toast.service';
 import { PackagingType } from '../../interfaces/packaging-type';
 
 @Component({

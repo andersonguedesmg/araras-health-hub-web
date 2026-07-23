@@ -1,5 +1,5 @@
-import { Product } from "../../product/interfaces/product";
-import { LotToSeparate } from "./lotToSeparate";
+import { Product } from '../../admin/domains/product/interfaces/product';
+import { LotToSeparate } from './lotToSeparate';
 
 export interface OrderItem {
   id: number;

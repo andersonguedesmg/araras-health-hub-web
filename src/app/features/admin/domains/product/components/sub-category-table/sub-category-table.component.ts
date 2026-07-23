@@ -3,14 +3,17 @@ import { ButtonModule } from 'primeng/button';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { AuthService } from '../../../../core/services/auth.service';
-import { TableToolbarComponent } from '../../../../shared/components/table-toolbar/table-toolbar.component';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-import { PackagingType } from '../../interfaces/packaging-type';
+import { AuthService } from '../../../../../../core/services/auth.service';
+import { TableToolbarComponent } from '../../../../../../shared/components/table-toolbar/table-toolbar.component';
+import { TableComponent } from '../../../../../../shared/components/table/table.component';
+import {
+  getSeverity,
+  getStatus,
+} from '../../../../../../shared/utils/status.utils';
+import { SubCategory } from '../../interfaces/sub-category';
 
 @Component({
-  selector: 'app-packaging-type-table',
+  selector: 'app-sub-category-table',
   standalone: true,
   imports: [
     ButtonModule,
@@ -19,13 +22,13 @@ import { PackagingType } from '../../interfaces/packaging-type';
     TableComponent,
     TableToolbarComponent,
   ],
-  templateUrl: './packaging-type-table.component.html',
-  styleUrl: './packaging-type-table.component.scss',
+  templateUrl: './sub-category-table.component.html',
+  styleUrl: './sub-category-table.component.scss',
 })
-export class PackagingTypeTableComponent {
+export class SubCategoryTableComponent {
   private readonly authService = inject(AuthService);
 
-  readonly value = input<PackagingType[]>([]);
+  readonly value = input<SubCategory[]>([]);
   readonly totalRecords = input<number>(0);
   readonly loading = input<boolean>(false);
   readonly rows = input<number>(5);
@@ -35,9 +38,9 @@ export class PackagingTypeTableComponent {
   readonly onSearch = output<string>();
   readonly onAdd = output<void>();
   readonly onPdfClick = output<void>();
-  readonly onEdit = output<PackagingType>();
-  readonly onDetail = output<PackagingType>();
-  readonly onChangeStatus = output<PackagingType>();
+  readonly onEdit = output<SubCategory>();
+  readonly onDetail = output<SubCategory>();
+  readonly onChangeStatus = output<SubCategory>();
 
   protected readonly getSeverity = getSeverity;
   protected readonly getStatus = getStatus;

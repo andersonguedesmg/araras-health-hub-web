@@ -1,4 +1,4 @@
-import { Product } from "../../product/interfaces/product";
+import { Product } from '../../admin/domains/product/interfaces/product';
 
 export interface ReceivingItem {
   id: number;

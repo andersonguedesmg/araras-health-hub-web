@@ -1,9 +1,9 @@
-import { Product } from "../../product/interfaces/product";
+import { Product } from '../../admin/domains/product/interfaces/product';
 
 export interface Stock {
   id: number;
   productId: number;
-  product: Product,
+  product: Product;
   CurrentQuantity: number;
   MinQuantity: number;
   ReservedQuantity: number;

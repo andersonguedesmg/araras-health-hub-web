@@ -26,12 +26,12 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { DrawerComponent } from '../../../../shared/components/drawer/drawer.component';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { ToastService } from '../../../../shared/services/toast.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
+import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
+import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
+import { ToastService } from '../../../../../../shared/services/toast.service';
 import { Product } from '../../interfaces/product';
 import { MainCategoryService } from '../../services/main-category.service';
 import { PackagingTypeService } from '../../services/packaging-type.service';
@@ -306,7 +306,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
             this.mainCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
               const filteredNew = incomingOptions.filter(
-                (item) => !existingIds.has(item.value),
+                (item: any) => !existingIds.has(item.value),
               );
               return [...existing, ...filteredNew];
             });
@@ -354,7 +354,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
             this.mainCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
               const filteredNew = incomingOptions.filter(
-                (item) => !existingIds.has(item.value),
+                (item: any) => !existingIds.has(item.value),
               );
               return [...existing, ...filteredNew];
             });
@@ -471,7 +471,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
             this.subCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
               const filteredNew = incomingOptions.filter(
-                (item) => !existingIds.has(item.value),
+                (item: any) => !existingIds.has(item.value),
               );
               return [...existing, ...filteredNew];
             });
@@ -526,7 +526,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
             this.subCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
               const filteredNew = incomingOptions.filter(
-                (item) => !existingIds.has(item.value),
+                (item: any) => !existingIds.has(item.value),
               );
               return [...existing, ...filteredNew];
             });
@@ -638,7 +638,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
             this.packagingTypeOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
               const filteredNew = incomingOptions.filter(
-                (item) => !existingIds.has(item.value),
+                (item: any) => !existingIds.has(item.value),
               );
               return [...existing, ...filteredNew];
             });
@@ -689,7 +689,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
             this.packagingTypeOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
               const filteredNew = incomingOptions.filter(
-                (item) => !existingIds.has(item.value),
+                (item: any) => !existingIds.has(item.value),
               );
               return [...existing, ...filteredNew];
             });

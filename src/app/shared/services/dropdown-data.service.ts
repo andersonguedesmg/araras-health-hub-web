@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { EmployeeService } from '../../features/admin/domains/employee/services/employee.service';
 import { FacilityService } from '../../features/admin/domains/facility/services/facility.service';
+import { ProductService } from '../../features/admin/domains/product/services/product.service';
 import { SupplierService } from '../../features/admin/domains/supplier/services/supplier.service';
-import { ProductService } from '../../features/product/services/product.service';
 import { ToastMessages } from '../constants/messages.constants';
 import { SelectOptions } from '../interfaces/select-options';
 

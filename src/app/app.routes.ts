@@ -78,7 +78,7 @@ export const routes: Routes = [
       {
         path: 'administracao/suprimentos/itens',
         loadComponent: () =>
-          import('./features/product/components/product-container/product-container.component').then(
+          import('./features/admin/domains/product/components/product-container/product-container.component').then(
             (m) => m.ProductContainerComponent,
           ),
         title: 'A2H - Itens',
@@ -88,7 +88,7 @@ export const routes: Routes = [
       {
         path: 'administracao/suprimentos/acondicionamento',
         loadComponent: () =>
-          import('./features/product/components/packaging-type-container/packaging-type-container.component').then(
+          import('./features/admin/domains/product/components/packaging-type-container/packaging-type-container.component').then(
             (m) => m.PackagingTypeContainerComponent,
           ),
         title: 'A2H - Acondicionamento',
@@ -98,7 +98,7 @@ export const routes: Routes = [
       {
         path: 'administracao/suprimentos/categorias',
         loadComponent: () =>
-          import('./features/product/components/categories-container/categories-container.component').then(
+          import('./features/admin/domains/product/components/categories-container/categories-container.component').then(
             (m) => m.CategoriesContainerComponent,
           ),
         title: 'A2H - Categorias',
