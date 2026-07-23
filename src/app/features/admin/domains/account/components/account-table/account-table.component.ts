@@ -3,18 +3,21 @@ import { ButtonModule } from 'primeng/button';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { AuthService } from '../../../../core/services/auth.service';
-import { TableToolbarComponent } from '../../../../shared/components/table-toolbar/table-toolbar.component';
-import { TableComponent } from '../../../../shared/components/table/table.component';
+import { AuthService } from '../../../../../../core/services/auth.service';
+import { TableToolbarComponent } from '../../../../../../shared/components/table-toolbar/table-toolbar.component';
+import { TableComponent } from '../../../../../../shared/components/table/table.component';
 import {
   getRoleSeverity,
   getRoleValue,
-} from '../../../../shared/utils/roles.utils';
+} from '../../../../../../shared/utils/roles.utils';
 import {
   getScopeSeverity,
   getScopeValue,
-} from '../../../../shared/utils/scope.utils';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
+} from '../../../../../../shared/utils/scope.utils';
+import {
+  getSeverity,
+  getStatus,
+} from '../../../../../../shared/utils/status.utils';
 import { Account } from '../../interfaces/account';
 
 @Component({

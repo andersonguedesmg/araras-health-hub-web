@@ -1,6 +1,6 @@
-import { Address } from "../../../shared/interfaces/address";
-import { Contact } from "../../../shared/interfaces/contact";
-import { Account } from "../../account/interfaces/account";
+import { Address } from '../../../shared/interfaces/address';
+import { Contact } from '../../../shared/interfaces/contact';
+import { Account } from '../../admin/domains/account/interfaces/account';
 
 export interface Facility {
   id: number;

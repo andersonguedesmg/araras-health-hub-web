@@ -1,4 +1,4 @@
-import { Account } from '../../account/interfaces/account';
+import { Account } from '../../admin/domains/account/interfaces/account';
 import { Employee } from '../../admin/domains/employee/interfaces/employee';
 import { OrderItem } from './orderItem';
 import { OrderStatus } from './orderStatus';

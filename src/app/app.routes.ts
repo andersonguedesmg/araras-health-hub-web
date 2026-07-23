@@ -48,7 +48,7 @@ export const routes: Routes = [
       {
         path: 'administracao/contas',
         loadComponent: () =>
-          import('./features/account/components/account-container/account-container.component').then(
+          import('./features/admin/domains/account/components/account-container/account-container.component').then(
             (m) => m.AccountContainerComponent,
           ),
         title: 'A2H - Contas',
