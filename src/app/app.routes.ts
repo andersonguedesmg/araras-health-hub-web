@@ -34,7 +34,7 @@ export const routes: Routes = [
   {
     path: 'sobre',
     loadComponent: () =>
-      import('./features/about/about/about.component').then(
+      import('./shared/pages/about/about.component').then(
         (m) => m.AboutComponent,
       ),
     title: 'A2H - Sobre',
