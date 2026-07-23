@@ -316,7 +316,7 @@ export const routes: Routes = [
   {
     path: '**',
     loadComponent: () =>
-      import('./features/errors/not-found/not-found.component').then(
+      import('./shared/pages/not-found/not-found.component').then(
         (m) => m.NotFoundComponent,
       ),
     title: 'Araras Health Hub - 404',
