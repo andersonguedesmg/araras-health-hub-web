@@ -1,6 +1,6 @@
 import { Account } from '../../admin/domains/account/interfaces/account';
 import { Employee } from '../../admin/domains/employee/interfaces/employee';
-import { Supplier } from '../../supplier/interfaces/supplier';
+import { Supplier } from '../../admin/domains/supplier/interfaces/supplier';
 import { ReceivingItem } from './receiving-item';
 
 export interface Receiving {

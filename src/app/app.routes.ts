@@ -58,7 +58,7 @@ export const routes: Routes = [
       {
         path: 'administracao/fornecedores',
         loadComponent: () =>
-          import('./features/supplier/components/supplier-container/supplier-container.component').then(
+          import('./features/admin/domains/supplier/components/supplier-container/supplier-container.component').then(
             (m) => m.SupplierContainerComponent,
           ),
         title: 'A2H - Fornecedores',

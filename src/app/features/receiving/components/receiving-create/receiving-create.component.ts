@@ -1,43 +1,52 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem } from 'primeng/api';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { DialogModule } from 'primeng/dialog';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { DatePickerModule } from 'primeng/datepicker';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { ReceivingService } from '../../services/receiving.service';
-import { Receiving } from '../../interfaces/receiving';
-import { combineLatest, firstValueFrom, Subscription } from 'rxjs';
-import { SupplierService } from '../../../supplier/services/supplier.service';
-import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { AuthService } from '../../../../core/services/auth.service';
-import { Supplier } from '../../../supplier/interfaces/supplier';
 import { InputMaskModule } from 'primeng/inputmask';
-import { TextareaModule } from 'primeng/textarea';
-import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
-import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
-import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
+import { combineLatest, firstValueFrom, Subscription } from 'rxjs';
 import { BaseComponent } from '../../../../core/components/base/base.component';
+import { AuthService } from '../../../../core/services/auth.service';
+import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { cnpjValidator } from '../../../../core/validators/cpf-cnpj.validator';
+import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import {
+  ConfirmMessages,
+  ToastMessages,
+} from '../../../../shared/constants/messages.constants';
+import { StatusOptions } from '../../../../shared/constants/status-options.constants';
+import { ToastSummaries } from '../../../../shared/constants/toast.constants';
+import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
+import { FormMode } from '../../../../shared/enums/form-mode.enum';
+import { SelectOptions } from '../../../../shared/interfaces/select-options';
+import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
+import { Supplier } from '../../../admin/domains/supplier/interfaces/supplier';
+import { SupplierService } from '../../../admin/domains/supplier/services/supplier.service';
+import { Receiving } from '../../interfaces/receiving';
+import { ReceivingService } from '../../services/receiving.service';
 
 @Component({
   selector: 'app-receiving-create',
@@ -67,10 +76,17 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
   ],
   providers: [MessageService],
   templateUrl: './receiving-create.component.html',
-  styleUrl: './receiving-create.component.scss'
+  styleUrl: './receiving-create.component.scss',
 })
-export class ReceivingCreateComponent extends BaseComponent implements OnInit, OnDestroy {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Entradas' }, { label: 'Nova Entrada' }];
+export class ReceivingCreateComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy
+{
+  itemsBreadcrumb: MenuItem[] = [
+    { label: 'Almoxarifado' },
+    { label: 'Entradas' },
+    { label: 'Nova Entrada' },
+  ];
   title: string = 'Nova Entrada';
 
   receivingForm: FormGroup;
@@ -82,7 +98,8 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+  formMode: FormMode.Create | FormMode.Update | FormMode.Detail =
+    FormMode.Create;
 
   displayDialog = false;
 
@@ -95,7 +112,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
-  private receivingFormLabels: { [key: string]: string; } = {
+  private receivingFormLabels: { [key: string]: string } = {
     invoiceNumber: 'Nota Fiscal',
     supplyAuthorization: 'Autorização de Fornecimento',
     totalValue: 'Valor da Nota',
@@ -109,10 +126,10 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
     itemTotalValue: 'Valor Total do Item',
     batch: 'Lote',
     brand: 'Marca',
-    expiryDate: 'Data de Validade'
+    expiryDate: 'Data de Validade',
   };
 
-  private supplierFormLabels: { [key: string]: string; } = {
+  private supplierFormLabels: { [key: string]: string } = {
     name: 'Nome',
     cnpj: 'CNPJ',
     address: 'Endereço',
@@ -183,9 +200,11 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
       this.supplierOptions = supplierOpts;
 
       this.addReceivedItem();
-
     } catch (error) {
-      this.toastService.showError('Erro ao carregar dados iniciais. Por favor, tente novamente.', ToastSummaries.ERROR);
+      this.toastService.showError(
+        'Erro ao carregar dados iniciais. Por favor, tente novamente.',
+        ToastSummaries.ERROR,
+      );
     } finally {
       this.isLoading = false;
     }
@@ -218,7 +237,7 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
     if (quantityCtrl && unitValueCtrl) {
       const sub = combineLatest([
         quantityCtrl.valueChanges,
-        unitValueCtrl.valueChanges
+        unitValueCtrl.valueChanges,
       ]).subscribe(() => {
         this.calculateTotalValue(itemGroup);
       });
@@ -234,14 +253,16 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
       .then(() => {
         if (this.receivedItems.length > 1) {
           this.receivedItems.removeAt(index);
-          this.toastService.showSuccess(`Item ${index + 1} removido com sucesso.`, ToastSummaries.SUCCESS);
+          this.toastService.showSuccess(
+            `Item ${index + 1} removido com sucesso.`,
+            ToastSummaries.SUCCESS,
+          );
         }
       })
       .catch(() => {
         this.toastService.showInfo('Remoção cancelada.', ToastSummaries.INFO);
       });
   }
-
 
   private calculateTotalValue(itemGroup: FormGroup): void {
     const quantity = parseFloat(itemGroup.get('quantity')?.value || 0);
@@ -265,19 +286,34 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
     this.receivingFormSubmitted = true;
     this.supplierFormSubmitted = false;
 
-    if (this.validateFormAndShowErrors(this.receivingForm, this.formHelperService, this.receivingFormLabels)) {
+    if (
+      this.validateFormAndShowErrors(
+        this.receivingForm,
+        this.formHelperService,
+        this.receivingFormLabels,
+      )
+    ) {
       if (!this.isTotalValueValid()) {
-        this.toastService.showError(ToastMessages.SUM_TOTAL_VALUES_ITEMS_DIFFERENT_TOTAL_VALUE, ToastSummaries.ERROR);
+        this.toastService.showError(
+          ToastMessages.SUM_TOTAL_VALUES_ITEMS_DIFFERENT_TOTAL_VALUE,
+          ToastSummaries.ERROR,
+        );
         return;
       }
 
       const receiving: Receiving = this.receivingForm.getRawValue();
-      const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_RECEIVING : ConfirmMessages.UPDATE_RECEIVING;
+      const confirmMsg =
+        this.formMode === FormMode.Create
+          ? ConfirmMessages.CREATE_RECEIVING
+          : ConfirmMessages.UPDATE_RECEIVING;
       const successMsg = ToastMessages.SUCCESS_OPERATION;
 
-      const apiCall = () => this.formMode === FormMode.Create
-        ? firstValueFrom(this.receivingService.createReceiving(receiving))
-        : firstValueFrom(this.receivingService.updateReceiving(receiving, receiving.id));
+      const apiCall = () =>
+        this.formMode === FormMode.Create
+          ? firstValueFrom(this.receivingService.createReceiving(receiving))
+          : firstValueFrom(
+              this.receivingService.updateReceiving(receiving, receiving.id),
+            );
 
       await this.handleApiCall(apiCall, confirmMsg, successMsg);
 
@@ -314,12 +350,15 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
     this.receivingFormSubmitted = false;
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, supplier?: Supplier): void {
+  openForm(
+    mode: FormMode.Create | FormMode.Update | FormMode.Detail,
+    supplier?: Supplier,
+  ): void {
     this.formMode = mode;
     this.selectedSupplier = supplier;
     this.displayDialog = true;
     this.initializeSupplierForm();
-  };
+  }
 
   initializeSupplierForm(): void {
     this.supplierForm.reset();
@@ -365,14 +404,26 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
     this.supplierFormSubmitted = true;
     this.receivingFormSubmitted = false;
 
-    if (this.validateFormAndShowErrors(this.supplierForm, this.formHelperService, this.supplierFormLabels)) {
-      const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_SUPPLIER : ConfirmMessages.UPDATE_SUPPLIER;
+    if (
+      this.validateFormAndShowErrors(
+        this.supplierForm,
+        this.formHelperService,
+        this.supplierFormLabels,
+      )
+    ) {
+      const confirmMsg =
+        this.formMode === FormMode.Create
+          ? ConfirmMessages.CREATE_SUPPLIER
+          : ConfirmMessages.UPDATE_SUPPLIER;
       const successMsg = ToastMessages.SUCCESS_OPERATION;
 
       const supplier: Supplier = this.supplierForm.getRawValue();
-      const apiCall = () => this.formMode === FormMode.Create
-        ? firstValueFrom(this.supplierService.createSupplier(supplier))
-        : firstValueFrom(this.supplierService.updateSupplier(supplier, supplier.id));
+      const apiCall = () =>
+        this.formMode === FormMode.Create
+          ? firstValueFrom(this.supplierService.createSupplier(supplier))
+          : firstValueFrom(
+              this.supplierService.updateSupplier(supplier, supplier.id),
+            );
 
       await this.handleApiCall(apiCall, confirmMsg, successMsg);
 
@@ -383,9 +434,10 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
         await firstValueFrom(this.confirmDialog.show());
         this.isLoading = true;
 
-        const apiCall$ = this.formMode === FormMode.Create
-          ? this.supplierService.createSupplier(supplier)
-          : this.supplierService.updateSupplier(supplier, supplier.id);
+        const apiCall$ =
+          this.formMode === FormMode.Create
+            ? this.supplierService.createSupplier(supplier)
+            : this.supplierService.updateSupplier(supplier, supplier.id);
 
         const response = await firstValueFrom(apiCall$);
 
@@ -393,11 +445,11 @@ export class ReceivingCreateComponent extends BaseComponent implements OnInit, O
         this.handleApiResponse(response, successMsg);
 
         if (response.success && response.data) {
-          this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
+          this.supplierOptions =
+            await this.dropdownDataService.getSupplierOptions();
           this.receivingForm.get('supplierId')?.setValue(response.data.id);
         }
         this.hideDialog();
-
       } catch (error: any) {
         this.isLoading = false;
         if (error.message !== 'cancel') {

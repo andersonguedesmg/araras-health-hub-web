@@ -1,5 +1,5 @@
-import { Address } from "../../../shared/interfaces/address";
-import { Contact } from "../../../shared/interfaces/contact";
+import { Address } from '../../../../../shared/interfaces/address';
+import { Contact } from '../../../../../shared/interfaces/contact';
 
 export interface Supplier {
   id: number;
