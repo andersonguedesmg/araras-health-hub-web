@@ -26,7 +26,7 @@ import { ConfirmDialogComponent } from '../../../../../../shared/components/conf
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
-import { StockMovementTypePipe } from '../../../../../../shared/pipe/stock-movement-type.pipe';
+import { StockMovementTypePipe } from '../../../../../../shared/pipes/stock-movement-type/stock-movement-type.pipe';
 import { StockMovement } from '../../interfaces/stock-movement';
 import { StockMovementService } from '../../services/stock-movement.service';
 
