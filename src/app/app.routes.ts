@@ -274,7 +274,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/movimentacoes/entradas',
         loadComponent: () =>
-          import('./features/receiving/components/receiving-list/receiving-list.component').then(
+          import('./features/warehouse/domains/receiving/components/receiving-list/receiving-list.component').then(
             (m) => m.ReceivingListComponent,
           ),
         title: 'A2H - Entradas',
@@ -284,7 +284,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/movimentacoes/entradas/nova',
         loadComponent: () =>
-          import('./features/receiving/components/receiving-create/receiving-create.component').then(
+          import('./features/warehouse/domains/receiving/components/receiving-create/receiving-create.component').then(
             (m) => m.ReceivingCreateComponent,
           ),
         title: 'A2H - Nova Entrada',
