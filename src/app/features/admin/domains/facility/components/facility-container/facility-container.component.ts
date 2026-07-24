@@ -9,7 +9,7 @@ import { SpinnerComponent } from '../../../../../../shared/components/spinner/sp
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { Facility } from '../../interfaces/facility';
-import { FacilityService } from '../../services/facility.service';
+import { FacilityService } from '../../services/facility/facility.service';
 import { FacilityDrawerFormComponent } from '../facility-drawer-form/facility-drawer-form.component';
 import { FacilityTableComponent } from '../facility-table/facility-table.component';
 

@@ -31,7 +31,7 @@ import { PageHeaderComponent } from '../../../../../../shared/components/page-he
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
 import { ToastMessages } from '../../../../../../shared/constants/messages.constants';
 import { StockMinQuantity } from '../../interfaces/stock-minimum-quantity';
-import { StockService } from '../../services/stock.service';
+import { StockService } from '../../services/stock/stock.service';
 
 @Component({
   selector: 'app-stock-minimum-quantity',

@@ -3,7 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { AuthService } from '../../../../../../core/services/auth.service';
+import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { TableToolbarComponent } from '../../../../../../shared/components/table-toolbar/table-toolbar.component';
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
 import {

@@ -11,7 +11,7 @@ import {
   SCOPE_LABEL_MAPPING,
   UserScopes,
 } from '../../../core/constants/auth.constants';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { ThemeService } from '../../services/theme/theme.service';
 
 @Component({

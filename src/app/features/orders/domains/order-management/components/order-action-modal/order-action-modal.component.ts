@@ -25,8 +25,8 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { BaseComponent } from '../../../../../../core/components/base/base.component';
-import { AuthService } from '../../../../../../core/services/auth.service';
-import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { AuthService } from '../../../../../../core/services/auth/auth.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
 import {
@@ -49,7 +49,7 @@ import {
   SeparateOrderItem,
 } from '../../interfaces/order-commands';
 import { OrderItem } from '../../interfaces/orderItem';
-import { OrderService } from '../../services/order.service';
+import { OrderService } from '../../services/order/order.service';
 
 @Component({
   selector: 'app-order-action-modal',

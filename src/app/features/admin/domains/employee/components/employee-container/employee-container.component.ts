@@ -9,7 +9,7 @@ import { SpinnerComponent } from '../../../../../../shared/components/spinner/sp
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { Employee } from '../../interfaces/employee';
-import { EmployeeService } from '../../services/employee.service';
+import { EmployeeService } from '../../services/employee/employee.service';
 import { EmployeeDrawerFormComponent } from '../employee-drawer-form/employee-drawer-form.component';
 import { EmployeeTableComponent } from '../employee-table/employee-table.component';
 

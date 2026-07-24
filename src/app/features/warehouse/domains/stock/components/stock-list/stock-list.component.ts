@@ -27,7 +27,7 @@ import { PageHeaderComponent } from '../../../../../../shared/components/page-he
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
 import { Stock } from '../../interfaces/stock';
-import { StockService } from '../../services/stock.service';
+import { StockService } from '../../services/stock/stock.service';
 
 @Component({
   selector: 'app-stock-list',

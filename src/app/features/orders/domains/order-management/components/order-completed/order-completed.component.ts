@@ -21,7 +21,7 @@ import {
   switchMap,
 } from 'rxjs';
 import { BaseComponent } from '../../../../../../core/components/base/base.component';
-import { HasPermissionDirective } from '../../../../../../core/directives/has-permission.directive';
+import { HasPermissionDirective } from '../../../../../../core/directives/has-permission/has-permission.directive';
 import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
@@ -39,7 +39,7 @@ import {
   getOrderStatus,
 } from '../../../../../../shared/utils/order-status.utils';
 import { Order } from '../../interfaces/order';
-import { OrderService } from '../../services/order.service';
+import { OrderService } from '../../services/order/order.service';
 import { OrderActionModalComponent } from '../order-action-modal/order-action-modal.component';
 
 @Component({

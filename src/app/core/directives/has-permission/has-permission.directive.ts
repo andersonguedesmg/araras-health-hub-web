@@ -7,8 +7,11 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { SCOPE_LABEL_MAPPING, UserScopes } from '../constants/auth.constants';
-import { AuthService } from '../services/auth.service';
+import {
+  SCOPE_LABEL_MAPPING,
+  UserScopes,
+} from '../../constants/auth.constants';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Directive({
   selector: '[appHasPermission]',

@@ -7,7 +7,7 @@ import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { firstValueFrom } from 'rxjs';
 import { BaseComponent } from '../../../../../../core/components/base/base.component';
-import { HasPermissionDirective } from '../../../../../../core/directives/has-permission.directive';
+import { HasPermissionDirective } from '../../../../../../core/directives/has-permission/has-permission.directive';
 import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
 import {
@@ -23,7 +23,7 @@ import {
   getStatus,
 } from '../../../../../../shared/utils/status.utils';
 import { FacilityProfile } from '../../interfaces/facility-profile';
-import { FacilityService } from '../../services/facility.service';
+import { FacilityService } from '../../services/facility/facility.service';
 
 @Component({
   selector: 'app-facility-profile',

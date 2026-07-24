@@ -24,8 +24,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom } from 'rxjs';
 import { BaseComponent } from '../../../../../../core/components/base/base.component';
-import { AuthService } from '../../../../../../core/services/auth.service';
-import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { AuthService } from '../../../../../../core/services/auth/auth.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
@@ -39,7 +39,7 @@ import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../../../shared/services/dropdown-data/dropdown-data.service';
 import { Order } from '../../interfaces/order';
-import { OrderService } from '../../services/order.service';
+import { OrderService } from '../../services/order/order.service';
 
 @Component({
   selector: 'app-order-create',

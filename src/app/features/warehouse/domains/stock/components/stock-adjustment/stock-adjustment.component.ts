@@ -36,7 +36,7 @@ import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../../../shared/services/dropdown-data/dropdown-data.service';
 import { StockAdjustment } from '../../interfaces/stock-adjustment';
-import { StockMovementService } from '../../services/stock-movement.service';
+import { StockMovementService } from '../../services/stock-movement/stock-movement.service';
 
 @Component({
   selector: 'app-stock-adjustment',

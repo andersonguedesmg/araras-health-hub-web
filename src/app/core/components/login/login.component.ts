@@ -13,7 +13,7 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
 import { Greetings } from '../../../shared/enums/greetings.enum';
 import { ToastService } from '../../../shared/services/toast/toast.service';
 import { LoginRequest } from '../../interfaces/auth.interfaces';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-login',

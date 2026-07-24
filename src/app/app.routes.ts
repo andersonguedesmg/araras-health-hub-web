@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { UserRoles, UserScopes } from './core/constants/auth.constants';
-import { authGuard } from './core/guards/auth.guard';
-import { roleGuard } from './core/guards/role.guard';
-import { scopeGuard } from './core/guards/scope.guard';
+import { authGuard } from './core/guards/auth/auth.guard';
+import { roleGuard } from './core/guards/role/role.guard';
+import { scopeGuard } from './core/guards/scope/scope.guard';
 
 const SCOPE_MANAGEMENT = [UserScopes.MANAGEMENT];
 const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];

@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PrimeNG } from 'primeng/config';
-import { RouteStateService } from './core/services/route-state.service';
+import { RouteStateService } from './core/services/route-state/route-state.service';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { SpinnerComponent } from './shared/components/spinner/spinner.component';

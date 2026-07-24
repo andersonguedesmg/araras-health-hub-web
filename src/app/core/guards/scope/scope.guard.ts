@@ -1,7 +1,10 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
-import { SCOPE_LABEL_MAPPING, UserScopes } from '../constants/auth.constants';
-import { AuthService } from '../services/auth.service';
+import {
+  SCOPE_LABEL_MAPPING,
+  UserScopes,
+} from '../../constants/auth.constants';
+import { AuthService } from '../../services/auth/auth.service';
 
 export const scopeGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const authService = inject(AuthService);

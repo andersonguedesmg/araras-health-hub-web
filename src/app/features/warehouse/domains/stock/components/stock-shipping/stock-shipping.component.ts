@@ -42,7 +42,7 @@ import {
   getStatus,
 } from '../../../../../../shared/utils/status.utils';
 import { StockShipping } from '../../interfaces/stock-shipping';
-import { StockMovementService } from '../../services/stock-movement.service';
+import { StockMovementService } from '../../services/stock-movement/stock-movement.service';
 
 @Component({
   selector: 'app-stock-shipping',

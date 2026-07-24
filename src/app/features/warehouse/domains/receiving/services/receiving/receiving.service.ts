@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { ApiResponse } from '../../../../../shared/interfaces/api-response';
-import { ApiConfigService } from '../../../../../shared/services/api-config/api-config.service';
-import { Receiving } from '../interfaces/receiving';
+import { ApiResponse } from '../../../../../../shared/interfaces/api-response';
+import { ApiConfigService } from '../../../../../../shared/services/api-config/api-config.service';
+import { Receiving } from '../../interfaces/receiving';
 
 @Injectable({
   providedIn: 'root',

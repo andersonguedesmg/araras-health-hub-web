@@ -26,16 +26,16 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
 import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { Product } from '../../interfaces/product';
-import { MainCategoryService } from '../../services/main-category.service';
-import { PackagingTypeService } from '../../services/packaging-type.service';
-import { SubCategoryService } from '../../services/sub-category.service';
+import { MainCategoryService } from '../../services/main-category/main-category.service';
+import { PackagingTypeService } from '../../services/packaging-type/packaging-type.service';
+import { SubCategoryService } from '../../services/sub-category/sub-category.service';
 
 @Component({
   selector: 'app-product-drawer-form',

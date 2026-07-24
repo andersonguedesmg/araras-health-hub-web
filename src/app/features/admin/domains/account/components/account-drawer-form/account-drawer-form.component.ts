@@ -26,8 +26,8 @@ import {
   Subject,
   Subscription,
 } from 'rxjs';
-import { AuthService } from '../../../../../../core/services/auth.service';
-import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { AuthService } from '../../../../../../core/services/auth/auth.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
@@ -35,7 +35,7 @@ import { Roles } from '../../../../../../shared/enums/roles.enum';
 import { Scope } from '../../../../../../shared/enums/scope.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
 import { ToastService } from '../../../../../../shared/services/toast/toast.service';
-import { FacilityService } from '../../../facility/services/facility.service';
+import { FacilityService } from '../../../facility/services/facility/facility.service';
 import { Account } from '../../interfaces/account';
 
 @Component({

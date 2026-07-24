@@ -1,15 +1,15 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { ApiResponse } from '../../../../../shared/interfaces/api-response';
-import { ApiConfigService } from '../../../../../shared/services/api-config/api-config.service';
-import { Order } from '../interfaces/order';
+import { ApiResponse } from '../../../../../../shared/interfaces/api-response';
+import { ApiConfigService } from '../../../../../../shared/services/api-config/api-config.service';
+import { Order } from '../../interfaces/order';
 import {
   ApproveOrderCommand,
   CancelOrderCommand,
   FinalizeOrderCommand,
   SeparateOrderCommand,
-} from '../interfaces/order-commands';
+} from '../../interfaces/order-commands';
 
 @Injectable({
   providedIn: 'root',

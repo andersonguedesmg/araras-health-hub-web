@@ -6,7 +6,7 @@ import Aura from '@primeng/themes/aura';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { routes } from './app.routes';
-import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { authInterceptor } from './core/interceptors/auth/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [

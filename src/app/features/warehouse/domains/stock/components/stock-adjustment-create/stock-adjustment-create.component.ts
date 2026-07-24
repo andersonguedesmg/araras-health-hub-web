@@ -25,8 +25,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { Subscription, combineLatest, firstValueFrom } from 'rxjs';
 import { BaseComponent } from '../../../../../../core/components/base/base.component';
-import { AuthService } from '../../../../../../core/services/auth.service';
-import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { AuthService } from '../../../../../../core/services/auth/auth.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
@@ -40,7 +40,7 @@ import { ConfirmMode } from '../../../../../../shared/enums/confirm-mode.enum';
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
 import { DropdownDataService } from '../../../../../../shared/services/dropdown-data/dropdown-data.service';
-import { StockService } from '../../services/stock.service';
+import { StockService } from '../../services/stock/stock.service';
 
 @Component({
   selector: 'app-stock-adjustment-create',

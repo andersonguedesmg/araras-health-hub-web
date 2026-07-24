@@ -28,7 +28,7 @@ import { SpinnerComponent } from '../../../../../../shared/components/spinner/sp
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
 import { StockMovementTypePipe } from '../../../../../../shared/pipes/stock-movement-type/stock-movement-type.pipe';
 import { StockMovement } from '../../interfaces/stock-movement';
-import { StockMovementService } from '../../services/stock-movement.service';
+import { StockMovementService } from '../../services/stock-movement/stock-movement.service';
 
 @Component({
   selector: 'app-stock-movement',

@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiResponse } from '../../../../../shared/interfaces/api-response';
-import { ApiConfigService } from '../../../../../shared/services/api-config/api-config.service';
-import { Account } from '../interfaces/account';
+import { ApiResponse } from '../../../../../../shared/interfaces/api-response';
+import { ApiConfigService } from '../../../../../../shared/services/api-config/api-config.service';
+import { Account } from '../../interfaces/account';
 
 @Injectable({
   providedIn: 'root',

@@ -9,7 +9,7 @@ import { SpinnerComponent } from '../../../../../../shared/components/spinner/sp
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { Product } from '../../interfaces/product';
-import { ProductService } from '../../services/product.service';
+import { ProductService } from '../../services/product/product.service';
 import { ProductDrawerFormComponent } from '../product-drawer-form/product-drawer-form.component';
 import { ProductTableComponent } from '../product-table/product-table.component';
 

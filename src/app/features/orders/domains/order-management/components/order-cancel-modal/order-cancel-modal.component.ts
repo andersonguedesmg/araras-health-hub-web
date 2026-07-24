@@ -30,8 +30,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { BaseComponent } from '../../../../../../core/components/base/base.component';
-import { AuthService } from '../../../../../../core/services/auth.service';
-import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { AuthService } from '../../../../../../core/services/auth/auth.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
 import {
@@ -40,7 +40,7 @@ import {
 } from '../../../../../../shared/constants/messages.constants';
 import { Order } from '../../interfaces/order';
 import { CancelOrderCommand } from '../../interfaces/order-commands';
-import { OrderService } from '../../services/order.service';
+import { OrderService } from '../../services/order/order.service';
 
 @Component({
   selector: 'app-order-cancel-modal',

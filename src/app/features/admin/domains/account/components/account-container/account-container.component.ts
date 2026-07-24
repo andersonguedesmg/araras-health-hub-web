@@ -9,7 +9,7 @@ import { SpinnerComponent } from '../../../../../../shared/components/spinner/sp
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { Account } from '../../interfaces/account';
-import { AccountService } from '../../services/account.service';
+import { AccountService } from '../../services/account/account.service';
 import { AccountDrawerFormComponent } from '../account-drawer-form/account-drawer-form.component';
 import { AccountPasswordDrawerFormComponent } from '../account-password-drawer-form/account-password-drawer-form.component';
 import { AccountTableComponent } from '../account-table/account-table.component';
