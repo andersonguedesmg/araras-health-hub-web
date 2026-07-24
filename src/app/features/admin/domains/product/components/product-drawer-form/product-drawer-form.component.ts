@@ -31,7 +31,7 @@ import { ConfirmDialogComponent } from '../../../../../../shared/components/conf
 import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
-import { ToastService } from '../../../../../../shared/services/toast.service';
+import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { Product } from '../../interfaces/product';
 import { MainCategoryService } from '../../services/main-category.service';
 import { PackagingTypeService } from '../../services/packaging-type.service';

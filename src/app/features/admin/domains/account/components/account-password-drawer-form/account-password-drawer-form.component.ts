@@ -24,7 +24,7 @@ import { firstValueFrom } from 'rxjs';
 import { FormHelperService } from '../../../../../../core/services/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
-import { ToastService } from '../../../../../../shared/services/toast.service';
+import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { Account } from '../../interfaces/account';
 
 @Component({

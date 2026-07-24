@@ -35,7 +35,7 @@ import { SpinnerComponent } from '../../../../../../shared/components/spinner/sp
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
-import { DropdownDataService } from '../../../../../../shared/services/dropdown-data.service';
+import { DropdownDataService } from '../../../../../../shared/services/dropdown-data/dropdown-data.service';
 import { Receiving } from '../../interfaces/receiving';
 import { ReceivingService } from '../../services/receiving.service';
 

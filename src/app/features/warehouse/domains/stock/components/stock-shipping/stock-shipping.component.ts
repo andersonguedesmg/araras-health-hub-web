@@ -36,7 +36,7 @@ import { StatusOptions } from '../../../../../../shared/constants/status-options
 import { ConfirmMode } from '../../../../../../shared/enums/confirm-mode.enum';
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
-import { DropdownDataService } from '../../../../../../shared/services/dropdown-data.service';
+import { DropdownDataService } from '../../../../../../shared/services/dropdown-data/dropdown-data.service';
 import {
   getSeverity,
   getStatus,

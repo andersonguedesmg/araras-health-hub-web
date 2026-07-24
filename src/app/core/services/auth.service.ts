@@ -5,7 +5,7 @@ import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { BaseApiResponse } from '../../shared/interfaces/base-api-response';
-import { ApiConfigService } from '../../shared/services/api-config.service';
+import { ApiConfigService } from '../../shared/services/api-config/api-config.service';
 import {
   ROLE_LABEL_MAPPING,
   SCOPE_LABEL_MAPPING,

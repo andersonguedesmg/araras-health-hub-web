@@ -32,7 +32,7 @@ import { ConfirmMode } from '../../../../../../shared/enums/confirm-mode.enum';
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { OrderActionType } from '../../../../../../shared/enums/order-action-type.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
-import { DropdownDataService } from '../../../../../../shared/services/dropdown-data.service';
+import { DropdownDataService } from '../../../../../../shared/services/dropdown-data/dropdown-data.service';
 import {
   getOrderSeverity,
   getOrderStatus,

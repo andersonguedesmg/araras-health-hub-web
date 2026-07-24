@@ -34,7 +34,7 @@ import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
 import { Roles } from '../../../../../../shared/enums/roles.enum';
 import { Scope } from '../../../../../../shared/enums/scope.enum';
 import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
-import { ToastService } from '../../../../../../shared/services/toast.service';
+import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { FacilityService } from '../../../facility/services/facility.service';
 import { Account } from '../../interfaces/account';
 

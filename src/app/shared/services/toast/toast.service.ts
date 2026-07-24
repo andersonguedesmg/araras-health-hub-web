@@ -1,11 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { ToastSeverities, ToastSummaries } from '../constants/toast.constants';
+import {
+  ToastSeverities,
+  ToastSummaries,
+} from '../../constants/toast.constants';
 import {
   ApiValidationErrors,
   BaseApiResponse,
-} from '../interfaces/base-api-response';
+} from '../../interfaces/base-api-response';
 
 interface ProblemDetailsError {
   type?: string;

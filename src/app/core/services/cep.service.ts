@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { firstValueFrom, Observable } from 'rxjs';
-import { ToastService } from '../../shared/services/toast.service';
+import { ToastService } from '../../shared/services/toast/toast.service';
 
 export interface ViaCepResponse {
   cep: string;

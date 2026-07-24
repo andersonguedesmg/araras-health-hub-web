@@ -1,9 +1,9 @@
 import { Directive, inject, ViewChild } from '@angular/core';
-import { ApiResponse } from '../../../shared/interfaces/api-response';
-import { ToastMessages } from '../../../shared/constants/messages.constants';
-import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { firstValueFrom } from 'rxjs';
-import { ToastService } from '../../../shared/services/toast.service';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ToastMessages } from '../../../shared/constants/messages.constants';
+import { ApiResponse } from '../../../shared/interfaces/api-response';
+import { ToastService } from '../../../shared/services/toast/toast.service';
 import { ExportApiFunction } from '../../interfaces/export-api-function';
 
 @Directive()
@@ -17,7 +17,10 @@ export abstract class BaseComponent {
     this.toastService = inject(ToastService);
   }
 
-  protected handleApiResponse(response: ApiResponse<any>, successMessage: string) {
+  protected handleApiResponse(
+    response: ApiResponse<any>,
+    successMessage: string,
+  ) {
     if (response.success) {
       this.toastService.showSuccess(response.message || successMessage);
     } else {
@@ -29,23 +32,34 @@ export abstract class BaseComponent {
     this.toastService.handleApiError(error);
   }
 
-  protected validateFormAndShowErrors(form: any, formHelperService: any, formLabels: any): boolean {
+  protected validateFormAndShowErrors(
+    form: any,
+    formHelperService: any,
+    formLabels: any,
+  ): boolean {
     if (form.valid) {
       return true;
     }
-    const invalidControls = formHelperService.findInvalidControlsRecursive(form);
-    const invalidFields = invalidControls.map((control: any) => formHelperService.getFormControlName(control, formLabels));
-    const invalidFieldsMessage = invalidFields.length > 0
-      ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
-      : ToastMessages.FILL_IN_ALL_REQUIRED_FIELDS;
-    this.toastService.showError(invalidFieldsMessage, ToastMessages.REQUIRED_FIELDS);
+    const invalidControls =
+      formHelperService.findInvalidControlsRecursive(form);
+    const invalidFields = invalidControls.map((control: any) =>
+      formHelperService.getFormControlName(control, formLabels),
+    );
+    const invalidFieldsMessage =
+      invalidFields.length > 0
+        ? `Por favor, preencha os seguintes campos: ${invalidFields.join(', ')}.`
+        : ToastMessages.FILL_IN_ALL_REQUIRED_FIELDS;
+    this.toastService.showError(
+      invalidFieldsMessage,
+      ToastMessages.REQUIRED_FIELDS,
+    );
     return false;
   }
 
   protected async handleApiCall(
     apiCallFactory: () => Promise<any>,
     confirmMessage: string,
-    successMessage: string
+    successMessage: string,
   ): Promise<boolean> {
     if (!this.confirmDialog) {
       try {
@@ -69,7 +83,6 @@ export abstract class BaseComponent {
       this.isLoading = false;
       this.handleApiResponse(response, successMessage);
       return true;
-
     } catch (error: any) {
       this.isLoading = false;
       if (error !== 'cancel' && error?.message !== 'cancel') {
@@ -82,7 +95,7 @@ export abstract class BaseComponent {
   protected async exportData(
     exportFn: ExportApiFunction,
     defaultFilename: string,
-    searchTerm: string = ''
+    searchTerm: string = '',
   ): Promise<void> {
     this.isLoading = true;
     try {
@@ -119,7 +132,6 @@ export abstract class BaseComponent {
       window.URL.revokeObjectURL(url);
 
       this.toastService.showSuccess(ToastMessages.SUCCESS_EXPORT);
-
     } catch (error: any) {
       this.handleApiError(error);
       if (!error?.error?.message && error?.message !== 'cancel') {

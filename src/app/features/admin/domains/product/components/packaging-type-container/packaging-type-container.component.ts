@@ -7,7 +7,7 @@ import { ConfirmDialogComponent } from '../../../../../../shared/components/conf
 import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
 import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
 import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
-import { ToastService } from '../../../../../../shared/services/toast.service';
+import { ToastService } from '../../../../../../shared/services/toast/toast.service';
 import { PackagingType } from '../../interfaces/packaging-type';
 import { PackagingTypeService } from '../../services/packaging-type.service';
 import { PackagingTypeDrawerFormComponent } from '../packaging-type-drawer-form/packaging-type-drawer-form.component';

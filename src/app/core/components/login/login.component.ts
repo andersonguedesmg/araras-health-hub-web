@@ -11,7 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { Greetings } from '../../../shared/enums/greetings.enum';
-import { ToastService } from '../../../shared/services/toast.service';
+import { ToastService } from '../../../shared/services/toast/toast.service';
 import { LoginRequest } from '../../interfaces/auth.interfaces';
 import { AuthService } from '../../services/auth.service';
 

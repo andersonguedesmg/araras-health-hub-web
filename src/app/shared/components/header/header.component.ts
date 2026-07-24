@@ -12,7 +12,7 @@ import {
   UserScopes,
 } from '../../../core/constants/auth.constants';
 import { AuthService } from '../../../core/services/auth.service';
-import { ThemeService } from '../../services/theme.service';
+import { ThemeService } from '../../services/theme/theme.service';
 
 @Component({
   selector: 'app-header',

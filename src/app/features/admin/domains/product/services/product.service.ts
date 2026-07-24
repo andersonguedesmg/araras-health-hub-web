@@ -4,7 +4,7 @@ import { map, Observable } from 'rxjs';
 import { ApiDropdownItem } from '../../../../../shared/interfaces/api-dropdown-item';
 import { ApiResponse } from '../../../../../shared/interfaces/api-response';
 import { SelectOptions } from '../../../../../shared/interfaces/select-options';
-import { ApiConfigService } from '../../../../../shared/services/api-config.service';
+import { ApiConfigService } from '../../../../../shared/services/api-config/api-config.service';
 import { Product } from '../interfaces/product';
 
 @Injectable({
