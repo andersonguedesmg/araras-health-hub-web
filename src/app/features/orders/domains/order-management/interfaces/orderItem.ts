@@ -1,4 +1,4 @@
-import { Product } from '../../admin/domains/product/interfaces/product';
+import { Product } from '../../../../admin/domains/product/interfaces/product';
 import { LotToSeparate } from './lotToSeparate';
 
 export interface OrderItem {

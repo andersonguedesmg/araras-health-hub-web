@@ -1,36 +1,45 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem } from 'primeng/api';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { DialogModule } from 'primeng/dialog';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { firstValueFrom } from 'rxjs';
-import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { AuthService } from '../../../../core/services/auth.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { OrderService } from '../../services/order.service';
+import { ToastModule } from 'primeng/toast';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
+import { firstValueFrom } from 'rxjs';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { AuthService } from '../../../../../../core/services/auth.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
+import {
+  ConfirmMessages,
+  ToastMessages,
+} from '../../../../../../shared/constants/messages.constants';
+import { StatusOptions } from '../../../../../../shared/constants/status-options.constants';
+import { ConfirmMode } from '../../../../../../shared/enums/confirm-mode.enum';
+import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
+import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
+import { DropdownDataService } from '../../../../../../shared/services/dropdown-data.service';
 import { Order } from '../../interfaces/order';
-import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
-import { BaseComponent } from '../../../../core/components/base/base.component';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-create',
@@ -57,10 +66,13 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
   ],
   providers: [MessageService],
   templateUrl: './order-create.component.html',
-  styleUrl: './order-create.component.scss'
+  styleUrl: './order-create.component.scss',
 })
 export class OrderCreateComponent extends BaseComponent implements OnInit {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Pedidos' }, { label: 'Novo Pedido' }];
+  itemsBreadcrumb: MenuItem[] = [
+    { label: 'Pedidos' },
+    { label: 'Novo Pedido' },
+  ];
   title: string = 'Novo Pedido';
 
   orderForm: FormGroup;
@@ -74,7 +86,7 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  private orderFormLabels: { [key: string]: string; } = {
+  private orderFormLabels: { [key: string]: string } = {
     createdByEmployeeId: 'Responsável',
     createdAt: 'Data',
     orderItems: 'Itens do Pedido',
@@ -104,7 +116,8 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
     this.addOrderItem();
     this.isLoading = true;
     try {
-      this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+      this.employeeOptions =
+        await this.dropdownDataService.getEmployeeOptions();
       this.productOptions = await this.dropdownDataService.getProductOptions();
     } catch (error) {
       this.handleApiError(error);
@@ -135,15 +148,21 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
   async saveOrder(): Promise<void> {
     this.formSubmitted = true;
 
-    if (this.validateFormAndShowErrors(this.orderForm, this.formHelperService, this.orderFormLabels)) {
-
+    if (
+      this.validateFormAndShowErrors(
+        this.orderForm,
+        this.formHelperService,
+        this.orderFormLabels,
+      )
+    ) {
       const order: Order = this.orderForm.getRawValue();
-      const apiCall = () => firstValueFrom(this.orderService.createOrder(order));
+      const apiCall = () =>
+        firstValueFrom(this.orderService.createOrder(order));
 
       await this.handleApiCall(
         apiCall,
         ConfirmMessages.CREATE_ORDER,
-        ToastMessages.SUCCESS_OPERATION
+        ToastMessages.SUCCESS_OPERATION,
       );
 
       this.resetOrderForm();
@@ -155,7 +174,7 @@ export class OrderCreateComponent extends BaseComponent implements OnInit {
       orderStatusId: 1,
       createdAt: new Date(),
       createdByEmployeeId: null,
-      createdByAccountId: 0 // this.authService.getUserId(),
+      createdByAccountId: 0, // this.authService.getUserId(),
     });
     this.orderItems.clear();
     this.addOrderItem();

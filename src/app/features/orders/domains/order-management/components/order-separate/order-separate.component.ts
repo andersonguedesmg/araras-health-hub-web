@@ -1,9 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -14,24 +13,34 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { getOrderSeverity, getOrderStatus } from '../../../../shared/utils/order-status.utils';
-import { OrderService } from '../../services/order.service';
-import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { TableComponent } from '../../../../shared/components/table/table.component';
+import {
+  Observable,
+  Subject,
+  Subscription,
+  debounceTime,
+  switchMap,
+} from 'rxjs';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { HasPermissionDirective } from '../../../../../../core/directives/has-permission.directive';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
+import { TableComponent } from '../../../../../../shared/components/table/table.component';
+import { StatusOptions } from '../../../../../../shared/constants/status-options.constants';
+import { ConfirmMode } from '../../../../../../shared/enums/confirm-mode.enum';
+import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
+import { OrderActionType } from '../../../../../../shared/enums/order-action-type.enum';
+import { OrderStatusId } from '../../../../../../shared/enums/order-status-id.enum';
+import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
+import { DropdownDataService } from '../../../../../../shared/services/dropdown-data.service';
+import {
+  getOrderSeverity,
+  getOrderStatus,
+} from '../../../../../../shared/utils/order-status.utils';
 import { Order } from '../../interfaces/order';
+import { OrderService } from '../../services/order.service';
 import { OrderActionModalComponent } from '../order-action-modal/order-action-modal.component';
-import { OrderActionType } from '../../../../shared/enums/order-action-type.enum';
-import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
-import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { OrderStatusId } from '../../../../shared/enums/order-status-id.enum';
-import { BaseComponent } from '../../../../core/components/base/base.component';
 import { OrderCancelModalComponent } from '../order-cancel-modal/order-cancel-modal.component';
 
 @Component({
@@ -61,9 +70,12 @@ import { OrderCancelModalComponent } from '../order-cancel-modal/order-cancel-mo
     HasPermissionDirective,
   ],
   templateUrl: './order-separate.component.html',
-  styleUrl: './order-separate.component.scss'
+  styleUrl: './order-separate.component.scss',
 })
-export class OrderSeparateComponent extends BaseComponent implements OnInit, OnDestroy {
+export class OrderSeparateComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy
+{
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
@@ -74,7 +86,8 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
 
   orders$!: Observable<Order[]>;
   selectedOrder?: Order;
-  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+  formMode: FormMode.Create | FormMode.Update | FormMode.Detail =
+    FormMode.Create;
 
   employeeOptions: SelectOptions<number>[] = [];
 
@@ -118,15 +131,20 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
       this.loadLazy
         .pipe(
           debounceTime(300),
-          switchMap(event => {
+          switchMap((event) => {
             this.isLoading = true;
-            const pageNumber = (event.first / event.rows) + 1;
+            const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.orderService.loadOrders(pageNumber, pageSize, this.searchTerm, OrderStatusId.ReadyForPicking);
-          })
+            return this.orderService.loadOrders(
+              pageNumber,
+              pageSize,
+              this.searchTerm,
+              OrderStatusId.ReadyForPicking,
+            );
+          }),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.isLoading = false;
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
@@ -137,15 +155,15 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
           error: (error) => {
             this.isLoading = false;
             this.handleApiError(error);
-          }
-        })
+          },
+        }),
     );
 
     this.subscriptions.add(
-      this.searchSubject.pipe(debounceTime(400)).subscribe(searchTerm => {
+      this.searchSubject.pipe(debounceTime(400)).subscribe((searchTerm) => {
         this.searchTerm = searchTerm;
         this.loadOrders({ first: 0, rows: this.lastLazyEvent.rows });
-      })
+      }),
     );
 
     this.loadLazy.next(this.lastLazyEvent);
@@ -162,7 +180,8 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
 
   async loadEmployeesOptions(): Promise<void> {
     try {
-      this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+      this.employeeOptions =
+        await this.dropdownDataService.getEmployeeOptions();
     } catch (error: any) {
       if (error.message !== 'cancel') {
         this.handleApiError(error);
@@ -207,15 +226,19 @@ export class OrderSeparateComponent extends BaseComponent implements OnInit, OnD
       error: (error) => {
         this.isLoading = false;
         this.handleApiError(error);
-      }
+      },
     });
   }
 
   async exportOrders(): Promise<void> {
     await this.exportData(
-      (searchTerm) => this.orderService.exportOrders(searchTerm, OrderStatusId.ReadyForPicking),
+      (searchTerm) =>
+        this.orderService.exportOrders(
+          searchTerm,
+          OrderStatusId.ReadyForPicking,
+        ),
       'pedido-pronto-para-separacao.csv',
-      this.searchTerm
+      this.searchTerm,
     );
   }
 }

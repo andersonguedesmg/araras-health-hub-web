@@ -129,7 +129,7 @@ export const routes: Routes = [
       {
         path: 'pedidos/aprovar',
         loadComponent: () =>
-          import('./features/order/components/order-approve/order-approve.component').then(
+          import('./features/orders/domains/order-management/components/order-approve/order-approve.component').then(
             (m) => m.OrderApproveComponent,
           ),
         title: 'A2H - Pedidos para Aprovação',
@@ -139,7 +139,7 @@ export const routes: Routes = [
       {
         path: 'pedidos/cancelados',
         loadComponent: () =>
-          import('./features/order/components/order-cancel/order-cancel.component').then(
+          import('./features/orders/domains/order-management/components/order-cancel/order-cancel.component').then(
             (m) => m.OrderCancelComponent,
           ),
         title: 'A2H - Pedidos Cancelados',
@@ -149,7 +149,7 @@ export const routes: Routes = [
       {
         path: 'pedidos/finalizados',
         loadComponent: () =>
-          import('./features/order/components/order-completed/order-completed.component').then(
+          import('./features/orders/domains/order-management/components/order-completed/order-completed.component').then(
             (m) => m.OrderCompletedComponent,
           ),
         title: 'A2H - Pedidos Finalizados',
@@ -159,7 +159,7 @@ export const routes: Routes = [
       {
         path: 'pedidos/finalizar',
         loadComponent: () =>
-          import('./features/order/components/order-finalize/order-finalize.component').then(
+          import('./features/orders/domains/order-management/components/order-finalize/order-finalize.component').then(
             (m) => m.OrderFinalizeComponent,
           ),
         title: 'A2H - Pedidos para Finalização',
@@ -169,7 +169,7 @@ export const routes: Routes = [
       {
         path: 'pedidos/historico',
         loadComponent: () =>
-          import('./features/order/components/order-list/order-list.component').then(
+          import('./features/orders/domains/order-management/components/order-list/order-list.component').then(
             (m) => m.OrderListComponent,
           ),
         title: 'A2H - Histórico de Pedidos',
@@ -179,7 +179,7 @@ export const routes: Routes = [
       {
         path: 'pedidos/novo',
         loadComponent: () =>
-          import('./features/order/components/order-create/order-create.component').then(
+          import('./features/orders/domains/order-management/components/order-create/order-create.component').then(
             (m) => m.OrderCreateComponent,
           ),
         title: 'A2H - Novo Pedido',
@@ -189,7 +189,7 @@ export const routes: Routes = [
       {
         path: 'pedidos/separar',
         loadComponent: () =>
-          import('./features/order/components/order-separate/order-separate.component').then(
+          import('./features/orders/domains/order-management/components/order-separate/order-separate.component').then(
             (m) => m.OrderSeparateComponent,
           ),
         title: 'A2H - Pedidos para Separação',
