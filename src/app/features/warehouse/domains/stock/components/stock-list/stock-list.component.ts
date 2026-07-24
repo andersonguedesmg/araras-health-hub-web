@@ -1,30 +1,36 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { StockService } from '../../services/stock.service';
+import {
+  Observable,
+  Subject,
+  Subscription,
+  debounceTime,
+  switchMap,
+} from 'rxjs';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
+import { TableComponent } from '../../../../../../shared/components/table/table.component';
 import { Stock } from '../../interfaces/stock';
-import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { TagModule } from 'primeng/tag';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { BaseComponent } from '../../../../core/components/base/base.component';
+import { StockService } from '../../services/stock.service';
 
 @Component({
-  selector: 'app-stock-active-lots',
+  selector: 'app-stock-list',
   imports: [
     CommonModule,
     RouterModule,
@@ -47,15 +53,22 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     PageHeaderComponent,
   ],
   providers: [MessageService],
-  templateUrl: './stock-active-lots.component.html',
-  styleUrl: './stock-active-lots.component.scss'
+  templateUrl: './stock-list.component.html',
+  styleUrl: './stock-list.component.scss',
 })
-export class StockActiveLotsComponent extends BaseComponent implements OnInit, OnDestroy {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }, { label: 'Lotes Ativos' }];
-  title: string = 'Lotes Ativos';
-    description = '';
+export class StockListComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy
+{
+  itemsBreadcrumb: MenuItem[] = [
+    { label: 'Almoxarifado' },
+    { label: 'Estoque' },
+    { label: 'Geral' },
+  ];
+  title: string = 'Estoque Geral';
+  description: string = '';
 
-  activeLotStocks$!: Observable<Stock[]>;
+  stocks$!: Observable<Stock[]>;
 
   private searchTerm: string = '';
   private searchSubject = new Subject<string>();
@@ -64,27 +77,29 @@ export class StockActiveLotsComponent extends BaseComponent implements OnInit, O
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(
-    private stockService: StockService,
-  ) {
+  constructor(private stockService: StockService) {
     super();
   }
 
   ngOnInit() {
-    this.activeLotStocks$ = this.stockService.activeLotStocks$;
+    this.stocks$ = this.stockService.stocks$;
     this.subscriptions.add(
       this.loadLazy
         .pipe(
           debounceTime(300),
-          switchMap(event => {
+          switchMap((event) => {
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockService.loadActiveLotStocks(pageNumber, pageSize, this.searchTerm);
-          })
+            return this.stockService.loadGeneralStocks(
+              pageNumber,
+              pageSize,
+              this.searchTerm,
+            );
+          }),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.isLoading = false;
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
@@ -95,16 +110,15 @@ export class StockActiveLotsComponent extends BaseComponent implements OnInit, O
           error: (error) => {
             this.isLoading = false;
             this.handleApiError(error);
-          }
-        }
-        )
+          },
+        }),
     );
 
     this.subscriptions.add(
-      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+      this.searchSubject.pipe(debounceTime(300)).subscribe((searchTerm) => {
         this.searchTerm = searchTerm;
-        this.loadActiveLotStocks({ first: 0, rows: 5 });
-      })
+        this.loadGeneralStocks({ first: 0, rows: 5 });
+      }),
     );
   }
 
@@ -112,7 +126,7 @@ export class StockActiveLotsComponent extends BaseComponent implements OnInit, O
     this.subscriptions.unsubscribe();
   }
 
-  loadActiveLotStocks(event: any) {
+  loadGeneralStocks(event: any) {
     this.loadLazy.next(event);
   }
 
@@ -120,11 +134,11 @@ export class StockActiveLotsComponent extends BaseComponent implements OnInit, O
     this.searchSubject.next(value);
   }
 
-  async exportActiveLotsStocks(): Promise<void> {
+  async exportGeneralStocks(): Promise<void> {
     await this.exportData(
-      (searchTerm) => this.stockService.exportActiveLotsStocks(searchTerm),
-      'lotes_ativos.csv',
-      this.searchTerm
+      (searchTerm) => this.stockService.exportGeneralStocks(searchTerm),
+      'estoque-geral.csv',
+      this.searchTerm,
     );
   }
 }

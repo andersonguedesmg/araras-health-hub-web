@@ -1,31 +1,42 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { StockMovementService } from '../../services/stock-movement.service';
-import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
-import { BaseComponent } from '../../../../core/components/base/base.component';
+import {
+  Observable,
+  Subject,
+  Subscription,
+  debounceTime,
+  switchMap,
+} from 'rxjs';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogComponent } from '../../../../../../shared/components/dialog/dialog.component';
+import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
+import { TableComponent } from '../../../../../../shared/components/table/table.component';
+import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
+import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
+import { DropdownDataService } from '../../../../../../shared/services/dropdown-data.service';
 import { StockAdjustment } from '../../interfaces/stock-adjustment';
-import { TableModule } from 'primeng/table';
+import { StockMovementService } from '../../services/stock-movement.service';
 
 @Component({
   selector: 'app-stock-adjustment',
@@ -53,12 +64,19 @@ import { TableModule } from 'primeng/table';
   ],
   providers: [MessageService, DatePipe],
   templateUrl: './stock-adjustment.component.html',
-  styleUrl: './stock-adjustment.component.scss'
+  styleUrl: './stock-adjustment.component.scss',
 })
-export class StockAdjustmentComponent extends BaseComponent implements OnInit, OnDestroy {
+export class StockAdjustmentComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy
+{
   FormMode = FormMode;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Movimentações' }, { label: 'Ajustes' }];
+  itemsBreadcrumb: MenuItem[] = [
+    { label: 'Almoxarifado' },
+    { label: 'Movimentações' },
+    { label: 'Ajustes' },
+  ];
   title: string = 'Histórico de Ajustes Manuais';
   description: string = '';
 
@@ -106,15 +124,19 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
       this.loadLazy
         .pipe(
           debounceTime(300),
-          switchMap(event => {
+          switchMap((event) => {
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockMovementService.loadStockAdjustments(pageNumber, pageSize, this.searchTerm);
-          })
+            return this.stockMovementService.loadStockAdjustments(
+              pageNumber,
+              pageSize,
+              this.searchTerm,
+            );
+          }),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.isLoading = false;
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
@@ -125,16 +147,15 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
           error: (error) => {
             this.isLoading = false;
             this.handleApiError(error);
-          }
-        }
-        )
+          },
+        }),
     );
 
     this.subscriptions.add(
-      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+      this.searchSubject.pipe(debounceTime(300)).subscribe((searchTerm) => {
         this.searchTerm = searchTerm;
         this.loadStockAdjustments({ first: 0, rows: 5 });
-      })
+      }),
     );
   }
 
@@ -154,13 +175,14 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
     await this.exportData(
       (searchTerm) => this.stockMovementService.exportAdjustments(searchTerm),
       'ajustes-manuais.csv',
-      this.searchTerm
+      this.searchTerm,
     );
   }
 
   async loadSuppliersOptions(): Promise<void> {
     try {
-      this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
+      this.supplierOptions =
+        await this.dropdownDataService.getSupplierOptions();
     } catch (error: any) {
       if (error.message !== 'cancel') {
         this.handleApiError(error);
@@ -170,7 +192,8 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
 
   async loadEmployeesOptions(): Promise<void> {
     try {
-      this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+      this.employeeOptions =
+        await this.dropdownDataService.getEmployeeOptions();
     } catch (error: any) {
       if (error.message !== 'cancel') {
         this.handleApiError(error);
@@ -193,7 +216,7 @@ export class StockAdjustmentComponent extends BaseComponent implements OnInit, O
       if (this.formMode === FormMode.Detail) {
         formattedAdjustment.adjustmentDate = this.datePipe.transform(
           this.selectedAdjustments.adjustmentDate,
-          'dd/MM/yyyy HH:mm:ss'
+          'dd/MM/yyyy HH:mm:ss',
         );
       }
       this.adjustmentForm.patchValue(formattedAdjustment);

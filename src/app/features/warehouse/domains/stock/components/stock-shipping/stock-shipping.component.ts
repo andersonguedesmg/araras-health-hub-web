@@ -1,8 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -13,21 +18,31 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { getSeverity, getStatus } from '../../../../shared/utils/status.utils';
-import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  Subscription,
+  debounceTime,
+  switchMap,
+} from 'rxjs';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogComponent } from '../../../../../../shared/components/dialog/dialog.component';
+import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
+import { TableComponent } from '../../../../../../shared/components/table/table.component';
+import { StatusOptions } from '../../../../../../shared/constants/status-options.constants';
+import { ConfirmMode } from '../../../../../../shared/enums/confirm-mode.enum';
+import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
+import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
+import { DropdownDataService } from '../../../../../../shared/services/dropdown-data.service';
+import {
+  getSeverity,
+  getStatus,
+} from '../../../../../../shared/utils/status.utils';
 import { StockShipping } from '../../interfaces/stock-shipping';
 import { StockMovementService } from '../../services/stock-movement.service';
-import { DialogComponent } from '../../../../shared/components/dialog/dialog.component';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
-import { BaseComponent } from '../../../../core/components/base/base.component';
 
 @Component({
   selector: 'app-stock-shipping',
@@ -54,21 +69,29 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
   ],
   providers: [MessageService],
   templateUrl: './stock-shipping.component.html',
-  styleUrl: './stock-shipping.component.scss'
+  styleUrl: './stock-shipping.component.scss',
 })
-export class StockShippingComponent extends BaseComponent implements OnInit, OnDestroy {
+export class StockShippingComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy
+{
   FormMode = FormMode;
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Saídas' }, { label: 'Histórico' }];
+  itemsBreadcrumb: MenuItem[] = [
+    { label: 'Almoxarifado' },
+    { label: 'Saídas' },
+    { label: 'Histórico' },
+  ];
   title: string = 'Histórico de Saídas';
   description: string = '';
 
   stockShippings$!: Observable<StockShipping[]>;
   selectedShipping?: StockShipping;
   shippingForm: FormGroup;
-  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+  formMode: FormMode.Create | FormMode.Update | FormMode.Detail =
+    FormMode.Create;
 
   supplierOptions: SelectOptions<number>[] = [];
   employeeOptions: SelectOptions<number>[] = [];
@@ -116,15 +139,19 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
       this.loadLazy
         .pipe(
           debounceTime(300),
-          switchMap(event => {
+          switchMap((event) => {
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockMovementService.loadStockShippings(pageNumber, pageSize, this.searchTerm);
-          })
+            return this.stockMovementService.loadStockShippings(
+              pageNumber,
+              pageSize,
+              this.searchTerm,
+            );
+          }),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.isLoading = false;
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
@@ -135,16 +162,15 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
           error: (error) => {
             this.isLoading = false;
             this.handleApiError(error);
-          }
-        }
-        )
+          },
+        }),
     );
 
     this.subscriptions.add(
-      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+      this.searchSubject.pipe(debounceTime(300)).subscribe((searchTerm) => {
         this.searchTerm = searchTerm;
         this.loadShippings({ first: 0, rows: 5 });
-      })
+      }),
     );
   }
 
@@ -164,13 +190,14 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
     await this.exportData(
       (searchTerm) => this.stockMovementService.exportAdjustments(searchTerm),
       'saidas.csv',
-      this.searchTerm
+      this.searchTerm,
     );
   }
 
   async loadSuppliersOptions(): Promise<void> {
     try {
-      this.supplierOptions = await this.dropdownDataService.getSupplierOptions();
+      this.supplierOptions =
+        await this.dropdownDataService.getSupplierOptions();
     } catch (error: any) {
       if (error.message !== 'cancel') {
         this.handleApiError(error);
@@ -180,7 +207,8 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
 
   async loadEmployeesOptions(): Promise<void> {
     try {
-      this.employeeOptions = await this.dropdownDataService.getEmployeeOptions();
+      this.employeeOptions =
+        await this.dropdownDataService.getEmployeeOptions();
     } catch (error: any) {
       if (error.message !== 'cancel') {
         this.handleApiError(error);
@@ -188,9 +216,13 @@ export class StockShippingComponent extends BaseComponent implements OnInit, OnD
     }
   }
 
-  openForm(mode: FormMode.Create | FormMode.Update | FormMode.Detail, shipping?: StockShipping): void {
+  openForm(
+    mode: FormMode.Create | FormMode.Update | FormMode.Detail,
+    shipping?: StockShipping,
+  ): void {
     this.shippingForm.reset();
-    this.formSubmitted = false; this.formMode = mode;
+    this.formSubmitted = false;
+    this.formMode = mode;
     this.selectedShipping = shipping;
     this.displayDialog = true;
     this.initializeForm();

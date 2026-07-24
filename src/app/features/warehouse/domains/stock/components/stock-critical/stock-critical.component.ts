@@ -1,30 +1,36 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { StockService } from '../../services/stock.service';
+import {
+  Observable,
+  Subject,
+  Subscription,
+  debounceTime,
+  switchMap,
+} from 'rxjs';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
+import { TableComponent } from '../../../../../../shared/components/table/table.component';
 import { Stock } from '../../interfaces/stock';
-import { debounceTime, Observable, Subject, Subscription, switchMap } from 'rxjs';
-import { TableComponent } from '../../../../shared/components/table/table.component';
-import { TagModule } from 'primeng/tag';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { BaseComponent } from '../../../../core/components/base/base.component';
+import { StockService } from '../../services/stock.service';
 
 @Component({
-  selector: 'app-stock-near-expiry-lots',
+  selector: 'app-stock-critical',
   imports: [
     CommonModule,
     RouterModule,
@@ -47,15 +53,22 @@ import { BaseComponent } from '../../../../core/components/base/base.component';
     PageHeaderComponent,
   ],
   providers: [MessageService],
-  templateUrl: './stock-near-expiry-lots.component.html',
-  styleUrl: './stock-near-expiry-lots.component.scss'
+  templateUrl: './stock-critical.component.html',
+  styleUrl: './stock-critical.component.scss',
 })
-export class StockNearExpiryLotsComponent extends BaseComponent implements OnInit, OnDestroy {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Estoque' }, { label: 'Vencimento Próximo' }];
-  title: string = 'Vencimento Próximo';
+export class StockCriticalComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy
+{
+  itemsBreadcrumb: MenuItem[] = [
+    { label: 'Almoxarifado' },
+    { label: 'Estoque' },
+    { label: 'Crítico' },
+  ];
+  title: string = 'Estoque Crítico';
   description: string = '';
 
-  nearExpiryLotStocks$!: Observable<Stock[]>;
+  criticalStocks$!: Observable<Stock[]>;
 
   private searchTerm: string = '';
   private searchSubject = new Subject<string>();
@@ -64,27 +77,29 @@ export class StockNearExpiryLotsComponent extends BaseComponent implements OnIni
   private subscriptions: Subscription = new Subscription();
   totalRecords = 0;
 
-  constructor(
-    private stockService: StockService,
-  ) {
+  constructor(private stockService: StockService) {
     super();
   }
 
   ngOnInit() {
-    this.nearExpiryLotStocks$ = this.stockService.nearExpiryLotStocks$;
+    this.criticalStocks$ = this.stockService.criticalStocks$;
     this.subscriptions.add(
       this.loadLazy
         .pipe(
           debounceTime(300),
-          switchMap(event => {
+          switchMap((event) => {
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
-            return this.stockService.loadNearExpiryLotsStocks(pageNumber, pageSize, this.searchTerm);
-          })
+            return this.stockService.loadCriticalStocks(
+              pageNumber,
+              pageSize,
+              this.searchTerm,
+            );
+          }),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.isLoading = false;
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
@@ -95,16 +110,15 @@ export class StockNearExpiryLotsComponent extends BaseComponent implements OnIni
           error: (error) => {
             this.isLoading = false;
             this.handleApiError(error);
-          }
-        }
-        )
+          },
+        }),
     );
 
     this.subscriptions.add(
-      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+      this.searchSubject.pipe(debounceTime(300)).subscribe((searchTerm) => {
         this.searchTerm = searchTerm;
-        this.loadNearExpiryLotsStocks({ first: 0, rows: 5 });
-      })
+        this.loadCriticalStocks({ first: 0, rows: 5 });
+      }),
     );
   }
 
@@ -112,7 +126,7 @@ export class StockNearExpiryLotsComponent extends BaseComponent implements OnIni
     this.subscriptions.unsubscribe();
   }
 
-  loadNearExpiryLotsStocks(event: any) {
+  loadCriticalStocks(event: any) {
     this.loadLazy.next(event);
   }
 
@@ -120,11 +134,11 @@ export class StockNearExpiryLotsComponent extends BaseComponent implements OnIni
     this.searchSubject.next(value);
   }
 
-  async exportNearExpiryLotsStocks(): Promise<void> {
+  async exportCriticalStocks(): Promise<void> {
     await this.exportData(
-      (searchTerm) => this.stockService.exportNearExpiryLotsStocks(searchTerm),
-      'lotes_proximos_vencimento.csv',
-      this.searchTerm
+      (searchTerm) => this.stockService.exportCriticalStocks(searchTerm),
+      'estoque-critico.csv',
+      this.searchTerm,
     );
   }
 }

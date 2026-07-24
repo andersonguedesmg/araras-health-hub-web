@@ -1,4 +1,4 @@
-import { Product } from '../../admin/domains/product/interfaces/product';
+import { Product } from '../../../../admin/domains/product/interfaces/product';
 
 export interface Stock {
   id: number;

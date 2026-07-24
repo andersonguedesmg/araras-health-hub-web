@@ -1,29 +1,37 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { BaseComponent } from '../../../../core/components/base/base.component';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ToastMessages } from '../../../../shared/constants/messages.constants';
-import { debounceTime, firstValueFrom, Observable, Subject, Subscription, switchMap, take, tap } from 'rxjs';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import {
+  Observable,
+  Subject,
+  Subscription,
+  debounceTime,
+  firstValueFrom,
+  switchMap,
+  tap,
+} from 'rxjs';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { PageHeaderComponent } from '../../../../../../shared/components/page-header/page-header.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
+import { ToastMessages } from '../../../../../../shared/constants/messages.constants';
 import { StockMinQuantity } from '../../interfaces/stock-minimum-quantity';
 import { StockService } from '../../services/stock.service';
-import { TableModule } from 'primeng/table';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-stock-minimum-quantity',
@@ -51,10 +59,17 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
   ],
   providers: [MessageService],
   templateUrl: './stock-minimum-quantity.component.html',
-  styleUrl: './stock-minimum-quantity.component.scss'
+  styleUrl: './stock-minimum-quantity.component.scss',
 })
-export class StockMinimumQuantityComponent extends BaseComponent implements OnInit, OnDestroy {
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Configurações' }, { label: 'Estoque Mínimo' }];
+export class StockMinimumQuantityComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy
+{
+  itemsBreadcrumb: MenuItem[] = [
+    { label: 'Almoxarifado' },
+    { label: 'Configurações' },
+    { label: 'Estoque Mínimo' },
+  ];
   title: string = 'Estoque Mínimo';
   description: string = '';
 
@@ -68,7 +83,7 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
 
   public lastLazyEvent: any = { first: 0, rows: 5 };
 
-  clonedQuantities: { [productId: number]: number; } = {};
+  clonedQuantities: { [productId: number]: number } = {};
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -95,22 +110,29 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
       this.loadLazy
         .pipe(
           debounceTime(300),
-          tap(event => this.lastLazyEvent = event),
-          switchMap(event => {
+          tap((event) => (this.lastLazyEvent = event)),
+          switchMap((event) => {
             this.isLoading = true;
             const pageNumber = event.first / event.rows + 1;
             const pageSize = event.rows;
 
-            return this.stockService.loadStockMinQuantities(pageNumber, pageSize, this.searchTerm);
-          })
+            return this.stockService.loadStockMinQuantities(
+              pageNumber,
+              pageSize,
+              this.searchTerm,
+            );
+          }),
         )
         .subscribe({
-          next: response => {
+          next: (response) => {
             this.isLoading = false;
             if (response.success) {
               this.totalRecords = response.totalCount || 0;
             } else {
-              this.handleApiResponse(response, 'Falha ao carregar dados de estoque.');
+              this.handleApiResponse(
+                response,
+                'Falha ao carregar dados de estoque.',
+              );
             }
             this.cd.markForCheck();
           },
@@ -118,17 +140,17 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
             this.isLoading = false;
             this.handleApiError(error);
             this.cd.markForCheck();
-          }
-        })
+          },
+        }),
     );
   }
 
   private setupSearchSubscription(): void {
     this.subscriptions.add(
-      this.searchSubject.pipe(debounceTime(300)).subscribe(searchTerm => {
+      this.searchSubject.pipe(debounceTime(300)).subscribe((searchTerm) => {
         this.searchTerm = searchTerm;
         this.loadMinQuantities({ first: 0, rows: this.lastLazyEvent.rows });
-      })
+      }),
     );
   }
 
@@ -159,12 +181,22 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
       return;
     }
 
-    if (stock.minQuantity < 0 || isNaN(stock.minQuantity) || originalQuantity === stock.minQuantity || event.field !== 'minQuantity') {
-      if (originalQuantity === stock.minQuantity || event.field !== 'minQuantity') {
+    if (
+      stock.minQuantity < 0 ||
+      isNaN(stock.minQuantity) ||
+      originalQuantity === stock.minQuantity ||
+      event.field !== 'minQuantity'
+    ) {
+      if (
+        originalQuantity === stock.minQuantity ||
+        event.field !== 'minQuantity'
+      ) {
         delete this.clonedQuantities[stock.productId];
         return;
       }
-      this.toastService.showError(ToastMessages.MINIMUM_QUANTITY_MUST_BE_POSITIVE);
+      this.toastService.showError(
+        ToastMessages.MINIMUM_QUANTITY_MUST_BE_POSITIVE,
+      );
       this.revertQuantity(stock, event.index, originalQuantity);
       return;
     }
@@ -180,17 +212,19 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
       await this.getDialogConfirmation();
       this.isLoading = true;
       const apiCall = firstValueFrom(
-        this.stockService.updateMinQuantity(stock.productId, stock.minQuantity)
+        this.stockService.updateMinQuantity(stock.productId, stock.minQuantity),
       );
       const response = await apiCall;
 
       if (response.success) {
-        this.toastService.showSuccess(successMessage, ToastMessages.SUCCESS_OPERATION);
+        this.toastService.showSuccess(
+          successMessage,
+          ToastMessages.SUCCESS_OPERATION,
+        );
       } else {
         this.handleApiResponse(response, 'Falha ao salvar. Revertendo valor.');
         this.revertQuantity(stock, event.index, originalQuantity);
       }
-
     } catch (error: any) {
       this.isLoading = false;
 
@@ -199,7 +233,6 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
       }
 
       this.revertQuantity(stock, event.index, originalQuantity);
-
     } finally {
       this.isLoading = false;
       delete this.clonedQuantities[stock.productId];
@@ -207,11 +240,15 @@ export class StockMinimumQuantityComponent extends BaseComponent implements OnIn
     }
   }
 
-
-  private revertQuantity(stock: StockMinQuantity, index: number, originalQuantity: number | undefined): void {
+  private revertQuantity(
+    stock: StockMinQuantity,
+    index: number,
+    originalQuantity: number | undefined,
+  ): void {
     if (originalQuantity === undefined) return;
     stock.minQuantity = originalQuantity;
-    const stockMinQuantitySubject = this.stockService.stockMinQuantitySubjectGetter;
+    const stockMinQuantitySubject =
+      this.stockService.stockMinQuantitySubjectGetter;
     const currentList = stockMinQuantitySubject.getValue();
     stockMinQuantitySubject.next([...currentList]);
     this.cd.markForCheck();

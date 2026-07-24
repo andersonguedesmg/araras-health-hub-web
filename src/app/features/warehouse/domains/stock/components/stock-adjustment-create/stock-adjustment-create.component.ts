@@ -1,38 +1,46 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb.component';
-import { MenuItem } from 'primeng/api';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { ToolbarModule } from 'primeng/toolbar';
-import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { DialogModule } from 'primeng/dialog';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ToastComponent } from '../../../../shared/components/toast/toast.component';
-import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ConfirmMessages, ToastMessages } from '../../../../shared/constants/messages.constants';
-import { ToastSeverities, ToastSummaries } from '../../../../shared/constants/toast.constants';
-import { FormMode } from '../../../../shared/enums/form-mode.enum';
-import { ConfirmMode } from '../../../../shared/enums/confirm-mode.enum';
-import { StatusOptions } from '../../../../shared/constants/status-options.constants';
-import { combineLatest, firstValueFrom, Subscription } from 'rxjs';
-import { SelectOptions } from '../../../../shared/interfaces/select-options';
-import { AuthService } from '../../../../core/services/auth.service';
-import { TextareaModule } from 'primeng/textarea';
-import { DropdownDataService } from '../../../../shared/services/dropdown-data.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
+import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
+import { Subscription, combineLatest, firstValueFrom } from 'rxjs';
+import { BaseComponent } from '../../../../../../core/components/base/base.component';
+import { AuthService } from '../../../../../../core/services/auth.service';
+import { FormHelperService } from '../../../../../../core/services/form-helper.service';
+import { BreadcrumbComponent } from '../../../../../../shared/components/breadcrumb/breadcrumb.component';
+import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { SpinnerComponent } from '../../../../../../shared/components/spinner/spinner.component';
+import { ToastComponent } from '../../../../../../shared/components/toast/toast.component';
+import {
+  ConfirmMessages,
+  ToastMessages,
+} from '../../../../../../shared/constants/messages.constants';
+import { StatusOptions } from '../../../../../../shared/constants/status-options.constants';
+import { ConfirmMode } from '../../../../../../shared/enums/confirm-mode.enum';
+import { FormMode } from '../../../../../../shared/enums/form-mode.enum';
+import { SelectOptions } from '../../../../../../shared/interfaces/select-options';
+import { DropdownDataService } from '../../../../../../shared/services/dropdown-data.service';
 import { StockService } from '../../services/stock.service';
-import { BaseComponent } from '../../../../core/components/base/base.component';
-import { FormHelperService } from '../../../../core/services/form-helper.service';
 
 @Component({
   selector: 'app-stock-adjustment-create',
@@ -60,13 +68,20 @@ import { FormHelperService } from '../../../../core/services/form-helper.service
   ],
   providers: [MessageService],
   templateUrl: './stock-adjustment-create.component.html',
-  styleUrl: './stock-adjustment-create.component.scss'
+  styleUrl: './stock-adjustment-create.component.scss',
 })
-export class StockAdjustmentCreateComponent extends BaseComponent implements OnInit, OnDestroy {
+export class StockAdjustmentCreateComponent
+  extends BaseComponent
+  implements OnInit, OnDestroy
+{
   @ViewChild(ToastComponent) toastComponent!: ToastComponent;
   @ViewChild(SpinnerComponent) spinnerComponent!: SpinnerComponent;
 
-  itemsBreadcrumb: MenuItem[] = [{ label: 'Almoxarifado' }, { label: 'Movimentações' }, { label: 'Novo Ajuste Manual' }];
+  itemsBreadcrumb: MenuItem[] = [
+    { label: 'Almoxarifado' },
+    { label: 'Movimentações' },
+    { label: 'Novo Ajuste Manual' },
+  ];
   title: string = 'Novo Ajuste Manual';
 
   stockAdjustmentForm: FormGroup;
@@ -79,14 +94,15 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
   ConfirmMode = ConfirmMode;
   statusOptions = StatusOptions;
 
-  formMode: FormMode.Create | FormMode.Update | FormMode.Detail = FormMode.Create;
+  formMode: FormMode.Create | FormMode.Update | FormMode.Detail =
+    FormMode.Create;
 
   stockAdjustmentFormSubmitted = false;
 
   confirmMode: ConfirmMode.Create | ConfirmMode.Update | null = null;
   confirmMessage = '';
 
-  private stockAdjustmentFormLabels: { [key: string]: string; } = {
+  private stockAdjustmentFormLabels: { [key: string]: string } = {
     type: 'Tipo do Ajuste',
     reason: 'Motivo do Ajuste',
     responsibleId: 'Responsável',
@@ -106,7 +122,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
     private authService: AuthService,
     private dropdownDataService: DropdownDataService,
     private stockService: StockService,
-    private formHelperService: FormHelperService
+    private formHelperService: FormHelperService,
   ) {
     super();
     this.stockAdjustmentForm = this.fb.group({
@@ -137,7 +153,6 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
       ];
 
       this.addAdjustmentItem();
-
     } catch (error) {
       // this.toastComponent.showMessage(ToastSeverities.ERROR, ToastSummaries.ERROR, 'Erro ao carregar dados iniciais. Por favor, tente novamente.');
     } finally {
@@ -157,7 +172,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
     const itemGroup = this.fb.group({
       productId: [null, Validators.required],
       quantity: [null, [Validators.required, Validators.min(0.01)]],
-      unitValue: [null,],
+      unitValue: [null],
       totalValue: [{ value: null, disabled: true }],
       batch: ['', Validators.required],
       brand: ['', Validators.required],
@@ -172,7 +187,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
     if (quantityCtrl && unitValueCtrl) {
       const sub = combineLatest([
         quantityCtrl.valueChanges,
-        unitValueCtrl.valueChanges
+        unitValueCtrl.valueChanges,
       ]).subscribe(() => {
         this.calculateTotalValue(itemGroup);
       });
@@ -196,7 +211,6 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
       });
   }
 
-
   private calculateTotalValue(itemGroup: FormGroup): void {
     const quantity = parseFloat(itemGroup.get('quantity')?.value || 0);
     const unitValue = parseFloat(itemGroup.get('unitValue')?.value || 0);
@@ -218,12 +232,24 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
   async saveStockAdjustment(): Promise<void> {
     this.stockAdjustmentFormSubmitted = true;
     if (this.validateForm()) {
-      const confirmMsg = this.formMode === FormMode.Create ? ConfirmMessages.CREATE_STOCK_ADJUSTMENT : ConfirmMessages.UPDATE_STOCK_ADJUSTMENT;
+      const confirmMsg =
+        this.formMode === FormMode.Create
+          ? ConfirmMessages.CREATE_STOCK_ADJUSTMENT
+          : ConfirmMessages.UPDATE_STOCK_ADJUSTMENT;
       const stockAdjustment = this.stockAdjustmentForm.getRawValue();
-      const apiCall = () => this.formMode === FormMode.Create
-        ? firstValueFrom(this.stockService.createStockAdjustment(stockAdjustment))
-        : firstValueFrom(this.stockService.createStockAdjustment(stockAdjustment));
-      await this.handleApiCall(apiCall, confirmMsg, ToastMessages.SUCCESS_OPERATION);
+      const apiCall = () =>
+        this.formMode === FormMode.Create
+          ? firstValueFrom(
+              this.stockService.createStockAdjustment(stockAdjustment),
+            )
+          : firstValueFrom(
+              this.stockService.createStockAdjustment(stockAdjustment),
+            );
+      await this.handleApiCall(
+        apiCall,
+        confirmMsg,
+        ToastMessages.SUCCESS_OPERATION,
+      );
       this.resetStockAdjustmentForm();
     }
   }
@@ -231,7 +257,7 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
   public resetStockAdjustmentForm(): void {
     this.stockAdjustmentForm.reset({
       adjustmentDate: new Date(),
-      accountId: 0 // this.authService.getUserId(),
+      accountId: 0, // this.authService.getUserId(),
     });
     this.adjustmentItems.clear();
     this.subscriptions.unsubscribe();
@@ -241,6 +267,10 @@ export class StockAdjustmentCreateComponent extends BaseComponent implements OnI
   }
 
   private validateForm(): boolean {
-    return this.validateFormAndShowErrors(this.stockAdjustmentForm, this.formHelperService, this.stockAdjustmentFormLabels);
+    return this.validateFormAndShowErrors(
+      this.stockAdjustmentForm,
+      this.formHelperService,
+      this.stockAdjustmentFormLabels,
+    );
   }
 }

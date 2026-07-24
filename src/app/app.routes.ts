@@ -201,7 +201,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/estoque/geral',
         loadComponent: () =>
-          import('./features/stock/components/stock-list/stock-list.component').then(
+          import('./features/warehouse/domains/stock/components/stock-list/stock-list.component').then(
             (m) => m.StockListComponent,
           ),
         title: 'A2H - Estoque Geral',
@@ -211,7 +211,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/estoque/critico',
         loadComponent: () =>
-          import('./features/stock/components/stock-critical/stock-critical.component').then(
+          import('./features/warehouse/domains/stock/components/stock-critical/stock-critical.component').then(
             (m) => m.StockCriticalComponent,
           ),
         title: 'A2H - Estoque Crítico',
@@ -221,7 +221,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/estoque/lotes-ativos',
         loadComponent: () =>
-          import('./features/stock/components/stock-active-lots/stock-active-lots.component').then(
+          import('./features/warehouse/domains/stock/components/stock-active-lots/stock-active-lots.component').then(
             (m) => m.StockActiveLotsComponent,
           ),
         title: 'A2H - Lotes Ativos',
@@ -231,7 +231,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/estoque/proximo-vencimento',
         loadComponent: () =>
-          import('./features/stock/components/stock-near-expiry-lots/stock-near-expiry-lots.component').then(
+          import('./features/warehouse/domains/stock/components/stock-near-expiry-lots/stock-near-expiry-lots.component').then(
             (m) => m.StockNearExpiryLotsComponent,
           ),
         title: 'A2H - Vencimento Próximo',
@@ -241,7 +241,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/configuracoes/estoque-minimo',
         loadComponent: () =>
-          import('./features/stock/components/stock-minimum-quantity/stock-minimum-quantity.component').then(
+          import('./features/warehouse/domains/stock/components/stock-minimum-quantity/stock-minimum-quantity.component').then(
             (m) => m.StockMinimumQuantityComponent,
           ),
         title: 'A2H - Estoque Mínimo',
@@ -254,7 +254,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/movimentacoes/ajustes',
         loadComponent: () =>
-          import('./features/stock/components/stock-adjustment/stock-adjustment.component').then(
+          import('./features/warehouse/domains/stock/components/stock-adjustment/stock-adjustment.component').then(
             (m) => m.StockAdjustmentComponent,
           ),
         title: 'A2H - Ajustes',
@@ -264,7 +264,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/movimentacoes/ajustes/novo',
         loadComponent: () =>
-          import('./features/stock/components/stock-adjustment-create/stock-adjustment-create.component').then(
+          import('./features/warehouse/domains/stock/components/stock-adjustment-create/stock-adjustment-create.component').then(
             (m) => m.StockAdjustmentCreateComponent,
           ),
         title: 'A2H - Novo Ajuste Manual',
@@ -294,7 +294,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/movimentacoes/historico',
         loadComponent: () =>
-          import('./features/stock/components/stock-movement/stock-movement.component').then(
+          import('./features/warehouse/domains/stock/components/stock-movement/stock-movement.component').then(
             (m) => m.StockMovementComponent,
           ),
         title: 'A2H - Histórico de Movimentações',
@@ -304,7 +304,7 @@ export const routes: Routes = [
       {
         path: 'almoxarifado/movimentacoes/saidas',
         loadComponent: () =>
-          import('./features/stock/components/stock-shipping/stock-shipping.component').then(
+          import('./features/warehouse/domains/stock/components/stock-shipping/stock-shipping.component').then(
             (m) => m.StockShippingComponent,
           ),
         title: 'A2H - Saídas',
