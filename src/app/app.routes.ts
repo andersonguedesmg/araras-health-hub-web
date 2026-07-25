@@ -11,7 +11,7 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./core/components/login/login.component').then(
+      import('./core/pages/login/login.component').then(
         (m) => m.LoginComponent,
       ),
     title: 'A2H - Login',

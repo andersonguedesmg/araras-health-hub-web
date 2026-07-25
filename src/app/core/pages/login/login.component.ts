@@ -1,16 +1,18 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   OnInit,
   signal,
-  ViewEncapsulation,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { Greetings } from '../../../shared/enums/greetings.enum';
+import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { ToastService } from '../../../shared/services/toast/toast.service';
 import { LoginRequest } from '../../interfaces/auth.interfaces';
 import { AuthService } from '../../services/auth/auth.service';
@@ -18,18 +20,29 @@ import { AuthService } from '../../services/auth/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, ButtonModule, InputTextModule, SpinnerComponent],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    PasswordModule,
+    SpinnerComponent,
+  ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
-  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
+  private readonly fb = inject(FormBuilder);
+  private readonly themeService = inject(ThemeService);
 
-  readonly credentials = signal<LoginRequest>({ userName: '', password: '' });
   readonly isLoading = signal<boolean>(false);
+
+  readonly loginForm = this.fb.nonNullable.group({
+    userName: ['', [Validators.required]],
+    password: ['', [Validators.required]],
+  });
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -38,15 +51,19 @@ export class LoginComponent implements OnInit {
   }
 
   login(): void {
-    const currentCreds = this.credentials();
-    if (!currentCreds.userName || !currentCreds.password) {
-      this.toastService.showError('Por favor, preencha todos os campos.');
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      this.toastService.showError(
+        'Por favor, preencha todos os campos obrigatórios.',
+      );
       return;
     }
 
+    const credentials: LoginRequest = this.loginForm.getRawValue();
+
     this.isLoading.set(true);
 
-    this.authService.login(currentCreds).subscribe({
+    this.authService.login(credentials).subscribe({
       next: (response) => {
         this.isLoading.set(false);
 
