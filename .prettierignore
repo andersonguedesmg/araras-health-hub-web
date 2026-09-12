@@ -1,0 +1,9 @@
+# Pastas de build e dependências
+dist/
+.angular/
+node_modules/
+
+# Arquivos de Lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
