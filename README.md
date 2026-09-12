@@ -12,46 +12,64 @@ A responsabilidade de acesso a dados e regras de negócio é estritamente delega
 
 ### Tecnologias
 
-- [Angular v19.0.0](https://v19.angular.dev/overview)
-- [TypeScript v5.6](https://www.typescriptlang.org/)
-- [PrimeNG v19](https://primeng.org/)
-- [PrimeIcons](https://primeng.org/icons)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [jwt-decode](https://www.jwt.io/introduction)
+- [Angular v19.2.0](https://v19.angular.dev/overview)
+- [TypeScript v5.7](https://www.typescriptlang.org/)
+- [PrimeNG v19.0.2](https://primeng.org/)
+- [Tailwind CSS v3.4](https://tailwindcss.com/)
+- [tailwindcss-primeui](https://github.com/primefaces/tailwindcss-primeui)
+- [Chart.js v4.4](https://www.chartjs.org/)
+- [jwt-decode v4.0](https://www.jwt.io/introduction)
 
 ### Pré-requisitos
 
 Antes de começar, certifique-se de ter o ambiente de desenvolvimento configurado:
 
-- [Node.js v22.12.0](https://nodejs.org/pt)
-- [npm 10.9.0](https://www.npmjs.com/)
-- [Angular CLI 20.0.0](https://git-scm.com/)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [API Araras Health Hub deve estar rodando e acessível](https://github.com/andersonguedesmg/araras-health-hub-api)
+- [Node.js v22.x](https://nodejs.org/pt)
+- [npm v10.x](https://www.npmjs.com/)
+- [Angular CLI](https://angular.dev/tools/cli)
+- [Visual Studio Code](https://code.visualstudio.com/) _(Recomendado)_
+- [API Araras Health Hub](https://github.com/andersonguedesmg/araras-health-hub-api) rodando localmente
 
 ### Rodando localmente
 
-Clone o repositório
+1. Clone o repositório
 
 ```bash
-git clone https://github.com/andersonguedesmg/araras-health-hub-web
+git clone https://github.com/andersonguedesmg/araras-health-hub-web.git
 ```
 
-Instale as dependências
+2. Acesse o diretório do projeto
+
+```bash
+cd araras-health-hub-web
+```
+
+3. Instale as dependências
 
 ```bash
 npm install
 ```
 
-Inicie o servidor de desenvolvimento
+4. Inicie o servidor de desenvolvimento
 
 ```bash
 npm run start
-ng serve
 ```
 
-Acesse a plataforma
+5. Acesse no navegador:
 
 ```bash
 http://localhost:4200/
 ```
+
+### Scripts Disponíveis
+
+No terminal, você pode executar os seguintes comandos cadastrados no `package.json`:
+
+| Comando         | Descrição                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| `npm start`     | Executa o servidor de desenvolvimento (`ng serve`)                                            |
+| `npm run build` | Compila o projeto para produção no diretório `dist/`                                          |
+| `npm run watch` | Compila o projeto em modo de desenvolvimento com visualização contínua                        |
+| `npm run test`  | Executa os testes unitários via Karma e Jasmine                                               |
+| `npm run lint`  | Analisa os arquivos `.ts` e `.html` buscando erros de sintaxe ou violação de regras do ESLint |
