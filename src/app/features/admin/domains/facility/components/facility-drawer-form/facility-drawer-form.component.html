@@ -1,67 +1,45 @@
-<app-drawer
-  [(visible)]="visible"
-  [header]="headerText()"
-  [position]="'right'"
-  [size]="'xl'"
->
+<app-drawer [(visible)]="visible" [header]="headerText()" [position]="'right'" [size]="'xl'">
   @if (isGlobalLoading()) {
-    <div
-      class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full"
-    >
-      <div
-        class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"
-      ></div>
+    <div class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full">
+      <div class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"></div>
     </div>
   }
 
-  <form
-    [formGroup]="facilityForm"
-    body
-    class="space-y-6"
-    [class.opacity-60]="isGlobalLoading()"
-  >
+  <form [formGroup]="facilityForm" body class="space-y-6" [class.opacity-60]="isGlobalLoading()">
     <div
-      class="bg-white dark:bg-zinc-900/90 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4"
-    >
-      <h3
-        class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2"
-      >
-        <i class="pi pi-building"></i> Identificação
+      class="bg-white dark:bg-zinc-900/90 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
+      <h3 class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2">
+        <i class="pi pi-building"></i>
+        Identificação
       </h3>
       <hr class="border-zinc-100 dark:border-zinc-800" />
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         @if (formMode() !== FormMode.Create) {
           <div>
-            <label class="block text-xs font-semibold text-zinc-500 mb-1"
-              >ID</label
-            >
+            <label class="block text-xs font-semibold text-zinc-500 mb-1" for="id">ID</label>
             <input
               pInputText
+              id="id"
               type="text"
               formControlName="id"
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
-            />
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none" />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-zinc-500 mb-1"
-              >Status</label
-            >
+            <label class="block text-xs font-semibold text-zinc-500 mb-1" for="status">Status</label>
             <input
               pInputText
+              id="status"
               type="text"
               [value]="statusLabel()"
               disabled
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
-            />
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none" />
           </div>
         }
 
         <div class="sm:col-span-2">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="name">
             Nome da Unidade
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -69,35 +47,21 @@
           </label>
           <input
             pInputText
+            id="name"
             type="text"
             formControlName="name"
             maxlength="150"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-zinc-300]="
-              !(formSubmitted() && facilityForm.get('name')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && facilityForm.get('name')?.invalid)
-            "
-            [class.border-red-500]="
-              formSubmitted() && facilityForm.get('name')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() && facilityForm.get('name')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() && facilityForm.get('name')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() && facilityForm.get('name')?.invalid
-            "
-          />
+            [class.border-zinc-300]="!(formSubmitted() && facilityForm.get('name')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && facilityForm.get('name')?.invalid)"
+            [class.border-red-500]="formSubmitted() && facilityForm.get('name')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && facilityForm.get('name')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && facilityForm.get('name')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && facilityForm.get('name')?.invalid" />
         </div>
 
         <div class="sm:col-span-2">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="cnes">
             CNES
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -105,55 +69,40 @@
           </label>
           <input
             pInputText
+            id="cnes"
             type="text"
             formControlName="cnes"
             maxlength="50"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-zinc-300]="
-              !(formSubmitted() && facilityForm.get('cnes')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && facilityForm.get('cnes')?.invalid)
-            "
-            [class.border-red-500]="
-              formSubmitted() && facilityForm.get('cnes')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() && facilityForm.get('cnes')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() && facilityForm.get('cnes')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() && facilityForm.get('cnes')?.invalid
-            "
-          />
+            [class.border-zinc-300]="!(formSubmitted() && facilityForm.get('cnes')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && facilityForm.get('cnes')?.invalid)"
+            [class.border-red-500]="formSubmitted() && facilityForm.get('cnes')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && facilityForm.get('cnes')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && facilityForm.get('cnes')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && facilityForm.get('cnes')?.invalid" />
         </div>
       </div>
     </div>
 
     <div
       class="bg-white dark:bg-zinc-900/90 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4"
-      formGroupName="address"
-    >
-      <h3
-        class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2"
-      >
-        <i class="pi pi-map-marker"></i> Localização
+      formGroupName="address">
+      <h3 class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2">
+        <i class="pi pi-map-marker"></i>
+        Localização
       </h3>
       <hr class="border-zinc-100 dark:border-zinc-800" />
 
       <div class="grid grid-cols-3 gap-4">
         <div class="col-span-3 sm:col-span-1">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="cep">
             CEP
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
             }
           </label>
           <p-inputmask
+            id="cep"
             mask="99999-999"
             formControlName="cep"
             (onBlur)="searchCep()"
@@ -162,14 +111,11 @@
               (formSubmitted() && facilityForm.get('address.cep')?.invalid
                 ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500 ring-1 ring-red-500'
                 : 'border-zinc-300 dark:border-zinc-700')
-            "
-          />
+            " />
         </div>
 
         <div class="col-span-3 sm:col-span-2">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="street">
             Endereço (Logradouro)
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -177,34 +123,20 @@
           </label>
           <input
             pInputText
+            id="street"
             type="text"
             formControlName="street"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-zinc-300]="
-              !(formSubmitted() && facilityForm.get('address.street')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && facilityForm.get('address.street')?.invalid)
-            "
-            [class.border-red-500]="
-              formSubmitted() && facilityForm.get('address.street')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() && facilityForm.get('address.street')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() && facilityForm.get('address.street')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() && facilityForm.get('address.street')?.invalid
-            "
-          />
+            [class.border-zinc-300]="!(formSubmitted() && facilityForm.get('address.street')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && facilityForm.get('address.street')?.invalid)"
+            [class.border-red-500]="formSubmitted() && facilityForm.get('address.street')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && facilityForm.get('address.street')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && facilityForm.get('address.street')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && facilityForm.get('address.street')?.invalid" />
         </div>
 
         <div class="col-span-3 sm:col-span-1">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="number">
             Número
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -212,47 +144,32 @@
           </label>
           <input
             pInputText
+            id="number"
             type="text"
             formControlName="number"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-zinc-300]="
-              !(formSubmitted() && facilityForm.get('address.number')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && facilityForm.get('address.number')?.invalid)
-            "
-            [class.border-red-500]="
-              formSubmitted() && facilityForm.get('address.number')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() && facilityForm.get('address.number')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() && facilityForm.get('address.number')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() && facilityForm.get('address.number')?.invalid
-            "
-          />
+            [class.border-zinc-300]="!(formSubmitted() && facilityForm.get('address.number')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && facilityForm.get('address.number')?.invalid)"
+            [class.border-red-500]="formSubmitted() && facilityForm.get('address.number')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && facilityForm.get('address.number')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && facilityForm.get('address.number')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && facilityForm.get('address.number')?.invalid" />
         </div>
 
         <div class="col-span-3 sm:col-span-2">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-            >Complemento</label
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="complement">
+            Complemento
+          </label>
           <input
             pInputText
+            id="complement"
             type="text"
             formControlName="complement"
-            class="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-          />
+            class="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner" />
         </div>
 
         <div class="col-span-3 sm:col-span-1">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="neighborhood">
             Bairro
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -260,44 +177,20 @@
           </label>
           <input
             pInputText
+            id="neighborhood"
             type="text"
             formControlName="neighborhood"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-zinc-300]="
-              !(
-                formSubmitted() &&
-                facilityForm.get('address.neighborhood')?.invalid
-              )
-            "
-            [class.dark:border-zinc-700]="
-              !(
-                formSubmitted() &&
-                facilityForm.get('address.neighborhood')?.invalid
-              )
-            "
-            [class.border-red-500]="
-              formSubmitted() &&
-              facilityForm.get('address.neighborhood')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() &&
-              facilityForm.get('address.neighborhood')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() &&
-              facilityForm.get('address.neighborhood')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() &&
-              facilityForm.get('address.neighborhood')?.invalid
-            "
-          />
+            [class.border-zinc-300]="!(formSubmitted() && facilityForm.get('address.neighborhood')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && facilityForm.get('address.neighborhood')?.invalid)"
+            [class.border-red-500]="formSubmitted() && facilityForm.get('address.neighborhood')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && facilityForm.get('address.neighborhood')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && facilityForm.get('address.neighborhood')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && facilityForm.get('address.neighborhood')?.invalid" />
         </div>
 
         <div class="col-span-3 sm:col-span-1">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="city">
             Cidade
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -305,34 +198,20 @@
           </label>
           <input
             pInputText
+            id="city"
             type="text"
             formControlName="city"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-zinc-300]="
-              !(formSubmitted() && facilityForm.get('address.city')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && facilityForm.get('address.city')?.invalid)
-            "
-            [class.border-red-500]="
-              formSubmitted() && facilityForm.get('address.city')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() && facilityForm.get('address.city')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() && facilityForm.get('address.city')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() && facilityForm.get('address.city')?.invalid
-            "
-          />
+            [class.border-zinc-300]="!(formSubmitted() && facilityForm.get('address.city')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && facilityForm.get('address.city')?.invalid)"
+            [class.border-red-500]="formSubmitted() && facilityForm.get('address.city')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && facilityForm.get('address.city')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && facilityForm.get('address.city')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && facilityForm.get('address.city')?.invalid" />
         </div>
 
         <div class="col-span-3 sm:col-span-1">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="state">
             UF
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -340,49 +219,33 @@
           </label>
           <input
             pInputText
+            id="state"
             type="text"
             formControlName="state"
             maxlength="2"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-zinc-300]="
-              !(formSubmitted() && facilityForm.get('address.state')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && facilityForm.get('address.state')?.invalid)
-            "
-            [class.border-red-500]="
-              formSubmitted() && facilityForm.get('address.state')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() && facilityForm.get('address.state')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() && facilityForm.get('address.state')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() && facilityForm.get('address.state')?.invalid
-            "
-          />
+            [class.border-zinc-300]="!(formSubmitted() && facilityForm.get('address.state')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && facilityForm.get('address.state')?.invalid)"
+            [class.border-red-500]="formSubmitted() && facilityForm.get('address.state')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && facilityForm.get('address.state')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && facilityForm.get('address.state')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && facilityForm.get('address.state')?.invalid" />
         </div>
       </div>
     </div>
 
     <div
       class="bg-white dark:bg-zinc-900/90 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4"
-      formGroupName="contact"
-    >
-      <h3
-        class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2"
-      >
-        <i class="pi pi-envelope"></i> Contato
+      formGroupName="contact">
+      <h3 class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2">
+        <i class="pi pi-envelope"></i>
+        Contato
       </h3>
       <hr class="border-zinc-100 dark:border-zinc-800" />
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="sm:col-span-2">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="email">
             E-mail
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -390,40 +253,27 @@
           </label>
           <input
             pInputText
+            id="email"
             type="text"
             formControlName="email"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-zinc-300]="
-              !(formSubmitted() && facilityForm.get('contact.email')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && facilityForm.get('contact.email')?.invalid)
-            "
-            [class.border-red-500]="
-              formSubmitted() && facilityForm.get('contact.email')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() && facilityForm.get('contact.email')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() && facilityForm.get('contact.email')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() && facilityForm.get('contact.email')?.invalid
-            "
-          />
+            [class.border-zinc-300]="!(formSubmitted() && facilityForm.get('contact.email')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && facilityForm.get('contact.email')?.invalid)"
+            [class.border-red-500]="formSubmitted() && facilityForm.get('contact.email')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && facilityForm.get('contact.email')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && facilityForm.get('contact.email')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && facilityForm.get('contact.email')?.invalid" />
         </div>
 
         <div class="sm:col-span-2">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="phone">
             Telefone
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
             }
           </label>
           <p-inputmask
+            id="phone"
             mask="(99) 9999-9999"
             formControlName="phone"
             [styleClass]="
@@ -431,8 +281,7 @@
               (formSubmitted() && facilityForm.get('contact.phone')?.invalid
                 ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500 ring-1 ring-red-500'
                 : 'border-zinc-300 dark:border-zinc-700')
-            "
-          />
+            " />
         </div>
       </div>
     </div>
@@ -445,8 +294,7 @@
       severity="secondary"
       [outlined]="true"
       [disabled]="isGlobalLoading()"
-      (onClick)="visible.set(false)"
-    />
+      (onClick)="visible.set(false)" />
 
     @if (!isReadOnly()) {
       <p-button
@@ -456,16 +304,14 @@
         [outlined]="true"
         [disabled]="isGlobalLoading()"
         (onClick)="clearForm()"
-        class="ml-auto"
-      />
+        class="ml-auto" />
 
       <p-button
         label="Salvar"
         icon="pi pi-check-circle"
         severity="success"
         [disabled]="isGlobalLoading()"
-        (onClick)="submitForm()"
-      />
+        (onClick)="submitForm()" />
     }
   </ng-container>
 </app-drawer>
@@ -475,5 +321,4 @@
   acceptLabel="Confirmar"
   rejectLabel="Cancelar"
   acceptIcon="pi pi-check-circle"
-  rejectIcon="pi pi-ban"
-></app-confirm-dialog>
+  rejectIcon="pi pi-ban" />

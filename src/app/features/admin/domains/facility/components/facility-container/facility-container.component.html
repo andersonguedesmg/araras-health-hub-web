@@ -1,19 +1,15 @@
-<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb()"></app-breadcrumb>
-<app-spinner [loading]="isLoading()"></app-spinner>
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb()" />
+<app-spinner [loading]="isLoading()" />
 
 <app-confirm-dialog
   #confirmDialog
   acceptLabel="Confirmar"
   rejectLabel="Cancelar"
   acceptIcon="pi pi-check-circle"
-  rejectIcon="pi pi-ban"
-></app-confirm-dialog>
+  rejectIcon="pi pi-ban" />
 
 <div class="p-6 max-w-7xl mx-auto space-y-6">
-  <app-page-header
-    [title]="title"
-    [description]="description"
-  ></app-page-header>
+  <app-page-header [title]="title" [description]="description" />
 
   <app-facility-table
     [value]="facilities()"
@@ -21,19 +17,17 @@
     [rows]="rows()"
     [first]="first()"
     [loading]="isLoading()"
-    (onLazyLoad)="loadFacilities($event)"
-    (onSearch)="onSearch($event)"
-    (onAdd)="openForm(FormMode.Create)"
-    (onEdit)="openForm(FormMode.Update, $event)"
-    (onDetail)="openForm(FormMode.Detail, $event)"
-    (onChangeStatus)="changeStatusFacility($event)"
-    (onPdfClick)="generatePdfReport()"
-  ></app-facility-table>
+    (lazyLoad)="loadFacilities($event)"
+    (searchChange)="onSearch($event)"
+    (add)="openForm(FormMode.Create)"
+    (edit)="openForm(FormMode.Update, $event)"
+    (detail)="openForm(FormMode.Detail, $event)"
+    (changeStatus)="changeStatusFacility($event)"
+    (pdfClick)="generatePdfReport()" />
 
   <app-facility-drawer-form
     [(visible)]="displayDrawer"
     [formMode]="formMode"
     [facilityData]="selectedFacility"
-    (onSave)="saveFacility($event)"
-  ></app-facility-drawer-form>
+    (save)="saveFacility($event)" />
 </div>

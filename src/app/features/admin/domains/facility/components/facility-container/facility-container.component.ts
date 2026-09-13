@@ -31,13 +31,11 @@ export class FacilityContainerComponent {
   private readonly facilityService = inject(FacilityService);
   private readonly toastService = inject(ToastService);
 
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
   protected readonly title = 'Unidades';
-  protected readonly description =
-    'Gestão e controle dos estabelecimentos da rede municipal de saúde.';
+  protected readonly description = 'Gestão e controle dos estabelecimentos da rede municipal de saúde.';
 
   protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
@@ -64,26 +62,16 @@ export class FacilityContainerComponent {
   private readonly facilitiesResource = rxResource({
     request: () => this.queryParams(),
     loader: ({ request }) => {
-      return this.facilityService.loadFacilities(
-        request.page,
-        request.rows,
-        request.searchTerm,
-      );
+      return this.facilityService.loadFacilities(request.page, request.rows, request.searchTerm);
     },
   });
 
-  protected readonly facilities = computed(
-    () => this.facilitiesResource.value()?.data ?? [],
-  );
+  protected readonly facilities = computed(() => this.facilitiesResource.value()?.data ?? []);
 
-  protected readonly totalRecords = computed(
-    () => this.facilitiesResource.value()?.totalCount ?? 0,
-  );
+  protected readonly totalRecords = computed(() => this.facilitiesResource.value()?.totalCount ?? 0);
 
   private readonly isActionLoading = signal<boolean>(false);
-  protected readonly isLoading = computed(
-    () => this.facilitiesResource.isLoading() || this.isActionLoading(),
-  );
+  protected readonly isLoading = computed(() => this.facilitiesResource.isLoading() || this.isActionLoading());
 
   protected loadFacilities(event: TableLazyLoadEvent): void {
     this.first.set(event.first ?? 0);
@@ -102,9 +90,7 @@ export class FacilityContainerComponent {
   }
 
   protected generatePdfReport(): void {
-    this.toastService.showInfo(
-      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
-    );
+    this.toastService.showInfo('A exportação para PDF está em desenvolvimento e estará disponível em breve!');
   }
 
   protected async saveFacility(formValue: Facility): Promise<void> {
@@ -134,9 +120,7 @@ export class FacilityContainerComponent {
     const isActivating = !facility.isActive;
     const actionText = facility.isActive ? 'desativar' : 'ativar';
     const msg = `Deseja realmente ${actionText} a unidade de saúde "${facility.name}"?`;
-    const title = facility.isActive
-      ? 'Confirmar Desativação'
-      : 'Confirmar Ativação';
+    const title = facility.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação';
 
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
@@ -145,9 +129,7 @@ export class FacilityContainerComponent {
     const alteredFacility = { ...facility, isActive: isActivating };
 
     try {
-      await firstValueFrom(
-        this.facilityService.changeStatusFacility(facility.id, alteredFacility),
-      );
+      await firstValueFrom(this.facilityService.changeStatusFacility(facility.id, alteredFacility));
 
       const successMessage = `Unidade de saúde ${isActivating ? 'ativada' : 'desativada'} com sucesso!`;
       this.toastService.showSuccess(successMessage);

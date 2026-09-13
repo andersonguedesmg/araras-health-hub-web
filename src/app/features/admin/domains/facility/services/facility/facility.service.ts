@@ -15,11 +15,7 @@ export class FacilityService {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject(ApiConfigService);
 
-  public loadFacilities(
-    pageNumber: number,
-    pageSize: number,
-    searchTerm: string = '',
-  ): Observable<ApiResponse<Facility[]>> {
+  public loadFacilities(pageNumber: number, pageSize: number, searchTerm = ''): Observable<ApiResponse<Facility[]>> {
     const url = this.apiConfig.getUrl('facilities');
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -34,25 +30,17 @@ export class FacilityService {
     return this.http.post<ApiResponse<Facility>>(url, facility);
   }
 
-  public getFacilityById(
-    facilityId: number,
-  ): Observable<ApiResponse<Facility>> {
+  public getFacilityById(facilityId: number): Observable<ApiResponse<Facility>> {
     const url = this.apiConfig.getUrl(`facilities/${facilityId}`);
     return this.http.get<ApiResponse<Facility>>(url);
   }
 
-  public updateFacility(
-    facility: Facility,
-    facilityId: number,
-  ): Observable<ApiResponse<Facility>> {
+  public updateFacility(facility: Facility, facilityId: number): Observable<ApiResponse<Facility>> {
     const url = this.apiConfig.getUrl(`facilities/${facilityId}`);
     return this.http.put<ApiResponse<Facility>>(url, facility);
   }
 
-  public changeStatusFacility(
-    facilityId: number,
-    facility: Facility,
-  ): Observable<ApiResponse<Facility>> {
+  public changeStatusFacility(facilityId: number, facility: Facility): Observable<ApiResponse<Facility>> {
     const action = facility.isActive ? 'activate' : 'deactivate';
     const url = this.apiConfig.getUrl(`facilities/${facilityId}/${action}`);
     return this.http.patch<ApiResponse<Facility>>(url, {});
@@ -66,7 +54,7 @@ export class FacilityService {
   public getFacilityPagedOptions(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
     isActive?: boolean,
   ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('facilities/dropdown');

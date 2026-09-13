@@ -10,12 +10,7 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
@@ -48,23 +43,19 @@ export class FacilityDrawerFormComponent {
   private readonly formHelperService = inject(FormHelperService);
   private readonly cepService = inject(CepService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  visible = model<boolean>(false);
-  formMode = input<FormMode>(FormMode.Create);
-  facilityData = input<Facility | undefined>(undefined);
-  onSave = output<Facility>();
+  readonly visible = model<boolean>(false);
+  readonly formMode = input<FormMode>(FormMode.Create);
+  readonly facilityData = input<Facility | undefined>(undefined);
+  readonly save = output<Facility>();
 
-  FormMode = FormMode;
-  facilityForm: FormGroup;
-  isCepValidating = signal<boolean>(false);
-  formSubmitted = signal<boolean>(false);
-  statusLabel = signal<string>('Ativo');
-
-  isGlobalLoading = computed(
-    () => this.isCepValidating() || this.cepService.isLoading(),
-  );
+  protected readonly FormMode = FormMode;
+  protected readonly facilityForm: FormGroup;
+  protected readonly isCepValidating = signal<boolean>(false);
+  protected readonly formSubmitted = signal<boolean>(false);
+  protected readonly statusLabel = signal<string>('Ativo');
+  protected readonly isGlobalLoading = computed(() => this.isCepValidating() || this.cepService.isLoading());
 
   private readonly formLabels: Record<string, string> = {
     name: 'Nome',
@@ -95,10 +86,7 @@ export class FacilityDrawerFormComponent {
   isReadOnly = computed(() => {
     const mode = this.formMode();
     const data = this.facilityData();
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
+    return mode === FormMode.Detail || (mode === FormMode.Update && data?.isActive === false);
   });
 
   constructor() {
@@ -133,10 +121,7 @@ export class FacilityDrawerFormComponent {
     });
   }
 
-  private syncFormState(
-    currentData: Facility | undefined,
-    mode: FormMode,
-  ): void {
+  private syncFormState(currentData: Facility | undefined, mode: FormMode): void {
     this.facilityForm.reset();
     this.formSubmitted.set(false);
 
@@ -147,10 +132,7 @@ export class FacilityDrawerFormComponent {
       this.statusLabel.set('Ativo');
     }
 
-    if (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && currentData?.isActive === false)
-    ) {
+    if (mode === FormMode.Detail || (mode === FormMode.Update && currentData?.isActive === false)) {
       this.facilityForm.disable();
     } else {
       this.facilityForm.enable();
@@ -174,16 +156,11 @@ export class FacilityDrawerFormComponent {
       return;
     }
 
-    const success = await this.cepService.fillAddressByCep(
-      addressGroup,
-      this.toastService,
-    );
+    const success = await this.cepService.fillAddressByCep(addressGroup, this.toastService);
 
     if (success) {
       setTimeout(() => {
-        const numberInput =
-          document.getElementsByName('number')[0] ||
-          document.getElementById('number');
+        const numberInput = document.getElementsByName('number')[0] || document.getElementById('number');
         numberInput?.focus();
       }, 50);
     }
@@ -226,10 +203,7 @@ export class FacilityDrawerFormComponent {
   async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.facilityForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.facilityForm, this.formLabels);
 
     if (!isFormValid) {
       return;
@@ -237,7 +211,7 @@ export class FacilityDrawerFormComponent {
 
     const dialog = this.confirmDialog();
     if (!dialog) {
-      this.onSave.emit(this.facilityForm.getRawValue());
+      this.save.emit(this.facilityForm.getRawValue());
       return;
     }
 
@@ -249,7 +223,7 @@ export class FacilityDrawerFormComponent {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
 
     if (confirmed) {
-      this.onSave.emit(this.facilityForm.getRawValue());
+      this.save.emit(this.facilityForm.getRawValue());
     }
   }
 }
