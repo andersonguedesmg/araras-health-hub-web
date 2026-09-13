@@ -1,5 +1,5 @@
-import { Severity } from "../enums/severity.enum";
-import { Status } from "../enums/status.enum";
+import { Severity } from '../enums/severity.enum';
+import { Status } from '../enums/status.enum';
 
 type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 

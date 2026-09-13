@@ -1,12 +1,6 @@
 import { Roles } from '../enums/roles.enum';
 
-type TagSeverity =
-  | 'success'
-  | 'info'
-  | 'warn'
-  | 'danger'
-  | 'secondary'
-  | 'contrast';
+type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
 export function getRoleSeverity(role: number): TagSeverity {
   switch (role) {

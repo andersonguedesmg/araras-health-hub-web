@@ -1,5 +1,5 @@
-import { OrderStatus } from "../enums/order-status.enum";
-import { Severity } from "../enums/severity.enum";
+import { OrderStatus } from '../enums/order-status.enum';
+import { Severity } from '../enums/severity.enum';
 
 type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
@@ -36,21 +36,3 @@ export function getOrderStatus(status: string): OrderStatus {
       return OrderStatus.Unknown;
   }
 }
-
-// [Description("Pendente de Aprovação")];
-// PendingApproval = 1,
-
-//   [Description("Pronto para Separação")];
-// ReadyForPicking = 2,
-
-//   [Description("Em Separação")];
-// PickingInProgress = 3,
-
-//   [Description("Pronto para Envio/Finalização")];
-// ReadyForFinalization = 4,
-
-//   [Description("Finalizado")];
-// Completed = 5,
-
-//   [Description("Cancelado")];
-// Cancelled = 6;
