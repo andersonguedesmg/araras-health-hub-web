@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, model, output, ViewEncapsulation } from '@angular/core';
+import { Component, computed, input, model, output, ViewEncapsulation } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FormMode } from '../../enums/form-mode.enum';
@@ -13,21 +13,48 @@ import { FormMode } from '../../enums/form-mode.enum';
   encapsulation: ViewEncapsulation.None,
 })
 export class DialogComponent {
-  visible = model<boolean>(false);
+  readonly visible = model<boolean>(false);
 
-  formMode = input<FormMode>(FormMode.Create);
-  headerText = input<string>('');
-  showSaveButton = input<boolean>(true);
-  saveButtonLabel = input<string>('Salvar');
-  cancelButtonLabel = input<string>('Cancelar');
+  readonly formMode = input<FormMode>(FormMode.Create);
+  readonly headerText = input<string>('');
+  readonly showSaveButton = input<boolean>(true);
+  readonly saveButtonLabel = input<string>('Salvar');
+  readonly cancelButtonLabel = input<string>('Cancelar');
+  readonly dialogWidth = input<string>('max-w-2xl w-full');
 
-  onSave = output<void>();
-  onCancel = output<void>();
+  readonly saved = output<void>();
+  readonly cancelled = output<void>();
 
-  protected FormMode = FormMode;
+  protected readonly FormMode = FormMode;
+
+  protected readonly resolvedHeaderText = computed(() => {
+    const customText = this.headerText();
+    if (customText) {
+      return customText;
+    }
+
+    switch (this.formMode()) {
+      case FormMode.Create:
+        return 'Novo Registro';
+      case FormMode.Update:
+        return 'Editar Registro';
+      case FormMode.Detail:
+        return 'Visualizar Detalhes';
+      default:
+        return 'Detalhes';
+    }
+  });
+
+  protected readonly computedStyleClass = computed(() => {
+    return `border-0 rounded-xl shadow-2xl overflow-hidden bg-surface-0 dark:bg-surface-900 mx-4 ${this.dialogWidth()}`;
+  });
 
   protected handleCancel(): void {
     this.visible.set(false);
-    this.onCancel.emit();
+    this.cancelled.emit();
+  }
+
+  protected handleSave(): void {
+    this.saved.emit();
   }
 }
