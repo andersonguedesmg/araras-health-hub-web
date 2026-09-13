@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'stockMovementType'
+  name: 'stockMovementType',
 })
 export class StockMovementTypePipe implements PipeTransform {
   transform(value: number): string {
