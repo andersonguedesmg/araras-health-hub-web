@@ -6,22 +6,13 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { TableToolbarComponent } from '../../../../../../shared/components/table-toolbar/table-toolbar.component';
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
-import {
-  getSeverity,
-  getStatus,
-} from '../../../../../../shared/utils/status.utils';
+import { getSeverity, getStatus } from '../../../../../../shared/utils/status.utils';
 import { SubCategory } from '../../interfaces/sub-category';
 
 @Component({
   selector: 'app-sub-category-table',
   standalone: true,
-  imports: [
-    ButtonModule,
-    TagModule,
-    TooltipModule,
-    TableComponent,
-    TableToolbarComponent,
-  ],
+  imports: [ButtonModule, TagModule, TooltipModule, TableComponent, TableToolbarComponent],
   templateUrl: './sub-category-table.component.html',
   styleUrl: './sub-category-table.component.scss',
 })
@@ -34,17 +25,16 @@ export class SubCategoryTableComponent {
   readonly rows = input<number>(5);
   readonly first = input<number>(0);
 
-  readonly onLazyLoad = output<TableLazyLoadEvent>();
-  readonly onSearch = output<string>();
-  readonly onAdd = output<void>();
-  readonly onPdfClick = output<void>();
-  readonly onEdit = output<SubCategory>();
-  readonly onDetail = output<SubCategory>();
-  readonly onChangeStatus = output<SubCategory>();
+  readonly lazyLoad = output<TableLazyLoadEvent>();
+  readonly searchChange = output<string>();
+  readonly add = output<void>();
+  readonly pdfClick = output<void>();
+  readonly edit = output<SubCategory>();
+  readonly detail = output<SubCategory>();
+  readonly changeStatus = output<SubCategory>();
 
   protected readonly getSeverity = getSeverity;
   protected readonly getStatus = getStatus;
 
-  protected readonly hasManagementPermission =
-    this.authService.hasManagementPermission;
+  protected readonly hasManagementPermission = this.authService.hasManagementPermission;
 }

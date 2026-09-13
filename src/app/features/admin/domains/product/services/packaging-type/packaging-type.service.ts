@@ -17,7 +17,7 @@ export class PackagingTypeService {
   public loadPackagingTypes(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
   ): Observable<ApiResponse<PackagingType[]>> {
     const url = this.apiConfig.getUrl('packaging-types');
     const params = new HttpParams()
@@ -28,16 +28,12 @@ export class PackagingTypeService {
     return this.http.get<ApiResponse<PackagingType[]>>(url, { params });
   }
 
-  public createPackagingType(
-    packagingType: PackagingType,
-  ): Observable<ApiResponse<PackagingType>> {
+  public createPackagingType(packagingType: PackagingType): Observable<ApiResponse<PackagingType>> {
     const url = this.apiConfig.getUrl('packaging-types');
     return this.http.post<ApiResponse<PackagingType>>(url, packagingType);
   }
 
-  public getPackagingTypeById(
-    packagingTypeId: number,
-  ): Observable<ApiResponse<PackagingType>> {
+  public getPackagingTypeById(packagingTypeId: number): Observable<ApiResponse<PackagingType>> {
     const url = this.apiConfig.getUrl(`packaging-types/${packagingTypeId}`);
     return this.http.get<ApiResponse<PackagingType>>(url);
   }
@@ -55,16 +51,14 @@ export class PackagingTypeService {
     packagingType: PackagingType,
   ): Observable<ApiResponse<PackagingType>> {
     const action = packagingType.isActive ? 'activate' : 'deactivate';
-    const url = this.apiConfig.getUrl(
-      `packaging-types/${packagingTypeId}/${action}`,
-    );
+    const url = this.apiConfig.getUrl(`packaging-types/${packagingTypeId}/${action}`);
     return this.http.patch<ApiResponse<PackagingType>>(url, {});
   }
 
   public getPackagingTypePagedOptions(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
     isActive?: boolean,
   ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('packaging-types/dropdown');

@@ -17,7 +17,7 @@ export class MainCategoryService {
   public loadMainCategories(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
   ): Observable<ApiResponse<MainCategory[]>> {
     const url = this.apiConfig.getUrl('main-categories');
     const params = new HttpParams()
@@ -28,24 +28,17 @@ export class MainCategoryService {
     return this.http.get<ApiResponse<MainCategory[]>>(url, { params });
   }
 
-  public createMainCategory(
-    mainCategory: MainCategory,
-  ): Observable<ApiResponse<MainCategory>> {
+  public createMainCategory(mainCategory: MainCategory): Observable<ApiResponse<MainCategory>> {
     const url = this.apiConfig.getUrl('main-categories');
     return this.http.post<ApiResponse<MainCategory>>(url, mainCategory);
   }
 
-  public getMainCategoryById(
-    mainCategoryId: number,
-  ): Observable<ApiResponse<MainCategory>> {
+  public getMainCategoryById(mainCategoryId: number): Observable<ApiResponse<MainCategory>> {
     const url = this.apiConfig.getUrl(`main-categories/${mainCategoryId}`);
     return this.http.get<ApiResponse<MainCategory>>(url);
   }
 
-  public updateMainCategory(
-    mainCategory: MainCategory,
-    mainCategoryId: number,
-  ): Observable<ApiResponse<MainCategory>> {
+  public updateMainCategory(mainCategory: MainCategory, mainCategoryId: number): Observable<ApiResponse<MainCategory>> {
     const url = this.apiConfig.getUrl(`main-categories/${mainCategoryId}`);
     return this.http.put<ApiResponse<MainCategory>>(url, mainCategory);
   }
@@ -55,9 +48,7 @@ export class MainCategoryService {
     mainCategory: MainCategory,
   ): Observable<ApiResponse<MainCategory>> {
     const action = mainCategory.isActive ? 'activate' : 'deactivate';
-    const url = this.apiConfig.getUrl(
-      `main-categories/${mainCategoryId}/${action}`,
-    );
+    const url = this.apiConfig.getUrl(`main-categories/${mainCategoryId}/${action}`);
 
     return this.http.patch<ApiResponse<MainCategory>>(url, {});
   }
@@ -65,7 +56,7 @@ export class MainCategoryService {
   public getMainCategoryPagedOptions(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
     isActive?: boolean,
   ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('main-categories/dropdown');

@@ -1,31 +1,9 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-  OnDestroy,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, computed, effect, inject, input, model, OnDestroy, output, signal, viewChild } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectLazyLoadEvent, SelectModule } from 'primeng/select';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  firstValueFrom,
-  Subject,
-  Subscription,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, firstValueFrom, Subject, Subscription } from 'rxjs';
 import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
@@ -38,14 +16,7 @@ import { MainCategoryService } from '../../services/main-category/main-category.
 @Component({
   selector: 'app-sub-category-drawer-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    SelectModule,
-    DrawerComponent,
-    ConfirmDialogComponent,
-  ],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule, DrawerComponent, ConfirmDialogComponent],
   templateUrl: './sub-category-drawer-form.component.html',
   styleUrl: './sub-category-drawer-form.component.scss',
 })
@@ -54,13 +25,12 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
   private readonly formHelperService = inject(FormHelperService);
   private readonly mainCategoryService = inject(MainCategoryService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   readonly visible = model<boolean>(false);
   readonly formMode = input<FormMode>(FormMode.Create);
   readonly subCategoryData = input<SubCategory | undefined>(undefined);
-  readonly onSave = output<SubCategory>();
+  readonly save = output<SubCategory>();
 
   protected readonly FormMode = FormMode;
   protected readonly subCategoryForm: FormGroup;
@@ -104,10 +74,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
     const mode = this.formMode();
     const data = this.subCategoryData();
 
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
+    return mode === FormMode.Detail || (mode === FormMode.Update && data?.isActive === false);
   });
 
   constructor() {
@@ -146,10 +113,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
       });
   }
 
-  private async initializeDropdownAndForm(
-    data: SubCategory | undefined,
-    mode: FormMode,
-  ): Promise<void> {
+  private async initializeDropdownAndForm(data: SubCategory | undefined, mode: FormMode): Promise<void> {
     if (this.isInitializing) return;
     this.isInitializing = true;
 
@@ -174,9 +138,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
 
     const selectedId = this.subCategoryForm.get('mainCategoryId')?.value;
     const currentOptions = this.mainCategoryOptions();
-    const selectedOption = currentOptions.find(
-      (opt) => opt.value === selectedId,
-    );
+    const selectedOption = currentOptions.find((opt) => opt.value === selectedId);
 
     this.mainCategoryOptions.set(selectedOption ? [selectedOption] : []);
     await this.loadNextDropdownPage();
@@ -192,25 +154,16 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
 
     return new Promise((resolve) => {
       this.mainCategoryService
-        .getMainCategoryPagedOptions(
-          1,
-          this.dropdownPageSize,
-          this.dropdownSearchTerm,
-          filterActive,
-        )
+        .getMainCategoryPagedOptions(1, this.dropdownPageSize, this.dropdownSearchTerm, filterActive)
         .subscribe({
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextDropdownPage =
-              response.hasNextPage ??
-              incomingOptions.length === this.dropdownPageSize;
+            this.hasNextDropdownPage = response.hasNextPage ?? incomingOptions.length === this.dropdownPageSize;
 
             this.mainCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item: any) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item: any) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -250,15 +203,11 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextDropdownPage =
-              response.hasNextPage ??
-              incomingOptions.length === this.dropdownPageSize;
+            this.hasNextDropdownPage = response.hasNextPage ?? incomingOptions.length === this.dropdownPageSize;
 
             this.mainCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item: any) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item: any) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -277,9 +226,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
   }
 
   private ensureSelectedValueIsLoaded(selectedId: number): Promise<void> {
-    const alreadyLoaded = this.mainCategoryOptions().some(
-      (item) => item.value === selectedId,
-    );
+    const alreadyLoaded = this.mainCategoryOptions().some((item) => item.value === selectedId);
 
     if (alreadyLoaded) {
       return Promise.resolve();
@@ -310,12 +257,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
   }
 
   protected onDropdownLazyLoad(event: SelectLazyLoadEvent): void {
-    if (
-      this.isRequestInProgress ||
-      !this.hasNextDropdownPage ||
-      this.isOptionsLoading()
-    )
-      return;
+    if (this.isRequestInProgress || !this.hasNextDropdownPage || this.isOptionsLoading()) return;
 
     const lastLoadedIndex = event.last ?? 0;
     const currentListLength = this.mainCategoryOptions().length;
@@ -329,10 +271,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
     this.filterSubject.next(event.filter || '');
   }
 
-  private syncFormState(
-    currentData: SubCategory | undefined,
-    mode: FormMode,
-  ): void {
+  private syncFormState(currentData: SubCategory | undefined, mode: FormMode): void {
     this.subCategoryForm.reset();
     this.formSubmitted.set(false);
 
@@ -343,10 +282,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
       this.statusLabel.set('Ativo');
     }
 
-    if (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && currentData?.isActive === false)
-    ) {
+    if (mode === FormMode.Detail || (mode === FormMode.Update && currentData?.isActive === false)) {
       this.subCategoryForm.disable();
     } else {
       this.subCategoryForm.enable();
@@ -383,10 +319,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
   protected async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.subCategoryForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.subCategoryForm, this.formLabels);
 
     if (!isFormValid) {
       return;
@@ -394,7 +327,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
 
     const dialog = this.confirmDialog();
     if (!dialog) {
-      this.onSave.emit(this.subCategoryForm.getRawValue());
+      this.save.emit(this.subCategoryForm.getRawValue());
       return;
     }
 
@@ -407,7 +340,7 @@ export class SubCategoryDrawerFormComponent implements OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
 
     if (confirmed) {
-      this.onSave.emit(this.subCategoryForm.getRawValue());
+      this.save.emit(this.subCategoryForm.getRawValue());
     }
   }
 }

@@ -40,8 +40,7 @@ export class CategoriesContainerComponent {
   private readonly subCategoryService = inject(SubCategoryService);
   private readonly toastService = inject(ToastService);
 
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
   protected readonly title = 'Categorias';
@@ -93,45 +92,25 @@ export class CategoriesContainerComponent {
   private readonly mainCategoriesResource = rxResource({
     request: () => this.queryParamsMain(),
     loader: ({ request }) => {
-      return this.mainCategoryService.loadMainCategories(
-        request.page,
-        request.rows,
-        request.searchTerm,
-      );
+      return this.mainCategoryService.loadMainCategories(request.page, request.rows, request.searchTerm);
     },
   });
 
   private readonly subCategoriesResource = rxResource({
     request: () => this.queryParamsSub(),
     loader: ({ request }) => {
-      return this.subCategoryService.loadSubCategories(
-        request.page,
-        request.rows,
-        request.searchTerm,
-      );
+      return this.subCategoryService.loadSubCategories(request.page, request.rows, request.searchTerm);
     },
   });
 
-  protected readonly mainCategories = computed(
-    () => this.mainCategoriesResource.value()?.data ?? [],
-  );
-  protected readonly totalRecordsMain = computed(
-    () => this.mainCategoriesResource.value()?.totalCount ?? 0,
-  );
+  protected readonly mainCategories = computed(() => this.mainCategoriesResource.value()?.data ?? []);
+  protected readonly totalRecordsMain = computed(() => this.mainCategoriesResource.value()?.totalCount ?? 0);
 
-  protected readonly subCategories = computed(
-    () => this.subCategoriesResource.value()?.data ?? [],
-  );
-  protected readonly totalRecordsSub = computed(
-    () => this.subCategoriesResource.value()?.totalCount ?? 0,
-  );
+  protected readonly subCategories = computed(() => this.subCategoriesResource.value()?.data ?? []);
+  protected readonly totalRecordsSub = computed(() => this.subCategoriesResource.value()?.totalCount ?? 0);
 
   protected readonly isLoading = computed(() => {
-    return (
-      this.mainCategoriesResource.isLoading() ||
-      this.subCategoriesResource.isLoading() ||
-      this.isActionLoading()
-    );
+    return this.mainCategoriesResource.isLoading() || this.subCategoriesResource.isLoading() || this.isActionLoading();
   });
 
   protected onTabChange(tab: string | unknown): void {
@@ -161,9 +140,7 @@ export class CategoriesContainerComponent {
   }
 
   protected generateMainCategoryPdfReport(): void {
-    this.toastService.showInfo(
-      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
-    );
+    this.toastService.showInfo('A exportação para PDF está em desenvolvimento e estará disponível em breve!');
   }
 
   protected async saveMainCategory(formValue: MainCategory): Promise<void> {
@@ -186,18 +163,14 @@ export class CategoriesContainerComponent {
     }
   }
 
-  protected async changeStatusMainCategory(
-    category: MainCategory,
-  ): Promise<void> {
+  protected async changeStatusMainCategory(category: MainCategory): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
     const isActivating = !category.isActive;
     const actionText = category.isActive ? 'desativar' : 'ativar';
     const msg = `Deseja realmente ${actionText} a categoria "${category.name}"?`;
-    const title = category.isActive
-      ? 'Confirmar Desativação'
-      : 'Confirmar Ativação';
+    const title = category.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação';
 
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
@@ -210,9 +183,7 @@ export class CategoriesContainerComponent {
           isActive: isActivating,
         }),
       );
-      this.toastService.showSuccess(
-        `Categoria ${isActivating ? 'ativada' : 'desativada'} com sucesso!`,
-      );
+      this.toastService.showSuccess(`Categoria ${isActivating ? 'ativada' : 'desativada'} com sucesso!`);
       this.refreshMainList();
     } catch (err) {
       this.toastService.handleApiError(err);
@@ -238,9 +209,7 @@ export class CategoriesContainerComponent {
   }
 
   protected generateSubCategoryPdfReport(): void {
-    this.toastService.showInfo(
-      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
-    );
+    this.toastService.showInfo('A exportação para PDF está em desenvolvimento e estará disponível em breve!');
   }
 
   protected async saveSubCategory(formValue: SubCategory): Promise<void> {
@@ -263,18 +232,14 @@ export class CategoriesContainerComponent {
     }
   }
 
-  protected async changeStatusSubCategory(
-    subCategory: SubCategory,
-  ): Promise<void> {
+  protected async changeStatusSubCategory(subCategory: SubCategory): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
     const isActivating = !subCategory.isActive;
     const actionText = subCategory.isActive ? 'desativar' : 'ativar';
     const msg = `Deseja realmente ${actionText} a subcategoria "${subCategory.name}"?`;
-    const title = subCategory.isActive
-      ? 'Confirmar Desativação'
-      : 'Confirmar Ativação';
+    const title = subCategory.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação';
 
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
@@ -287,9 +252,7 @@ export class CategoriesContainerComponent {
           isActive: isActivating,
         }),
       );
-      this.toastService.showSuccess(
-        `Subcategoria ${isActivating ? 'ativada' : 'desativada'} com sucesso!`,
-      );
+      this.toastService.showSuccess(`Subcategoria ${isActivating ? 'ativada' : 'desativada'} com sucesso!`);
       this.refreshSubList();
     } catch (err) {
       this.toastService.handleApiError(err);

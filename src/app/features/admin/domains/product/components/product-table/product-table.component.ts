@@ -6,22 +6,13 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { TableToolbarComponent } from '../../../../../../shared/components/table-toolbar/table-toolbar.component';
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
-import {
-  getSeverity,
-  getStatus,
-} from '../../../../../../shared/utils/status.utils';
+import { getSeverity, getStatus } from '../../../../../../shared/utils/status.utils';
 import { Product } from '../../interfaces/product';
 
 @Component({
   selector: 'app-product-table',
   standalone: true,
-  imports: [
-    ButtonModule,
-    TagModule,
-    TooltipModule,
-    TableComponent,
-    TableToolbarComponent,
-  ],
+  imports: [ButtonModule, TagModule, TooltipModule, TableComponent, TableToolbarComponent],
   templateUrl: './product-table.component.html',
   styleUrl: './product-table.component.scss',
 })
@@ -34,17 +25,16 @@ export class ProductTableComponent {
   readonly rows = input<number>(5);
   readonly first = input<number>(0);
 
-  readonly onLazyLoad = output<TableLazyLoadEvent>();
-  readonly onSearch = output<string>();
-  readonly onAdd = output<void>();
-  readonly onPdfClick = output<void>();
-  readonly onEdit = output<Product>();
-  readonly onDetail = output<Product>();
-  readonly onChangeStatus = output<Product>();
+  readonly lazyLoad = output<TableLazyLoadEvent>();
+  readonly searchChange = output<string>();
+  readonly add = output<void>();
+  readonly pdfClick = output<void>();
+  readonly edit = output<Product>();
+  readonly detail = output<Product>();
+  readonly changeStatus = output<Product>();
 
   protected readonly getSeverity = getSeverity;
   protected readonly getStatus = getStatus;
 
-  protected readonly hasManagementPermission =
-    this.authService.hasManagementPermission;
+  protected readonly hasManagementPermission = this.authService.hasManagementPermission;
 }

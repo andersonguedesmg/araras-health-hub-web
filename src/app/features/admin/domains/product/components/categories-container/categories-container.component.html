@@ -1,30 +1,26 @@
-<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb()"></app-breadcrumb>
-<app-spinner [loading]="isLoading()"></app-spinner>
+<app-breadcrumb [itemsBreadcrumb]="itemsBreadcrumb()" />
+<app-spinner [loading]="isLoading()" />
 
 <app-confirm-dialog
   #confirmDialog
   acceptLabel="Confirmar"
   rejectLabel="Cancelar"
   acceptIcon="pi pi-check-circle"
-  rejectIcon="pi pi-ban"
-></app-confirm-dialog>
+  rejectIcon="pi pi-ban" />
 
 <div class="p-6 max-w-7xl mx-auto space-y-6">
-  <app-page-header
-    [title]="title"
-    [description]="description"
-  ></app-page-header>
+  <app-page-header [title]="title" [description]="description" />
 
-  <div
-    class="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/60 rounded-xl p-4 shadow-sm"
-  >
+  <div class="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/60 rounded-xl p-4 shadow-sm">
     <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
       <p-tablist>
         <p-tab value="main">
-          <i class="pi pi-tags mr-2"></i> Categorias Principais
+          <i class="pi pi-tags mr-2"></i>
+          Categorias Principais
         </p-tab>
         <p-tab value="sub">
-          <i class="pi pi-tag mr-2"></i> Subcategorias
+          <i class="pi pi-tag mr-2"></i>
+          Subcategorias
         </p-tab>
       </p-tablist>
 
@@ -36,14 +32,13 @@
             [rows]="rowsMain()"
             [first]="firstMain()"
             [loading]="isLoading()"
-            (onLazyLoad)="loadMainCategories($event)"
-            (onSearch)="onSearchMain($event)"
-            (onAdd)="openMainForm(FormMode.Create)"
-            (onEdit)="openMainForm(FormMode.Update, $event)"
-            (onDetail)="openMainForm(FormMode.Detail, $event)"
-            (onChangeStatus)="changeStatusMainCategory($event)"
-            (onPdfClick)="generateMainCategoryPdfReport()"
-          ></app-main-category-table>
+            (lazyLoad)="loadMainCategories($event)"
+            (searchChange)="onSearchMain($event)"
+            (add)="openMainForm(FormMode.Create)"
+            (edit)="openMainForm(FormMode.Update, $event)"
+            (detail)="openMainForm(FormMode.Detail, $event)"
+            (changeStatus)="changeStatusMainCategory($event)"
+            (pdfClick)="generateMainCategoryPdfReport()" />
         </p-tabpanel>
 
         <p-tabpanel value="sub">
@@ -53,14 +48,13 @@
             [rows]="rowsSub()"
             [first]="firstSub()"
             [loading]="isLoading()"
-            (onLazyLoad)="loadSubCategories($event)"
-            (onSearch)="onSearchSub($event)"
-            (onAdd)="openSubForm(FormMode.Create)"
-            (onEdit)="openSubForm(FormMode.Update, $event)"
-            (onDetail)="openSubForm(FormMode.Detail, $event)"
-            (onChangeStatus)="changeStatusSubCategory($event)"
-            (onPdfClick)="generateSubCategoryPdfReport()"
-          ></app-sub-category-table>
+            (lazyLoad)="loadSubCategories($event)"
+            (searchChange)="onSearchSub($event)"
+            (add)="openSubForm(FormMode.Create)"
+            (edit)="openSubForm(FormMode.Update, $event)"
+            (detail)="openSubForm(FormMode.Detail, $event)"
+            (changeStatus)="changeStatusSubCategory($event)"
+            (pdfClick)="generateSubCategoryPdfReport()" />
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
@@ -70,13 +64,11 @@
     [(visible)]="displayMainDrawer"
     [formMode]="formMode"
     [mainCategoryData]="selectedMainCategory"
-    (onSave)="saveMainCategory($event)"
-  ></app-main-category-drawer-form>
+    (save)="saveMainCategory($event)" />
 
   <app-sub-category-drawer-form
     [(visible)]="displaySubDrawer"
     [formMode]="formMode"
     [subCategoryData]="selectedSubCategory"
-    (onSave)="saveSubCategory($event)"
-  ></app-sub-category-drawer-form>
+    (save)="saveSubCategory($event)" />
 </div>

@@ -31,8 +31,7 @@ export class PackagingTypeContainerComponent {
   private readonly packagingTypeService = inject(PackagingTypeService);
   private readonly toastService = inject(ToastService);
 
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
   protected readonly title = 'Acondicionamento';
@@ -68,25 +67,15 @@ export class PackagingTypeContainerComponent {
   private readonly packagingTypesResource = rxResource({
     request: () => this.queryParams(),
     loader: ({ request }) => {
-      return this.packagingTypeService.loadPackagingTypes(
-        request.page,
-        request.rows,
-        request.searchTerm,
-      );
+      return this.packagingTypeService.loadPackagingTypes(request.page, request.rows, request.searchTerm);
     },
   });
 
-  protected readonly packagingTypes = computed(
-    () => this.packagingTypesResource.value()?.data ?? [],
-  );
-  protected readonly totalRecords = computed(
-    () => this.packagingTypesResource.value()?.totalCount ?? 0,
-  );
+  protected readonly packagingTypes = computed(() => this.packagingTypesResource.value()?.data ?? []);
+  protected readonly totalRecords = computed(() => this.packagingTypesResource.value()?.totalCount ?? 0);
 
   private readonly isActionLoading = signal<boolean>(false);
-  protected readonly isLoading = computed(
-    () => this.packagingTypesResource.isLoading() || this.isActionLoading(),
-  );
+  protected readonly isLoading = computed(() => this.packagingTypesResource.isLoading() || this.isActionLoading());
 
   protected loadPackagingTypes(event: TableLazyLoadEvent): void {
     this.first.set(event.first ?? 0);
@@ -105,9 +94,7 @@ export class PackagingTypeContainerComponent {
   }
 
   protected generatePdfReport(): void {
-    this.toastService.showInfo(
-      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
-    );
+    this.toastService.showInfo('A exportação para PDF está em desenvolvimento e estará disponível em breve!');
   }
 
   protected async savePackagingType(formValue: PackagingType): Promise<void> {
@@ -115,10 +102,7 @@ export class PackagingTypeContainerComponent {
     const operation$ =
       this.formMode === FormMode.Create
         ? this.packagingTypeService.createPackagingType(formValue)
-        : this.packagingTypeService.updatePackagingType(
-            formValue,
-            formValue.id,
-          );
+        : this.packagingTypeService.updatePackagingType(formValue, formValue.id);
 
     try {
       const response = await firstValueFrom(operation$);
@@ -133,18 +117,14 @@ export class PackagingTypeContainerComponent {
     }
   }
 
-  protected async changeStatusPackagingType(
-    packagingType: PackagingType,
-  ): Promise<void> {
+  protected async changeStatusPackagingType(packagingType: PackagingType): Promise<void> {
     const dialog = this.confirmDialog();
     if (!dialog) return;
 
     const isActivating = !packagingType.isActive;
     const actionText = packagingType.isActive ? 'desativar' : 'ativar';
     const msg = `Deseja realmente ${actionText} o tipo de embalagem "${packagingType.name}"?`;
-    const title = packagingType.isActive
-      ? 'Confirmar Desativação'
-      : 'Confirmar Ativação';
+    const title = packagingType.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação';
 
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
@@ -153,12 +133,7 @@ export class PackagingTypeContainerComponent {
     const alteredType = { ...packagingType, isActive: isActivating };
 
     try {
-      await firstValueFrom(
-        this.packagingTypeService.changeStatusPackagingType(
-          packagingType.id,
-          alteredType,
-        ),
-      );
+      await firstValueFrom(this.packagingTypeService.changeStatusPackagingType(packagingType.id, alteredType));
 
       const successMessage = `Tipo de embalagem ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);

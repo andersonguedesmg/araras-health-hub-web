@@ -31,13 +31,11 @@ export class ProductContainerComponent {
   private readonly productService = inject(ProductService);
   private readonly toastService = inject(ToastService);
 
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
   protected readonly title = 'Itens';
-  protected readonly description =
-    'Cadastro e controle do catálogo de suprimentos da rede municipal de saúde.';
+  protected readonly description = 'Cadastro e controle do catálogo de suprimentos da rede municipal de saúde.';
 
   protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
@@ -64,25 +62,15 @@ export class ProductContainerComponent {
   private readonly productsResource = rxResource({
     request: () => this.queryParams(),
     loader: ({ request }) => {
-      return this.productService.loadProducts(
-        request.page,
-        request.rows,
-        request.searchTerm,
-      );
+      return this.productService.loadProducts(request.page, request.rows, request.searchTerm);
     },
   });
 
-  protected readonly products = computed(
-    () => this.productsResource.value()?.data ?? [],
-  );
-  protected readonly totalRecords = computed(
-    () => this.productsResource.value()?.totalCount ?? 0,
-  );
+  protected readonly products = computed(() => this.productsResource.value()?.data ?? []);
+  protected readonly totalRecords = computed(() => this.productsResource.value()?.totalCount ?? 0);
 
   private readonly isActionLoading = signal<boolean>(false);
-  protected readonly isLoading = computed(
-    () => this.productsResource.isLoading() || this.isActionLoading(),
-  );
+  protected readonly isLoading = computed(() => this.productsResource.isLoading() || this.isActionLoading());
 
   protected loadProducts(event: TableLazyLoadEvent): void {
     this.first.set(event.first ?? 0);
@@ -101,9 +89,7 @@ export class ProductContainerComponent {
   }
 
   protected generatePdfReport(): void {
-    this.toastService.showInfo(
-      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
-    );
+    this.toastService.showInfo('A exportação para PDF está em desenvolvimento e estará disponível em breve!');
   }
 
   protected async saveProduct(formValue: Product): Promise<void> {
@@ -133,9 +119,7 @@ export class ProductContainerComponent {
     const isActivating = !product.isActive;
     const actionText = product.isActive ? 'desativar' : 'ativar';
     const msg = `Deseja realmente ${actionText} o produto "${product.name}"?`;
-    const title = product.isActive
-      ? 'Confirmar Desativação'
-      : 'Confirmar Ativação';
+    const title = product.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação';
 
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
@@ -144,9 +128,7 @@ export class ProductContainerComponent {
     const alteredProduct = { ...product, isActive: isActivating };
 
     try {
-      await firstValueFrom(
-        this.productService.changeStatusProduct(product.id, alteredProduct),
-      );
+      await firstValueFrom(this.productService.changeStatusProduct(product.id, alteredProduct));
 
       const successMessage = `Produto ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);

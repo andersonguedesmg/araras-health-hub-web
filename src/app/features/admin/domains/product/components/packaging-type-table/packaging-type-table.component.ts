@@ -6,22 +6,13 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { TableToolbarComponent } from '../../../../../../shared/components/table-toolbar/table-toolbar.component';
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
-import {
-  getSeverity,
-  getStatus,
-} from '../../../../../../shared/utils/status.utils';
+import { getSeverity, getStatus } from '../../../../../../shared/utils/status.utils';
 import { PackagingType } from '../../interfaces/packaging-type';
 
 @Component({
   selector: 'app-packaging-type-table',
   standalone: true,
-  imports: [
-    ButtonModule,
-    TagModule,
-    TooltipModule,
-    TableComponent,
-    TableToolbarComponent,
-  ],
+  imports: [ButtonModule, TagModule, TooltipModule, TableComponent, TableToolbarComponent],
   templateUrl: './packaging-type-table.component.html',
   styleUrl: './packaging-type-table.component.scss',
 })
@@ -34,17 +25,16 @@ export class PackagingTypeTableComponent {
   readonly rows = input<number>(5);
   readonly first = input<number>(0);
 
-  readonly onLazyLoad = output<TableLazyLoadEvent>();
-  readonly onSearch = output<string>();
-  readonly onAdd = output<void>();
-  readonly onPdfClick = output<void>();
-  readonly onEdit = output<PackagingType>();
-  readonly onDetail = output<PackagingType>();
-  readonly onChangeStatus = output<PackagingType>();
+  readonly lazyLoad = output<TableLazyLoadEvent>();
+  readonly searchChange = output<string>();
+  readonly add = output<void>();
+  readonly pdfClick = output<void>();
+  readonly edit = output<PackagingType>();
+  readonly detail = output<PackagingType>();
+  readonly changeStatus = output<PackagingType>();
 
   protected readonly getSeverity = getSeverity;
   protected readonly getStatus = getStatus;
 
-  protected readonly hasManagementPermission =
-    this.authService.hasManagementPermission;
+  protected readonly hasManagementPermission = this.authService.hasManagementPermission;
 }

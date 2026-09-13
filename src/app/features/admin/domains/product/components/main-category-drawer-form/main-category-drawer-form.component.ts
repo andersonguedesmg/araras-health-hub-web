@@ -10,12 +10,7 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { firstValueFrom } from 'rxjs';
@@ -29,13 +24,7 @@ import { MainCategory } from '../../interfaces/main-category';
 @Component({
   selector: 'app-main-category-drawer-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    DrawerComponent,
-    ConfirmDialogComponent,
-  ],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, DrawerComponent, ConfirmDialogComponent],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './main-category-drawer-form.component.html',
   styleUrl: './main-category-drawer-form.component.scss',
@@ -44,13 +33,12 @@ export class MainCategoryDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   readonly visible = model<boolean>(false);
   readonly formMode = input<FormMode>(FormMode.Create);
   readonly mainCategoryData = input<MainCategory | undefined>(undefined);
-  readonly onSave = output<MainCategory>();
+  readonly save = output<MainCategory>();
 
   protected readonly FormMode = FormMode;
   protected mainCategoryForm: FormGroup;
@@ -81,10 +69,7 @@ export class MainCategoryDrawerFormComponent {
   protected readonly isReadOnly = computed(() => {
     const mode = this.formMode();
     const data = this.mainCategoryData();
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
+    return mode === FormMode.Detail || (mode === FormMode.Update && data?.isActive === false);
   });
 
   constructor() {
@@ -105,10 +90,7 @@ export class MainCategoryDrawerFormComponent {
     });
   }
 
-  private syncFormState(
-    currentData: MainCategory | undefined,
-    mode: FormMode,
-  ): void {
+  private syncFormState(currentData: MainCategory | undefined, mode: FormMode): void {
     this.mainCategoryForm.reset();
     this.formSubmitted.set(false);
 
@@ -119,10 +101,7 @@ export class MainCategoryDrawerFormComponent {
       this.statusLabel.set('Ativo');
     }
 
-    if (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && currentData?.isActive === false)
-    ) {
+    if (mode === FormMode.Detail || (mode === FormMode.Update && currentData?.isActive === false)) {
       this.mainCategoryForm.disable();
     } else {
       this.mainCategoryForm.enable();
@@ -157,10 +136,7 @@ export class MainCategoryDrawerFormComponent {
   protected async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.mainCategoryForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.mainCategoryForm, this.formLabels);
 
     if (!isFormValid) {
       return;
@@ -168,7 +144,7 @@ export class MainCategoryDrawerFormComponent {
 
     const dialog = this.confirmDialog();
     if (!dialog) {
-      this.onSave.emit(this.mainCategoryForm.getRawValue());
+      this.save.emit(this.mainCategoryForm.getRawValue());
       return;
     }
 
@@ -181,7 +157,7 @@ export class MainCategoryDrawerFormComponent {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
 
     if (confirmed) {
-      this.onSave.emit(this.mainCategoryForm.getRawValue());
+      this.save.emit(this.mainCategoryForm.getRawValue());
     }
   }
 }

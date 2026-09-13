@@ -17,7 +17,7 @@ export class SubCategoryService {
   public loadSubCategories(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
   ): Observable<ApiResponse<SubCategory[]>> {
     const url = this.apiConfig.getUrl('subcategories');
     const params = new HttpParams()
@@ -28,24 +28,17 @@ export class SubCategoryService {
     return this.http.get<ApiResponse<SubCategory[]>>(url, { params });
   }
 
-  public createSubCategory(
-    subCategory: SubCategory,
-  ): Observable<ApiResponse<SubCategory>> {
+  public createSubCategory(subCategory: SubCategory): Observable<ApiResponse<SubCategory>> {
     const url = this.apiConfig.getUrl('subcategories');
     return this.http.post<ApiResponse<SubCategory>>(url, subCategory);
   }
 
-  public getSubCategoryById(
-    subCategoryId: number,
-  ): Observable<ApiResponse<SubCategory>> {
+  public getSubCategoryById(subCategoryId: number): Observable<ApiResponse<SubCategory>> {
     const url = this.apiConfig.getUrl(`subcategories/${subCategoryId}`);
     return this.http.get<ApiResponse<SubCategory>>(url);
   }
 
-  public updateSubCategory(
-    subCategory: SubCategory,
-    subCategoryId: number,
-  ): Observable<ApiResponse<SubCategory>> {
+  public updateSubCategory(subCategory: SubCategory, subCategoryId: number): Observable<ApiResponse<SubCategory>> {
     const url = this.apiConfig.getUrl(`subcategories/${subCategoryId}`);
     return this.http.put<ApiResponse<SubCategory>>(url, subCategory);
   }
@@ -55,9 +48,7 @@ export class SubCategoryService {
     subCategory: SubCategory,
   ): Observable<ApiResponse<SubCategory>> {
     const action = subCategory.isActive ? 'activate' : 'deactivate';
-    const url = this.apiConfig.getUrl(
-      `subcategories/${subCategoryId}/${action}`,
-    );
+    const url = this.apiConfig.getUrl(`subcategories/${subCategoryId}/${action}`);
 
     return this.http.patch<ApiResponse<SubCategory>>(url, {});
   }
@@ -65,7 +56,7 @@ export class SubCategoryService {
   public getSubCategoryPagedOptions(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
     mainCategoryId?: number,
     isActive?: boolean,
   ): Observable<ApiResponse<SelectOptions<number>[]>> {

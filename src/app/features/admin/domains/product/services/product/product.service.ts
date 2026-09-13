@@ -14,11 +14,7 @@ export class ProductService {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject(ApiConfigService);
 
-  public loadProducts(
-    pageNumber: number,
-    pageSize: number,
-    searchTerm: string = '',
-  ): Observable<ApiResponse<Product[]>> {
+  public loadProducts(pageNumber: number, pageSize: number, searchTerm = ''): Observable<ApiResponse<Product[]>> {
     const url = this.apiConfig.getUrl('products');
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -38,18 +34,12 @@ export class ProductService {
     return this.http.get<ApiResponse<Product>>(url);
   }
 
-  public updateProduct(
-    product: Product,
-    productId: number,
-  ): Observable<ApiResponse<Product>> {
+  public updateProduct(product: Product, productId: number): Observable<ApiResponse<Product>> {
     const url = this.apiConfig.getUrl(`products/${productId}`);
     return this.http.put<ApiResponse<Product>>(url, product);
   }
 
-  public changeStatusProduct(
-    productId: number,
-    product: Product,
-  ): Observable<ApiResponse<Product>> {
+  public changeStatusProduct(productId: number, product: Product): Observable<ApiResponse<Product>> {
     const action = product.isActive ? 'activate' : 'deactivate';
     const url = this.apiConfig.getUrl(`products/${productId}/${action}`);
     return this.http.patch<ApiResponse<Product>>(url, {});
@@ -63,7 +53,7 @@ export class ProductService {
   public getProductPagedOptions(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
     isActive?: boolean,
   ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('products/dropdown');

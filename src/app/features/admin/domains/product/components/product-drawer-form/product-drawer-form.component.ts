@@ -1,31 +1,9 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-  OnDestroy,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, computed, effect, inject, input, model, OnDestroy, output, signal, viewChild } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectLazyLoadEvent, SelectModule } from 'primeng/select';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  firstValueFrom,
-  Subject,
-  Subscription,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, firstValueFrom, Subject, Subscription } from 'rxjs';
 import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DrawerComponent } from '../../../../../../shared/components/drawer/drawer.component';
@@ -40,14 +18,7 @@ import { SubCategoryService } from '../../services/sub-category/sub-category.ser
 @Component({
   selector: 'app-product-drawer-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    SelectModule,
-    DrawerComponent,
-    ConfirmDialogComponent,
-  ],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule, DrawerComponent, ConfirmDialogComponent],
   templateUrl: './product-drawer-form.component.html',
   styleUrl: './product-drawer-form.component.scss',
 })
@@ -58,13 +29,12 @@ export class ProductDrawerFormComponent implements OnDestroy {
   private readonly subCategoryService = inject(SubCategoryService);
   private readonly packagingTypeService = inject(PackagingTypeService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   readonly visible = model<boolean>(false);
   readonly formMode = input<FormMode>(FormMode.Create);
   readonly productData = input<Product | undefined>(undefined);
-  readonly onSave = output<Product>();
+  readonly save = output<Product>();
 
   protected readonly FormMode = FormMode;
   protected readonly productForm: FormGroup;
@@ -73,10 +43,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
   protected readonly isSubCategoryLoading = signal<boolean>(false);
   protected readonly isPackagingTypeLoading = signal<boolean>(false);
   protected readonly isGlobalLoading = computed(
-    () =>
-      this.isMainCategoryLoading() ||
-      this.isSubCategoryLoading() ||
-      this.isPackagingTypeLoading(),
+    () => this.isMainCategoryLoading() || this.isSubCategoryLoading() || this.isPackagingTypeLoading(),
   );
   protected readonly formSubmitted = signal<boolean>(false);
 
@@ -137,10 +104,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
     const mode = this.formMode();
     const data = this.productData();
 
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
+    return mode === FormMode.Detail || (mode === FormMode.Update && data?.isActive === false);
   });
 
   constructor() {
@@ -219,10 +183,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
       });
   }
 
-  private async initializeDropdownsAndForm(
-    data: Product | undefined,
-    mode: FormMode,
-  ): Promise<void> {
+  private async initializeDropdownsAndForm(data: Product | undefined, mode: FormMode): Promise<void> {
     if (this.isInitializing) return;
     this.isInitializing = true;
 
@@ -255,9 +216,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
     await Promise.all([
       this.loadFirstPageMainCategoryComplement(),
       this.loadFirstPagePackagingTypeComplement(),
-      selectedMainCatId
-        ? this.loadFirstPageSubCategoryComplement(selectedMainCatId)
-        : Promise.resolve(),
+      selectedMainCatId ? this.loadFirstPageSubCategoryComplement(selectedMainCatId) : Promise.resolve(),
     ]);
 
     this.syncFormState(data, mode);
@@ -271,9 +230,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
 
     const selectedId = this.productForm.get('mainCategoryId')?.value;
     const currentOptions = this.mainCategoryOptions();
-    const selectedOption = currentOptions.find(
-      (opt) => opt.value === selectedId,
-    );
+    const selectedOption = currentOptions.find((opt) => opt.value === selectedId);
 
     this.mainCategoryOptions.set(selectedOption ? [selectedOption] : []);
     await this.loadNextMainCategoryPage();
@@ -289,25 +246,16 @@ export class ProductDrawerFormComponent implements OnDestroy {
 
     return new Promise((resolve) => {
       this.mainCategoryService
-        .getMainCategoryPagedOptions(
-          1,
-          this.dropdownPageSize,
-          this.mainCategorySearchTerm,
-          filterActive,
-        )
+        .getMainCategoryPagedOptions(1, this.dropdownPageSize, this.mainCategorySearchTerm, filterActive)
         .subscribe({
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextMainCategoryPage =
-              response.hasNextPage ??
-              incomingOptions.length === this.dropdownPageSize;
+            this.hasNextMainCategoryPage = response.hasNextPage ?? incomingOptions.length === this.dropdownPageSize;
 
             this.mainCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item: any) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item: any) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -347,15 +295,11 @@ export class ProductDrawerFormComponent implements OnDestroy {
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextMainCategoryPage =
-              response.hasNextPage ??
-              incomingOptions.length === this.dropdownPageSize;
+            this.hasNextMainCategoryPage = response.hasNextPage ?? incomingOptions.length === this.dropdownPageSize;
 
             this.mainCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item: any) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item: any) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -373,12 +317,8 @@ export class ProductDrawerFormComponent implements OnDestroy {
     });
   }
 
-  private ensureSelectedMainCategoryIsLoaded(
-    selectedId: number,
-  ): Promise<void> {
-    const alreadyLoaded = this.mainCategoryOptions().some(
-      (item) => item.value === selectedId,
-    );
+  private ensureSelectedMainCategoryIsLoaded(selectedId: number): Promise<void> {
+    const alreadyLoaded = this.mainCategoryOptions().some((item) => item.value === selectedId);
 
     if (alreadyLoaded) return Promise.resolve();
 
@@ -407,12 +347,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
   }
 
   protected onMainCategoryLazyLoad(event: SelectLazyLoadEvent): void {
-    if (
-      this.isMainCategoryRequestInProgress ||
-      !this.hasNextMainCategoryPage ||
-      this.isMainCategoryLoading()
-    )
-      return;
+    if (this.isMainCategoryRequestInProgress || !this.hasNextMainCategoryPage || this.isMainCategoryLoading()) return;
 
     const lastLoadedIndex = event.last ?? 0;
     const currentListLength = this.mainCategoryOptions().length;
@@ -433,17 +368,13 @@ export class ProductDrawerFormComponent implements OnDestroy {
 
     const selectedId = this.productForm.get('subCategoryId')?.value;
     const currentOptions = this.subCategoryOptions();
-    const selectedOption = currentOptions.find(
-      (opt) => opt.value === selectedId,
-    );
+    const selectedOption = currentOptions.find((opt) => opt.value === selectedId);
 
     this.subCategoryOptions.set(selectedOption ? [selectedOption] : []);
     await this.loadNextSubCategoryPage();
   }
 
-  private loadFirstPageSubCategoryComplement(
-    mainCategoryId: number,
-  ): Promise<void> {
+  private loadFirstPageSubCategoryComplement(mainCategoryId: number): Promise<void> {
     if (this.isSubCategoryRequestInProgress) return Promise.resolve();
 
     this.isSubCategoryRequestInProgress = true;
@@ -453,26 +384,16 @@ export class ProductDrawerFormComponent implements OnDestroy {
 
     return new Promise((resolve) => {
       this.subCategoryService
-        .getSubCategoryPagedOptions(
-          1,
-          this.dropdownPageSize,
-          this.subCategorySearchTerm,
-          mainCategoryId,
-          filterActive,
-        )
+        .getSubCategoryPagedOptions(1, this.dropdownPageSize, this.subCategorySearchTerm, mainCategoryId, filterActive)
         .subscribe({
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextSubCategoryPage =
-              response.hasNextPage ??
-              incomingOptions.length === this.dropdownPageSize;
+            this.hasNextSubCategoryPage = response.hasNextPage ?? incomingOptions.length === this.dropdownPageSize;
 
             this.subCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item: any) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item: any) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -493,11 +414,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
   private loadNextSubCategoryPage(): Promise<void> {
     const mainCategoryId = this.productForm.get('mainCategoryId')?.value;
 
-    if (
-      this.isSubCategoryRequestInProgress ||
-      !this.hasNextSubCategoryPage ||
-      !mainCategoryId
-    ) {
+    if (this.isSubCategoryRequestInProgress || !this.hasNextSubCategoryPage || !mainCategoryId) {
       return Promise.resolve();
     }
 
@@ -519,15 +436,11 @@ export class ProductDrawerFormComponent implements OnDestroy {
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextSubCategoryPage =
-              response.hasNextPage ??
-              incomingOptions.length === this.dropdownPageSize;
+            this.hasNextSubCategoryPage = response.hasNextPage ?? incomingOptions.length === this.dropdownPageSize;
 
             this.subCategoryOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item: any) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item: any) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -546,9 +459,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
   }
 
   private ensureSelectedSubCategoryIsLoaded(selectedId: number): Promise<void> {
-    const alreadyLoaded = this.subCategoryOptions().some(
-      (item) => item.value === selectedId,
-    );
+    const alreadyLoaded = this.subCategoryOptions().some((item) => item.value === selectedId);
 
     if (alreadyLoaded) return Promise.resolve();
 
@@ -577,12 +488,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
   }
 
   protected onSubCategoryLazyLoad(event: SelectLazyLoadEvent): void {
-    if (
-      this.isSubCategoryRequestInProgress ||
-      !this.hasNextSubCategoryPage ||
-      this.isSubCategoryLoading()
-    )
-      return;
+    if (this.isSubCategoryRequestInProgress || !this.hasNextSubCategoryPage || this.isSubCategoryLoading()) return;
 
     const lastLoadedIndex = event.last ?? 0;
     const currentListLength = this.subCategoryOptions().length;
@@ -603,9 +509,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
 
     const selectedId = this.productForm.get('packagingTypeId')?.value;
     const currentOptions = this.packagingTypeOptions();
-    const selectedOption = currentOptions.find(
-      (opt) => opt.value === selectedId,
-    );
+    const selectedOption = currentOptions.find((opt) => opt.value === selectedId);
 
     this.packagingTypeOptions.set(selectedOption ? [selectedOption] : []);
     await this.loadNextPackagingTypePage();
@@ -621,25 +525,16 @@ export class ProductDrawerFormComponent implements OnDestroy {
 
     return new Promise((resolve) => {
       this.packagingTypeService
-        .getPackagingTypePagedOptions(
-          1,
-          this.dropdownPageSize,
-          this.packagingTypeSearchTerm,
-          filterActive,
-        )
+        .getPackagingTypePagedOptions(1, this.dropdownPageSize, this.packagingTypeSearchTerm, filterActive)
         .subscribe({
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextPackagingTypePage =
-              response.hasNextPage ??
-              incomingOptions.length === this.dropdownPageSize;
+            this.hasNextPackagingTypePage = response.hasNextPage ?? incomingOptions.length === this.dropdownPageSize;
 
             this.packagingTypeOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item: any) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item: any) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -658,10 +553,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
   }
 
   private loadNextPackagingTypePage(): Promise<void> {
-    if (
-      this.isPackagingTypeRequestInProgress ||
-      !this.hasNextPackagingTypePage
-    ) {
+    if (this.isPackagingTypeRequestInProgress || !this.hasNextPackagingTypePage) {
       return Promise.resolve();
     }
 
@@ -682,15 +574,11 @@ export class ProductDrawerFormComponent implements OnDestroy {
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextPackagingTypePage =
-              response.hasNextPage ??
-              incomingOptions.length === this.dropdownPageSize;
+            this.hasNextPackagingTypePage = response.hasNextPage ?? incomingOptions.length === this.dropdownPageSize;
 
             this.packagingTypeOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item: any) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item: any) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -708,12 +596,8 @@ export class ProductDrawerFormComponent implements OnDestroy {
     });
   }
 
-  private ensureSelectedPackagingTypeIsLoaded(
-    selectedId: number,
-  ): Promise<void> {
-    const alreadyLoaded = this.packagingTypeOptions().some(
-      (item) => item.value === selectedId,
-    );
+  private ensureSelectedPackagingTypeIsLoaded(selectedId: number): Promise<void> {
+    const alreadyLoaded = this.packagingTypeOptions().some((item) => item.value === selectedId);
 
     if (alreadyLoaded) return Promise.resolve();
 
@@ -742,11 +626,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
   }
 
   protected onPackagingTypeLazyLoad(event: SelectLazyLoadEvent): void {
-    if (
-      this.isPackagingTypeRequestInProgress ||
-      !this.hasNextPackagingTypePage ||
-      this.isPackagingTypeLoading()
-    )
+    if (this.isPackagingTypeRequestInProgress || !this.hasNextPackagingTypePage || this.isPackagingTypeLoading())
       return;
 
     const lastLoadedIndex = event.last ?? 0;
@@ -761,10 +641,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
     this.packagingTypeFilterSubject.next(event.filter || '');
   }
 
-  private syncFormState(
-    currentData: Product | undefined,
-    mode: FormMode,
-  ): void {
+  private syncFormState(currentData: Product | undefined, mode: FormMode): void {
     this.productForm.reset();
     this.formSubmitted.set(false);
 
@@ -775,10 +652,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
       this.statusLabel.set('Ativo');
     }
 
-    if (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && currentData?.isActive === false)
-    ) {
+    if (mode === FormMode.Detail || (mode === FormMode.Update && currentData?.isActive === false)) {
       this.productForm.disable();
     } else {
       this.productForm.enable();
@@ -818,10 +692,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
   protected async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.productForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.productForm, this.formLabels);
 
     if (!isFormValid) {
       return;
@@ -829,7 +700,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
 
     const dialog = this.confirmDialog();
     if (!dialog) {
-      this.onSave.emit(this.productForm.getRawValue());
+      this.save.emit(this.productForm.getRawValue());
       return;
     }
 
@@ -842,7 +713,7 @@ export class ProductDrawerFormComponent implements OnDestroy {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
 
     if (confirmed) {
-      this.onSave.emit(this.productForm.getRawValue());
+      this.save.emit(this.productForm.getRawValue());
     }
   }
 }

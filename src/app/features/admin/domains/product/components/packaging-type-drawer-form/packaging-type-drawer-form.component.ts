@@ -1,20 +1,5 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, computed, effect, inject, input, model, output, signal, viewChild } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { firstValueFrom } from 'rxjs';
@@ -28,13 +13,7 @@ import { PackagingType } from '../../interfaces/packaging-type';
 @Component({
   selector: 'app-packaging-type-drawer-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    DrawerComponent,
-    ConfirmDialogComponent,
-  ],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, DrawerComponent, ConfirmDialogComponent],
   templateUrl: './packaging-type-drawer-form.component.html',
   styleUrl: './packaging-type-drawer-form.component.scss',
 })
@@ -42,13 +21,12 @@ export class PackagingTypeDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   readonly visible = model<boolean>(false);
   readonly formMode = input<FormMode>(FormMode.Create);
   readonly packagingTypeData = input<PackagingType | undefined>(undefined);
-  readonly onSave = output<PackagingType>();
+  readonly save = output<PackagingType>();
 
   protected readonly FormMode = FormMode;
   protected readonly packagingTypeForm: FormGroup;
@@ -76,10 +54,7 @@ export class PackagingTypeDrawerFormComponent {
     const mode = this.formMode();
     const data = this.packagingTypeData();
 
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
+    return mode === FormMode.Detail || (mode === FormMode.Update && data?.isActive === false);
   });
 
   constructor() {
@@ -100,10 +75,7 @@ export class PackagingTypeDrawerFormComponent {
     });
   }
 
-  private syncFormState(
-    currentData: PackagingType | undefined,
-    mode: FormMode,
-  ): void {
+  private syncFormState(currentData: PackagingType | undefined, mode: FormMode): void {
     this.packagingTypeForm.reset();
     this.formSubmitted.set(false);
 
@@ -114,10 +86,7 @@ export class PackagingTypeDrawerFormComponent {
       this.statusLabel.set('Ativo');
     }
 
-    if (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && currentData?.isActive === false)
-    ) {
+    if (mode === FormMode.Detail || (mode === FormMode.Update && currentData?.isActive === false)) {
       this.packagingTypeForm.disable();
     } else {
       this.packagingTypeForm.enable();
@@ -152,10 +121,7 @@ export class PackagingTypeDrawerFormComponent {
   async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.packagingTypeForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.packagingTypeForm, this.formLabels);
 
     if (!isFormValid) {
       return;
@@ -163,7 +129,7 @@ export class PackagingTypeDrawerFormComponent {
 
     const dialog = this.confirmDialog();
     if (!dialog) {
-      this.onSave.emit(this.packagingTypeForm.getRawValue());
+      this.save.emit(this.packagingTypeForm.getRawValue());
       return;
     }
 
@@ -176,7 +142,7 @@ export class PackagingTypeDrawerFormComponent {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
 
     if (confirmed) {
-      this.onSave.emit(this.packagingTypeForm.getRawValue());
+      this.save.emit(this.packagingTypeForm.getRawValue());
     }
   }
 }
