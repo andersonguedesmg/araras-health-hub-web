@@ -1,19 +1,14 @@
 <p-menubar
   [model]="items()"
   class="w-full block"
-  styleClass="!rounded-none !border-t-0 !border-x-0 border-b border-surface-200 dark:border-surface-800 bg-surface-0/95 dark:bg-surface-900/95 backdrop-blur-md"
->
+  styleClass="!rounded-none !border-t-0 !border-x-0 border-b border-surface-200 dark:border-surface-800 bg-surface-0/95 dark:bg-surface-900/95 backdrop-blur-md">
   <ng-template #start>
-    <div
-      class="flex items-center space-x-2 mr-6 select-none cursor-pointer transition-opacity hover:opacity-90"
+    <a
       routerLink="/"
-    >
-      <img
-        src="assets/a2h-menu.png"
-        alt="Logo Araras Health Hub"
-        class="h-9 object-contain"
-      />
-    </div>
+      aria-label="Ir para a página inicial do Araras Health Hub"
+      class="flex items-center space-x-2 mr-6 select-none transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-lg p-1">
+      <img src="assets/a2h-menu.png" alt="Logo Araras Health Hub" class="h-9 object-contain" />
+    </a>
   </ng-template>
 
   <ng-template #end>
@@ -26,21 +21,22 @@
         (onClick)="toggleThemeCycle()"
         pTooltip="Alternar Tema"
         tooltipPosition="bottom"
-      />
+        ariaLabel="Alternar Tema do Sistema" />
 
       @if (authService.currentUser()) {
-        <div
-          class="flex items-center gap-2 cursor-pointer p-1 rounded-full hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+        <button
+          type="button"
+          class="flex items-center gap-2 p-1 rounded-full hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 border-0 bg-transparent cursor-pointer"
           (click)="toggleMenu($event)"
           pTooltip="Perfil e Conta"
           tooltipPosition="bottom"
-        >
+          aria-label="Abrir menu do perfil do usuário"
+          aria-haspopup="true">
           <p-avatar
             [label]="userInitial()"
             shape="circle"
-            styleClass="bg-primary-500 text-white font-bold border border-surface-200 dark:border-surface-700"
-          />
-        </div>
+            styleClass="bg-primary-500 text-white font-bold border border-surface-200 dark:border-surface-700" />
+        </button>
       }
     </div>
   </ng-template>

@@ -6,25 +6,14 @@ import { ButtonModule } from 'primeng/button';
 import { Menu, MenuModule } from 'primeng/menu';
 import { MenubarModule } from 'primeng/menubar';
 import { TooltipModule } from 'primeng/tooltip';
-
-import {
-  SCOPE_LABEL_MAPPING,
-  UserScopes,
-} from '../../../core/constants/auth.constants';
+import { SCOPE_LABEL_MAPPING, UserScopes } from '../../../core/constants/auth.constants';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ThemeService } from '../../services/theme/theme.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [
-    MenubarModule,
-    AvatarModule,
-    MenuModule,
-    ButtonModule,
-    RouterModule,
-    TooltipModule,
-  ],
+  imports: [MenubarModule, AvatarModule, MenuModule, ButtonModule, RouterModule, TooltipModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   host: {
@@ -39,9 +28,7 @@ export class HeaderComponent {
   @ViewChild('menu') menu!: Menu;
 
   readonly themeIcon = computed(() => {
-    return this.themeService.currentTheme() === 'light'
-      ? PrimeIcons.SUN
-      : PrimeIcons.MOON;
+    return this.themeService.currentTheme() === 'light' ? PrimeIcons.SUN : PrimeIcons.MOON;
   });
 
   readonly userInitial = computed(() => {
@@ -56,15 +43,11 @@ export class HeaderComponent {
     const user = this.authService.currentUser();
     if (!user) return [];
 
-    const isManagement =
-      user.scope === SCOPE_LABEL_MAPPING[UserScopes.MANAGEMENT];
-    const isOperational =
-      user.scope === SCOPE_LABEL_MAPPING[UserScopes.OPERATIONAL];
+    const isManagement = user.scope === SCOPE_LABEL_MAPPING[UserScopes.MANAGEMENT];
+    const isOperational = user.scope === SCOPE_LABEL_MAPPING[UserScopes.OPERATIONAL];
     const hasOrderAccess = isManagement || isOperational;
 
-    const navItems: MenuItem[] = [
-      { label: 'Home', icon: PrimeIcons.HOME, routerLink: '/' },
-    ];
+    const navItems: MenuItem[] = [{ label: 'Home', icon: PrimeIcons.HOME, routerLink: '/' }];
 
     if (isManagement) {
       navItems.push({
