@@ -8,13 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-table-toolbar',
   standalone: true,
-  imports: [
-    ButtonModule,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
-    TooltipModule,
-  ],
+  imports: [ButtonModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule],
   host: {
     class: 'block w-full',
   },
@@ -31,14 +25,14 @@ export class TableToolbarComponent {
   readonly pdfButtonTooltip = input<string>('Exportar para PDF');
   readonly pdfLoading = input<boolean>(false);
 
-  readonly onSearch = output<string>();
-  readonly onActionClick = output<void>();
-  readonly onPdfClick = output<void>();
+  readonly searchChange = output<string>();
+  readonly actionExecuted = output<void>();
+  readonly pdfRequested = output<void>();
 
   protected handleSearch(event: Event): void {
     const element = event.target as HTMLInputElement;
     if (element) {
-      this.onSearch.emit(element.value);
+      this.searchChange.emit(element.value);
     }
   }
 }
