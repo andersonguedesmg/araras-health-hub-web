@@ -19,16 +19,11 @@ export class DropdownDataService {
   ) {}
 
   private async getOptions<T>(
-    serviceCall: () =>
-      | Promise<SelectOptions<T>[]>
-      | Observable<SelectOptions<T>[]>,
+    serviceCall: () => Promise<SelectOptions<T>[]> | Observable<SelectOptions<T>[]>,
   ): Promise<SelectOptions<T>[]> {
     try {
       const response = serviceCall();
-      const options =
-        response instanceof Observable
-          ? await firstValueFrom(response)
-          : await response;
+      const options = response instanceof Observable ? await firstValueFrom(response) : await response;
       return options || [];
     } catch (error) {
       console.error(ToastMessages.ERROR_LOADING_NAMES, error);

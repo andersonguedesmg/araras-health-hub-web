@@ -1,14 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import {
-  ToastSeverities,
-  ToastSummaries,
-} from '../../constants/toast.constants';
-import {
-  ApiValidationErrors,
-  BaseApiResponse,
-} from '../../interfaces/base-api-response';
+import { ToastSeverities, ToastSummaries } from '../../constants/toast.constants';
+import { ApiValidationErrors, BaseApiResponse } from '../../interfaces/base-api-response';
 
 interface ProblemDetailsError {
   type?: string;
@@ -64,8 +58,7 @@ export class ToastService {
 
       if (problemDetail && (problemDetail.detail || problemDetail.title)) {
         summary = problemDetail.title || ToastSummaries.ERROR;
-        detailMessage =
-          problemDetail.detail || 'Erro de processamento na requisição.';
+        detailMessage = problemDetail.detail || 'Erro de processamento na requisição.';
       } else {
         const apiResponse = error.error as any;
         if (apiResponse && apiResponse.errors) {
@@ -97,12 +90,7 @@ export class ToastService {
   }
 
   private isBaseApiResponse(obj: any): obj is BaseApiResponse<unknown> {
-    return (
-      obj &&
-      typeof obj === 'object' &&
-      'success' in obj &&
-      obj.success === false
-    );
+    return obj && typeof obj === 'object' && 'success' in obj && obj.success === false;
   }
 
   private formatValidationErrors(errors: ApiValidationErrors): string {
@@ -110,10 +98,7 @@ export class ToastService {
     for (const key in errors) {
       if (Object.prototype.hasOwnProperty.call(errors, key)) {
         errors[key].forEach((error) => {
-          const fieldName =
-            key !== '$' && key.length < 50
-              ? `<span class="font-bold">${key}</span>: `
-              : '';
+          const fieldName = key !== '$' && key.length < 50 ? `<span class="font-bold">${key}</span>: ` : '';
           html += `<li class="mt-1">${fieldName}${error}</li>`;
         });
       }

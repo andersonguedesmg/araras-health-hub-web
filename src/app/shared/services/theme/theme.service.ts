@@ -26,9 +26,7 @@ export class ThemeService {
   }
 
   toggleThemeCycle(): void {
-    this.currentTheme.update((current) =>
-      current === 'light' ? 'dark' : 'light',
-    );
+    this.currentTheme.update((current) => (current === 'light' ? 'dark' : 'light'));
   }
 
   private getInitialTheme(): ThemeMode {
@@ -37,9 +35,7 @@ export class ThemeService {
       return savedTheme;
     }
 
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)',
-    ).matches;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     return prefersDark ? 'dark' : 'light';
   }
 }
