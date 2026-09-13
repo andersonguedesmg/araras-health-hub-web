@@ -31,13 +31,11 @@ export class SupplierContainerComponent {
   private readonly supplierService = inject(SupplierService);
   private readonly toastService = inject(ToastService);
 
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
   protected readonly title = 'Fornecedores';
-  protected readonly description =
-    'Cadastro e controle de parceiros comerciais da rede municipal de saúde.';
+  protected readonly description = 'Cadastro e controle de parceiros comerciais da rede municipal de saúde.';
 
   protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
@@ -64,25 +62,15 @@ export class SupplierContainerComponent {
   private readonly suppliersResource = rxResource({
     request: () => this.queryParams(),
     loader: ({ request }) => {
-      return this.supplierService.loadSuppliers(
-        request.page,
-        request.rows,
-        request.searchTerm,
-      );
+      return this.supplierService.loadSuppliers(request.page, request.rows, request.searchTerm);
     },
   });
 
-  protected readonly suppliers = computed(
-    () => this.suppliersResource.value()?.data ?? [],
-  );
-  protected readonly totalRecords = computed(
-    () => this.suppliersResource.value()?.totalCount ?? 0,
-  );
+  protected readonly suppliers = computed(() => this.suppliersResource.value()?.data ?? []);
+  protected readonly totalRecords = computed(() => this.suppliersResource.value()?.totalCount ?? 0);
 
   private readonly isActionLoading = signal<boolean>(false);
-  protected readonly isLoading = computed(
-    () => this.suppliersResource.isLoading() || this.isActionLoading(),
-  );
+  protected readonly isLoading = computed(() => this.suppliersResource.isLoading() || this.isActionLoading());
 
   protected loadSuppliers(event: TableLazyLoadEvent): void {
     this.first.set(event.first ?? 0);
@@ -101,9 +89,7 @@ export class SupplierContainerComponent {
   }
 
   protected generatePdfReport(): void {
-    this.toastService.showInfo(
-      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
-    );
+    this.toastService.showInfo('A exportação para PDF está em desenvolvimento e estará disponível em breve!');
   }
 
   protected async saveSupplier(formValue: Supplier): Promise<void> {
@@ -134,9 +120,7 @@ export class SupplierContainerComponent {
     const actionText = supplier.isActive ? 'desativar' : 'ativar';
     const supplierName = supplier.tradeName || supplier.legalName || '';
     const msg = `Deseja realmente ${actionText} o fornecedor "${supplierName}"?`;
-    const title = supplier.isActive
-      ? 'Confirmar Desativação'
-      : 'Confirmar Ativação';
+    const title = supplier.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação';
 
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
@@ -145,9 +129,7 @@ export class SupplierContainerComponent {
     const alteredSupplier = { ...supplier, isActive: isActivating };
 
     try {
-      await firstValueFrom(
-        this.supplierService.changeStatusSupplier(supplier.id, alteredSupplier),
-      );
+      await firstValueFrom(this.supplierService.changeStatusSupplier(supplier.id, alteredSupplier));
 
       const successMessage = `Fornecedor ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);

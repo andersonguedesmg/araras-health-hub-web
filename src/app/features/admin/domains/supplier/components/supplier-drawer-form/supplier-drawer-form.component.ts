@@ -10,12 +10,7 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
@@ -49,23 +44,20 @@ export class SupplierDrawerFormComponent {
   private readonly formHelperService = inject(FormHelperService);
   private readonly cepService = inject(CepService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  visible = model<boolean>(false);
-  formMode = input<FormMode>(FormMode.Create);
-  supplierData = input<Supplier | undefined>(undefined);
-  onSave = output<Supplier>();
+  readonly visible = model<boolean>(false);
+  readonly formMode = input<FormMode>(FormMode.Create);
+  readonly supplierData = input<Supplier | undefined>(undefined);
+  readonly save = output<Supplier>();
 
-  FormMode = FormMode;
-  supplierForm: FormGroup;
-  isCnpjValidating = signal<boolean>(false);
-  formSubmitted = signal<boolean>(false);
-  statusLabel = signal<string>('Ativo');
+  protected readonly FormMode = FormMode;
+  protected readonly supplierForm: FormGroup;
 
-  isGlobalLoading = computed(
-    () => this.isCnpjValidating() || this.cepService.isLoading(),
-  );
+  protected readonly isCnpjValidating = signal<boolean>(false);
+  protected readonly formSubmitted = signal<boolean>(false);
+  protected readonly statusLabel = signal<string>('Ativo');
+  protected readonly isGlobalLoading = computed(() => this.isCnpjValidating() || this.cepService.isLoading());
 
   private readonly formLabels: Record<string, string> = {
     legalName: 'Razão Social',
@@ -97,10 +89,7 @@ export class SupplierDrawerFormComponent {
   isReadOnly = computed(() => {
     const mode = this.formMode();
     const data = this.supplierData();
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
+    return mode === FormMode.Detail || (mode === FormMode.Update && data?.isActive === false);
   });
 
   constructor() {
@@ -136,10 +125,7 @@ export class SupplierDrawerFormComponent {
     });
   }
 
-  private syncFormState(
-    currentData: Supplier | undefined,
-    mode: FormMode,
-  ): void {
+  private syncFormState(currentData: Supplier | undefined, mode: FormMode): void {
     this.supplierForm.reset();
     this.formSubmitted.set(false);
 
@@ -150,10 +136,7 @@ export class SupplierDrawerFormComponent {
       this.statusLabel.set('Ativo');
     }
 
-    if (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && currentData?.isActive === false)
-    ) {
+    if (mode === FormMode.Detail || (mode === FormMode.Update && currentData?.isActive === false)) {
       this.supplierForm.disable();
     } else {
       this.supplierForm.enable();
@@ -177,16 +160,11 @@ export class SupplierDrawerFormComponent {
       return;
     }
 
-    const success = await this.cepService.fillAddressByCep(
-      addressGroup,
-      this.toastService,
-    );
+    const success = await this.cepService.fillAddressByCep(addressGroup, this.toastService);
 
     if (success) {
       setTimeout(() => {
-        const numberInput =
-          document.getElementsByName('number')[0] ||
-          document.getElementById('number');
+        const numberInput = document.getElementsByName('number')[0] || document.getElementById('number');
         numberInput?.focus();
       }, 50);
     }
@@ -237,10 +215,7 @@ export class SupplierDrawerFormComponent {
   async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.supplierForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.supplierForm, this.formLabels);
 
     if (!isFormValid) {
       return;
@@ -248,7 +223,7 @@ export class SupplierDrawerFormComponent {
 
     const dialog = this.confirmDialog();
     if (!dialog) {
-      this.onSave.emit(this.supplierForm.getRawValue());
+      this.save.emit(this.supplierForm.getRawValue());
       return;
     }
 
@@ -261,7 +236,7 @@ export class SupplierDrawerFormComponent {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
 
     if (confirmed) {
-      this.onSave.emit(this.supplierForm.getRawValue());
+      this.save.emit(this.supplierForm.getRawValue());
     }
   }
 }

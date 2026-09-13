@@ -14,11 +14,7 @@ export class SupplierService {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject(ApiConfigService);
 
-  public loadSuppliers(
-    pageNumber: number,
-    pageSize: number,
-    searchTerm: string = '',
-  ): Observable<ApiResponse<Supplier[]>> {
+  public loadSuppliers(pageNumber: number, pageSize: number, searchTerm = ''): Observable<ApiResponse<Supplier[]>> {
     const url = this.apiConfig.getUrl('suppliers');
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -33,25 +29,17 @@ export class SupplierService {
     return this.http.post<ApiResponse<Supplier>>(url, supplier);
   }
 
-  public getSupplierById(
-    supplierId: number,
-  ): Observable<ApiResponse<Supplier>> {
+  public getSupplierById(supplierId: number): Observable<ApiResponse<Supplier>> {
     const url = this.apiConfig.getUrl(`suppliers/${supplierId}`);
     return this.http.get<ApiResponse<Supplier>>(url);
   }
 
-  public updateSupplier(
-    supplier: Supplier,
-    supplierId: number,
-  ): Observable<ApiResponse<Supplier>> {
+  public updateSupplier(supplier: Supplier, supplierId: number): Observable<ApiResponse<Supplier>> {
     const url = this.apiConfig.getUrl(`suppliers/${supplierId}`);
     return this.http.put<ApiResponse<Supplier>>(url, supplier);
   }
 
-  public changeStatusSupplier(
-    supplierId: number,
-    supplier: Supplier,
-  ): Observable<ApiResponse<Supplier>> {
+  public changeStatusSupplier(supplierId: number, supplier: Supplier): Observable<ApiResponse<Supplier>> {
     const action = supplier.isActive ? 'activate' : 'deactivate';
     const url = this.apiConfig.getUrl(`suppliers/${supplierId}/${action}`);
     return this.http.patch<ApiResponse<Supplier>>(url, {});
@@ -60,7 +48,7 @@ export class SupplierService {
   public getSupplierPagedOptions(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
     isActive?: boolean,
   ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('suppliers/dropdown');
