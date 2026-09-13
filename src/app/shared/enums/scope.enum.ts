@@ -1,4 +1,4 @@
-import { SelectOptions } from "../interfaces/select-options";
+import { SelectOptions } from '../interfaces/select-options';
 
 export enum Scope {
   Management = 1,
