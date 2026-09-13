@@ -31,13 +31,11 @@ export class EmployeeContainerComponent {
   private readonly employeeService = inject(EmployeeService);
   private readonly toastService = inject(ToastService);
 
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
   protected readonly title = 'Funcionários';
-  protected readonly description =
-    'Cadastro e controle de colaboradores da rede municipal de saúde.';
+  protected readonly description = 'Cadastro e controle de colaboradores da rede municipal de saúde.';
 
   protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
@@ -64,25 +62,15 @@ export class EmployeeContainerComponent {
   private readonly employeesResource = rxResource({
     request: () => this.queryParams(),
     loader: ({ request }) => {
-      return this.employeeService.loadEmployees(
-        request.page,
-        request.rows,
-        request.searchTerm,
-      );
+      return this.employeeService.loadEmployees(request.page, request.rows, request.searchTerm);
     },
   });
 
-  protected readonly employees = computed(
-    () => this.employeesResource.value()?.data ?? [],
-  );
-  protected readonly totalRecords = computed(
-    () => this.employeesResource.value()?.totalCount ?? 0,
-  );
+  protected readonly employees = computed(() => this.employeesResource.value()?.data ?? []);
+  protected readonly totalRecords = computed(() => this.employeesResource.value()?.totalCount ?? 0);
 
   private readonly isActionLoading = signal<boolean>(false);
-  protected readonly isLoading = computed(
-    () => this.employeesResource.isLoading() || this.isActionLoading(),
-  );
+  protected readonly isLoading = computed(() => this.employeesResource.isLoading() || this.isActionLoading());
 
   protected loadEmployees(event: TableLazyLoadEvent): void {
     this.first.set(event.first ?? 0);
@@ -101,9 +89,7 @@ export class EmployeeContainerComponent {
   }
 
   protected generatePdfReport(): void {
-    this.toastService.showInfo(
-      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
-    );
+    this.toastService.showInfo('A exportação para PDF está em desenvolvimento e estará disponível em breve!');
   }
 
   protected async saveEmployee(formValue: Employee): Promise<void> {
@@ -133,9 +119,7 @@ export class EmployeeContainerComponent {
     const isActivating = !employee.isActive;
     const actionText = employee.isActive ? 'desativar' : 'ativar';
     const msg = `Deseja realmente ${actionText} o funcionário "${employee.name}"?`;
-    const title = employee.isActive
-      ? 'Confirmar Desativação'
-      : 'Confirmar Ativação';
+    const title = employee.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação';
 
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
@@ -144,9 +128,7 @@ export class EmployeeContainerComponent {
     const alteredEmployee = { ...employee, isActive: isActivating };
 
     try {
-      await firstValueFrom(
-        this.employeeService.changeStatusEmployee(employee.id, alteredEmployee),
-      );
+      await firstValueFrom(this.employeeService.changeStatusEmployee(employee.id, alteredEmployee));
 
       const successMessage = `Funcionário ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);

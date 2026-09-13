@@ -10,12 +10,7 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
@@ -47,21 +42,20 @@ export class EmployeeDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
-  visible = model<boolean>(false);
-  formMode = input<FormMode>(FormMode.Create);
-  employeeData = input<Employee | undefined>(undefined);
-  onSave = output<Employee>();
+  readonly visible = model<boolean>(false);
+  readonly formMode = input<FormMode>(FormMode.Create);
+  readonly employeeData = input<Employee | undefined>(undefined);
+  readonly save = output<Employee>();
 
-  FormMode = FormMode;
-  employeeForm: FormGroup;
-  isCpfValidating = signal<boolean>(false);
-  formSubmitted = signal<boolean>(false);
-  statusLabel = signal<string>('Ativo');
+  protected readonly FormMode = FormMode;
+  protected readonly employeeForm: FormGroup;
 
-  isGlobalLoading = computed(() => this.isCpfValidating());
+  protected readonly isCpfValidating = signal<boolean>(false);
+  protected readonly formSubmitted = signal<boolean>(false);
+  protected readonly statusLabel = signal<string>('Ativo');
+  protected readonly isGlobalLoading = computed(() => this.isCpfValidating());
 
   private readonly formLabels: Record<string, string> = {
     name: 'Nome',
@@ -86,10 +80,7 @@ export class EmployeeDrawerFormComponent {
   isReadOnly = computed(() => {
     const mode = this.formMode();
     const data = this.employeeData();
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
+    return mode === FormMode.Detail || (mode === FormMode.Update && data?.isActive === false);
   });
 
   constructor() {
@@ -113,10 +104,7 @@ export class EmployeeDrawerFormComponent {
     });
   }
 
-  private syncFormState(
-    currentData: Employee | undefined,
-    mode: FormMode,
-  ): void {
+  private syncFormState(currentData: Employee | undefined, mode: FormMode): void {
     this.employeeForm.reset();
     this.formSubmitted.set(false);
 
@@ -127,10 +115,7 @@ export class EmployeeDrawerFormComponent {
       this.statusLabel.set('Ativo');
     }
 
-    if (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && currentData?.isActive === false)
-    ) {
+    if (mode === FormMode.Detail || (mode === FormMode.Update && currentData?.isActive === false)) {
       this.employeeForm.disable();
     } else {
       this.employeeForm.enable();
@@ -176,10 +161,7 @@ export class EmployeeDrawerFormComponent {
   async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.employeeForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.employeeForm, this.formLabels);
 
     if (!isFormValid) {
       return;
@@ -187,7 +169,7 @@ export class EmployeeDrawerFormComponent {
 
     const dialog = this.confirmDialog();
     if (!dialog) {
-      this.onSave.emit(this.employeeForm.getRawValue());
+      this.save.emit(this.employeeForm.getRawValue());
       return;
     }
 
@@ -199,7 +181,7 @@ export class EmployeeDrawerFormComponent {
     const confirmed = await firstValueFrom(dialog.show(msg, title));
 
     if (confirmed) {
-      this.onSave.emit(this.employeeForm.getRawValue());
+      this.save.emit(this.employeeForm.getRawValue());
     }
   }
 }

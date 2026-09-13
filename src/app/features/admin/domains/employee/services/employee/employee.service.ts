@@ -14,11 +14,7 @@ export class EmployeeService {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject(ApiConfigService);
 
-  public loadEmployees(
-    pageNumber: number,
-    pageSize: number,
-    searchTerm: string = '',
-  ): Observable<ApiResponse<Employee[]>> {
+  public loadEmployees(pageNumber: number, pageSize: number, searchTerm = ''): Observable<ApiResponse<Employee[]>> {
     const url = this.apiConfig.getUrl('employees');
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -33,25 +29,17 @@ export class EmployeeService {
     return this.http.post<ApiResponse<Employee>>(url, employee);
   }
 
-  public getEmployeeById(
-    employeeId: number,
-  ): Observable<ApiResponse<Employee>> {
+  public getEmployeeById(employeeId: number): Observable<ApiResponse<Employee>> {
     const url = this.apiConfig.getUrl(`employees/${employeeId}`);
     return this.http.get<ApiResponse<Employee>>(url);
   }
 
-  public updateEmployee(
-    employee: Employee,
-    employeeId: number,
-  ): Observable<ApiResponse<Employee>> {
+  public updateEmployee(employee: Employee, employeeId: number): Observable<ApiResponse<Employee>> {
     const url = this.apiConfig.getUrl(`employees/${employeeId}`);
     return this.http.put<ApiResponse<Employee>>(url, employee);
   }
 
-  public changeStatusEmployee(
-    employeeId: number,
-    employee: Employee,
-  ): Observable<ApiResponse<Employee>> {
+  public changeStatusEmployee(employeeId: number, employee: Employee): Observable<ApiResponse<Employee>> {
     const action = employee.isActive ? 'activate' : 'deactivate';
     const url = this.apiConfig.getUrl(`employees/${employeeId}/${action}`);
     return this.http.patch<ApiResponse<Employee>>(url, {});
@@ -65,7 +53,7 @@ export class EmployeeService {
   public getEmployeePagedOptions(
     pageNumber: number,
     pageSize: number,
-    searchTerm: string = '',
+    searchTerm = '',
     isActive?: boolean,
   ): Observable<ApiResponse<SelectOptions<number>[]>> {
     const url = this.apiConfig.getUrl('employees/dropdown');
