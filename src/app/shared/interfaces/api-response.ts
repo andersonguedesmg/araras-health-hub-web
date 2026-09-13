@@ -1,4 +1,4 @@
-import { BaseApiResponse } from "./base-api-response";
+import { BaseApiResponse } from './base-api-response';
 
 export interface ApiResponse<T> extends BaseApiResponse<T> {
   pageNumber: number;

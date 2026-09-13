@@ -4,6 +4,6 @@ export interface DashboardSummary {
   pendingDeliveryCount: number;
   criticalStockCount: number;
   totalActiveProducts: number;
-  monthlyEvolution: { month: string, count: number; }[];
-  categoryDistribution: { category: string, value: number; }[];
+  monthlyEvolution: { month: string; count: number }[];
+  categoryDistribution: { category: string; value: number }[];
 }

@@ -1,6 +1,4 @@
-export interface ApiValidationErrors {
-  [key: string]: string[];
-}
+export type ApiValidationErrors = Record<string, string[]>;
 
 export interface BaseApiResponse<T> {
   data: T | null;
