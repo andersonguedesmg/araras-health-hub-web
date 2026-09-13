@@ -1,12 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import {
-  Component,
-  contentChild,
-  input,
-  output,
-  TemplateRef,
-  viewChild,
-} from '@angular/core';
+import { Component, contentChild, input, output, TemplateRef, viewChild } from '@angular/core';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 
 @Component({
@@ -32,19 +25,13 @@ export class TableComponent {
   readonly colspan = input<number>(1);
   readonly emptyMessage = input<string>('Nenhum registro encontrado.');
 
-  protected readonly captionTemplate =
-    contentChild<TemplateRef<unknown>>('captionTemplate');
-  protected readonly headerTemplate =
-    contentChild<TemplateRef<unknown>>('headerTemplate');
-  protected readonly bodyTemplate =
-    contentChild<TemplateRef<unknown>>('bodyTemplate');
-  protected readonly footerTemplate =
-    contentChild<TemplateRef<unknown>>('footerTemplate');
-  protected readonly emptyMessageTemplate = contentChild<TemplateRef<unknown>>(
-    'emptyMessageTemplate',
-  );
+  protected readonly captionTemplate = contentChild<TemplateRef<unknown>>('captionTemplate');
+  protected readonly headerTemplate = contentChild<TemplateRef<unknown>>('headerTemplate');
+  protected readonly bodyTemplate = contentChild<TemplateRef<unknown>>('bodyTemplate');
+  protected readonly footerTemplate = contentChild<TemplateRef<unknown>>('footerTemplate');
+  protected readonly emptyMessageTemplate = contentChild<TemplateRef<unknown>>('emptyMessageTemplate');
 
-  readonly onLazyLoad = output<TableLazyLoadEvent>();
+  readonly lazyLoad = output<TableLazyLoadEvent>();
 
   public filterGlobal(value: string, matchMode: string): void {
     this.dt()?.filterGlobal(value, matchMode);
