@@ -1,71 +1,48 @@
-<app-drawer
-  [(visible)]="visible"
-  [header]="headerText()"
-  [position]="'right'"
-  [size]="'xl'"
->
+<app-drawer [(visible)]="visible" [header]="headerText()" [position]="'right'" [size]="'xl'">
   @if (isGlobalLoading()) {
-    <div
-      class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full"
-    >
-      <div
-        class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"
-      ></div>
+    <div class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4 rounded-full">
+      <div class="absolute h-full w-1/3 bg-primary animate-pulse rounded-full"></div>
     </div>
   }
 
-  <form
-    [formGroup]="accountForm"
-    body
-    class="space-y-6"
-    [class.opacity-60]="isGlobalLoading()"
-  >
+  <form [formGroup]="accountForm" body class="space-y-6" [class.opacity-60]="isGlobalLoading()">
     <div
-      class="bg-white dark:bg-zinc-900/90 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4"
-    >
-      <h3
-        class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2"
-      >
-        <i class="pi pi-user"></i> Informações
+      class="bg-white dark:bg-zinc-900/90 p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
+      <h3 class="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2">
+        <i class="pi pi-user"></i>
+        Informações
       </h3>
       <hr class="border-zinc-100 dark:border-zinc-800" />
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         @if (formMode() !== FormMode.Create) {
           <div>
-            <label class="block text-xs font-semibold text-zinc-500 mb-1"
-              >ID</label
-            >
+            <label class="block text-xs font-semibold text-zinc-500 mb-1" for="id">ID</label>
             <input
               pInputText
+              id="id"
               type="text"
               formControlName="id"
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
-            />
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none" />
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-zinc-500 mb-1"
-              >Status</label
-            >
+            <label class="block text-xs font-semibold text-zinc-500 mb-1" for="status">Status</label>
             <input
               pInputText
+              id="status"
               type="text"
               [value]="statusLabel()"
               disabled
-              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none"
-            />
+              class="w-full bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 rounded-lg p-2 font-medium shadow-inner focus:outline-none" />
           </div>
         }
 
         <div
           class="w-full"
           [class.sm:col-span-1]="formMode() === FormMode.Create"
-          [class.sm:col-span-2]="formMode() !== FormMode.Create"
-        >
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          [class.sm:col-span-2]="formMode() !== FormMode.Create">
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="userName">
             Nome
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
@@ -73,91 +50,58 @@
           </label>
           <input
             pInputText
+            id="userName"
             type="text"
             formControlName="userName"
             maxlength="100"
             class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-            [class.border-red-500]="
-              formSubmitted() && accountForm.get('userName')?.invalid
-            "
-            [class.focus:border-red-500]="
-              formSubmitted() && accountForm.get('userName')?.invalid
-            "
-            [class.focus:ring-1]="
-              formSubmitted() && accountForm.get('userName')?.invalid
-            "
-            [class.focus:ring-red-500]="
-              formSubmitted() && accountForm.get('userName')?.invalid
-            "
-            [class.border-zinc-300]="
-              !(formSubmitted() && accountForm.get('userName')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && accountForm.get('userName')?.invalid)
-            "
-          />
+            [class.border-red-500]="formSubmitted() && accountForm.get('userName')?.invalid"
+            [class.focus:border-red-500]="formSubmitted() && accountForm.get('userName')?.invalid"
+            [class.focus:ring-1]="formSubmitted() && accountForm.get('userName')?.invalid"
+            [class.focus:ring-red-500]="formSubmitted() && accountForm.get('userName')?.invalid"
+            [class.border-zinc-300]="!(formSubmitted() && accountForm.get('userName')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && accountForm.get('userName')?.invalid)" />
         </div>
 
         @if (formMode() === FormMode.Create) {
           <div>
-            <label
-              class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-            >
+            <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="password">
               Senha
               <span class="text-red-500">*</span>
             </label>
             <input
               pInputText
+              id="password"
               type="password"
               formControlName="password"
               class="w-full border rounded-lg p-2 transition-colors duration-200 bg-zinc-50/50 dark:bg-zinc-800/30 text-zinc-800 dark:text-zinc-100 focus:border-primary focus:outline-none disabled:bg-zinc-100/70 disabled:dark:bg-zinc-800/60 disabled:text-zinc-500 disabled:dark:text-zinc-400 disabled:shadow-inner"
-              [class.border-red-500]="
-                formSubmitted() && accountForm.get('password')?.invalid
-              "
-              [class.focus:border-red-500]="
-                formSubmitted() && accountForm.get('password')?.invalid
-              "
-              [class.focus:ring-1]="
-                formSubmitted() && accountForm.get('password')?.invalid
-              "
-              [class.focus:ring-red-500]="
-                formSubmitted() && accountForm.get('password')?.invalid
-              "
-              [class.border-zinc-300]="
-                !(formSubmitted() && accountForm.get('password')?.invalid)
-              "
-              [class.dark:border-zinc-700]="
-                !(formSubmitted() && accountForm.get('password')?.invalid)
-              "
-            />
+              [class.border-red-500]="formSubmitted() && accountForm.get('password')?.invalid"
+              [class.focus:border-red-500]="formSubmitted() && accountForm.get('password')?.invalid"
+              [class.focus:ring-1]="formSubmitted() && accountForm.get('password')?.invalid"
+              [class.focus:ring-red-500]="formSubmitted() && accountForm.get('password')?.invalid"
+              [class.border-zinc-300]="!(formSubmitted() && accountForm.get('password')?.invalid)"
+              [class.dark:border-zinc-700]="!(formSubmitted() && accountForm.get('password')?.invalid)" />
           </div>
         }
 
         <div class="sm:col-span-2">
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="facilityId">
             Unidade
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
             }
           </label>
           <p-select
+            id="facilityId"
             [options]="facilityOptions()"
             formControlName="facilityId"
             optionLabel="label"
             optionValue="value"
             placeholder="Selecione uma unidade"
             class="w-full border rounded-lg transition-colors duration-200 focus-within:border-primary"
-            [class.border-red-500]="
-              formSubmitted() && accountForm.get('facilityId')?.invalid
-            "
-            [class.border-zinc-300]="
-              !(formSubmitted() && accountForm.get('facilityId')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && accountForm.get('facilityId')?.invalid)
-            "
+            [class.border-red-500]="formSubmitted() && accountForm.get('facilityId')?.invalid"
+            [class.border-zinc-300]="!(formSubmitted() && accountForm.get('facilityId')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && accountForm.get('facilityId')?.invalid)"
             [showClear]="formMode() !== FormMode.Detail"
             [virtualScroll]="true"
             [virtualScrollItemSize]="38"
@@ -165,70 +109,51 @@
             (onLazyLoad)="onFacilityDropdownLazyLoad($event)"
             [filter]="true"
             (onFilter)="onFacilityDropdownFilter($event)"
-            [loading]="isFacilitiesLoading()"
-          >
+            [loading]="isFacilitiesLoading()">
             <ng-template pTemplate="empty">
-              <span class="p-4 text-xs text-zinc-500 block"
-                >Nenhuma unidade encontrada</span
-              >
+              <span class="p-4 text-xs text-zinc-500 block">Nenhuma unidade encontrada</span>
             </ng-template>
           </p-select>
         </div>
 
         <div>
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="role">
             Função / Perfil
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
             }
           </label>
           <p-select
+            id="role"
             [options]="rolesOptions"
             formControlName="role"
             optionLabel="label"
             optionValue="value"
             class="w-full border rounded-lg transition-colors duration-200"
-            [class.border-red-500]="
-              formSubmitted() && accountForm.get('role')?.invalid
-            "
-            [class.border-zinc-300]="
-              !(formSubmitted() && accountForm.get('role')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && accountForm.get('role')?.invalid)
-            "
-            placeholder="Selecione o perfil"
-          ></p-select>
+            [class.border-red-500]="formSubmitted() && accountForm.get('role')?.invalid"
+            [class.border-zinc-300]="!(formSubmitted() && accountForm.get('role')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && accountForm.get('role')?.invalid)"
+            placeholder="Selecione o perfil" />
         </div>
 
         <div>
-          <label
-            class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1"
-          >
+          <label class="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1" for="scope">
             Escopo de Acesso
             @if (formMode() !== FormMode.Detail) {
               <span class="text-red-500">*</span>
             }
           </label>
           <p-select
+            id="scope"
             [options]="scopeOptions"
             formControlName="scope"
             optionLabel="label"
             optionValue="value"
             class="w-full border rounded-lg transition-colors duration-200"
-            [class.border-red-500]="
-              formSubmitted() && accountForm.get('scope')?.invalid
-            "
-            [class.border-zinc-300]="
-              !(formSubmitted() && accountForm.get('scope')?.invalid)
-            "
-            [class.dark:border-zinc-700]="
-              !(formSubmitted() && accountForm.get('scope')?.invalid)
-            "
-            placeholder="Selecione o escopo"
-          ></p-select>
+            [class.border-red-500]="formSubmitted() && accountForm.get('scope')?.invalid"
+            [class.border-zinc-300]="!(formSubmitted() && accountForm.get('scope')?.invalid)"
+            [class.dark:border-zinc-700]="!(formSubmitted() && accountForm.get('scope')?.invalid)"
+            placeholder="Selecione o escopo" />
         </div>
       </div>
     </div>
@@ -241,8 +166,7 @@
       severity="secondary"
       [outlined]="true"
       [disabled]="isGlobalLoading()"
-      (onClick)="visible.set(false)"
-    />
+      (onClick)="visible.set(false)" />
 
     @if (!isReadOnly()) {
       <p-button
@@ -252,16 +176,14 @@
         [outlined]="true"
         [disabled]="isGlobalLoading()"
         (onClick)="clearForm()"
-        class="ml-auto"
-      />
+        class="ml-auto" />
 
       <p-button
         label="Salvar"
         icon="pi pi-check-circle"
         severity="success"
         [disabled]="isGlobalLoading()"
-        (onClick)="submitForm()"
-      />
+        (onClick)="submitForm()" />
     }
   </ng-container>
 </app-drawer>
@@ -271,5 +193,4 @@
   acceptLabel="Confirmar"
   rejectLabel="Cancelar"
   acceptIcon="pi pi-check-circle"
-  rejectIcon="pi pi-ban"
-></app-confirm-dialog>
+  rejectIcon="pi pi-ban" />

@@ -33,13 +33,11 @@ export class AccountContainerComponent {
   private readonly accountService = inject(AccountService);
   private readonly toastService = inject(ToastService);
 
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   protected readonly FormMode = FormMode;
   protected readonly title = 'Contas';
-  protected readonly description =
-    'Cadastro e controle de contas de acesso ao sistema.';
+  protected readonly description = 'Cadastro e controle de contas de acesso ao sistema.';
 
   protected readonly itemsBreadcrumb = signal([
     { label: 'Administração', routerLink: '/administracao' },
@@ -68,26 +66,16 @@ export class AccountContainerComponent {
   private readonly accountsResource = rxResource({
     request: () => this.queryParams(),
     loader: ({ request }) => {
-      return this.accountService.loadAccounts(
-        request.page,
-        request.rows,
-        request.searchTerm,
-      );
+      return this.accountService.loadAccounts(request.page, request.rows, request.searchTerm);
     },
   });
 
-  protected readonly accounts = computed(
-    () => this.accountsResource.value()?.data ?? [],
-  );
+  protected readonly accounts = computed(() => this.accountsResource.value()?.data ?? []);
 
-  protected readonly totalRecords = computed(
-    () => this.accountsResource.value()?.totalCount ?? 0,
-  );
+  protected readonly totalRecords = computed(() => this.accountsResource.value()?.totalCount ?? 0);
 
   private readonly isActionLoading = signal<boolean>(false);
-  protected readonly isLoading = computed(
-    () => this.accountsResource.isLoading() || this.isActionLoading(),
-  );
+  protected readonly isLoading = computed(() => this.accountsResource.isLoading() || this.isActionLoading());
 
   protected loadAccounts(event: TableLazyLoadEvent): void {
     this.first.set(event.first ?? 0);
@@ -111,21 +99,14 @@ export class AccountContainerComponent {
   }
 
   protected generatePdfReport(): void {
-    this.toastService.showInfo(
-      'A exportação para PDF está em desenvolvimento e estará disponível em breve!',
-    );
+    this.toastService.showInfo('A exportação para PDF está em desenvolvimento e estará disponível em breve!');
   }
 
-  protected async saveNewPassword(event: {
-    userId: number;
-    password: string;
-  }): Promise<void> {
+  protected async saveNewPassword(event: { userId: number; password: string }): Promise<void> {
     this.isActionLoading.set(true);
 
     try {
-      await firstValueFrom(
-        this.accountService.changePassword(event.userId, event.password),
-      );
+      await firstValueFrom(this.accountService.changePassword(event.userId, event.password));
 
       this.toastService.showSuccess('Senha resetada com sucesso!');
       this.isPasswordOpen = false;
@@ -164,9 +145,7 @@ export class AccountContainerComponent {
     const isActivating = !account.isActive;
     const actionText = account.isActive ? 'desativar' : 'ativar';
     const msg = `Deseja realmente ${actionText} o usuário "${account.userName}"?`;
-    const title = account.isActive
-      ? 'Confirmar Desativação'
-      : 'Confirmar Ativação';
+    const title = account.isActive ? 'Confirmar Desativação' : 'Confirmar Ativação';
 
     const confirmed = await firstValueFrom(dialog.show(msg, title));
     if (!confirmed) return;
@@ -175,9 +154,7 @@ export class AccountContainerComponent {
     const alteredAccount = { ...account, isActive: isActivating };
 
     try {
-      await firstValueFrom(
-        this.accountService.changeStatusAccount(account.userId, alteredAccount),
-      );
+      await firstValueFrom(this.accountService.changeStatusAccount(account.userId, alteredAccount));
 
       const successMessage = `Usuário ${isActivating ? 'ativado' : 'desativado'} com sucesso!`;
       this.toastService.showSuccess(successMessage);

@@ -1,31 +1,9 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-  OnDestroy,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, computed, effect, inject, input, model, OnDestroy, output, signal, viewChild } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectLazyLoadEvent, SelectModule } from 'primeng/select';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  firstValueFrom,
-  Subject,
-  Subscription,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, firstValueFrom, Subject, Subscription } from 'rxjs';
 import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { FormHelperService } from '../../../../../../core/services/form-helper/form-helper.service';
 import { ConfirmDialogComponent } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -41,14 +19,7 @@ import { Account } from '../../interfaces/account';
 @Component({
   selector: 'app-account-drawer-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    SelectModule,
-    DrawerComponent,
-    ConfirmDialogComponent,
-  ],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule, DrawerComponent, ConfirmDialogComponent],
   templateUrl: './account-drawer-form.component.html',
   styleUrl: './account-drawer-form.component.scss',
 })
@@ -58,22 +29,19 @@ export class AccountDrawerFormComponent implements OnDestroy {
   private readonly formHelperService = inject(FormHelperService);
   private readonly facilityService = inject(FacilityService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   readonly visible = model<boolean>(false);
   readonly formMode = input<FormMode>(FormMode.Create);
   readonly accountData = input<Account | undefined>(undefined);
-  readonly onSave = output<Account>();
+  readonly save = output<Account>();
 
   protected readonly FormMode = FormMode;
   protected readonly accountForm: FormGroup;
 
   protected readonly facilityOptions = signal<SelectOptions<number>[]>([]);
   protected readonly isFacilitiesLoading = signal<boolean>(false);
-  protected readonly isGlobalLoading = computed(() =>
-    this.isFacilitiesLoading(),
-  );
+  protected readonly isGlobalLoading = computed(() => this.isFacilitiesLoading());
   protected readonly formSubmitted = signal<boolean>(false);
   protected readonly statusLabel = signal<string>('Ativo');
 
@@ -125,10 +93,7 @@ export class AccountDrawerFormComponent implements OnDestroy {
     const mode = this.formMode();
     const data = this.accountData();
 
-    return (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && data?.isActive === false)
-    );
+    return mode === FormMode.Detail || (mode === FormMode.Update && data?.isActive === false);
   });
 
   constructor() {
@@ -171,10 +136,7 @@ export class AccountDrawerFormComponent implements OnDestroy {
       });
   }
 
-  private async initializeFacilityDropdownAndForm(
-    data: Account | undefined,
-    mode: FormMode,
-  ): Promise<void> {
+  private async initializeFacilityDropdownAndForm(data: Account | undefined, mode: FormMode): Promise<void> {
     if (this.isInitializing) return;
     this.isInitializing = true;
 
@@ -184,10 +146,7 @@ export class AccountDrawerFormComponent implements OnDestroy {
     this.facilityOptions.set([]);
 
     if (data?.facility?.id) {
-      await this.ensureSelectedFacilityIsLoaded(
-        data.facility.id,
-        data.facility.name,
-      );
+      await this.ensureSelectedFacilityIsLoaded(data.facility.id, data.facility.name);
     }
 
     await this.loadFirstFacilityPageComplement();
@@ -202,9 +161,7 @@ export class AccountDrawerFormComponent implements OnDestroy {
 
     const selectedId = this.accountForm.get('facilityId')?.value;
     const currentOptions = this.facilityOptions();
-    const selectedOption = currentOptions.find(
-      (opt) => opt.value === selectedId,
-    );
+    const selectedOption = currentOptions.find((opt) => opt.value === selectedId);
 
     this.facilityOptions.set(selectedOption ? [selectedOption] : []);
     await this.loadNextFacilityPage();
@@ -220,25 +177,16 @@ export class AccountDrawerFormComponent implements OnDestroy {
 
     return new Promise((resolve) => {
       this.facilityService
-        .getFacilityPagedOptions(
-          1,
-          this.facilityPageSize,
-          this.facilitySearchTerm,
-          filterActive,
-        )
+        .getFacilityPagedOptions(1, this.facilityPageSize, this.facilitySearchTerm, filterActive)
         .subscribe({
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextFacilityPage =
-              response.hasNextPage ??
-              incomingOptions.length === this.facilityPageSize;
+            this.hasNextFacilityPage = response.hasNextPage ?? incomingOptions.length === this.facilityPageSize;
 
             this.facilityOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -268,25 +216,16 @@ export class AccountDrawerFormComponent implements OnDestroy {
 
     return new Promise((resolve) => {
       this.facilityService
-        .getFacilityPagedOptions(
-          this.currentFacilityPage,
-          this.facilityPageSize,
-          this.facilitySearchTerm,
-          filterActive,
-        )
+        .getFacilityPagedOptions(this.currentFacilityPage, this.facilityPageSize, this.facilitySearchTerm, filterActive)
         .subscribe({
           next: (response) => {
             const incomingOptions = response.data || [];
 
-            this.hasNextFacilityPage =
-              response.hasNextPage ??
-              incomingOptions.length === this.facilityPageSize;
+            this.hasNextFacilityPage = response.hasNextPage ?? incomingOptions.length === this.facilityPageSize;
 
             this.facilityOptions.update((existing) => {
               const existingIds = new Set(existing.map((item) => item.value));
-              const filteredNew = incomingOptions.filter(
-                (item) => !existingIds.has(item.value),
-              );
+              const filteredNew = incomingOptions.filter((item) => !existingIds.has(item.value));
               return [...existing, ...filteredNew];
             });
 
@@ -304,13 +243,8 @@ export class AccountDrawerFormComponent implements OnDestroy {
     });
   }
 
-  private ensureSelectedFacilityIsLoaded(
-    selectedId: number,
-    facilityName?: string,
-  ): Promise<void> {
-    const alreadyLoaded = this.facilityOptions().some(
-      (item) => item.value === selectedId,
-    );
+  private ensureSelectedFacilityIsLoaded(selectedId: number, facilityName?: string): Promise<void> {
+    const alreadyLoaded = this.facilityOptions().some((item) => item.value === selectedId);
 
     if (alreadyLoaded) {
       return Promise.resolve();
@@ -328,28 +262,21 @@ export class AccountDrawerFormComponent implements OnDestroy {
     this.isFacilitiesLoading.set(true);
 
     return new Promise((resolve) => {
-      this.facilityService
-        .getFacilityPagedOptions(1, 1, '', undefined)
-        .subscribe({
-          next: () => {
-            this.isFacilitiesLoading.set(false);
-            resolve();
-          },
-          error: () => {
-            this.isFacilitiesLoading.set(false);
-            resolve();
-          },
-        });
+      this.facilityService.getFacilityPagedOptions(1, 1, '', undefined).subscribe({
+        next: () => {
+          this.isFacilitiesLoading.set(false);
+          resolve();
+        },
+        error: () => {
+          this.isFacilitiesLoading.set(false);
+          resolve();
+        },
+      });
     });
   }
 
   protected onFacilityDropdownLazyLoad(event: SelectLazyLoadEvent): void {
-    if (
-      this.isFacilityRequestInProgress ||
-      !this.hasNextFacilityPage ||
-      this.isFacilitiesLoading()
-    )
-      return;
+    if (this.isFacilityRequestInProgress || !this.hasNextFacilityPage || this.isFacilitiesLoading()) return;
 
     const lastLoadedIndex = event.last ?? 0;
     const currentListLength = this.facilityOptions().length;
@@ -363,10 +290,7 @@ export class AccountDrawerFormComponent implements OnDestroy {
     this.facilityFilterSubject.next(event.filter || '');
   }
 
-  private syncFormState(
-    currentData: Account | undefined,
-    mode: FormMode,
-  ): void {
+  private syncFormState(currentData: Account | undefined, mode: FormMode): void {
     this.accountForm.reset();
     this.formSubmitted.set(false);
     const passwordControl = this.accountForm.get('password');
@@ -390,10 +314,7 @@ export class AccountDrawerFormComponent implements OnDestroy {
       this.statusLabel.set('Ativo');
     }
 
-    if (
-      mode === FormMode.Detail ||
-      (mode === FormMode.Update && currentData?.isActive === false)
-    ) {
+    if (mode === FormMode.Detail || (mode === FormMode.Update && currentData?.isActive === false)) {
       this.accountForm.disable();
     } else {
       this.accountForm.enable();
@@ -455,10 +376,7 @@ export class AccountDrawerFormComponent implements OnDestroy {
   protected async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.accountForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.accountForm, this.formLabels);
 
     if (!isFormValid) {
       return;
@@ -490,6 +408,6 @@ export class AccountDrawerFormComponent implements OnDestroy {
       delete payload.password;
     }
 
-    this.onSave.emit(payload);
+    this.save.emit(payload);
   }
 }

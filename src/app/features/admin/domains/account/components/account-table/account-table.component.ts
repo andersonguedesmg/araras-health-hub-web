@@ -6,30 +6,15 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { TableToolbarComponent } from '../../../../../../shared/components/table-toolbar/table-toolbar.component';
 import { TableComponent } from '../../../../../../shared/components/table/table.component';
-import {
-  getRoleSeverity,
-  getRoleValue,
-} from '../../../../../../shared/utils/roles.utils';
-import {
-  getScopeSeverity,
-  getScopeValue,
-} from '../../../../../../shared/utils/scope.utils';
-import {
-  getSeverity,
-  getStatus,
-} from '../../../../../../shared/utils/status.utils';
+import { getRoleSeverity, getRoleValue } from '../../../../../../shared/utils/roles.utils';
+import { getScopeSeverity, getScopeValue } from '../../../../../../shared/utils/scope.utils';
+import { getSeverity, getStatus } from '../../../../../../shared/utils/status.utils';
 import { Account } from '../../interfaces/account';
 
 @Component({
   selector: 'app-account-table',
   standalone: true,
-  imports: [
-    ButtonModule,
-    TagModule,
-    TooltipModule,
-    TableComponent,
-    TableToolbarComponent,
-  ],
+  imports: [ButtonModule, TagModule, TooltipModule, TableComponent, TableToolbarComponent],
   templateUrl: './account-table.component.html',
   styleUrl: './account-table.component.scss',
 })
@@ -42,14 +27,14 @@ export class AccountTableComponent {
   readonly rows = input<number>(5);
   readonly first = input<number>(0);
 
-  readonly onLazyLoad = output<TableLazyLoadEvent>();
-  readonly onSearch = output<string>();
-  readonly onAdd = output<void>();
-  readonly onPdfClick = output<void>();
-  readonly onEdit = output<Account>();
-  readonly onDetail = output<Account>();
-  readonly onPasswordReset = output<Account>();
-  readonly onChangeStatus = output<Account>();
+  readonly lazyLoad = output<TableLazyLoadEvent>();
+  readonly searchChange = output<string>();
+  readonly add = output<void>();
+  readonly pdfClick = output<void>();
+  readonly edit = output<Account>();
+  readonly detail = output<Account>();
+  readonly passwordReset = output<Account>();
+  readonly changeStatus = output<Account>();
 
   protected readonly getSeverity = getSeverity;
   protected readonly getStatus = getStatus;
@@ -58,6 +43,5 @@ export class AccountTableComponent {
   protected readonly getScopeSeverity = getScopeSeverity;
   protected readonly getScopeValue = getScopeValue;
 
-  protected readonly hasManagementPermission =
-    this.authService.hasManagementPermission;
+  protected readonly hasManagementPermission = this.authService.hasManagementPermission;
 }

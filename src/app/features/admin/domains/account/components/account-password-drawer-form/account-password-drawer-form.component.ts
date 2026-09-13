@@ -30,13 +30,7 @@ import { Account } from '../../interfaces/account';
 @Component({
   selector: 'app-account-password-drawer-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    DrawerComponent,
-    ConfirmDialogComponent,
-  ],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, DrawerComponent, ConfirmDialogComponent],
   encapsulation: ViewEncapsulation.None,
   templateUrl: './account-password-drawer-form.component.html',
   styleUrl: './account-password-drawer-form.component.scss',
@@ -45,23 +39,18 @@ export class AccountPasswordDrawerFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly formHelperService = inject(FormHelperService);
   private readonly toastService = inject(ToastService);
-  private readonly confirmDialog =
-    viewChild<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmDialog = viewChild<ConfirmDialogComponent>('confirmDialog');
 
   readonly visible = model<boolean>(false);
   readonly accountData = input<Account | undefined>(undefined);
-  readonly onSavePassword = output<{ userId: number; password: string }>();
+  readonly savePassword = output<{ userId: number; password: string }>();
 
   protected readonly passwordForm: FormGroup;
   protected readonly isPasswordUpdating = signal<boolean>(false);
   protected readonly formSubmitted = signal<boolean>(false);
 
-  protected readonly isGlobalLoading = computed(() =>
-    this.isPasswordUpdating(),
-  );
-  protected readonly accountName = computed(
-    () => this.accountData()?.userName || 'Usuário',
-  );
+  protected readonly isGlobalLoading = computed(() => this.isPasswordUpdating());
+  protected readonly accountName = computed(() => this.accountData()?.userName || 'Usuário');
 
   private readonly formLabels: Record<string, string> = {
     password: 'Nova Senha',
@@ -84,9 +73,7 @@ export class AccountPasswordDrawerFormComponent {
     });
   }
 
-  private passwordMatchValidator(
-    control: AbstractControl,
-  ): ValidationErrors | null {
+  private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password')?.value;
     const confirmPassword = control.get('confirmPassword')?.value;
     return password === confirmPassword ? null : { mismatch: true };
@@ -101,10 +88,7 @@ export class AccountPasswordDrawerFormComponent {
   protected async submitForm(): Promise<void> {
     this.formSubmitted.set(true);
 
-    const isFormValid = this.formHelperService.validateAndShowErrors(
-      this.passwordForm,
-      this.formLabels,
-    );
+    const isFormValid = this.formHelperService.validateAndShowErrors(this.passwordForm, this.formLabels);
 
     const account = this.accountData();
     if (!isFormValid || !account) {
@@ -127,7 +111,7 @@ export class AccountPasswordDrawerFormComponent {
   }
 
   private emitPayload(userId: number): void {
-    this.onSavePassword.emit({
+    this.savePassword.emit({
       userId: userId,
       password: this.passwordForm.get('password')?.value,
     });
