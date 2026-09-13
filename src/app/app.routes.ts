@@ -10,33 +10,24 @@ const SCOPE_ALL_OPS = [UserScopes.MANAGEMENT, UserScopes.OPERATIONAL];
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () =>
-      import('./core/pages/login/login.component').then(
-        (m) => m.LoginComponent,
-      ),
+    loadComponent: () => import('./core/pages/login/login.component').then((m) => m.LoginComponent),
     title: 'A2H - Login',
   },
   {
     path: 'unauthorized',
     loadComponent: () =>
-      import('./shared/pages/unauthorized/unauthorized.component').then(
-        (m) => m.UnauthorizedComponent,
-      ),
+      import('./shared/pages/unauthorized/unauthorized.component').then((m) => m.UnauthorizedComponent),
     title: 'Araras Health Hub - Não Autorizado',
   },
   {
     path: '',
-    loadComponent: () =>
-      import('./shared/pages/home/home.component').then((m) => m.HomeComponent),
+    loadComponent: () => import('./shared/pages/home/home.component').then((m) => m.HomeComponent),
     title: 'Araras Health Hub',
     canActivate: [authGuard],
   },
   {
     path: 'sobre',
-    loadComponent: () =>
-      import('./shared/pages/about/about.component').then(
-        (m) => m.AboutComponent,
-      ),
+    loadComponent: () => import('./shared/pages/about/about.component').then((m) => m.AboutComponent),
     title: 'A2H - Sobre',
     canActivate: [authGuard],
   },
@@ -315,10 +306,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    loadComponent: () =>
-      import('./shared/pages/not-found/not-found.component').then(
-        (m) => m.NotFoundComponent,
-      ),
+    loadComponent: () => import('./shared/pages/not-found/not-found.component').then((m) => m.NotFoundComponent),
     title: 'Araras Health Hub - 404',
   },
 ];
