@@ -271,21 +271,21 @@ export const routes: Routes = [
         canActivate: [scopeGuard],
         data: { scopes: SCOPE_MANAGEMENT },
       },
-      {
-        path: 'almoxarifado/movimentacoes/entradas',
-        loadComponent: () =>
-          import('./features/warehouse/domains/receiving/components/receiving-list/receiving-list.component').then(
-            (m) => m.ReceivingListComponent,
-          ),
-        title: 'A2H - Entradas',
-        canActivate: [scopeGuard],
-        data: { scopes: SCOPE_MANAGEMENT },
-      },
+      // {
+      //   path: 'almoxarifado/movimentacoes/entradas',
+      //   loadComponent: () =>
+      //     import('./features/warehouse/domains/receiving/components/receiving-list/receiving-list.component').then(
+      //       (m) => m.ReceivingListComponent,
+      //     ),
+      //   title: 'A2H - Entradas',
+      //   canActivate: [scopeGuard],
+      //   data: { scopes: SCOPE_MANAGEMENT },
+      // },
       {
         path: 'almoxarifado/movimentacoes/entradas/nova',
         loadComponent: () =>
-          import('./features/warehouse/domains/receiving/components/receiving-create/receiving-create.component').then(
-            (m) => m.ReceivingCreateComponent,
+          import('./features/warehouse/domains/receiving/components/receiving-create/receiving-create-container/receiving-create-container.component').then(
+            (m) => m.ReceivingCreateContainerComponent,
           ),
         title: 'A2H - Nova Entrada',
         canActivate: [scopeGuard],

@@ -1,0 +1,198 @@
+<div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm space-y-6">
+  <div
+    class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-100 dark:border-zinc-700/60 pb-4">
+    <div>
+      <h3 class="text-base font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+        <i class="pi pi-file-check text-emerald-600 dark:text-emerald-400"></i>
+        Dados Gerais
+      </h3>
+    </div>
+
+    @if ((form.get('totalValue')?.value ?? 0) > 0) {
+      <div
+        class="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-900/50 p-2.5 rounded-lg border border-zinc-200/80 dark:border-zinc-700/80">
+        <div class="text-right">
+          <span class="block text-[10px] font-medium uppercase tracking-wider text-zinc-400">Total NF Declarado</span>
+          <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+            {{ form.get('totalValue')?.value | currency: 'BRL' : 'symbol' : '1.2-2' }}
+          </span>
+        </div>
+        <div class="h-6 w-px bg-zinc-200 dark:bg-zinc-700"></div>
+        <div class="text-right">
+          <span class="block text-[10px] font-medium uppercase tracking-wider text-zinc-400">Total dos Itens</span>
+          <span
+            class="text-xs font-bold"
+            [ngClass]="{
+              'text-emerald-600 dark:text-emerald-400': calculatedItemsTotal() === form.get('totalValue')?.value,
+              'text-amber-600 dark:text-amber-400': calculatedItemsTotal() !== form.get('totalValue')?.value,
+            }">
+            {{ calculatedItemsTotal() | currency: 'BRL' : 'symbol' : '1.2-2' }}
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="space-y-1.5">
+      <label for="invoiceNumber" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        Nota Fiscal (NF)
+        <span class="text-red-500">*</span>
+      </label>
+      <input
+        #invoiceInput
+        id="invoiceNumber"
+        type="text"
+        pInputText
+        formControlName="invoiceNumber"
+        placeholder="Ex: NF-2026/001928"
+        class="w-full text-sm"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('invoiceNumber') }" />
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="supplyAuthorization" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        Autorização de Fornecimento (AF)
+        <span class="text-red-500">*</span>
+      </label>
+      <input
+        id="supplyAuthorization"
+        type="text"
+        pInputText
+        formControlName="supplyAuthorization"
+        placeholder="Ex: AF-8821/2026"
+        class="w-full text-sm"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('supplyAuthorization') }" />
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="totalValue" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        Valor Total da NF (R$)
+        <span class="text-red-500">*</span>
+      </label>
+      <p-inputNumber
+        id="totalValue"
+        formControlName="totalValue"
+        mode="currency"
+        currency="BRL"
+        locale="pt-BR"
+        placeholder="R$ 0,00"
+        styleClass="w-full text-sm"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('totalValue') }" />
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="supplierId" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        Fornecedor
+        <span class="text-red-500">*</span>
+      </label>
+      <p-select
+        id="supplierId"
+        formControlName="supplierId"
+        [options]="supplierOptions()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione o fornecedor"
+        styleClass="w-full text-sm"
+        [virtualScroll]="true"
+        [virtualScrollItemSize]="38"
+        [lazy]="true"
+        (onLazyLoad)="onSupplierLazyLoad($event)"
+        [filter]="true"
+        (onFilter)="onSupplierFilter($event)"
+        (onChange)="onSupplierSelect($event.value)"
+        [loading]="isSupplierLoading()"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('supplierId') }">
+        <ng-template pTemplate="selectedItem" let-selected>
+          @if (selected) {
+            <div class="flex items-center gap-2 text-xs">
+              <span class="font-medium text-zinc-800 dark:text-zinc-200">{{ selected.label }}</span>
+            </div>
+          }
+        </ng-template>
+        <ng-template pTemplate="item" let-supplier>
+          <div class="flex flex-col text-xs py-0.5">
+            <span class="font-medium text-zinc-800 dark:text-zinc-200">{{ supplier.label }}</span>
+            @if (supplier.subtitle) {
+              <span class="text-[10px] text-zinc-400">CNPJ: {{ supplier.subtitle }}</span>
+            }
+          </div>
+        </ng-template>
+        <ng-template pTemplate="empty">
+          <span class="p-4 text-xs text-zinc-500 block">Nenhum fornecedor encontrado</span>
+        </ng-template>
+      </p-select>
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="responsibleId" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        Responsável pelo Recebimento
+        <span class="text-red-500">*</span>
+      </label>
+      <p-select
+        id="responsibleId"
+        formControlName="responsibleId"
+        [options]="employeeOptions()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Selecione o responsável"
+        styleClass="w-full text-sm"
+        [virtualScroll]="true"
+        [virtualScrollItemSize]="38"
+        [lazy]="true"
+        (onLazyLoad)="onEmployeeLazyLoad($event)"
+        [filter]="true"
+        (onFilter)="onEmployeeFilter($event)"
+        (onChange)="onEmployeeSelect($event.value)"
+        [loading]="isEmployeeLoading()"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('responsibleId') }">
+        <ng-template pTemplate="selectedItem" let-selected>
+          @if (selected) {
+            <div class="flex items-center gap-2 text-xs">
+              <span class="font-medium text-zinc-800 dark:text-zinc-200">{{ selected.label }}</span>
+            </div>
+          }
+        </ng-template>
+        <ng-template pTemplate="item" let-emp>
+          <div class="flex flex-col text-xs py-0.5">
+            <span class="font-medium text-zinc-800 dark:text-zinc-200">{{ emp.label }}</span>
+            @if (emp.subtitle) {
+              <span class="text-[10px] text-zinc-400">CPF: {{ emp.subtitle }}</span>
+            }
+          </div>
+        </ng-template>
+        <ng-template pTemplate="empty">
+          <span class="p-4 text-xs text-zinc-500 block">Nenhum responsável encontrado</span>
+        </ng-template>
+      </p-select>
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="receivingDate" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        Data do Recebimento
+        <span class="text-red-500">*</span>
+      </label>
+      <p-datepicker
+        id="receivingDate"
+        formControlName="receivingDate"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        placeholder="dd/mm/aaaa"
+        styleClass="w-full text-sm"
+        [ngClass]="{ 'ng-invalid ng-dirty': isFieldInvalid('receivingDate') }" />
+    </div>
+
+    <div class="space-y-1.5 md:col-span-2 lg:col-span-3">
+      <label for="observation" class="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        Observações Gerais ou Anotações da Entrega
+      </label>
+      <textarea
+        id="observation"
+        pTextarea
+        formControlName="observation"
+        rows="2"
+        placeholder="Registre observações sobre o estado das caixas, avarias, divergências de temperatura na entrega, etc."
+        class="w-full text-sm resize-none"></textarea>
+    </div>
+  </form>
+</div>
