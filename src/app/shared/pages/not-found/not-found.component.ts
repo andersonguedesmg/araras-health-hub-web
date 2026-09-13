@@ -14,7 +14,5 @@ import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.comp
   },
 })
 export class NotFoundComponent {
-  readonly itemsBreadcrumb = signal([
-    { label: 'Não Encontrado', routerLink: '/404' },
-  ]);
+  readonly itemsBreadcrumb = signal([{ label: 'Não Encontrado', routerLink: '/404' }]);
 }

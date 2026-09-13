@@ -14,7 +14,5 @@ import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.comp
   },
 })
 export class UnauthorizedComponent {
-  readonly itemsBreadcrumb = signal([
-    { label: 'Acesso Restrito', routerLink: '/403' },
-  ]);
+  readonly itemsBreadcrumb = signal([{ label: 'Acesso Restrito', routerLink: '/403' }]);
 }
