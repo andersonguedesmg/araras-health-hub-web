@@ -17,8 +17,8 @@
       [showPdfButton]="true"
       pdfButtonTooltip="Exportar para PDF"
       (searchChange)="searchChange.emit($event)"
-      (onActionClick)="add.emit()"
-      (onPdfClick)="pdfClick.emit()" />
+      (actionExecuted)="add.emit()"
+      (pdfRequested)="pdfClick.emit()" />
   </ng-template>
 
   <ng-template #headerTemplate>
