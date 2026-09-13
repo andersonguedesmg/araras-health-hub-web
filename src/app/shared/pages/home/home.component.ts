@@ -9,13 +9,7 @@ import { DashboardService } from '../../services/dashboard/dashboard.service';
 
 @Component({
   selector: 'app-home',
-  imports: [
-    CommonModule,
-    RouterModule,
-    ToolbarModule,
-    ButtonModule,
-    ChartModule,
-  ],
+  imports: [CommonModule, RouterModule, ToolbarModule, ButtonModule, ChartModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

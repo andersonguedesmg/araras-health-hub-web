@@ -9,13 +9,10 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     <div
       class="bg-zinc-800 p-5 rounded-xl border-b-4 border-red-500 shadow-lg cursor-pointer hover:bg-zinc-700"
-      routerLink="/pedidos/aprovar"
-    >
+      routerLink="/pedidos/aprovar">
       <div class="flex justify-between items-start">
         <div>
-          <p class="text-gray-400 text-sm font-medium uppercase">
-            Pendentes Aprovação
-          </p>
+          <p class="text-gray-400 text-sm font-medium uppercase">Pendentes Aprovação</p>
           <h3 class="text-3xl font-bold text-white">
             {{ summary?.pendingApprovalCount || 0 }}
           </h3>
@@ -26,13 +23,10 @@
 
     <div
       class="bg-zinc-800 p-5 rounded-xl border-b-4 border-orange-500 shadow-lg cursor-pointer hover:bg-zinc-700"
-      routerLink="/pedidos/separar"
-    >
+      routerLink="/pedidos/separar">
       <div class="flex justify-between items-start">
         <div>
-          <p class="text-gray-400 text-sm font-medium uppercase">
-            Aguardando Separação
-          </p>
+          <p class="text-gray-400 text-sm font-medium uppercase">Aguardando Separação</p>
           <h3 class="text-3xl font-bold text-white">
             {{ summary?.pendingSeparationCount || 0 }}
           </h3>
@@ -43,13 +37,10 @@
 
     <div
       class="bg-zinc-800 p-5 rounded-xl border-b-4 border-red-600 shadow-lg cursor-pointer hover:bg-zinc-700"
-      routerLink="/almoxarifado/estoque/critico"
-    >
+      routerLink="/almoxarifado/estoque/critico">
       <div class="flex justify-between items-start">
         <div>
-          <p class="text-gray-400 text-sm font-medium uppercase">
-            Estoque Crítico
-          </p>
+          <p class="text-gray-400 text-sm font-medium uppercase">Estoque Crítico</p>
           <h3 class="text-3xl font-bold text-white">
             {{ summary?.criticalStockCount || 0 }}
           </h3>
@@ -60,13 +51,10 @@
 
     <div
       class="bg-zinc-800 p-5 rounded-xl border-b-4 border-blue-500 shadow-lg cursor-pointer hover:bg-zinc-700"
-      routerLink="/almoxarifado/estoque/geral"
-    >
+      routerLink="/almoxarifado/estoque/geral">
       <div class="flex justify-between items-start">
         <div>
-          <p class="text-gray-400 text-sm font-medium uppercase">
-            Itens Ativos
-          </p>
+          <p class="text-gray-400 text-sm font-medium uppercase">Itens Ativos</p>
           <h3 class="text-3xl font-bold text-white">
             {{ summary?.totalActiveProducts || 0 }}
           </h3>
@@ -78,28 +66,14 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
     <div class="bg-zinc-800 p-6 rounded-xl shadow-lg">
-      <h3 class="text-white font-semibold mb-4 text-xl">
-        Evolução Mensal de Pedidos
-      </h3>
-      <p-chart
-        type="line"
-        [data]="lineData"
-        [options]="chartOptions"
-        height="300px"
-      ></p-chart>
+      <h3 class="text-white font-semibold mb-4 text-xl">Evolução Mensal de Pedidos</h3>
+      <p-chart type="line" [data]="lineData" [options]="chartOptions" height="300px" />
     </div>
 
     <div class="bg-zinc-800 p-6 rounded-xl shadow-lg">
-      <h3 class="text-white font-semibold mb-4 text-xl">
-        Distribuição por Categoria
-      </h3>
+      <h3 class="text-white font-semibold mb-4 text-xl">Distribuição por Categoria</h3>
       <div class="flex justify-center">
-        <p-chart
-          type="doughnut"
-          [data]="pieData"
-          [options]="chartOptions"
-          height="300px"
-        ></p-chart>
+        <p-chart type="doughnut" [data]="pieData" [options]="chartOptions" height="300px" />
       </div>
     </div>
   </div>
@@ -108,50 +82,42 @@
   <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
     <button
       routerLink="/almoxarifado/movimentacoes/entradas/nova"
-      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-blue-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
-    >
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-blue-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all">
       <i class="pi pi-plus-circle text-2xl"></i>
       <span class="text-xs font-medium text-white">Nova Entrada</span>
     </button>
 
     <button
       routerLink="/almoxarifado/configuracoes/estoque-minimo"
-      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-purple-500 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
-    >
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-purple-500 flex flex-col items-center gap-2 border border-zinc-700 transition-all">
       <i class="pi pi-sliders-h text-2xl"></i>
-      <span class="text-xs font-medium text-white"
-        >Configurar Estoque Mínimo</span
-      >
+      <span class="text-xs font-medium text-white">Configurar Estoque Mínimo</span>
     </button>
 
     <button
       routerLink="/administracao/produtos"
-      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-green-500 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
-    >
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-green-500 flex flex-col items-center gap-2 border border-zinc-700 transition-all">
       <i class="pi pi-box text-2xl"></i>
       <span class="text-xs font-medium text-white">Gerenciar Produtos</span>
     </button>
 
     <button
       routerLink="/almoxarifado/estoque/proximo-vencimento"
-      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-red-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
-    >
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-red-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all">
       <i class="pi pi-clock text-2xl"></i>
       <span class="text-xs font-medium text-white">Vencimento Próximo</span>
     </button>
 
     <button
       routerLink="/administracao/fornecedores"
-      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-teal-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
-    >
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-teal-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all">
       <i class="pi pi-truck text-2xl"></i>
       <span class="text-xs font-medium text-white">Gerenciar Fornecedores</span>
     </button>
 
     <button
       routerLink="/relatorios"
-      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-orange-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all"
-    >
+      class="bg-zinc-800 p-4 rounded-lg hover:bg-zinc-700 text-orange-400 flex flex-col items-center gap-2 border border-zinc-700 transition-all">
       <i class="pi pi-chart-bar text-2xl"></i>
       <span class="text-xs font-medium text-white">Visualizar Relatórios</span>
     </button>
