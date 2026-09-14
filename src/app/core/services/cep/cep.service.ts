@@ -32,10 +32,7 @@ export class CepService {
     return this.http.get<ViaCepResponse>(`${this.apiUrl}${cleanCep}/json/`);
   }
 
-  async fillAddressByCep(
-    addressGroup: FormGroup,
-    toastService: ToastService,
-  ): Promise<boolean> {
+  async fillAddressByCep(addressGroup: FormGroup, toastService: ToastService): Promise<boolean> {
     const cepControl = addressGroup.get('cep');
     const cepValue = cepControl?.value?.replace(/\D/g, '');
 
@@ -50,9 +47,7 @@ export class CepService {
       const response = await firstValueFrom(this.getAddressByCep(cepValue));
 
       if (response.erro === 'true') {
-        toastService.showError(
-          'CEP não encontrado na base de dados dos Correios.',
-        );
+        toastService.showError('CEP não encontrado na base de dados dos Correios.');
 
         addressGroup.patchValue({
           street: '',
@@ -76,9 +71,7 @@ export class CepService {
 
       return true;
     } catch (error) {
-      toastService.showError(
-        'Ocorreu um erro ao consultar o CEP. Tente novamente.',
-      );
+      toastService.showError('Ocorreu um erro ao consultar o CEP. Tente novamente.');
       return false;
     } finally {
       addressGroup.enable();

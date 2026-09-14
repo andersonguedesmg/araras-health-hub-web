@@ -6,17 +6,8 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { BaseApiResponse } from '../../../shared/interfaces/base-api-response';
 import { ApiConfigService } from '../../../shared/services/api-config/api-config.service';
-import {
-  ROLE_LABEL_MAPPING,
-  SCOPE_LABEL_MAPPING,
-  UserRoles,
-  UserScopes,
-} from '../../constants/auth.constants';
-import {
-  Account,
-  AccountInfo,
-  LoginRequest,
-} from '../../interfaces/auth.interfaces';
+import { ROLE_LABEL_MAPPING, SCOPE_LABEL_MAPPING, UserRoles, UserScopes } from '../../constants/auth.constants';
+import { Account, AccountInfo, LoginRequest } from '../../interfaces/auth.interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -28,9 +19,7 @@ export class AuthService {
 
   readonly currentUser = signal<AccountInfo | null>(this.loadUserInfo());
 
-  readonly isLoggedIn = computed(
-    () => this.currentUser() !== null && !this.isTokenExpired(),
-  );
+  readonly isLoggedIn = computed(() => this.currentUser() !== null && !this.isTokenExpired());
 
   readonly hasManagementPermission = computed<boolean>(() => {
     const user = this.currentUser();
@@ -44,9 +33,7 @@ export class AuthService {
       user.role === UserRoles.MASTER.toString() ||
       user.role === UserRoles.ADMIN.toString();
 
-    const hasManagementScope =
-      user.scope === 'Management' ||
-      user.scope === UserScopes.MANAGEMENT.toString();
+    const hasManagementScope = user.scope === 'Management' || user.scope === UserScopes.MANAGEMENT.toString();
 
     return isMasterOrAdmin && hasManagementScope;
   });
@@ -57,12 +44,9 @@ export class AuthService {
       return false;
     }
 
-    const isMaster =
-      user.role === 'Master' || user.role === UserRoles.MASTER.toString();
+    const isMaster = user.role === 'Master' || user.role === UserRoles.MASTER.toString();
 
-    const hasManagementScope =
-      user.scope === 'Management' ||
-      user.scope === UserScopes.MANAGEMENT.toString();
+    const hasManagementScope = user.scope === 'Management' || user.scope === UserScopes.MANAGEMENT.toString();
 
     return isMaster && hasManagementScope;
   });

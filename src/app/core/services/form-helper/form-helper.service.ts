@@ -38,10 +38,7 @@ export class FormHelperService {
    * para disparar instantaneamente os feedbacks visuais de erro na tela.
    */
   markAllAsTouched(abstractControl: AbstractControl): void {
-    if (
-      abstractControl instanceof FormGroup ||
-      abstractControl instanceof FormArray
-    ) {
+    if (abstractControl instanceof FormGroup || abstractControl instanceof FormArray) {
       Object.values(abstractControl.controls).forEach((control) => {
         control.markAsTouched();
         this.markAllAsTouched(control);
@@ -55,19 +52,14 @@ export class FormHelperService {
    * Retorna o nome amigável de exibição do campo baseado no dicionário fornecido.
    * Caso não encontre mapeamento, converte a propriedade de camelCase para Pascal Case espaçado.
    */
-  getControlLabel(
-    control: AbstractControl,
-    formLabels: { [key: string]: string },
-  ): string {
+  getControlLabel(control: AbstractControl, formLabels: Record<string, string>): string {
     const controlPath = this.getControlPath(control);
     if (controlPath) {
       if (formLabels[controlPath]) return formLabels[controlPath];
 
       const parts = controlPath.split('.');
       const name = parts[parts.length - 1];
-      return name
-        .replace(/([A-Z])/g, ' $1')
-        .replace(/^./, (str) => str.toUpperCase());
+      return name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
     }
 
     return '';
@@ -83,10 +75,7 @@ export class FormHelperService {
     let controlName: string | null = null;
 
     if (parent instanceof FormGroup) {
-      controlName =
-        Object.keys(parent.controls).find(
-          (name) => control === parent.controls[name],
-        ) || null;
+      controlName = Object.keys(parent.controls).find((name) => control === parent.controls[name]) || null;
     }
 
     if (!controlName) return null;
@@ -98,18 +87,13 @@ export class FormHelperService {
    * Avalia a validade do formulário. Caso seja inválido, exibe um alerta (Toast)
    * listando os campos pendentes e destaca visualmente os inputs incorretos na tela.
    */
-  validateAndShowErrors(
-    form: FormGroup,
-    formLabels: { [key: string]: string },
-  ): boolean {
+  validateAndShowErrors(form: FormGroup, formLabels: Record<string, string>): boolean {
     if (form.valid) {
       return true;
     }
 
     const invalidControls = this.getInvalidControls(form);
-    const invalidFields = invalidControls.map((control) =>
-      this.getControlLabel(control, formLabels),
-    );
+    const invalidFields = invalidControls.map((control) => this.getControlLabel(control, formLabels));
 
     const invalidFieldsMessage =
       invalidFields.length > 0
