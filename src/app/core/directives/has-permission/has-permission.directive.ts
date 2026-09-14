@@ -1,16 +1,5 @@
-import {
-  Directive,
-  Input,
-  TemplateRef,
-  ViewContainerRef,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
-import {
-  SCOPE_LABEL_MAPPING,
-  UserScopes,
-} from '../../constants/auth.constants';
+import { Directive, Input, TemplateRef, ViewContainerRef, effect, inject, signal } from '@angular/core';
+import { SCOPE_LABEL_MAPPING, UserScopes } from '../../constants/auth.constants';
 import { AuthService } from '../../services/auth/auth.service';
 
 @Directive({
@@ -58,16 +47,12 @@ export class HasPermissionDirective {
     }
   }
 
-  @Input('appHasPermissionScope') set appHasPermissionScope(
-    scopes: UserScopes | UserScopes[] | string | string[] | undefined,
-  ) {
+  @Input() set appHasPermissionScope(scopes: UserScopes | UserScopes[] | string | string[] | undefined) {
     if (!scopes) {
       this.requiredScopes.set([]);
     } else {
       const scopesArray = Array.isArray(scopes) ? scopes : [scopes];
-      const normalizedScopes = scopesArray.map((s) =>
-        typeof s === 'number' ? SCOPE_LABEL_MAPPING[s] || '' : s,
-      );
+      const normalizedScopes = scopesArray.map((s) => (typeof s === 'number' ? SCOPE_LABEL_MAPPING[s] || '' : s));
       this.requiredScopes.set(normalizedScopes);
     }
   }
