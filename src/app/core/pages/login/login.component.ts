@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -20,13 +14,7 @@ import { AuthService } from '../../services/auth/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    PasswordModule,
-    SpinnerComponent,
-  ],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, PasswordModule, SpinnerComponent],
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -53,9 +41,7 @@ export class LoginComponent implements OnInit {
   login(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
-      this.toastService.showError(
-        'Por favor, preencha todos os campos obrigatórios.',
-      );
+      this.toastService.showError('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -70,16 +56,11 @@ export class LoginComponent implements OnInit {
         if (response && response.data) {
           const greeting = this.getGreeting();
 
-          this.toastService.showSuccess(
-            response.message || 'Login efetuado com sucesso.',
-            greeting,
-          );
+          this.toastService.showSuccess(response.message || 'Login efetuado com sucesso.', greeting);
 
           this.router.navigate(['/']).then((navigated) => {
             if (!navigated) {
-              console.warn(
-                'A navegação para a Home foi rejeitada. Verifique suas Route Guards (CanActivate)!',
-              );
+              console.warn('A navegação para a Home foi rejeitada. Verifique suas Route Guards (CanActivate)!');
             }
           });
         } else {
