@@ -3,7 +3,7 @@ export interface Account {
   userId: number;
   createdOn: string;
   updatedOn: string;
-  roles: { id: number; name: string; }[];
+  roles: { id: number; name: string }[];
   isActive: boolean;
   facilityId: number;
   scope: number;
