@@ -11,14 +11,14 @@ export enum UserScopes {
   OPERATIONAL = 2,
 }
 
-export const ROLE_LABEL_MAPPING: { [key: number]: string } = {
+export const ROLE_LABEL_MAPPING: Record<number, string> = {
   0: 'Unassigned',
   1: 'Master',
   2: 'Admin',
   3: 'User',
 };
 
-export const SCOPE_LABEL_MAPPING: { [key: number]: string } = {
+export const SCOPE_LABEL_MAPPING: Record<number, string> = {
   0: 'Unassigned',
   1: 'Management',
   2: 'Operational',
